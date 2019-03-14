@@ -18,6 +18,8 @@ def main():
 
     go.draw_object(go.simple_house((3, 3)), (255, 140, 0))
 
+    # lustiger Kommentar zum pushen
+
     while True:
         for event in pg.event.get():
 
