@@ -2,7 +2,8 @@ import numpy
 
 import Data
 
-class Game_object:
+
+class GameObject:
 
     _window = 0
 
@@ -14,27 +15,29 @@ class Game_object:
     size_x = 0
     size_y = 0
 
-    def __init__(self, window, type="default_type", name="default_name", material="default_material"):
+    def __init__(self, window, obj_type="default_type", name="default_name", material="default_material"):
         self._window = window
-        self.type = type
+        self.type = obj_type
         self.name = name
 
     def get_drawable(self):
         pass
 
 
-class Simple_House(Game_object):
+class SimpleHouse(GameObject):
 
-    def __init__(self, wind, type):
-        super().__init__(window=wind, type=type)
+    def __init__(self, wind, obj_type):
+        super().__init__(window=wind, obj_type=obj_type)
 
     def get_drawable(self):
 
+        # set rdm size for the house
         if self.size_x is 0:
             size_x = numpy.random.randint(3,10)
         if self.size_y is 0:
             size_y = numpy.random.randint(3,10)
 
+        # select pixels for walls
         for i in range(size_x):
             self.pixs.append([i,0])
             self.pixs.append([i,size_y])
@@ -46,6 +49,7 @@ class Simple_House(Game_object):
 
         # pixs = set(pixs) # soll dopplete Punkte entfernen, aber list ist nicht hashable, muss es aber für set() sein
 
+        # adjust pixels to desired position on map
         for point in self.pixs:
             point[0] += self.pos[0]
             point[1] += self.pos[1]

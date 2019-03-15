@@ -15,9 +15,9 @@ def main():
     pg.init()
     x = 640
     y = 480
-    window = pg.display.set_mode((640, 480))
+    window = pg.display.set_mode((x, y))
     pg.display.set_caption("Xepa")
-    go = Game_object(window)
+    go = GameObject(window)
 
     # create/draw objects that are independent of user input (if there are any???)
 
@@ -40,25 +40,26 @@ def main():
 # und diese dann erneut Map hinzugefügt, die alten gelöscht
 
 
-class Map(Game_object):
+class Map(GameObject):
 
     # container class for all other drawable game objects
 
-    unique_pixs = []
-    objects = []
+    unique_pixs = []  # holds definite pixel(materials) that will be drawn
+    objects = []  # holds list of objects on the map
 
-    def __init__(self, x, y):
+    def __init__(self, x, y):  # STATUS: working
         self.size_x = x * elem_size
         self.size_y = y * elem_size
         self.unique_pixs = [[0 for _ in range(x)] for _ in range(y)]  # TODO: check order of x and y
 
-    def add_object(self, game_object, border_size=0):
+    def add_object(self, game_object, border_size=0):  # STATUS: partially working
 
         self.objects.append([self.objects.__len__(), game_object.name, game_object.type])
 
         if game_object.type is "building":
             upper_left_pix = [0,0]
             lower_rigt_pix = [0,0]
+            # find upper left and lower right most pixel
             for pix in game_object.pixs:
                 if pix[0] < upper_left_pix[0] and pix[1] < upper_left_pix[1]:
                     upper_left_pix[0] = pix[0]
@@ -66,11 +67,14 @@ class Map(Game_object):
                 if pix[0] > lower_rigt_pix[0] and pix[1] > lower_rigt_pix[1]:
                     lower_rigt_pix[0] = pix[0]
                     lower_rigt_pix[1] = pix[1]
+            # set size of object + border_size accordingly
             size_x = lower_rigt_pix[0]-upper_left_pix[0]
             size_y = lower_rigt_pix[1]-upper_left_pix[1]
 
+            # create clone of pixs to not modify original object
             go_pix_clone = game_object.pixs
 
+            # define a box according to "border_size" around the object
             # TODO: check that coordinates for borders don't get out of map with np.max/np.min stuff
             for i in range(size_x):
                 go_pix_clone.append([upper_left_pix[0]+i+1, numpy.max(0, upper_left_pix[1]-1)])
@@ -80,6 +84,7 @@ class Map(Game_object):
                 go_pix_clone.append([size_x,i])
             go_pix_clone.append([size_x, size_y])
 
+            # check for overlapping
             for go_pix in go_pix_clone:
                 if self.unique_pixs[go_pix[0]][go_pix[1]] is not 0:
                     return "Error! Trying to add object over already existing one."
@@ -91,18 +96,22 @@ class Map(Game_object):
             if self.unique_pixs[go_pix[0]][go_pix[1]] is not 0:
                 print("Error! Trying to add object over already existing one.")
                 return 0
+
+        # modify unique_pixs
         for go_pix in game_object.pixs:
             self.unique_pixs[go_pix[0]][go_pix[1]] = material_codes[game_object.material]  # TODO: add different values for different objects/materials
+
         if debug:
             print("Added game object successfully!")
+
         return 1
 
-    def remove_object(self, go):
+    def remove_object(self, go):  # STATUS: new
 
         self.objects.remove([go.__len__(), go.name, go.type])
         return self.objects
 
-    def draw_map(self):
+    def draw_map(self):  # STATUS: new
 
         for go in self.objects:
             for pix in go.get_drawable():
