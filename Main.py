@@ -3,8 +3,13 @@ from pygame.locals import *
 import numpy
 import sys
 
+from Game_objects import *
+from Data import *
+
+
 elem_size = 10
 debug = True
+
 
 def main():
     pg.init()
@@ -15,10 +20,6 @@ def main():
     go = Game_object(window)
 
     # create/draw objects that are independent of user input (if there are any???)
-
-    go.draw_object(go.simple_house((3, 3)), (255, 140, 0))
-
-    # lustiger Kommentar zum pushen ...
 
     while True:
         for event in pg.event.get():
@@ -38,27 +39,6 @@ def main():
 # TODO: Nur Map wird gezeichnet und ist ein container für alle anderen drawables, Änderungen an drawables werden durchgeführt
 # und diese dann erneut Map hinzugefügt, die alten gelöscht
 
-class Game_object:
-
-    _window = 0
-
-    name = "Default_name"
-    pixs = []
-    type = "default"
-
-    size_x = 0
-    size_y = 0
-
-    def __init__(self, window, type, name):
-        self._window = window
-        self.type = type
-        self.name = name
-
-    # TODO: deprecated?
-    def draw_object(self, pixs, colour=(0,0,0)):
-
-        for pix in pixs:
-            pg.draw.rect(self._window, colour, (pix[0]*elem_size, pix[1]*elem_size, elem_size, elem_size))
 
 class Map(Game_object):
 
@@ -70,7 +50,7 @@ class Map(Game_object):
     def __init__(self, x, y):
         self.size_x = x * elem_size
         self.size_y = y * elem_size
-        self.unique_pixs = [[0 for _ in range(x)] for _ in range(y)] # TODO: check order of x and y
+        self.unique_pixs = [[0 for _ in range(x)] for _ in range(y)]  # TODO: check order of x and y
 
     def add_object(self, game_object, border_size=0):
 
@@ -93,8 +73,8 @@ class Map(Game_object):
 
             # TODO: check that coordinates for borders don't get out of map with np.max/np.min stuff
             for i in range(size_x):
-                go_pix_clone.append([upper_left_pix[0]+i+1,numpy.max(0, upper_left_pix[1]-1)])
-                go_pix_clone.append[[upper_left_pix[0]+i+1,size_y+1]]
+                go_pix_clone.append([upper_left_pix[0]+i+1, numpy.max(0, upper_left_pix[1]-1)])
+                go_pix_clone.append([upper_left_pix[0]+i+1, size_y+1])
             for i in range(size_y):
                 go_pix_clone.append([0,i])
                 go_pix_clone.append([size_x,i])
@@ -112,40 +92,21 @@ class Map(Game_object):
                 print("Error! Trying to add object over already existing one.")
                 return 0
         for go_pix in game_object.pixs:
-            self.unique_pixs[go_pix[0]][go_pix[1]] = 1 # TODO: add different values for different objects/materials
+            self.unique_pixs[go_pix[0]][go_pix[1]] = material_codes[game_object.material]  # TODO: add different values for different objects/materials
         if debug:
             print("Added game object successfully!")
         return 1
 
-class Simple_House(Game_object):
+    def remove_object(self, go):
 
-    def __init__(self, wind, type):
-        super().__init__(window=wind, type=type)
+        self.objects.remove([go.__len__(), go.name, go.type])
+        return self.objects
 
-    def get_drawable(self):
+    def draw_map(self):
 
-        if self.size_x is 0:
-            size_x = numpy.random.randint(3,10)
-        if self.size_y is 0:
-            size_y = numpy.random.randint(3,10)
-
-        for i in range(size_x):
-            self.pixs.append([i,0])
-            self.pixs.append([i,size_y])
-        for i in range(size_y):
-            self.pixs.append([0,i])
-            self.pixs.append([size_x,i])
-
-        self.pixs.append([size_x, size_y])
-
-        # pixs = set(pixs) # soll dopplete Punkte entfernen, aber list ist nicht hashable, muss es aber für set() sein
-
-        for point in self.pixs:
-            point[0] += self.pos[0]
-            point[1] += self.pos[1]
-
-        # returns element positions in map coordinates
-        return self.pixs
+        for go in self.objects:
+            for pix in go.get_drawable():
+                pg.draw.rect(self._window, mat_colour[go.type], (pix[0] * elem_size, pix[1] * elem_size, elem_size, elem_size))
 
 main()
 
