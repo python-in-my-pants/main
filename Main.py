@@ -88,15 +88,21 @@ class Map(GameObject):
 
             while collision:
                 collision = False
+                resized = False
 
                 for pix in game_object.get_drawable():
                     pix[0] += 1
                     if pix[0] > get_x()/elem_size:
-                        pix[0] = int(numpy.floor(get_x()/elem_size))-2 # TODO: remove loop
+                        pix[0] = int(numpy.floor(get_x()/elem_size))-2
+                        resized = True
 
                 for go_pix in game_object.get_drawable():
                     if self.unique_pixs[go_pix[0]][go_pix[1]] is not 0:
                         collision = True
+
+                if collision and resized:
+                    print("Could not add object due to too few space")  # TODO: will now add all pending objects at once when windows gets bigger, make so only 1 is added
+                    return 0
 
         self.objects.append(game_object)
 
