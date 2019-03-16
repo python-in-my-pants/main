@@ -92,7 +92,7 @@ class Map(GameObject):
                 for pix in game_object.get_drawable():
                     pix[0] += 1
                     if pix[0] > get_x()/elem_size:
-                        pix[0] = int(numpy.floor(get_x()/elem_size))-2
+                        pix[0] = int(numpy.floor(get_x()/elem_size))-2 # TODO: remove loop
 
                 for go_pix in game_object.get_drawable():
                     if self.unique_pixs[go_pix[0]][go_pix[1]] is not 0:
