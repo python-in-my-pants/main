@@ -91,8 +91,8 @@ class Map(GameObject):
 
                 for pix in game_object.get_drawable():
                     pix[0] += 1
-                    if pix[0] > self.size_x:
-                        pix[0] = self.size_x
+                    if pix[0] > get_x()/elem_size:
+                        pix[0] = int(numpy.floor(get_x()/elem_size))-2
 
                 for go_pix in game_object.get_drawable():
                     if self.unique_pixs[go_pix[0]][go_pix[1]] is not 0:
@@ -167,9 +167,12 @@ pg.display.set_caption("Xepa")
 
 map = Map(x/10, y/10, window)
 
-redraw_house = False
+redraw_house = True
 
 # create/draw objects that are independent of user input (if there are any???)
+
+houses = []
+houses.append(SimpleHouse(name=("Simple house" + str(houses)), obj_type="default"))
 
 while True:
     for event in pg.event.get():
@@ -182,6 +185,7 @@ while True:
         if event.type == pg.KEYDOWN:
             if event.key == ord("n"):
                 redraw_house = True
+                houses.append(SimpleHouse(name=("Simple house" + str(houses)), obj_type="default"))
         if event.type == pg.KEYDOWN:
             if event.key == K_RIGHT:
                 x += elem_size
@@ -192,6 +196,11 @@ while True:
                 y += elem_size
                 window = pg.display.set_mode((x, y))
                 map.draw_map()
+        if event.type == pg.KEYDOWN:
+            if event.key == K_KP_PLUS:
+                houses.append(SimpleHouse(name=("Simple house"+str(houses)), obj_type="default"))
+                redraw_house
+
         if event.type == pg.KEYUP:
             if event.key == ord("n"):
                 redraw_house = False
@@ -202,11 +211,13 @@ while True:
         if redraw_house:
             window.fill((0,0,0))
             map.clear()
-            sh=SimpleHouse(obj_type="default", name="Simple House", material_="sandstone")
-            sh.print()
-            map.add_object(sh)
+
+            for house in houses:
+                house.print()
+                map.add_object(house)
 
             map.draw_map()
+            redraw_house = False
 
             if debug:
                 print()
