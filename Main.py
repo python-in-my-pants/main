@@ -60,7 +60,18 @@ class Map(GameObject):
             size_x = lower_rigt_pix[0] - upper_left_pix[0] + 2*border_size
             size_y = lower_rigt_pix[1] - upper_left_pix[1] + 2*border_size
 
-            border = Border(obj_type="default", size_x_=size_x, size_y_=size_y, pos=[-border_size, -border_size]).get_drawable()
+            border = Border(obj_type="default", size_x_=size_x, size_y_=size_y,
+                            pos=[upper_left_pix[0]-border_size, upper_left_pix[1]-border_size]).get_drawable()
+
+            for pix in border:
+                if pix[0] < 0 or pix[1] < 0 or pix[0] > get_x()-1 or pix[1] > get_y()-1:
+                    print("Warning! Border would be out of map! Please adjust position or make the object smaller.")
+                    return 0
+
+
+
+
+
 
             # check for overlapping
             for go_pix in border:
@@ -69,7 +80,7 @@ class Map(GameObject):
             if debug:
                 print("Added game object successfully!")
 
-            ''''
+            '''
             # create clone of pixs to not modify original object
             go_pix_clone = game_object.pixs
 
@@ -113,7 +124,8 @@ class Map(GameObject):
                         collision = True
 
                 if collision and resized:
-                    print("Could not add object due to too few space")  # TODO: will now add all pending objects at once when windows gets bigger, make so only 1 is added
+                    print("Could not add object due to too few space")
+                    # TODO: will now add all pending objects at once when windows gets bigger, make so only 1 is added
                     return 0
 
         self.objects.append(game_object)
@@ -123,7 +135,7 @@ class Map(GameObject):
             self.unique_pixs[go_pix[0]][go_pix[1]] = material_codes[game_object.material]
 
         if debug:
-            print(numpy.array(self.objects[0].get_drawable()))
+            #print(numpy.array(self.objects[0].get_drawable()))
             print("Added game object successfully!")
 
         return 1
@@ -146,10 +158,6 @@ class Map(GameObject):
         self.unique_pixs = [[0 for _ in range(int(self.size_x/elem_size))] for _ in range(int(self.size_y/elem_size))]
 
     def draw_map(self):  # STATUS: new
-
-        if debug:
-            print(self.objects)
-            print(numpy.array(self.unique_pixs))
 
         for go in self.objects:
             for pix in go.get_drawable():
@@ -178,8 +186,8 @@ def get_y():
     return y
 
 pg.init()
-x = elem_size* 10 # mult of 10
-y = elem_size* 10 # mult of 10
+x = elem_size* 50 # mult of 10
+y = elem_size* 20 # mult of 10
 window = pg.display.set_mode((x, y))
 pg.display.set_caption("Xepa")
 
@@ -203,7 +211,8 @@ while True:
         if event.type == pg.KEYDOWN:
             if event.key == ord("n"):
                 redraw_house = True
-                houses.append(SimpleHouse(name=("Simple house" + str(houses)), obj_type="default"))
+                h = SimpleHouse(name=("Simple house" + str(houses)), obj_type="default")
+                houses.append(h)
         if event.type == pg.KEYDOWN:
             if event.key == K_RIGHT:
                 x += elem_size
@@ -216,7 +225,8 @@ while True:
                 map.draw_map()
         if event.type == pg.KEYDOWN:
             if event.key == K_KP_PLUS:
-                houses.append(SimpleHouse(name=("Simple house"+str(houses)), obj_type="default"))
+                h = SimpleHouse(name=("Simple house"+str(houses)), obj_type="default")
+                houses.append(h)
                 redraw_house
 
         if event.type == pg.KEYUP:

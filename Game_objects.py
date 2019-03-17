@@ -1,5 +1,6 @@
 import numpy
 import sys
+import copy
 from datetime import datetime
 
 import Data
@@ -74,19 +75,36 @@ class SimpleHouse(GameObject):
         if self.size_y is 0:
             size_y = numpy.random.randint(3, 10)
 
+        self.size_x = size_x
+        self.size_y = size_y
+
         self.pixs = []
 
         # select pixels for walls
         for i in range(size_x):
             self.pixs.append([i, 0])
-            self.pixs.append([i, size_y])
+            self.pixs.append([i, size_y-1])
         for i in range(size_y):
             self.pixs.append([0, i])
-            self.pixs.append([size_x, i])
+            self.pixs.append([size_x-1, i])
 
-        self.pixs.append([size_x, size_y])
+        self.pixs.append([size_x-1, size_y-1])
 
-        # pixs = set(pixs) # soll dopplete Punkte entfernen, aber list ist nicht hashable, muss es aber für set() sein
+        # remove doubles
+        for pix in self.pixs:
+            clone = copy.deepcopy(self.pixs)
+            clone.remove(pix)
+            while clone.__contains__(pix):
+                clone.remove(pix)
+                self.pixs.remove(pix)
+
+        # remove door
+        door_pos = numpy.random.randint(0, self.pixs.__len__())
+
+        while self.pixs[door_pos] == [0, 0] or self.pixs[door_pos] == [0, self.size_y-1] or self.pixs[door_pos] == [self.size_x-1, 0] or self.pixs[door_pos] == [self.size_x-1, self.size_y-1]:
+            door_pos = numpy.random.randint(0, self.pixs.__len__())
+
+        self.pixs.remove(self.pixs[door_pos])
 
         # adjust pixels to desired position on map
         for point in self.pixs:
