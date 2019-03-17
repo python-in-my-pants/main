@@ -27,12 +27,40 @@ class GameObject:
     def get_drawable(self):
         pass
 
-    def print(self):
+    def print_(self):
         print(self.name)
         print("Material: " + self.material)
         print("Type: " + self.type)
         print("ID: " + self.id)
         print()
+
+
+class Border(GameObject):
+
+    def __init__(self, obj_type, size_x_, size_y_, name="Border", material_="default", pos=[0,0]):
+        super().__init__(obj_type=obj_type, size_x=size_x_, size_y=size_y_, name=name, material=material_, pos=pos)
+
+        self.pixs = []
+
+        # select pixels for walls
+        for i in range(self.size_x):
+            self.pixs.append([i, 0])
+            self.pixs.append([i, self.size_y])
+        for i in range(self.size_y):
+            self.pixs.append([0, i])
+            self.pixs.append([self.size_x, i])
+
+        self.pixs.append([self.size_x, self.size_y])
+
+        # adjust pixels to desired position on map
+        for point in self.pixs:
+            point[0] += self.pos[0]
+            point[1] += self.pos[1]
+
+    def get_drawable(self):  # STATUS: tested
+
+        # returns element positions in map coordinates
+        return self.pixs
 
 
 class SimpleHouse(GameObject):

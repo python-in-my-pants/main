@@ -22,13 +22,18 @@ class Map(GameObject):
     objects = []  # holds list of objects on the map of the form: [id, object]
     window = -1
 
-    def __init__(self, x_size, y_size, window):  # STATUS: working
+    def __init__(self, x_size, y_size, window):  # STATUS: working, returns 1 on success, 0 else
         self.size_x = x_size * elem_size  # size_x holds map size in actual drawable pixels coords, x and y are to be commited in desired size in elements
         self.size_y = y_size * elem_size
         self.unique_pixs = [[0 for _ in range(int(x_size))] for _ in range(int(y_size))]  # TODO: check order of x and y
         self.window = window
 
     def add_object(self, game_object, border_size=0):  # STATUS: partially working (building stuff not ready)
+
+        for pix in game_object.get_drawable():
+            if pix[0] > self.size_x-1 or pix[1] > self.size_y-1:
+                print("Error! Object is too large senpai ... >///<")
+                return 0
 
         for obj in self.objects:
             if obj.name == game_object.name:
@@ -38,8 +43,10 @@ class Map(GameObject):
         shift = True
 
         if game_object.type is "building":
+
             upper_left_pix = [0, 0]
             lower_rigt_pix = [0, 0]
+
             # find upper left and lower right most pixel
             for pix in game_object.get_drawable():
                 if pix[0] < upper_left_pix[0] and pix[1] < upper_left_pix[1]:
@@ -48,10 +55,21 @@ class Map(GameObject):
                 if pix[0] > lower_rigt_pix[0] and pix[1] > lower_rigt_pix[1]:
                     lower_rigt_pix[0] = pix[0]
                     lower_rigt_pix[1] = pix[1]
-            # set size of object + border_size accordingly
-            size_x = lower_rigt_pix[0] - upper_left_pix[0]
-            size_y = lower_rigt_pix[1] - upper_left_pix[1]
 
+            # set size of object + border_size accordingly
+            size_x = lower_rigt_pix[0] - upper_left_pix[0] + 2*border_size
+            size_y = lower_rigt_pix[1] - upper_left_pix[1] + 2*border_size
+
+            border = Border(obj_type="default", size_x_=size_x, size_y_=size_y, pos=[-border_size, -border_size]).get_drawable()
+
+            # check for overlapping
+            for go_pix in border:
+                if self.unique_pixs[go_pix[0]][go_pix[1]] is not 0:
+                    return "Error! Not enough room for border sus"
+            if debug:
+                print("Added game object successfully!")
+
+            ''''
             # create clone of pixs to not modify original object
             go_pix_clone = game_object.pixs
 
@@ -64,13 +82,7 @@ class Map(GameObject):
                 go_pix_clone.append([0, i])
                 go_pix_clone.append([size_x, i])
             go_pix_clone.append([size_x, size_y])
-
-            # check for overlapping
-            for go_pix in go_pix_clone:
-                if self.unique_pixs[go_pix[0]][go_pix[1]] is not 0:
-                    return "Error! Trying to add object over already existing one."
-            if debug:
-                print("Added game object successfully!")
+            '''
 
         # doesn't add object at all if not entirely possible
         if not shift:
@@ -219,7 +231,7 @@ while True:
             map.clear()
 
             for house in houses:
-                house.print()
+                house.print_()
                 map.add_object(house)
 
             map.draw_map()
