@@ -12,7 +12,7 @@ class bullshit:
 class GameObject:
 
     name = "Default_name"
-    pos = [0,0]
+    pos = [0, 0]
     pixs = []
     type = "default_type"
     material = "default_material"
@@ -21,7 +21,7 @@ class GameObject:
     size_x = 0
     size_y = 0
 
-    def __init__(self, obj_type="default_type", name="default_name", material="default_material", pos=[0,0]):
+    def __init__(self, obj_type="default_type", name="default_name", material="default_material", pos=[0, 0]):
         self.type = obj_type
         self.name = name
         self.material = material
@@ -120,7 +120,8 @@ class SimpleHouse(GameObject):
         # remove door
         door_pos = numpy.random.randint(0, self.pixs.__len__())
 
-        while self.pixs[door_pos] == [0, 0] or self.pixs[door_pos] == [0, self.size_y-1] or self.pixs[door_pos] == [self.size_x-1, 0] or self.pixs[door_pos] == [self.size_x-1, self.size_y-1]:
+        while self.pixs[door_pos] == [0, 0] or self.pixs[door_pos] == [0, self.size_y-1] or \
+                self.pixs[door_pos] == [self.size_x-1, 0] or self.pixs[door_pos] == [self.size_x-1, self.size_y-1]:
             door_pos = numpy.random.randint(0, self.pixs.__len__())
 
         self.pixs.remove(self.pixs[door_pos])

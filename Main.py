@@ -10,8 +10,8 @@ elem_size = 25
 debug = True
 
 
-# TODO: Nur Map wird gezeichnet und ist ein container für alle anderen drawables, Änderungen an drawables werden durchgeführt
-# und diese dann erneut Map hinzugefügt, die alten gelöscht
+# TODO: Nur Map wird gezeichnet und ist ein container für alle anderen drawables, Änderungen an drawables werden \
+#       durchgeführt und diese dann erneut Map hinzugefügt, die alten gelöscht
 
 
 class Map(GameObject):
@@ -22,7 +22,8 @@ class Map(GameObject):
     window = -1
 
     def __init__(self, x_size, y_size, window):  # STATUS: working, returns 1 on success, 0 else
-        self.size_x = x_size * elem_size  # size_x holds map size in actual drawable pixels coords, x and y are to be commited in desired size in elements
+        self.size_x = x_size * elem_size  # size_x holds map size in actual drawable pixels coords, x and y are to be \
+                                          # commited in desired size in elements
         self.size_y = y_size * elem_size
         self.unique_pixs = [[0 for _ in range(int(x_size))] for _ in range(int(y_size))]  # TODO: check order of x and y
         self.window = window
@@ -50,6 +51,8 @@ class Map(GameObject):
 
         '''
 
+        ... fancy, but horrible to debug, don't do this!
+
         Collision codes:
 
         none            0
@@ -72,29 +75,30 @@ class Map(GameObject):
         ### out of bounds handling ###
         ##############################
 
-        out_of_map = 0
+        #             left   top    right  bottom
+        out_of_map = [False, False, False, False]
 
         # out of bounds?
         for pix in game_object.get_drawable():
             if pix[0] < 0:
                 print("Warning! Game object would be out of bounds (left)!")
-                out_of_map += 1
+                out_of_map[0] = True
             elif pix[1] < 0:
                 print("Warning! Game object would be out of bounds (top)!")
-                out_of_map += 2
+                out_of_map[1] = True
             elif pix[0] > get_x() - 1:
                 print("Warning! Game object would be out of bounds (right)!")
-                out_of_map += 4
+                out_of_map[2] = True
             elif pix[1] > get_y() - 1:
                 print("Warning! Game object would be out of bounds (bottom)!")
-                out_of_map += 9
+                out_of_map[3] = True
 
         # handle different collisions
-        if out_of_map is 16:
+        if out_of_map[0] is True and out_of_map[1] is True and out_of_map[2] is True and out_of_map[3] is True:
             print("Error! Object is too large senpai ... >///<")
             return 0
-        elif out_of_map is 12 or out_of_map is 15:
-            # TODO: turn object clockwise if object can fit at all
+        elif (out_of_map[1] is True and out_of_map[2] is True and out_of_map[3] is True) or \
+             (out_of_map[0] is True and out_of_map[1] is True and out_of_map[3] is True):
 
             # get height of object
             upper_left_pix = [0, 0]
@@ -110,7 +114,6 @@ class Map(GameObject):
                     lower_right_pix[1] = pix[1]
 
             # set size of object + border_size accordingly
-            size_x = lower_right_pix[0] - upper_left_pix[0] + 2 * border_size
             size_y = lower_right_pix[1] - upper_left_pix[1] + 2 * border_size
 
             if size_y <= self.size_y:
@@ -120,8 +123,8 @@ class Map(GameObject):
                 print("Error! Object is too large senpai ... >///<")
                 return 0
 
-        elif out_of_map is 7 or out_of_map is 14:
-            # TODO: turn object counter-clockwise if object can fit at all
+        elif (out_of_map[0] is True and out_of_map[1] is True and out_of_map[2] is True) or \
+                (out_of_map[0] is True and out_of_map[2] is True and out_of_map[3] is True):
 
             # get height of object
             upper_left_pix = [0, 0]
@@ -138,7 +141,6 @@ class Map(GameObject):
 
             # set size of object + border_size accordingly
             size_x = lower_right_pix[0] - upper_left_pix[0] + 2 * border_size
-            size_y = lower_right_pix[1] - upper_left_pix[1] + 2 * border_size
 
             if size_x <= self.size_x:
                 game_object.turn("ccw")
@@ -147,22 +149,22 @@ class Map(GameObject):
                 print("Error! Object is too large senpai ... >///<")
                 return 0
 
-        elif out_of_map is 1:
+        elif out_of_map[0] is True:
             game_object.move([1, 0])
             return self.add_object(game_object, border_size)
-        elif out_of_map is 2:
+        elif out_of_map[1] is True:
             game_object.move([0, 1])
             return self.add_object(game_object, border_size)
-        elif out_of_map is 4:
+        elif out_of_map[2] is True:
             game_object.move([-1, 0])
             return self.add_object(game_object, border_size)
-        elif out_of_map is 9:
+        elif out_of_map[3] is True:
             game_object.move([0, -1])
             return self.add_object(game_object, border_size)
-        elif out_of_map is 0:
-            print("No out_of_map with map boundaries")
+        elif all(item is False for item in out_of_map):
+            print("No collision with map boundaries")
         else:
-            print("Error!")
+            print("Error! \"out_of_map\" results to:" + str(out_of_map))
 
         ##########################
         ### collision handling ###
@@ -194,10 +196,12 @@ class Map(GameObject):
 
                     and so on
                     and b is the index in the round
+                    
+                    just pretend ur drawing a spiral BOI
                 '''
                 # simple solution: move in random direction
-                self.add_object(game_object.move([numpy.random.randint(-10, 10), numpy.random.randint(-10, 10)]))
-                return 0
+                game_object.move([numpy.random.randint(-10, 10), numpy.random.randint(-10, 10)])
+                return self.add_object(game_object=game_object)
 
         # check for duplicate names
         for obj in self.objects:
@@ -244,7 +248,7 @@ class Map(GameObject):
                              (pix[0] * elem_size, pix[1] * elem_size, elem_size, elem_size))
         self.draw_grid()
 
-    def draw_grid(self):
+    def draw_grid(self): # maybe static? (but who cares tbh)
 
         '''for i in range(int(self.size_x/elem_size)):
             for d in range(int(self.size_y/elem_size)):
