@@ -10,11 +10,10 @@ from Data import *
 elem_size = 25
 debug = True
 
-#hello there
-
 # TODO: Nur Map wird gezeichnet und ist ein container für alle anderen drawables, Änderungen an drawables werden durchgeführt
 # und diese dann erneut Map hinzugefügt, die alten gelöscht
 
+#channge
 
 class Map(GameObject):
     # container class for all other drawable game objects
