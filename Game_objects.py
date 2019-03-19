@@ -5,6 +5,9 @@ from datetime import datetime
 
 import Data
 
+# comment for pushing into other branch
+class bullshit:
+    pass
 
 class GameObject:
 
@@ -24,6 +27,21 @@ class GameObject:
         self.material = material
         self.pos = pos
         self.id = str(datetime.now().time())
+
+    def move(self, direction):
+
+        for p in self.pixs:
+            p[0] += direction[0]
+            p[1] += direction[1]
+
+    def turn(self, direction):
+
+        for p in self.pixs:
+            if direction == "cw": # clockwise
+                p = [-p[1], p[0]]
+            else:
+                p = [p[1], -p[0]]
+        return self.pixs
 
     def get_drawable(self):
         pass
