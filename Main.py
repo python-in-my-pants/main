@@ -68,6 +68,10 @@ class Map(GameObject):
 
         '''
 
+        ##############################
+        ### out of bounds handling ###
+        ##############################
+
         out_of_map = 0
 
         # out of bounds?
@@ -160,6 +164,10 @@ class Map(GameObject):
         else:
             print("Error!")
 
+        ##########################
+        ### collision handling ###
+        ##########################
+
         # collision with other objects?
         for go_pix in game_object.get_drawable():
             if self.unique_pixs[go_pix[0]][go_pix[1]] is not 0:
@@ -188,8 +196,8 @@ class Map(GameObject):
                     and b is the index in the round
                 '''
                 # simple solution: move in random direction
-
-                game_object.move()
+                self.add_object(game_object.move([numpy.random.randint(-10, 10), numpy.random.randint(-10, 10)]))
+                return 0
 
         # check for duplicate names
         for obj in self.objects:
@@ -197,118 +205,16 @@ class Map(GameObject):
                 print("Warning! Adding object with duplicate name!")
                 break
 
-        #######################################
-        # hier warst du!
-        #######################################
+        ##############################################
+        ### putting it in (be gentle senpai >///<) ###
+        ##############################################
 
-        '''
-
-        ---> border stuff
-
-        # handle surrounding border if border_size > 0
-        upper_left_pix = [0, 0]
-        lower_rigt_pix = [0, 0]
-
-        # find upper left and lower right most pixel
-        for pix in game_object.get_drawable():
-            if pix[0] < upper_left_pix[0] and pix[1] < upper_left_pix[1]:
-                upper_left_pix[0] = pix[0]
-                upper_left_pix[1] = pix[1]
-            if pix[0] > lower_rigt_pix[0] and pix[1] > lower_rigt_pix[1]:
-                lower_rigt_pix[0] = pix[0]
-                lower_rigt_pix[1] = pix[1]
-
-        # set size of object + border_size accordingly
-        size_x = lower_rigt_pix[0] - upper_left_pix[0] + 2*border_size
-        size_y = lower_rigt_pix[1] - upper_left_pix[1] + 2*border_size
-
-        border = Border(obj_type="default", size_x_=size_x, size_y_=size_y,
-                        pos=[upper_left_pix[0]-border_size, upper_left_pix[1]-border_size]).get_drawable()
-
-        for pix in border:
-            if pix[0] < 0 or pix[1] < 0 or pix[0] > get_x()-1 or pix[1] > get_y()-1:
-                print("Warning! Border would be out of map! Please adjust position or make the object smaller.")
-                return 0
-
-        # check for overlapping
-        for go_pix in border:
-            if self.unique_pixs[go_pix[0]][go_pix[1]] is not 0:
-                print("Error! Not enough room for border")
-                return 0
-
-        '''
-
-        '''
-        # create clone of pixs to not modify original object
-        go_pix_clone = game_object.pixs
-
-        # define a box according to "border_size" around the object
-        # TODO: check that coordinates for borders don't get out of map with np.max/np.min stuff
-        for i in range(size_x):
-            go_pix_clone.append([upper_left_pix[0] + i + 1, numpy.max(0, upper_left_pix[1] - 1)])
-            go_pix_clone.append([upper_left_pix[0] + i + 1, size_y + 1])
-        for i in range(size_y):
-            go_pix_clone.append([0, i])
-            go_pix_clone.append([size_x, i])
-        go_pix_clone.append([size_x, size_y])
-        '''
-
-        # doesn't add object at all if not entirely possible
-        for go_pix in game_object.get_drawable():
-            if self.unique_pixs[go_pix[0]][go_pix[1]] is not 0:
-                print("Error! Trying to add object over already existing one.")
-                return 0
-
-            out_of_map = False
-
-            # out_of_map?
-            for go_pix in game_object.get_drawable():
-                if self.unique_pixs[go_pix[0]][go_pix[1]] is not 0:
-                    out_of_map = True
-
-            while out_of_map:
-                out_of_map = False
-                resized = False
-
-                '''
-
-                ---> shorten object to fit in map
-
-                for pix in game_object.get_drawable():
-                    pix[0] += 1
-
-                    if pix[0] > get_x()/elem_size:
-                        pix[0] = int(numpy.floor(get_x()/elem_size))-2
-                        resized = True'''
-
-                # move
-                game_object.move()
-
-                # out of bounds?
-                for pix in game_object.get_drawable():
-                    if pix[0] < 0 or pix[1] < 0 or pix[0] > get_x() - 1 or pix[1] > get_y() - 1:
-                        print("Warning! Game object would be out of bounds!")
-                        return 0
-
-                # out_of_map?
-                for go_pix in game_object.get_drawable():
-                    if self.unique_pixs[go_pix[0]][go_pix[1]] is not 0:
-                        out_of_map = True
-
-                if out_of_map and resized:
-                    print("Could not add object due to too few space")
-                    # TODO: will now add all pending objects at once when windows gets bigger, make so only 1 is added
-                    return 0
-
+        # if everything is statisfied:
         self.objects.append(game_object)
 
         # modify unique_pixs
         for go_pix in game_object.get_drawable():
             self.unique_pixs[go_pix[0]][go_pix[1]] = material_codes[game_object.material]
-
-        if debug:
-            # print(numpy.array(self.objects[0].get_drawable()))
-            print("Added game object successfully!")
 
         return 1
 

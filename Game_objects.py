@@ -33,6 +33,7 @@ class GameObject:
         for p in self.pixs:
             p[0] += direction[0]
             p[1] += direction[1]
+        return self.get_drawable()
 
     def turn(self, direction):
 
@@ -41,7 +42,7 @@ class GameObject:
                 p = [-p[1], p[0]]
             else:
                 p = [p[1], -p[0]]
-        return self.pixs
+        return self.get_drawable()
 
     def get_drawable(self):
         pass
