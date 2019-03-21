@@ -77,6 +77,8 @@ class Map(GameObject):
 
         #             left   top    right  bottom
         out_of_map = [False, False, False, False]
+        
+        # TODO you forgot combination up/bottom and left/right
 
         # out of bounds?
         for pix in game_object.get_drawable():
