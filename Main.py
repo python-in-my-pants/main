@@ -79,6 +79,7 @@ class Map(GameObject):
         out_of_map = [False, False, False, False]
         
         # TODO you forgot combination up/bottom and left/right
+        # solved???
 
         # out of bounds?
         for pix in game_object.get_drawable():
@@ -99,8 +100,8 @@ class Map(GameObject):
         if out_of_map[0] is True and out_of_map[1] is True and out_of_map[2] is True and out_of_map[3] is True:
             print("Error! Object is too large senpai ... >///<")
             return 0
-        elif (out_of_map[1] is True and out_of_map[2] is True and out_of_map[3] is True) or \
-             (out_of_map[0] is True and out_of_map[1] is True and out_of_map[3] is True):
+        elif '''(out_of_map[1] is True and out_of_map[2] is True and out_of_map[3] is True) or (out_of_map[0] is True and out_of_map[1] is True and out_of_map[3] is True) or '''\
+             (out_of_map[1] is True and out_of_map[3] is True):
 
             # get height of object
             upper_left_pix = [0, 0]
@@ -118,17 +119,18 @@ class Map(GameObject):
             # set size of object + border_size accordingly
             size_y = lower_right_pix[1] - upper_left_pix[1] + 2 * border_size
 
-            if size_y <= self.size_y:
+            # if object could fit when turned, do so, else reject
+            if size_y <= self.size_x:
                 game_object.turn("cw")
                 return self.add_object(game_object, border_size)
             else:
                 print("Error! Object is too large senpai ... >///<")
                 return 0
 
-        elif (out_of_map[0] is True and out_of_map[1] is True and out_of_map[2] is True) or \
-                (out_of_map[0] is True and out_of_map[2] is True and out_of_map[3] is True):
+        elif '''(out_of_map[0] is True and out_of_map[1] is True and out_of_map[2] is True) or (out_of_map[0] is True and out_of_map[2] is True and out_of_map[3] is True) or '''\
+             (out_of_map[0] is True and out_of_map[2] is True):
 
-            # get height of object
+            # get width of object
             upper_left_pix = [0, 0]
             lower_right_pix = [0, 0]
 
@@ -144,7 +146,8 @@ class Map(GameObject):
             # set size of object + border_size accordingly
             size_x = lower_right_pix[0] - upper_left_pix[0] + 2 * border_size
 
-            if size_x <= self.size_x:
+            # if object could fit when turned, do so, else reject
+            if size_x <= self.size_y:
                 game_object.turn("ccw")
                 return self.add_object(game_object, border_size)
             else:
