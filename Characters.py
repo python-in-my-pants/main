@@ -1,6 +1,8 @@
 
+Debug = True
+
 class Character:
-    name = "Tom"
+    name = "default_character"
     Health = [100, 100, 100, 100, 100, 100]
     #          0    1    2    3    4    5
     #        kopf larm rarm Torso lbein rbein
@@ -10,7 +12,7 @@ class Character:
     stamina = 1000
     speed = 1
     height = 1
-    pos = [25, 10]
+    pos = [0, 0]
     status =[False, False, False, False]
     #           0     1      2      3
     #        Brennt Toxin  Bleed  Blinded
@@ -18,8 +20,8 @@ class Character:
     def get_drawable(self):
         pass
 
-    def __init__(self, name = "Tom", health = [100, 100, 100, 100, 100, 100,], armor = 0, dexterity = 25, strength = 15,
-                 stamina = 1000, speed = 1, height = 1, pos = [25, 10], status =[False, False, False, False]):
+    def __init__(self, name="default_character", health=[100, 100, 100, 100, 100, 100,], armor=0, dexterity=25, strength=15,
+                 stamina=1000, speed=1, height=1, pos=[0, 0], status=[False, False, False, False]):
         self.name = name
         self.health = health
         self.dexterity = dexterity
@@ -31,10 +33,11 @@ class Character:
         self.pos = pos
         self.status = status
 
-    def dead(self):
-        print(self.name + " you are dead!\n Kopf: " + str(self.health[0]) + "\n Linker Arm: " + str(self.health[1]) +
-              "\n Rechter Arm: " + str(self.health[2]) + "\n Torso: " + str(self.health[3]) + "\n Linkes Bein: "
-              + str(self.health[4]) + "\n Rechtes Bein: " + str(self.health[5]))
+    if Debug:
+        def dead(self):
+            print(self.name + " you are dead!\n Kopf: " + str(self.health[0]) + "\n Linker Arm: " + str(self.health[1]) +
+                "\n Rechter Arm: " + str(self.health[2]) + "\n Torso: " + str(self.health[3]) + "\n Linkes Bein: "
+                + str(self.health[4]) + "\n Rechtes Bein: " + str(self.health[5]))
 
     def statcheck(self):
         if self.health[1] <= 0 and self.health[2] <= 0:
@@ -54,25 +57,27 @@ class Character:
         elif self.health[4] <= 0 or self.health[5] <= 0 and not (self.health[4] <= 0 and self.health[5] <= 0):
             self.speed = 0.5
 
-    def statusprint(self, statind):
-            switcher = {
-                0: "You are burning!",
-                1: "You got poisoned!",
-                2: "You are bleeding!",
-                3: "You got blinded!"
-            }
-            print(switcher[statind])
+    if Debug:
+            def statusprint(self, statind):
+                switcher = {
+                    0: "You are burning!",
+                    1: "You got poisoned!",
+                    2: "You are bleeding!",
+                    3: "You got blinded!"
+                }
+                print(switcher[statind])
 
-    def hitprint(self, dmg, partind):
-        switcher = {
-            0: "You got hit in the head! Damage done: " + str(dmg),
-            1: "You got hit in your left arm! Damage done: " + str(dmg),
-            2: "You got hit in your right arm!! Damage done: " + str(dmg),
-            3: "You got hit in your torso! Damage done: " + str(dmg),
-            4: "You got hit in your left leg! Damage done: " + str(dmg),
-            5: "You got hit in your right leg! Damage done: " + str(dmg)
-        }
-        print(switcher[partind])
+    if Debug:
+        def hitprint(self, dmg, partind):
+            switcher = {
+                0: "You got hit in the head! Damage done: " + str(dmg),
+                1: "You got hit in your left arm! Damage done: " + str(dmg),
+                2: "You got hit in your right arm!! Damage done: " + str(dmg),
+                3: "You got hit in your torso! Damage done: " + str(dmg),
+                4: "You got hit in your left leg! Damage done: " + str(dmg),
+                5: "You got hit in your right leg! Damage done: " + str(dmg)
+            }
+            print(switcher[partind])
 
     def get_damaged(self, dmg, partind):
         if partind == 3:
@@ -92,24 +97,36 @@ class Character:
         self.get_status(2)
         self.statcheck()
 
-    def get_status(self,statind):
+    def get_status(self, statind):
         if not self.status[statind]:
             self.status[statind] = True
             self.statusprint(statind)
         else:
             pass
 
+    def i_need_healing(self, amount, partind):
+        if self.health[partind] <= 0:
+            print("You can't heal obliterated body parts!")
+        elif self.health[partind] + amount >= 100:
+            self.health[partind] = 100
+        else:
+            self.health[partind] += amount
+        if self.status[2]:
+            self.status[2] = False
+            print("Bleeding has stopped")
 
-boi = Character()
-#Character.get_damaged(boi, 150, 4)
-#Character.get_damaged(boi, 150, 5)
-Character.get_damaged(boi, 150, 1)
-Character.get_damaged(boi, 150, 2)
-Character.get_status(boi, 3)
-print(boi.health)
-print(boi.speed)
-print(boi.strength)
-print(boi.dexterity)
+if Debug:
+    boi = Character()
+    #Character.get_damaged(boi, 150, 4)
+    #Character.get_damaged(boi, 150, 5)
+    Character.get_damaged(boi, 150, 1)
+    Character.get_damaged(boi, 150, 2)
+    Character.i_need_healing(boi, 25, 1)
+    Character.get_status(boi, 3)
+    print(boi.health)
+    print(boi.speed)
+    print(boi.strength)
+    print(boi.dexterity)
 
 
 
