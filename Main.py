@@ -22,14 +22,15 @@ class Map(GameObject):
     window = -1
 
     def __init__(self, x_size, y_size, window):  # STATUS: working, returns 1 on success, 0 else
-        self.size_x = x_size * elem_size  # size_x holds map size in actual drawable pixels coords, x and y are to be \
-                                          # commited in desired size in elements
-        self.size_y = y_size * elem_size
-        self.unique_pixs = [[0 for _ in range(int(x_size))] for _ in range(int(y_size))]  # TODO: check order of x and y
+        self.size_x = x_size  # size_x holds map size in actual drawable pixels coords, x and y are to be \
+                              # commited in desired size in elements
+        self.size_y = y_size
+        self.unique_pixs = [[0 for _ in range(int(x_size))] for _ in range(int(y_size))] # beware, when using you have\
+        # to call [y][x]
         self.window = window
 
-    def add_object(self, game_object, border_size=0,
-                   permutation_lenght=[0, 0]):  # STATUS: partially working (building stuff not ready)
+    def add_object(self, game_object, border_size=0, recursion_depth=0, permutation_lenght=[0, 0]):  # STATUS: partially working, border
+        # stuff not yet, crashes when too deep recursion occurs
 
         """
                   "out of map bounds" leads to shifting to object until either it is in the map or abortion
@@ -40,36 +41,24 @@ class Map(GameObject):
         :return: 1 on success, 0 else
         """
 
+        if debug:
+            print(game_object.size_x)
+            print(game_object.size_y)
+
         # TODO: when trying to put in object with border, try to fit in border (test bounds with border) and then check
         # out_of_map with object position relative to border
 
-        # check object size
-        for pix in game_object.get_drawable():
-            if pix[0] > self.size_x - 1 or pix[1] > self.size_y - 1:
-                print("Error! Object is too large senpai ... >///<")
-                return 0
+        #########################
+        ### check object size ###
+        #########################
 
-        '''
+        # get height of object
+        size_x = game_object.size_x+2*border_size
+        size_y = game_object.size_y+2*border_size
 
-        ... fancy, but horrible to debug, don't do this!
-
-        Collision codes:
-
-        none            0
-
-        left            1
-        top             2
-        right           4
-        bottom          9
-
-        left-top        3 ; left-top-bottom     12
-        top-right       6 ; top-right-left       7
-        right-bottom    13; right-bottom-top    15
-        bottom-left     10; bottom-left-right   14
-
-        left-top-right-bottom 16
-
-        '''
+        if size_x > self.size_x - 1 or size_y > self.size_y - 1:
+            print("Error! Object is too large senpai ... >///<")
+            return 0
 
         ##############################
         ### out of bounds handling ###
@@ -77,95 +66,80 @@ class Map(GameObject):
 
         #             left   top    right  bottom
         out_of_map = [False, False, False, False]
-        
-        # TODO you forgot combination up/bottom and left/right
-        # solved???
 
-        # out of bounds?
+        ########################################################### new ###############################################
+
+        # check if border would be out of map
+        if border_size > 0:
+            for pix in Border(obj_type="default", size_x_=size_x, size_y_=size_y,
+                              pos=[game_object.pos[0] - border_size, game_object.pos[1] - border_size]).get_drawable():
+                if pix[0] < 0:
+                    out_of_map[0] = True
+                elif pix[1] < 0:
+                    out_of_map[1] = True
+                elif pix[0] > self.size_x - 1:
+                    out_of_map[2] = True
+                elif pix[1] > self.size_y - 1:
+                    out_of_map[3] = True
+
+        ################################################################################################################
+
+        # check if object itself would be out of map
         for pix in game_object.get_drawable():
             if pix[0] < 0:
-                print("Warning! Game object would be out of bounds (left)!")
                 out_of_map[0] = True
             elif pix[1] < 0:
-                print("Warning! Game object would be out of bounds (top)!")
                 out_of_map[1] = True
-            elif pix[0] > get_x() - 1:
-                print("Warning! Game object would be out of bounds (right)!")
+            elif pix[0] > self.size_x - 1:
                 out_of_map[2] = True
-            elif pix[1] > get_y() - 1:
-                print("Warning! Game object would be out of bounds (bottom)!")
+            elif pix[1] > self.size_y - 1:
                 out_of_map[3] = True
+
+        if out_of_map[0]:
+            print("Warning! Game object would be out of bounds (left)!\n")
+        elif out_of_map[1]:
+            print("Warning! Game object would be out of bounds (top)!\n")
+        elif out_of_map[2]:
+            print("Warning! Game object would be out of bounds (right)!\n")
+        elif out_of_map[3]:
+            print("Warning! Game object would be out of bounds (bottom)!\n")
 
         # handle different collisions
         if out_of_map[0] is True and out_of_map[1] is True and out_of_map[2] is True and out_of_map[3] is True:
             print("Error! Object is too large senpai ... >///<")
             return 0
-        elif '''(out_of_map[1] is True and out_of_map[2] is True and out_of_map[3] is True) or (out_of_map[0] is True and out_of_map[1] is True and out_of_map[3] is True) or '''\
-             (out_of_map[1] is True and out_of_map[3] is True):
-
-            # get height of object
-            upper_left_pix = [0, 0]
-            lower_right_pix = [0, 0]
-
-            # find upper left and lower right most pixel
-            for pix in game_object.get_drawable():
-                if pix[0] < upper_left_pix[0] and pix[1] < upper_left_pix[1]:
-                    upper_left_pix[0] = pix[0]
-                    upper_left_pix[1] = pix[1]
-                if pix[0] > lower_right_pix[0] and pix[1] > lower_right_pix[1]:
-                    lower_right_pix[0] = pix[0]
-                    lower_right_pix[1] = pix[1]
-
-            # set size of object + border_size accordingly
-            size_y = lower_right_pix[1] - upper_left_pix[1] + 2 * border_size
+        elif out_of_map[1] is True and out_of_map[3] is True:
 
             # if object could fit when turned, do so, else reject
             if size_y <= self.size_x:
                 game_object.turn("cw")
-                return self.add_object(game_object, border_size)
+                return self.add_object(game_object, border_size, recursion_depth+1)
             else:
-                print("Error! Object is too large senpai ... >///<")
+                print("Error! Object is too large senpai, this will never fit! >///<")
                 return 0
 
-        elif '''(out_of_map[0] is True and out_of_map[1] is True and out_of_map[2] is True) or (out_of_map[0] is True and out_of_map[2] is True and out_of_map[3] is True) or '''\
-             (out_of_map[0] is True and out_of_map[2] is True):
-
-            # get width of object
-            upper_left_pix = [0, 0]
-            lower_right_pix = [0, 0]
-
-            # find upper left and lower right most pixel
-            for pix in game_object.get_drawable():
-                if pix[0] < upper_left_pix[0] and pix[1] < upper_left_pix[1]:
-                    upper_left_pix[0] = pix[0]
-                    upper_left_pix[1] = pix[1]
-                if pix[0] > lower_right_pix[0] and pix[1] > lower_right_pix[1]:
-                    lower_right_pix[0] = pix[0]
-                    lower_right_pix[1] = pix[1]
-
-            # set size of object + border_size accordingly
-            size_x = lower_right_pix[0] - upper_left_pix[0] + 2 * border_size
+        elif out_of_map[0] is True and out_of_map[2] is True:
 
             # if object could fit when turned, do so, else reject
             if size_x <= self.size_y:
                 game_object.turn("ccw")
-                return self.add_object(game_object, border_size)
+                return self.add_object(game_object, border_size, recursion_depth+1)
             else:
-                print("Error! Object is too large senpai ... >///<")
+                print("Error! Object is too large senpai, this will never fit! >///<")
                 return 0
 
         elif out_of_map[0] is True:
             game_object.move([1, 0])
-            return self.add_object(game_object, border_size)
+            return self.add_object(game_object, border_size, recursion_depth+1)
         elif out_of_map[1] is True:
             game_object.move([0, 1])
-            return self.add_object(game_object, border_size)
+            return self.add_object(game_object, border_size, recursion_depth+1)
         elif out_of_map[2] is True:
             game_object.move([-1, 0])
-            return self.add_object(game_object, border_size)
+            return self.add_object(game_object, border_size, recursion_depth+1)
         elif out_of_map[3] is True:
             game_object.move([0, -1])
-            return self.add_object(game_object, border_size)
+            return self.add_object(game_object, border_size, recursion_depth+1)
         elif all(item is False for item in out_of_map):
             print("No collision with map boundaries")
         else:
@@ -177,7 +151,7 @@ class Map(GameObject):
 
         # collision with other objects?
         for go_pix in game_object.get_drawable():
-            if self.unique_pixs[go_pix[0]][go_pix[1]] is not 0:
+            if self.unique_pixs[go_pix[1]][go_pix[0]] is not 0:
                 # TODO: define function "shift(index)"
                 # 0 is origin, return vec in according direction:
                 '''
@@ -206,7 +180,21 @@ class Map(GameObject):
                 '''
                 # simple solution: move in random direction
                 game_object.move([numpy.random.randint(-10, 10), numpy.random.randint(-10, 10)])
-                return self.add_object(game_object=game_object)
+                return self.add_object(game_object, border_size, recursion_depth+1)
+
+        ######################################################### new ##################################################
+
+        # check border
+        if border_size > 0:
+            for go_pix in Border(obj_type="default", size_x_=game_object.size_x + 2*border_size, size_y_=game_object.size_y + 2*border_size,
+                                 pos=[game_object.pos[0] - border_size, game_object.pos[1] - border_size]).get_drawable():
+                if self.unique_pixs[go_pix[1]][go_pix[0]] is not 0:
+                    # simple solution: move in random direction
+                    # TODO: apply better solution
+                    game_object.move([numpy.random.randint(-10, 10), numpy.random.randint(-10, 10)])
+                    return self.add_object(game_object, border_size, recursion_depth+1)
+
+        ################################################################################################################
 
         # check for duplicate names
         for obj in self.objects:
@@ -223,7 +211,7 @@ class Map(GameObject):
 
         # modify unique_pixs
         for go_pix in game_object.get_drawable():
-            self.unique_pixs[go_pix[0]][go_pix[1]] = material_codes[game_object.material]
+            self.unique_pixs[go_pix[1]][go_pix[0]] = material_codes[game_object.material]
 
         return 1
 
@@ -242,8 +230,7 @@ class Map(GameObject):
     def clear(self):  # STATUS: new
 
         self.objects = []
-        self.unique_pixs = [[0 for _ in range(int(self.size_x / elem_size))] for _ in
-                            range(int(self.size_y / elem_size))]
+        self.unique_pixs = [[0 for _ in range(int(self.size_x))] for _ in range(int(self.size_y))]
 
     def draw_map(self):  # STATUS: new
 
@@ -284,7 +271,7 @@ y = elem_size * 20  # mult of 10
 window = pg.display.set_mode((x, y))
 pg.display.set_caption("Xepa")
 
-map = Map(x / 10, y / 10, window)
+map = Map(x/elem_size, y/elem_size, window)
 
 redraw_house = True
 
@@ -316,11 +303,6 @@ while True:
                 y += elem_size
                 window = pg.display.set_mode((x, y))
                 map.draw_map()
-        if event.type == pg.KEYDOWN:
-            if event.key == K_KP_PLUS:
-                h = SimpleHouse(name=("Simple house" + str(houses)), obj_type="default")
-                houses.append(h)
-                redraw_house
 
         if event.type == pg.KEYUP:
             if event.key == ord("n"):
@@ -335,7 +317,7 @@ while True:
 
             for house in houses:
                 house.print_()
-                map.add_object(house)
+                map.add_object(house, border_size=0)
 
             map.draw_map()
             redraw_house = False

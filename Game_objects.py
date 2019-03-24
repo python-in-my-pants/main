@@ -30,6 +30,9 @@ class GameObject:
 
     def move(self, direction):
 
+        self.pos[0] += direction[0]
+        self.pos[1] += direction[1]
+
         for p in self.pixs:
             p[0] += direction[0]
             p[1] += direction[1]
@@ -37,11 +40,37 @@ class GameObject:
 
     def turn(self, direction):
 
+        # turn
         for p in self.pixs:
             if direction == "cw": # clockwise
                 p = [-p[1], p[0]]
             else:
                 p = [p[1], -p[0]]
+
+        upper_left_pix = [0, 0]
+        lower_right_pix = [0, 0]
+
+        # find upper left and lower right most pixel
+        for pix in self.pixs:
+            if pix[0] < upper_left_pix[0] and pix[1] < upper_left_pix[1]:
+                upper_left_pix[0] = pix[0]
+                upper_left_pix[1] = pix[1]
+            if pix[0] > lower_right_pix[0] and pix[1] > lower_right_pix[1]:
+                lower_right_pix[0] = pix[0]
+                lower_right_pix[1] = pix[1]
+
+        # set size of object + border_size accordingly
+        self.size_x = lower_right_pix[0] - upper_left_pix[0]
+        self.size_y = lower_right_pix[1] - upper_left_pix[1]
+
+        # move object so origin is at upper left pix again
+        if direction == "cw":
+            for p in self.pixs:
+                p[0] += self.size_x
+        elif direction == "ccw":
+            for p in self.pix:
+                p[1] += self.size_y
+
         return self.get_drawable()
 
     def get_drawable(self):
@@ -58,9 +87,12 @@ class GameObject:
 class Border(GameObject):
 
     def __init__(self, obj_type, size_x_, size_y_, name="Border", material_="default", pos=[0,0]):
-        super().__init__(obj_type=obj_type, size_x=size_x_, size_y=size_y_, name=name, material=material_, pos=pos)
+        super().__init__(obj_type=obj_type, name=name, material=material_, pos=pos)
 
         self.pixs = []
+
+        self.size_x = size_x_
+        self.size_y = size_y_
 
         # select pixels for walls
         for i in range(self.size_x):
@@ -85,7 +117,7 @@ class Border(GameObject):
 
 class SimpleHouse(GameObject):
 
-    def __init__(self, obj_type, name="SimpleHouse_def", material_="sandstone", pos=[0,0]):
+    def __init__(self, obj_type, name="SimpleHouse_def", material_="sandstone", pos=[0, 0]):
         super().__init__(obj_type=obj_type, name=name, material=material_, pos=pos)
 
         # set rdm size for the house

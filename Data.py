@@ -5,5 +5,6 @@ mat_colour = {
 
 material_codes = {
     "sandstone": 1,
+    "border": 2,
     "default": -1
 }
