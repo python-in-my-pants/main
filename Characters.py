@@ -22,13 +22,15 @@ class Character:
     poisont = 0
     blind = False
     blindt = 0
+    items = []
+    weapons = []
 
     def get_drawable(self):
         pass
 
     def __init__(self, name="default_character", health=[100, 100, 100, 100, 100, 100,], armor=0, dexterity=25, strength=15,
                  stamina=1000, speed=1, height=1, pos=[0, 0], bleed=[False, False, False, False, False, False], bleedt=[0, 0, 0, 0, 0, 0],
-                 burn=False, burnt=0, poison=False, poisont=0, blind=False, blindt=0):
+                 burn=False, burnt=0, poison=False, poisont=0, blind=False, blindt=0, items=[], weapons=[]):
         self.name = name
         self.health = health
         self.dexterity = dexterity
@@ -46,6 +48,8 @@ class Character:
         self.poisont = poisont
         self.blind = blind
         self.blindt = blindt
+        self.items = items
+        self.weapons = weapons
 
     if Debug:
         def dead(self):
@@ -73,14 +77,14 @@ class Character:
             self.speed = 0.5
 
     if Debug:
-            def statusprint(self, statind):
-                switcher = {
-                    0: "You are burning!",
-                    1: "You got poisoned!",
-                    2: "You are bleeding!",
-                    3: "You got blinded!"
-                }
-                print(switcher[statind])
+         def statusprint(self, statind):
+             switcher = {
+                  0: "You are burning!",
+                  1: "You got poisoned!",
+                  2: "You are bleeding!",
+                  3: "You got blinded!"
+             }
+             print(switcher[statind])
 
     if Debug:
         def hitprint(self, dmg, partind):
@@ -93,6 +97,42 @@ class Character:
                 5: "You got hit in your right leg! Damage done: " + str(dmg)
             }
             print(switcher[partind])
+
+    def item_add(self, new_item):
+        if self.items.__len__() < 8:
+            self.items.append(new_item)
+        else:
+            print("You can't carry anymore!")
+
+    def item_drop(self, index):
+        if self.items.__len__() >= 1:
+            self.items.pop(index)
+        else:
+            print("You don't have any items!")
+
+    def item_change(self, new_item, index):
+        if self.items.__len__() >= 1:
+            self.items[index] = new_item
+        else:
+            print("You can't exchange any items!")
+
+    def weapon_add(self, new_wep):
+        if self.weapons.__len__() < 4:
+            self.weapons.append(new_wep)
+        else:
+            print("You can't carry any more weapons!")
+
+    def weapon_drop(self, index):
+        if self.weapons.__len__() >= 1:
+            self.weapons.pop(index)
+        else:
+            print("You don't carry any weapon!")
+
+    def weapon_change(self, new_weapon, index):
+        if self.weapons.__len__() >= 1:
+            self.weapons[index] = new_weapon
+        else:
+            print("You can't exchange any weapons!")
 
     def get_damaged(self, dmg, partind):
         if partind == 3:
@@ -176,13 +216,26 @@ if Debug:
     boi = Character()
     #Character.get_damaged(boi, 150, 4)
     #Character.get_damaged(boi, 150, 5)
-    Character.get_damaged(boi, 150, 1)
-    Character.get_damaged(boi, 150, 2)
-    Character.i_need_healing(boi, 25, 1)
-    print(boi.health)
-    print(boi.speed)
-    print(boi.strength)
-    print(boi.dexterity)
+    #Character.get_damaged(boi, 150, 1)
+    #Character.get_damaged(boi, 150, 2)
+    #Character.i_need_healing(boi, 25, 1)
+    #print(boi.health)
+    #print(boi.speed)
+    #print(boi.strength)
+    #print(boi.dexterity)
+    boi.item_add("Rote Pille")
+    boi.item_add("Blaue Pille")
+    boi.item_add("Album")
+    boi.item_add("Fahne")
+    boi.item_drop(3)
+    boi.item_change("Lörres", 2)
+    boi.weapon_add("Stichsäge")
+    boi.weapon_add("Schlachtehammer")
+    boi.weapon_add("Mähdrescher")
+    boi.weapon_change("Dildoschwert", 0)
+    boi.weapon_drop(2)
+    print(boi.weapons)
+    print(boi.items)
 
 
 
