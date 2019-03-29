@@ -45,8 +45,10 @@ class Map(GameObject):
             print(game_object.size_x)
             print(game_object.size_y)
 
-        # TODO: when trying to put in object with border, try to fit in border (test bounds with border) and then check
-        # out_of_map with object position relative to border
+        # check for too deep recursion, may remove this when better collision handling is in place
+        if recursion_depth > 100:
+            print("Cannot fit object")
+            return 0
 
         #########################
         ### check object size ###
@@ -208,6 +210,12 @@ class Map(GameObject):
 
         # if everything is statisfied:
         self.objects.append(game_object)
+        print("map objects from inside add object" + str(self.objects))
+
+        if debug and border_size > 0:
+            self.objects.append(Border(obj_type="default", size_x_=game_object.size_x + 2*border_size,
+                                       size_y_=game_object.size_y + 2*border_size,
+                                       pos=[game_object.pos[0] - border_size, game_object.pos[1] - border_size]))
 
         # modify unique_pixs
         for go_pix in game_object.get_drawable():
@@ -278,6 +286,7 @@ redraw_house = True
 # create/draw objects that are independent of user input (if there are any???)
 
 houses = []
+h = 0
 houses.append(SimpleHouse(name=("Simple house" + str(houses)), obj_type="default"))
 
 while True:
@@ -292,7 +301,6 @@ while True:
             if event.key == ord("n"):
                 redraw_house = True
                 h = SimpleHouse(name=("Simple house" + str(houses)), obj_type="default")
-                houses.append(h)
         if event.type == pg.KEYDOWN:
             if event.key == K_RIGHT:
                 x += elem_size
@@ -317,8 +325,15 @@ while True:
 
             for house in houses:
                 house.print_()
-                map.add_object(house, border_size=0)
 
+            if h != 0 and map.add_object(h, border_size=0) == 1:
+                map.add_object(h, border_size=0)
+                houses.append(h)
+                house.print_()
+            else:
+                print("Could not add house")
+
+            print("map objects:" + str(map.objects))
             map.draw_map()
             redraw_house = False
 

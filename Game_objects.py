@@ -86,7 +86,7 @@ class GameObject:
 
 class Border(GameObject):
 
-    def __init__(self, obj_type, size_x_, size_y_, name="Border", material_="default", pos=[0,0]):
+    def __init__(self, obj_type, size_x_, size_y_, name="Border", material_="border", pos=[0,0]):
         super().__init__(obj_type=obj_type, name=name, material=material_, pos=pos)
 
         self.pixs = []
