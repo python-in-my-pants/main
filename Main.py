@@ -49,6 +49,8 @@ class Map(GameObject):
         if recursion_depth > 100:
             print("Cannot fit object")
             return 0
+        else:
+            recursion_depth += 1
 
         #########################
         ### check object size ###
@@ -115,7 +117,7 @@ class Map(GameObject):
             # if object could fit when turned, do so, else reject
             if size_y <= self.size_x:
                 game_object.turn("cw")
-                return self.add_object(game_object, border_size, recursion_depth+1)
+                return self.add_object(game_object, border_size, recursion_depth)
             else:
                 print("Error! Object is too large senpai, this will never fit! >///<")
                 return 0
@@ -125,23 +127,23 @@ class Map(GameObject):
             # if object could fit when turned, do so, else reject
             if size_x <= self.size_y:
                 game_object.turn("ccw")
-                return self.add_object(game_object, border_size, recursion_depth+1)
+                return self.add_object(game_object, border_size, recursion_depth)
             else:
                 print("Error! Object is too large senpai, this will never fit! >///<")
                 return 0
 
         elif out_of_map[0] is True:
             game_object.move([1, 0])
-            return self.add_object(game_object, border_size, recursion_depth+1)
+            return self.add_object(game_object, border_size, recursion_depth)
         elif out_of_map[1] is True:
             game_object.move([0, 1])
-            return self.add_object(game_object, border_size, recursion_depth+1)
+            return self.add_object(game_object, border_size, recursion_depth)
         elif out_of_map[2] is True:
             game_object.move([-1, 0])
-            return self.add_object(game_object, border_size, recursion_depth+1)
+            return self.add_object(game_object, border_size, recursion_depth)
         elif out_of_map[3] is True:
             game_object.move([0, -1])
-            return self.add_object(game_object, border_size, recursion_depth+1)
+            return self.add_object(game_object, border_size, recursion_depth)
         elif all(item is False for item in out_of_map):
             print("No collision with map boundaries")
         else:
@@ -182,19 +184,19 @@ class Map(GameObject):
                 '''
                 # simple solution: move in random direction
                 game_object.move([numpy.random.randint(-10, 10), numpy.random.randint(-10, 10)])
-                return self.add_object(game_object, border_size, recursion_depth+1)
+                return self.add_object(game_object, border_size, recursion_depth)
 
         ######################################################### new ##################################################
 
         # check border
         if border_size > 0:
-            for go_pix in Border(obj_type="default", size_x_=game_object.size_x + 2*border_size, size_y_=game_object.size_y + 2*border_size,
+            for go_pix in Border(obj_type="default", size_x_=size_x-1, size_y_=size_y-1,
                                  pos=[game_object.pos[0] - border_size, game_object.pos[1] - border_size]).get_drawable():
                 if self.unique_pixs[go_pix[1]][go_pix[0]] is not 0:
                     # simple solution: move in random direction
                     # TODO: apply better solution
                     game_object.move([numpy.random.randint(-10, 10), numpy.random.randint(-10, 10)])
-                    return self.add_object(game_object, border_size, recursion_depth+1)
+                    return self.add_object(game_object, border_size, recursion_depth)
 
         ################################################################################################################
 
@@ -213,8 +215,7 @@ class Map(GameObject):
         print("map objects from inside add object" + str(self.objects))
 
         if debug and border_size > 0:
-            self.objects.append(Border(obj_type="default", size_x_=game_object.size_x + 2*border_size,
-                                       size_y_=game_object.size_y + 2*border_size,
+            self.objects.append(Border(obj_type="default", size_x_=size_x-1, size_y_=size_y-1,
                                        pos=[game_object.pos[0] - border_size, game_object.pos[1] - border_size]))
 
         # modify unique_pixs
@@ -285,9 +286,8 @@ redraw_house = True
 
 # create/draw objects that are independent of user input (if there are any???)
 
-houses = []
+counter = 0
 h = 0
-houses.append(SimpleHouse(name=("Simple house" + str(houses)), obj_type="default"))
 
 while True:
     for event in pg.event.get():
@@ -300,7 +300,7 @@ while True:
         if event.type == pg.KEYDOWN:
             if event.key == ord("n"):
                 redraw_house = True
-                h = SimpleHouse(name=("Simple house" + str(houses)), obj_type="default")
+                h = SimpleHouse(name=("Simple house " + str(counter)), obj_type="default")
         if event.type == pg.KEYDOWN:
             if event.key == K_RIGHT:
                 x += elem_size
@@ -321,17 +321,10 @@ while True:
         # draw changes to screen
         if redraw_house:
             window.fill((0, 0, 0))
-            map.clear()
 
-            for house in houses:
-                house.print_()
-
-            if h != 0 and map.add_object(h, border_size=0) == 1:
-                map.add_object(h, border_size=0)
-                houses.append(h)
-                house.print_()
-            else:
-                print("Could not add house")
+            while h != 0 and map.add_object(h, border_size=1) != 1:
+                h = SimpleHouse(name=("Simple house " + str(counter)), obj_type="default")
+            counter += 1
 
             print("map objects:" + str(map.objects))
             map.draw_map()
