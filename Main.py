@@ -276,7 +276,7 @@ def get_y():
 
 pg.init()
 x = elem_size * 50  # mult of 10
-y = elem_size * 20  # mult of 10
+y = elem_size * 30  # mult of 10
 window = pg.display.set_mode((x, y))
 pg.display.set_caption("Xepa")
 
@@ -300,7 +300,14 @@ while True:
         if event.type == pg.KEYDOWN:
             if event.key == ord("n"):
                 redraw_house = True
-                h = SimpleHouse(name=("Simple house " + str(counter)), obj_type="default")
+                #h = SimpleHouse(name=("Simple house " + str(counter)), obj_type="default")
+
+        if event.type == pg.KEYDOWN:
+            if event.key == ord("c"):
+                map.clear()
+                window.fill((0, 0, 0))
+                map.draw_map()
+
         if event.type == pg.KEYDOWN:
             if event.key == K_RIGHT:
                 x += elem_size
@@ -322,9 +329,21 @@ while True:
         if redraw_house:
             window.fill((0, 0, 0))
 
-            while h != 0 and map.add_object(h, border_size=1) != 1:
+            for i in range(10):
+
                 h = SimpleHouse(name=("Simple house " + str(counter)), obj_type="default")
-            counter += 1
+
+                limit = 0
+                while h != 0 and map.add_object(h, border_size=2) != 1 and limit < 100:
+                    h = SimpleHouse(name=("Simple house " + str(counter)), obj_type="default")
+                    limit += 1
+
+                if limit >= 100:
+                    print("Could not place another object")
+                else:
+                    counter += 1
+
+            print(numpy.asmatrix(map.unique_pixs))
 
             print("map objects:" + str(map.objects))
             map.draw_map()
