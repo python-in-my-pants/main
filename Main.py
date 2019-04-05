@@ -71,12 +71,10 @@ class Map(GameObject):
         #             left   top    right  bottom
         out_of_map = [False, False, False, False]
 
-        ########################################################### new ###############################################
-
         # check if border would be out of map
         if border_size > 0:
             for pix in Border(obj_type="default", size_x_=size_x, size_y_=size_y,
-                              pos=[game_object.pos[0] - border_size, game_object.pos[1] - border_size]).get_drawable():
+                              pos=[game_object.pos[0] - border_size, game_object.pos[1] - border_size], thiccness=border_size).get_drawable():
                 if pix[0] < 0:
                     out_of_map[0] = True
                 elif pix[1] < 0:
@@ -85,8 +83,6 @@ class Map(GameObject):
                     out_of_map[2] = True
                 elif pix[1] > self.size_y - 1:
                     out_of_map[3] = True
-
-        ################################################################################################################
 
         # check if object itself would be out of map
         for pix in game_object.get_drawable():
@@ -186,19 +182,15 @@ class Map(GameObject):
                 game_object.move([numpy.random.randint(-10, 10), numpy.random.randint(-10, 10)])
                 return self.add_object(game_object, border_size, recursion_depth)
 
-        ######################################################### new ##################################################
-
         # check border
         if border_size > 0:
             for go_pix in Border(obj_type="default", size_x_=size_x-1, size_y_=size_y-1,
-                                 pos=[game_object.pos[0] - border_size, game_object.pos[1] - border_size]).get_drawable():
+                                 pos=[game_object.pos[0] - border_size, game_object.pos[1] - border_size], thiccness=border_size).get_drawable():
                 if self.unique_pixs[go_pix[1]][go_pix[0]] is not 0:
                     # simple solution: move in random direction
                     # TODO: apply better solution
                     game_object.move([numpy.random.randint(-10, 10), numpy.random.randint(-10, 10)])
                     return self.add_object(game_object, border_size, recursion_depth)
-
-        ################################################################################################################
 
         # check for duplicate names
         for obj in self.objects:
@@ -216,11 +208,18 @@ class Map(GameObject):
 
         if debug and border_size > 0:
             self.objects.append(Border(obj_type="default", size_x_=size_x-1, size_y_=size_y-1,
-                                       pos=[game_object.pos[0] - border_size, game_object.pos[1] - border_size]))
+                                       pos=[game_object.pos[0] - border_size, game_object.pos[1] - border_size], thiccness=border_size))
 
-        # modify unique_pixs
-        for go_pix in game_object.get_drawable():
-            self.unique_pixs[go_pix[1]][go_pix[0]] = material_codes[game_object.material]
+        # modify unique_pixs TODO because new
+        for index, go_pix in enumerate(game_object.get_drawable()):
+            mat_counter = 0
+            if not game_object.mat_ind:
+                if index > game_object.mat_ind[mat_counter]:
+                    mat_counter += 1
+            print(game_object.materials)
+            print(mat_counter)
+            print(game_object.mat_ind)
+            self.unique_pixs[go_pix[1]][go_pix[0]] = material_codes[game_object.materials[mat_counter]]
 
         return 1
 
@@ -243,13 +242,17 @@ class Map(GameObject):
 
     def draw_map(self):  # STATUS: new
 
+        mat_counter = 0
         for go in self.objects:
-            for pix in go.get_drawable():
-                pg.draw.rect(self.window, mat_colour[go.material],
+            for index, pix in enumerate(go.get_drawable()):
+                if not go.mat_ind:
+                    if index > go.mat_ind[mat_counter]:
+                        mat_counter += 1
+                pg.draw.rect(self.window, mat_colour[go.materials[mat_counter]],
                              (pix[0] * elem_size, pix[1] * elem_size, elem_size, elem_size))
         self.draw_grid()
 
-    def draw_grid(self): # maybe static? (but who cares tbh)
+    def draw_grid(self):  # maybe static? (but who cares tbh)
 
         '''for i in range(int(self.size_x/elem_size)):
             for d in range(int(self.size_y/elem_size)):
@@ -300,7 +303,6 @@ while True:
         if event.type == pg.KEYDOWN:
             if event.key == ord("n"):
                 redraw_house = True
-                #h = SimpleHouse(name=("Simple house " + str(counter)), obj_type="default")
 
         if event.type == pg.KEYDOWN:
             if event.key == ord("c"):

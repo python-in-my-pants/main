@@ -15,16 +15,17 @@ class GameObject:
     pos = [0, 0]
     pixs = []
     type = "default_type"
-    material = "default_material"
+    materials = ["default_material"]  # hold list of all materials of the object
+    mat_ind = []  # holds list of indices signaling when new material is used in self.pixs
     id = "-1"
 
     size_x = 0
     size_y = 0
 
-    def __init__(self, obj_type="default_type", name="default_name", material="default_material", pos=[0, 0]):
+    def __init__(self, obj_type="default_type", name="default_name", materials=["default_material"], pos=[0, 0]):
         self.type = obj_type
         self.name = name
-        self.material = material
+        self.materials = materials
         self.pos = pos
         self.id = str(datetime.now().time())
 
@@ -42,7 +43,7 @@ class GameObject:
 
         # turn
         for p in self.pixs:
-            if direction == "cw": # clockwise
+            if direction == "cw":  # clockwise
                 p = [-p[1], p[0]]
             else:
                 p = [p[1], -p[0]]
@@ -73,12 +74,19 @@ class GameObject:
 
         return self.get_drawable()
 
+    def add_elem(self, material, elem_pixs):  # adds new element to pixs and adjusts mat_ind and materials
+
+        self.mat_ind.append(self.pixs.__len__() - 1)
+        self.materials.append(material)
+        for elem_pix in elem_pixs:
+            self.pixs.append(elem_pix)
+
     def get_drawable(self):
         pass
 
     def print_(self):
         print(self.name)
-        print("Material: " + self.material)
+        print("Material: " + self.materials)
         print("Type: " + self.type)
         print("ID: " + self.id)
         print()
@@ -86,8 +94,8 @@ class GameObject:
 
 class Border(GameObject):
 
-    def __init__(self, obj_type, size_x_, size_y_, name="Border", material_="border", pos=[0,0]):
-        super().__init__(obj_type=obj_type, name=name, material=material_, pos=pos)
+    def __init__(self, obj_type, size_x_, size_y_, name="Border", materials_=["border"], pos=[0, 0], thiccness="1"):
+        super().__init__(obj_type=obj_type, name=name, materials=materials_, pos=pos)
 
         self.pixs = []
 
@@ -104,6 +112,13 @@ class Border(GameObject):
 
         self.pixs.append([self.size_x, self.size_y])
 
+        # generate inner border recursively
+        if thiccness > 1:
+            inner_border = Border(["border"], self.size_x-2, self.size_y-2, pos=[1, 1], thiccness=thiccness-1).\
+                get_drawable()
+            for pix in inner_border:
+                self.pixs.append(pix)
+
         # adjust pixels to desired position on map
         for point in self.pixs:
             point[0] += self.pos[0]
@@ -117,8 +132,8 @@ class Border(GameObject):
 
 class SimpleHouse(GameObject):
 
-    def __init__(self, obj_type, name="SimpleHouse_def", material_="sandstone", pos=[0, 0]):
-        super().__init__(obj_type=obj_type, name=name, material=material_, pos=pos)
+    def __init__(self, obj_type, name="SimpleHouse_def", materials_=["sandstone"], pos=[0, 0]):
+        super().__init__(obj_type=obj_type, name=name, materials=materials_, pos=pos)
 
         # set rdm size for the house
         if self.size_x is 0:
@@ -156,7 +171,21 @@ class SimpleHouse(GameObject):
                 self.pixs[door_pos] == [self.size_x-1, 0] or self.pixs[door_pos] == [self.size_x-1, self.size_y-1]:
             door_pos = numpy.random.randint(0, self.pixs.__len__())
 
+        door = self.pixs[door_pos]
+
         self.pixs.remove(self.pixs[door_pos])
+
+        # assign material for door and update mat_ind
+        self.add_elem("oak wood", [door])
+
+        # assign material for floor and update mat_ind
+        floor = []
+
+        for i in range(size_x-2):
+            for j in range(size_y-2):
+                floor.append([i+1, j+1])
+
+        self.add_elem("dirt", floor)
 
         # adjust pixels to desired position on map
         for point in self.pixs:
