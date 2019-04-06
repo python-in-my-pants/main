@@ -236,11 +236,16 @@ class Map(GameObject):
 
     def draw_map(self):  # STATUS: new
 
-        mat_counter = 0
         for go in self.objects:
+            mat_counter = 0
             for index, pix in enumerate(go.get_drawable()):
-                if not go.mat_ind:
-                    if index > go.mat_ind[mat_counter]:
+                if go.mat_ind:
+                    print(go.mat_ind)
+                    print(index)
+                    print(mat_counter)
+                    print(go.materials)
+                    print()
+                    if mat_counter < go.mat_ind.__len__() and index > go.mat_ind[mat_counter]:
                         mat_counter += 1
                 pg.draw.rect(self.window, mat_colour[go.materials[mat_counter]],
                              (pix[0] * elem_size, pix[1] * elem_size, elem_size, elem_size))

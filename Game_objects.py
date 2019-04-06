@@ -26,8 +26,8 @@ class GameObject:
                  mat_ind=[]):
         self.type = obj_type
         self.name = name
-        self.materials = materials[:]
-        self.pos = pos
+        self.materials = materials[:]  # make a copy because else python reuses old value for another call
+        self.pos = pos[:]
         self.id = str(datetime.now().time())
         self.mat_ind = mat_ind[:]
 
@@ -141,8 +141,6 @@ class SimpleHouse(GameObject):
         print(self.name)
         print(materials_)
         print(self.get_mat_ind())
-
-        #self.mat_ind = []
 
         # set rdm size for the house
         if self.size_x is 0:

@@ -4,7 +4,7 @@
     <bookmark url="file://$PROJECT_DIR$/Main.py" line="118" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="74e48f68-9109-4ea4-8b25-525c40300e69" name="Default Changelist" comment="puttin gin objects with borders works now :)">
+    <list default="true" id="74e48f68-9109-4ea4-8b25-525c40300e69" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Game_objects.py" beforeDir="false" afterPath="$PROJECT_DIR$/Game_objects.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Main.py" afterDir="false" />
@@ -17,11 +17,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="231">
-              <caret line="216" lean-forward="true" selection-start-line="216" selection-end-line="216" />
+            <state relative-caret-position="199">
+              <caret line="249" selection-start-line="249" selection-end-line="249" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
                 <element signature="e#6583#7269#1" />
@@ -40,11 +40,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Game_objects.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="476">
-              <caret line="28" column="36" selection-start-line="28" selection-start-column="36" selection-end-line="28" selection-end-column="36" />
+            <state relative-caret-position="117">
+              <caret line="143" selection-start-line="143" selection-end-line="143" />
               <folding>
                 <element signature="e#0#12#0" expanded="true" />
                 <element signature="e#2654#3664#0" />
@@ -86,8 +86,8 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/Data.py" />
-        <option value="$PROJECT_DIR$/Main.py" />
         <option value="$PROJECT_DIR$/Game_objects.py" />
+        <option value="$PROJECT_DIR$/Main.py" />
       </list>
     </option>
   </component>
@@ -241,20 +241,26 @@
       <option name="project" value="LOCAL" />
       <updated>1554507540028</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="großer Gott, es funktioniert! nieder mit den mutable objects von denen man keine shallow copy macht bevor man sie in der gleichen Funktion mehrfach aufruft">
+      <created>1554512683286</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1554512683286</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="75" y="-7" width="1639" height="975" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.107365794" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.33451957" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.17437722" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.37603796" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.460261" />
+      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.57295376" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -273,7 +279,19 @@
     <MESSAGE value="push to be up to date" />
     <MESSAGE value="TODO: stop building house in house by defining interior&#10;&#10;Done: click c to clear map" />
     <MESSAGE value="puttin gin objects with borders works now :)" />
-    <option name="LAST_COMMIT_MESSAGE" value="puttin gin objects with borders works now :)" />
+    <MESSAGE value="großer Gott, es funktioniert! nieder mit den mutable objects von denen man keine shallow copy macht bevor man sie in der gleichen Funktion mehrfach aufruft" />
+    <option name="LAST_COMMIT_MESSAGE" value="großer Gott, es funktioniert! nieder mit den mutable objects von denen man keine shallow copy macht bevor man sie in der gleichen Funktion mehrfach aufruft" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Main.py</url>
+          <line>249</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="evaluateExpression">
@@ -322,25 +340,25 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Main.py">
+    <entry file="file://$PROJECT_DIR$/Game_objects.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="231">
-          <caret line="216" lean-forward="true" selection-start-line="216" selection-end-line="216" />
+        <state relative-caret-position="117">
+          <caret line="143" selection-start-line="143" selection-end-line="143" />
           <folding>
-            <element signature="e#0#19#0" expanded="true" />
-            <element signature="e#6583#7269#1" />
-            <element signature="e#9933#10146#1" />
+            <element signature="e#0#12#0" expanded="true" />
+            <element signature="e#2654#3664#0" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Game_objects.py">
+    <entry file="file://$PROJECT_DIR$/Main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="476">
-          <caret line="28" column="36" selection-start-line="28" selection-start-column="36" selection-end-line="28" selection-end-column="36" />
+        <state relative-caret-position="199">
+          <caret line="249" selection-start-line="249" selection-end-line="249" />
           <folding>
-            <element signature="e#0#12#0" expanded="true" />
-            <element signature="e#2654#3664#0" />
+            <element signature="e#0#19#0" expanded="true" />
+            <element signature="e#6583#7269#1" />
+            <element signature="e#9933#10146#1" />
           </folding>
         </state>
       </provider>
