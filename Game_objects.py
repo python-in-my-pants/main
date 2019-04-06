@@ -96,7 +96,7 @@ class GameObject:
 
 class Border(GameObject):
 
-    def __init__(self, obj_type, size_x_, size_y_, name="Border", materials_=["border"], pos=[0, 0], thiccness="1"):
+    def __init__(self, obj_type, size_x_, size_y_, name="Border", materials_=["dirt"], pos=[0, 0], thiccness="1"):
         super().__init__(obj_type=obj_type, name=name, materials=materials_, pos=pos)
 
         self.pixs = []
@@ -136,11 +136,6 @@ class SimpleHouse(GameObject):
 
     def __init__(self, obj_type, name="SimpleHouse_def", materials_=["sandstone"], pos=[0, 0]):
         super().__init__(obj_type=obj_type, name=name, materials=materials_, pos=pos)
-
-        print("!!!!!!!!!!!!!!!!!!! Constructor called")
-        print(self.name)
-        print(materials_)
-        print(self.get_mat_ind())
 
         # set rdm size for the house
         if self.size_x is 0:
@@ -198,10 +193,6 @@ class SimpleHouse(GameObject):
         for point in self.pixs:
             point[0] += self.pos[0]
             point[1] += self.pos[1]
-
-        print("------------")
-        print(self.materials)
-        print(self.mat_ind)
 
     def add_elem(self, material, elem_pixs):  # adds new element to pixs and adjusts mat_ind and materials
 

@@ -139,7 +139,8 @@ class Map(GameObject):
             game_object.move([0, -1])
             return self.add_object(game_object, border_size, recursion_depth)
         elif all(item is False for item in out_of_map):
-            print("No collision with map boundaries")
+            pass
+            #print("No collision with map boundaries")
         else:
             print("Error! \"out_of_map\" results to:" + str(out_of_map))
 
@@ -240,11 +241,6 @@ class Map(GameObject):
             mat_counter = 0
             for index, pix in enumerate(go.get_drawable()):
                 if go.mat_ind:
-                    print(go.mat_ind)
-                    print(index)
-                    print(mat_counter)
-                    print(go.materials)
-                    print()
                     if mat_counter < go.mat_ind.__len__() and index > go.mat_ind[mat_counter]:
                         mat_counter += 1
                 pg.draw.rect(self.window, mat_colour[go.materials[mat_counter]],
@@ -330,13 +326,13 @@ while True:
         if redraw_house:
             window.fill((0, 0, 0))
 
-            for i in range(3):
+            for i in range(10):
 
                 h = SimpleHouse(name=("Simple house " + str(counter)), obj_type="default")
 
                 # while there is a house (to add) and it does not fit and you did not try 100 times yet generate a new one
                 limit = 0
-                while h != 0 and map.add_object(h, border_size=2) != 1 and limit < 100:
+                while h != 0 and map.add_object(h, border_size=1) != 1 and limit < 100:
                     h = SimpleHouse(name=("Simple house " + str(counter)), obj_type="default")
                     limit += 1
 
@@ -345,7 +341,6 @@ while True:
                 else:
                     counter += 1
 
-            print("map objects:" + str(map.objects))
             map.draw_map()
             redraw_house = False
 
