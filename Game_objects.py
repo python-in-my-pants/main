@@ -22,12 +22,14 @@ class GameObject:
     size_x = 0
     size_y = 0
 
-    def __init__(self, obj_type="default_type", name="default_name", materials=["default_material"], pos=[0, 0]):
+    def __init__(self, obj_type="default_type", name="default_name", materials=["default_material"], pos=[0, 0], \
+                 mat_ind=[]):
         self.type = obj_type
         self.name = name
-        self.materials = materials
+        self.materials = materials[:]
         self.pos = pos
         self.id = str(datetime.now().time())
+        self.mat_ind = mat_ind[:]
 
     def move(self, direction):
 
@@ -38,6 +40,10 @@ class GameObject:
             p[0] += direction[0]
             p[1] += direction[1]
         return self.get_drawable()
+
+    def get_mat_ind(self):
+
+        return self.mat_ind
 
     def turn(self, direction):
 
@@ -74,12 +80,8 @@ class GameObject:
 
         return self.get_drawable()
 
-    def add_elem(self, material, elem_pixs):  # adds new element to pixs and adjusts mat_ind and materials
-
-        self.mat_ind.append(self.pixs.__len__() - 1)
-        self.materials.append(material)
-        for elem_pix in elem_pixs:
-            self.pixs.append(elem_pix)
+    def add_elem(self, material, elem):
+        pass
 
     def get_drawable(self):
         pass
@@ -134,6 +136,13 @@ class SimpleHouse(GameObject):
 
     def __init__(self, obj_type, name="SimpleHouse_def", materials_=["sandstone"], pos=[0, 0]):
         super().__init__(obj_type=obj_type, name=name, materials=materials_, pos=pos)
+
+        print("!!!!!!!!!!!!!!!!!!! Constructor called")
+        print(self.name)
+        print(materials_)
+        print(self.get_mat_ind())
+
+        #self.mat_ind = []
 
         # set rdm size for the house
         if self.size_x is 0:
@@ -191,6 +200,17 @@ class SimpleHouse(GameObject):
         for point in self.pixs:
             point[0] += self.pos[0]
             point[1] += self.pos[1]
+
+        print("------------")
+        print(self.materials)
+        print(self.mat_ind)
+
+    def add_elem(self, material, elem_pixs):  # adds new element to pixs and adjusts mat_ind and materials
+
+        self.mat_ind.append(self.pixs.__len__() - 1)
+        self.materials.append(material)
+        for elem_pix in elem_pixs:
+            self.pixs.append(elem_pix)
 
     def get_drawable(self):  # STATUS: tested
 

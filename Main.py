@@ -41,10 +41,6 @@ class Map(GameObject):
         :return: 1 on success, 0 else
         """
 
-        if debug:
-            print(game_object.size_x)
-            print(game_object.size_y)
-
         # check for too deep recursion, may remove this when better collision handling is in place
         if recursion_depth > 100:
             print("Cannot fit object")
@@ -95,6 +91,7 @@ class Map(GameObject):
             elif pix[1] > self.size_y - 1:
                 out_of_map[3] = True
 
+        '''
         if out_of_map[0]:
             print("Warning! Game object would be out of bounds (left)!\n")
         elif out_of_map[1]:
@@ -103,6 +100,7 @@ class Map(GameObject):
             print("Warning! Game object would be out of bounds (right)!\n")
         elif out_of_map[3]:
             print("Warning! Game object would be out of bounds (bottom)!\n")
+        '''
 
         # handle different collisions
         if out_of_map[0] is True and out_of_map[1] is True and out_of_map[2] is True and out_of_map[3] is True:
@@ -204,7 +202,6 @@ class Map(GameObject):
 
         # if everything is statisfied:
         self.objects.append(game_object)
-        print("map objects from inside add object" + str(self.objects))
 
         if debug and border_size > 0:
             self.objects.append(Border(obj_type="default", size_x_=size_x-1, size_y_=size_y-1,
@@ -216,9 +213,6 @@ class Map(GameObject):
             if not game_object.mat_ind:
                 if index > game_object.mat_ind[mat_counter]:
                     mat_counter += 1
-            print(game_object.materials)
-            print(mat_counter)
-            print(game_object.mat_ind)
             self.unique_pixs[go_pix[1]][go_pix[0]] = material_codes[game_object.materials[mat_counter]]
 
         return 1
@@ -331,10 +325,11 @@ while True:
         if redraw_house:
             window.fill((0, 0, 0))
 
-            for i in range(10):
+            for i in range(3):
 
                 h = SimpleHouse(name=("Simple house " + str(counter)), obj_type="default")
 
+                # while there is a house (to add) and it does not fit and you did not try 100 times yet generate a new one
                 limit = 0
                 while h != 0 and map.add_object(h, border_size=2) != 1 and limit < 100:
                     h = SimpleHouse(name=("Simple house " + str(counter)), obj_type="default")
@@ -344,8 +339,6 @@ while True:
                     print("Could not place another object")
                 else:
                     counter += 1
-
-            print(numpy.asmatrix(map.unique_pixs))
 
             print("map objects:" + str(map.objects))
             map.draw_map()
