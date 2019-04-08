@@ -1,5 +1,6 @@
 import pygame as pg
 from pygame.locals import *
+from screeninfo import get_monitors
 import numpy
 import sys
 
@@ -273,8 +274,19 @@ def get_y():
 
 
 pg.init()
-x = elem_size * 50  # mult of 10
-y = elem_size * 30  # mult of 10
+
+mon = pg.display.Info()
+screen_h = mon.current_h-150
+screen_w = mon.current_w
+
+fields_x = 100
+fields_y = 100
+
+elem_size = int(screen_w/fields_y) if int(screen_w/fields_y) < int(screen_h/fields_x) else int(screen_h/fields_x)
+
+x = elem_size * fields_x  # mult of 10
+y = elem_size * fields_y  # mult of 10
+
 window = pg.display.set_mode((x, y))
 pg.display.set_caption("Xepa")
 
@@ -328,12 +340,14 @@ while True:
 
             for i in range(10):
 
-                h = SimpleHouse(name=("Simple house " + str(counter)), obj_type="default")
+                h = SimpleHouse(name=("Simple house " + str(counter)), obj_type="default", \
+                                pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
 
                 # while there is a house (to add) and it does not fit and you did not try 100 times yet generate a new one
                 limit = 0
                 while h != 0 and map.add_object(h, border_size=1) != 1 and limit < 100:
-                    h = SimpleHouse(name=("Simple house " + str(counter)), obj_type="default")
+                    h = SimpleHouse(name=("Simple house " + str(counter)), obj_type="default", \
+                                    pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
                     limit += 1
 
                 if limit >= 100:
