@@ -1,11 +1,7 @@
 import random
 
 '''
-TODO 
-in CHARACTER: 
-	Change way of Item deletion from pop to remove
-in ITEMS:   
-	Add weight to item classes
+TODO Add weight to item classes
 '''
 
 

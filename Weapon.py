@@ -1,5 +1,4 @@
 import random
-import Characters
 
 
 class Weapon:
@@ -17,10 +16,6 @@ class Weapon:
         self.dmg = dmg
         self.mag = mag
         self.spt = spt
-
-
-def shoot(weapon, partind):
-    Characters.Character.get_damaged(weapon.damage, partind)
 
 
 class Pistole(Weapon):

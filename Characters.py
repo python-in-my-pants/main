@@ -28,6 +28,7 @@ class Character:
     items = []
     weapons = []
     #TODO Gear variable
+
     def get_drawable(self):
         pass
 
@@ -80,14 +81,14 @@ class Character:
             self.speed = 0.5
 
     if Debug:
-         def statusprint(self, statind):
-             switcher = {
-                  0: "You are burning!",
-                  1: "You got poisoned!",
-                  2: "You are bleeding!",
-                  3: "You got blinded!"
-             }
-             print(switcher[statind])
+        def statusprint(self, statind):
+            switcher = {
+                0: "You are burning!",
+                1: "You got poisoned!",
+                2: "You are bleeding!",
+                3: "You got blinded!"
+            }
+            print(switcher[statind])
 
     if Debug:
         def hitprint(self, dmg, partind):
@@ -136,6 +137,9 @@ class Character:
             self.weapons[index] = new_weapon
         else:
             print("You can't exchange any weapons!")
+
+    def shoot(self, dude, weapon, partind):
+        dude.get_damaged(weapon.dmg, partind)
 
     def get_damaged(self, dmg, partind):
         if partind == 3:
@@ -217,6 +221,7 @@ class Character:
 
 if Debug:
     boi = Character()
+    boi2 = Character()
     #Character.get_damaged(boi, 150, 4)
     #Character.get_damaged(boi, 150, 5)
     #Character.get_damaged(boi, 150, 1)
@@ -226,21 +231,25 @@ if Debug:
     #print(boi.speed)
     #print(boi.strength)
     #print(boi.dexterity)
-    '''boi.item_add("Rote Pille")
-    boi.item_add("Blaue Pille")
-    boi.item_add("Album")
-    boi.item_add("Fahne")
-    boi.item_drop(3)
-    boi.item_change("Lörres", 2)
-    boi.weapon_add("Stichsäge")
-    boi.weapon_add("Schlachtehammer")
-    boi.weapon_add("Mähdrescher")
-    boi.weapon_change("Dildoschwert", 0)
-    boi.weapon_drop(2)'''
-    wep = Weapon.Pistole()
-    boi.weapon_add(wep)
-    print(boi.weapons)
+    boi.item_add(Item.Armor1())
+    boi.item_add(Item.Bandage())
+    boi.item_add(Item.Defdope())
+    boi.item_add(Item.Healstation())
+    boi.item_drop(2)
+    boi.item_change(Item.Medkit(), 2)
     print(boi.items)
+
+
+
+    '''wep = Weapon.Pistole()
+    boi.weapon_add(wep)
+    print(boi.weapons[0].name)
+    boi.shoot(boi2, wep, 0)
+    print(boi2.health[0])'''
+
+
+
+
 
 
 
