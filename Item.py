@@ -96,9 +96,9 @@ class Armor3(Item):
 		super().__init__(name, idi)
 
 
-boi = Bandage()
+'''boi = Bandage()
 print(boi.idi)
 print(boi.name)
 boii = Healstation()
 print(boii.idi)
-print(boii.name)
+print(boii.name)'''

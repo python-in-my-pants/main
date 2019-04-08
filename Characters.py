@@ -1,5 +1,8 @@
+import Item
+import Weapon
 
 Debug = True
+
 
 class Character:
     name = "default_character"
@@ -24,7 +27,7 @@ class Character:
     blindt = 0
     items = []
     weapons = []
-
+    #TODO Gear variable
     def get_drawable(self):
         pass
 
@@ -223,7 +226,7 @@ if Debug:
     #print(boi.speed)
     #print(boi.strength)
     #print(boi.dexterity)
-    boi.item_add("Rote Pille")
+    '''boi.item_add("Rote Pille")
     boi.item_add("Blaue Pille")
     boi.item_add("Album")
     boi.item_add("Fahne")
@@ -233,9 +236,13 @@ if Debug:
     boi.weapon_add("Schlachtehammer")
     boi.weapon_add("Mähdrescher")
     boi.weapon_change("Dildoschwert", 0)
-    boi.weapon_drop(2)
+    boi.weapon_drop(2)'''
+    wep = Weapon.Pistole()
+    boi.weapon_add(wep)
     print(boi.weapons)
     print(boi.items)
+
+
 
 
 
