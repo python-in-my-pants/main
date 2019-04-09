@@ -30,7 +30,6 @@ class Character(GameObject):
     items = []
     weapons = []
     orientation = 0
-    bullshit
     '''
 
     def __init__(self, name="default_character", object_type="character", team="Team 0", health=[100, 100, 100, 100, 100, 100,],
