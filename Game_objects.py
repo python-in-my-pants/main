@@ -5,10 +5,6 @@ from datetime import datetime
 
 import Data
 
-# comment for pushing into other branch
-class bullshit:
-    pass
-
 class GameObject:
 
     name = "Default_name"
