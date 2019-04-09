@@ -18,13 +18,14 @@ debug = True
 class Map(GameObject):
     # container class for all other drawable game objects
 
-    unique_pixs = []  # holds definite pixel(materials) that will be drawn
-    objects = []  # holds list of objects on the map of the form: [id, object]
+    unique_pixs = []    # holds definite pixel(materials) that will be drawn
+    objects = []        # holds list of objects on the map of the form: [id, object]
+    characters = []     # holds list of characters in map
     window = -1
 
     def __init__(self, x_size, y_size, window):  # STATUS: working, returns 1 on success, 0 else
         self.size_x = x_size  # size_x holds map size in actual drawable pixels coords, x and y are to be \
-                              # commited in desired size in elements
+                              # commited in desired size in elements * elem_size
         self.size_y = y_size
         self.unique_pixs = [[0 for _ in range(int(x_size))] for _ in range(int(y_size))] # beware, when using you have\
         # to call [y][x]
@@ -239,13 +240,18 @@ class Map(GameObject):
     def draw_map(self):  # STATUS: new
 
         for go in self.objects:
-            mat_counter = 0
-            for index, pix in enumerate(go.get_drawable()):
-                if go.mat_ind:
-                    if mat_counter < go.mat_ind.__len__() and index > go.mat_ind[mat_counter]:
-                        mat_counter += 1
-                pg.draw.rect(self.window, mat_colour[go.materials[mat_counter]],
-                             (pix[0] * elem_size, pix[1] * elem_size, elem_size, elem_size))
+            if go.type == "character":
+                # right arm
+                pg.draw.circle(self.window, mat_colour[go.team], \
+                               [go.pos[0]*elem_size+ int(elem_size/2), go.pos[1]*elem_size+int(elem_size/2)], int(elem_size*0.3)
+            else:
+                mat_counter = 0
+                for index, pix in enumerate(go.get_drawable()):
+                    if go.mat_ind:
+                        if mat_counter < go.mat_ind.__len__() and index > go.mat_ind[mat_counter]:
+                            mat_counter += 1
+                    pg.draw.rect(self.window, mat_colour[go.materials[mat_counter]],
+                                 (pix[0] * elem_size, pix[1] * elem_size, elem_size, elem_size))
         self.draw_grid()
 
     def draw_grid(self):  # maybe static? (but who cares tbh)
@@ -276,13 +282,13 @@ def get_y():
 pg.init()
 
 mon = pg.display.Info()
-screen_h = mon.current_h-150
-screen_w = mon.current_w
+screen_h = int((mon.current_h-150) * 0.7)
+screen_w = int(mon.current_w * 0.7)
 
-fields_x = 100
+fields_x = 200
 fields_y = 100
 
-elem_size = int(screen_w/fields_y) if int(screen_w/fields_y) < int(screen_h/fields_x) else int(screen_h/fields_x)
+elem_size = int(screen_h/fields_y) if int(screen_h/fields_y) < int(screen_w/fields_x) else int(screen_w/fields_x)
 
 x = elem_size * fields_x  # mult of 10
 y = elem_size * fields_y  # mult of 10
