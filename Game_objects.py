@@ -5,6 +5,8 @@ from datetime import datetime
 
 import Data
 
+# bullshit
+
 class GameObject:
 
     name = "Default_name"
