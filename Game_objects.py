@@ -5,7 +5,7 @@ from datetime import datetime
 
 import Data
 
-# bullshit
+# bullshitasdf asdF SDFYBVAGDSF
 
 class GameObject:
 
