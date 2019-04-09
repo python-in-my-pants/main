@@ -153,13 +153,11 @@ class Character(GameObject):
     def get_damaged(self, dmg, partind):
         if partind == 3:
             if self.gear[0].durability > 0:
-                if self.armor < dmg:
-                    self.armor -= dmg
-                    if self.armor < 0:
-                        self.health[3] -= abs(self.armor)
-                        self.gear[1].durability = 0
-                else:
-                    self.armor -= dmg
+                dmg *= self.gear[0].reduction
+                self.health[3] -= dmg
+                self.gear[0].durability -= 0
+                if self.gear[0].durability <= 0:
+                    self.gear[0].durability = 0
         elif self.health[partind] > 0:
             self.health[partind] -= dmg
         if self.health[0] <= 0 or self.health[3] <= 0:
