@@ -1,15 +1,17 @@
-import Item
-import Weapon
+import numpy as np
+from Item import *
+from Weapon import *
+from Game_objects import GameObject
 
 Debug = True
 
 
-class Character:
-    name = "default_character"
+class Character(GameObject):
+    ''' name = "default_character"
     Health = [100, 100, 100, 100, 100, 100]
     #          0    1    2    3    4    5
     #        kopf larm rarm Torso lbein rbein
-    # armor = 0
+    gear = []
     dexterity = 0
     strength = 0
     stamina = 1000
@@ -27,19 +29,21 @@ class Character:
     blindt = 0
     items = []
     weapons = []
-    #TODO Gear variable
+    orientation = 0
+    '''
 
-    def get_drawable(self):
-        pass
-
-    def __init__(self, name="default_character", health=[100, 100, 100, 100, 100, 100,], armor=0, dexterity=25, strength=15,
-                 stamina=1000, speed=1, height=1, pos=[0, 0], bleed=[False, False, False, False, False, False], bleedt=[0, 0, 0, 0, 0, 0],
-                 burn=False, burnt=0, poison=False, poisont=0, blind=False, blindt=0, items=[], weapons=[]):
+    def __init__(self, name="default_character", object_type="character", team="Team 0", health=[100, 100, 100, 100, 100, 100,],
+                 gear=[], dexterity=25, strength=15, stamina=1000, speed=1, height=1, pos=[0, 0],
+                 bleed=[False, False, False, False, False, False], bleedt=[0, 0, 0, 0, 0, 0], burn=False, burnt=0,
+                 poison=False, poisont=0, blind=False, blindt=0, items=[], weapons=[], orientation=0,pixs=[0, 0]):
+        super().__init__()
         self.name = name
+        self.object_type = object_type
+        self.team = team
         self.health = health
         self.dexterity = dexterity
         self.strength = strength
-        self.armor = armor
+        self.gear = gear
         self.stamina = stamina
         self.speed = speed
         self.height = height
@@ -54,6 +58,11 @@ class Character:
         self.blindt = blindt
         self.items = items
         self.weapons = weapons
+        self.orientation = orientation
+        self.pixs = pos
+
+    def get_drawable(self):
+        pass
 
     if Debug:
         def dead(self):
@@ -143,12 +152,12 @@ class Character:
 
     def get_damaged(self, dmg, partind):
         if partind == 3:
-            if self.armor > 0:
+            if self.gear[0].durability > 0:
                 if self.armor < dmg:
                     self.armor -= dmg
                     if self.armor < 0:
                         self.health[3] -= abs(self.armor)
-                        self.armor = 0
+                        self.gear[1].durability = 0
                 else:
                     self.armor -= dmg
         elif self.health[partind] > 0:
@@ -195,14 +204,14 @@ class Character:
             self.bleed[partind] = True
             self.statusprint(2)
 
-    def change_stance(self, modifier):
-        #0 stehend 1 hocke 2 liegen
-        if modifier == 0:
-            self.height = 1
-        if modifier == 1:
-            self.height = 0.5
-        if modifier == 2:
-            self.height = 0.2
+    def stand(self):
+        self.height = 1
+
+    def crouch(self):
+        self.height = 0.5
+
+    def laydown(self):
+        self.height = 0.2
 
     def i_need_healing(self, amount, partind):
         if self.health[partind] <= 0 and self.bleed[partind] is True:
@@ -219,29 +228,30 @@ class Character:
             self.bleed[partind] = False
             print("Bleeding has stopped")
 
+
 if Debug:
     boi = Character()
     boi2 = Character()
-    #Character.get_damaged(boi, 150, 4)
-    #Character.get_damaged(boi, 150, 5)
-    #Character.get_damaged(boi, 150, 1)
-    #Character.get_damaged(boi, 150, 2)
-    #Character.i_need_healing(boi, 25, 1)
+    #boi.get_damaged(150, 4)
+    #boi.get_damaged(150, 5)
+    #boi.get_damaged(150, 1)
+    #boi.get_damaged(150, 2)
+    #boi.i_need_healing(25, 1)
     #print(boi.health)
     #print(boi.speed)
     #print(boi.strength)
     #print(boi.dexterity)
-    boi.item_add(Item.Armor1())
-    boi.item_add(Item.Bandage())
-    boi.item_add(Item.Defdope())
-    boi.item_add(Item.Healstation())
+    boi.item_add(Armor(typ=3))
+    boi.item_add(Bandage())
+    boi.item_add(Defdope())
+    boi.item_add(Healstation())
     boi.item_drop(2)
-    boi.item_change(Item.Medkit(), 2)
-    print(boi.items)
+    boi.item_change(Medkit(), 2)
+    print(boi.items[0].name)
 
 
 
-    '''wep = Weapon.Pistole()
+    '''wep = Pistole()
     boi.weapon_add(wep)
     print(boi.weapons[0].name)
     boi.shoot(boi2, wep, 0)
