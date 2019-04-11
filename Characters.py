@@ -36,7 +36,7 @@ class Character(GameObject):
     def __init__(self, name="default_character", object_type="character", team="Team 0", health=[100, 100, 100, 100, 100, 100,],
                  gear=[], dexterity=25, strength=15, stamina=1000, speed=1, height=1, pos=[0, 0],
                  bleed=[False, False, False, False, False, False], bleedt=[0, 0, 0, 0, 0, 0], burn=False, burnt=0,
-                 poison=False, poisont=0, blind=False, blindt=0, items=[], weapons=[], orientation=0,pixs=[0, 0]):
+                 poison=False, poisont=0, blind=False, blindt=0, items=[], weapons=[], orientation=0, pixs=[0, 0]):
         super().__init__()
         self.name = name
         self.object_type = object_type
@@ -81,7 +81,7 @@ class Character(GameObject):
             self.dexterity -= self.dexterity * 0.5
 
         if self.health[4] <= 0 and self.health[5] <= 0 and ((self.health[1] <= 0 or self.health[2] <= 0)
-                                                              and not(self.health[1] <= 0 and self.health[2] <= 0)):
+                                                            and not(self.health[1] <= 0 and self.health[2] <= 0)):
             self.speed = 0.15
         elif self.health[4] <= 0 and self.health[5] <= 0 and (self.health[1] <= 0 and self.health[2] <= 0):
             self.speed = 0.1
