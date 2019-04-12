@@ -35,10 +35,10 @@ class Character(GameObject):
     pow(bullshit, 10)
     '''
 
-    def __init__(self, name="default_character", object_type="character", team="team_0", \
-                 health=[100, 100, 100, 100, 100, 100], gear=[], dexterity=25, strength=15, stamina=1000, speed=1, \
-                 height=1, pos=[0, 0], bleed=[False, False, False, False, False, False], bleed_t=[0, 0, 0, 0, 0, 0], \
-                 burn=False, burnt=0, poison=False, poison_t=0, blind=False, blind_t=0, items=[], weapons=[], \
+    def __init__(self, name="default_character", object_type="character", team="team_0",
+                 health=[100, 100, 100, 100, 100, 100], gear=[], dexterity=25, strength=15, stamina=1000, speed=1,
+                 height=1, pos=[0, 0], bleed=[False, False, False, False, False, False], bleed_t=[0, 0, 0, 0, 0, 0],
+                 burn=False, burnt=0, poison=False, poison_t=0, blind=False, blind_t=0, items=[], weapons=[],
                  orientation=0):
         super().__init__(name=name, obj_type=object_type, pos=pos)
         self.name = name
@@ -69,16 +69,16 @@ class Character(GameObject):
     def get_drawable(self):
         character_surf = pg.Surface((50, 50))
         # left arm
-        pg.draw.circle(character_surf, self.mat_colour[self.team], \
-                       [self.pos[0] * 50 + int(50 * 0.15), self.pos[1] * 50 + int(50 * 0.5)], \
+        pg.draw.circle(character_surf, self.mat_colour[self.team],
+                       [self.pos[0] * 50 + int(50 * 0.15), self.pos[1] * 50 + int(50 * 0.5)],
                        radius=int(50 * 0.3), width=0)
         # right arm
-        pg.draw.circle(character_surf, self.mat_colour[self.team], \
-                       [self.pos[0] * 50 + int(50 * 0.50), self.pos[1] * 50 + int(50 * 0.5)], \
+        pg.draw.circle(character_surf, self.mat_colour[self.team],
+                       [self.pos[0] * 50 + int(50 * 0.50), self.pos[1] * 50 + int(50 * 0.5)],
                        radius=int(50 * 0.3), width=0)
         # head
-        pg.draw.circle(character_surf, self.mat_colour[self.team], \
-                       [self.pos[0] * 50 + int(50 * 0.85), self.pos[1] * 50 + int(50 * 0.5)], \
+        pg.draw.circle(character_surf, self.mat_colour[self.team],
+                       [self.pos[0] * 50 + int(50 * 0.85), self.pos[1] * 50 + int(50 * 0.5)],
                        radius=int(50 * 0.4), width=0)
 
         return character_surf
@@ -202,8 +202,8 @@ class Character(GameObject):
         if self.blindt > 0:
             self.blindt -= 1
 
-        if self.bleedt[0] > 1 or self.bleedt[1] > 1 or self.bleedt[2] > 1 or self.bleedt[3] > 1 or self.bleedt[4] > 1 or \
-                self.bleedt[5] > 1:
+        if self.bleedt[0] > 1 or self.bleedt[1] > 1 or self.bleedt[2] > 1 or self.bleedt[3] > 1 or self.bleedt[4] > 1 \
+                or self.bleedt[5] > 1:
             for x in self.bleedt:
                 if self.bleedt[x] > 0:
                     self.bleedt[x] -= 1

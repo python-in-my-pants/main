@@ -285,8 +285,8 @@ mon = pg.display.Info()
 screen_h = int(mon.current_h)
 screen_w = int(mon.current_w)
 
-fields_x = 50  # width
-fields_y = 50  # height
+fields_x = 200  # width
+fields_y = 200  # height
 
 elem_size = int(screen_w/fields_x) if int(screen_w/fields_x) < int(screen_h/fields_y) else int(screen_h/fields_y)
 
