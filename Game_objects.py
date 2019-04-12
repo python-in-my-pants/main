@@ -5,6 +5,8 @@ from datetime import datetime
 
 import Data
 
+# bullshitasdf asdF SDFYBVAGDSFghjghjghjghjhgjghjghjgjh
+
 class GameObject:
 
     name = "Default_name"
@@ -26,6 +28,7 @@ class GameObject:
         self.pos = pos[:]
         self.id = str(datetime.now().time())
         self.mat_ind = mat_ind[:]
+        self.render_type = "draw"
 
     def move(self, direction):
 

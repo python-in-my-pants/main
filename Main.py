@@ -239,20 +239,8 @@ class Map(GameObject):
     def draw_map(self):  # STATUS: new
 
         for go in self.objects:
-            if go.type == "character":
-                # left arm
-                pg.draw.circle(self.window, mat_colour[go.team],\
-                               [go.pos[0]*elem_size + int(elem_size*0.15), go.pos[1]*elem_size + int(elem_size*0.5)],\
-                               radius=int(elem_size*0.3), width=0)
-                # right arm
-                pg.draw.circle(self.window, mat_colour[go.team],\
-                               [go.pos[0]*elem_size + int(elem_size*0.50), go.pos[1]*elem_size + int(elem_size*0.5)],\
-                               radius=int(elem_size*0.3), width=0)
-                # head
-                pg.draw.circle(self.window, mat_colour[go.team],\
-                               [go.pos[0]*elem_size + int(elem_size*0.85), go.pos[1]*elem_size + int(elem_size*0.5)],\
-                               radius=int(elem_size*0.4), width=0)
-
+            if go.render_type == "blit":
+                pg.transform.smoothscale()
             else:
                 mat_counter = 0
                 for index, pix in enumerate(go.get_drawable()):
@@ -291,18 +279,21 @@ def get_y():
 pg.init()
 
 mon = pg.display.Info()
-screen_h = int((mon.current_h-150) * 0.66)
-screen_w = int(mon.current_w * 0.66)
+#screen_h = int((mon.current_h-150) * 0.66)
+screen_h = int(mon.current_h)
+screen_w = int(mon.current_w)
 
-fields_x = 50
-fields_y = 25
+fields_x = 50  # width
+fields_y = 25  # height
 
-elem_size = int(screen_h/fields_y) if int(screen_h/fields_y) < int(screen_w/fields_x) else int(screen_w/fields_x)
+#elem_size = int(screen_h/fields_y) if int(screen_h/fields_y) < int(screen_w/fields_x) else int(screen_w/fields_x)
+elem_size = int(screen_w/fields_x) if int(screen_w/fields_x) < int(screen_h/fields_y) else int(screen_h/fields_y)
+print(elem_size)
 
 x = elem_size * fields_x  # mult of 10
 y = elem_size * fields_y  # mult of 10
 
-window = pg.display.set_mode((x, y))
+window = pg.display.set_mode([x, y])  # TODO set_mode takes no keyword arguments
 pg.display.set_caption("Xepa")
 
 map = Map(x/elem_size, y/elem_size, window)
@@ -342,12 +333,13 @@ while True:
                 x += elem_size
                 window = pg.display.set_mode((x, y))
                 map.draw_map()
+                print(window.get_size())
         if event.type == pg.KEYDOWN:
             if event.key == K_DOWN:
                 y += elem_size
                 window = pg.display.set_mode((x, y))
                 map.draw_map()
-
+                print(window.get_size())
         if event.type == pg.KEYUP:
             if event.key == ord("n"):
                 redraw_house = False

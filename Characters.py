@@ -2,13 +2,14 @@ import numpy as np
 from Item import *
 from Weapon import *
 from Game_objects import GameObject
+import Data
+import pygame as pg
 
 Debug = True
 
 
 class Character(GameObject):
-    '''
-    name = "default_character"
+    ''' name = "default_character"
     Health = [100, 100, 100, 100, 100, 100]
     #          0    1    2    3    4    5
     #        kopf larm rarm Torso lbein rbein
@@ -34,15 +35,16 @@ class Character(GameObject):
     pow(bullshit, 10)
     '''
 
-    def __init__(self, name="default_character", object_type="character", team="Team 0", health=[100, 100, 100, 100, 100, 100,],
-                 gear=[], dexterity=25, strength=15, stamina=1000, speed=1, height=1, pos=[0, 0],
-                 bleed=[False, False, False, False, False, False], bleedt=[0, 0, 0, 0, 0, 0], burn=False, burnt=0,
-                 poison=False, poisont=0, blind=False, blindt=0, items=[], weapons=[], orientation=0, pixs=[0, 0]):
-        super().__init__()
+    def __init__(self, name="default_character", object_type="character", team="team_0", \
+                 health=[100, 100, 100, 100, 100, 100], gear=[], dexterity=25, strength=15, stamina=1000, speed=1, \
+                 height=1, pos=[0, 0], bleed=[False, False, False, False, False, False], bleed_t=[0, 0, 0, 0, 0, 0], \
+                 burn=False, burnt=0, poison=False, poison_t=0, blind=False, blind_t=0, items=[], weapons=[], \
+                 orientation=0):
+        super().__init__(name=name, obj_type=object_type, pos=pos)
         self.name = name
         self.object_type = object_type
         self.team = team
-        self.health = health
+        self.health = health[:]
         self.dexterity = dexterity
         self.strength = strength
         self.gear = gear
@@ -50,21 +52,43 @@ class Character(GameObject):
         self.speed = speed
         self.height = height
         self.pos = pos
-        self.bleed = bleed
-        self.bleedt = bleedt
+        self.bleed = bleed[:]
+        self.bleed_t = bleed_t[:]
         self.burn = burn
         self.burnt = burnt
         self.poison = poison
-        self.poisont = poisont
+        self.poison_t = poison_t
         self.blind = blind
-        self.blindt = blindt
-        self.items = items
-        self.weapons = weapons
+        self.blind_t = blind_t
+        self.items = items[:]
+        self.weapons = weapons[:]
         self.orientation = orientation
         self.pixs = pos
+        self.render_type = "blit"
 
     def get_drawable(self):
-        pass
+        character_surf = pg.Surface((50, 50))
+        # left arm
+        pg.draw.circle(character_surf, self.mat_colour[self.team], \
+                       [self.pos[0] * 50 + int(50 * 0.15), self.pos[1] * 50 + int(50 * 0.5)], \
+                       radius=int(50 * 0.3), width=0)
+        # right arm
+        pg.draw.circle(character_surf, self.mat_colour[self.team], \
+                       [self.pos[0] * 50 + int(50 * 0.50), self.pos[1] * 50 + int(50 * 0.5)], \
+                       radius=int(50 * 0.3), width=0)
+        # head
+        pg.draw.circle(character_surf, self.mat_colour[self.team], \
+                       [self.pos[0] * 50 + int(50 * 0.85), self.pos[1] * 50 + int(50 * 0.5)], \
+                       radius=int(50 * 0.4), width=0)
+
+        return character_surf
+
+    def add_elem(self, material, elem_pixs):  # adds new element to pixs and adjusts mat_ind and materials
+
+        self.mat_ind.append(self.pixs.__len__() - 1)
+        self.materials.append(material)
+        for elem_pix in elem_pixs:
+            self.pixs.append(elem_pix)
 
     if Debug:
         def dead(self):
@@ -82,7 +106,7 @@ class Character(GameObject):
             self.dexterity -= self.dexterity * 0.5
 
         if self.health[4] <= 0 and self.health[5] <= 0 and ((self.health[1] <= 0 or self.health[2] <= 0)
-                                                            and not(self.health[1] <= 0 and self.health[2] <= 0)):
+                                                              and not(self.health[1] <= 0 and self.health[2] <= 0)):
             self.speed = 0.15
         elif self.health[4] <= 0 and self.health[5] <= 0 and (self.health[1] <= 0 and self.health[2] <= 0):
             self.speed = 0.1
@@ -178,8 +202,8 @@ class Character(GameObject):
         if self.blindt > 0:
             self.blindt -= 1
 
-        if self.bleedt[0] > 1 or self.bleedt[1] > 1 or self.bleedt[2] > 1 or self.bleedt[3] > 1 or self.bleedt[4] > 1 \
-                or self.bleedt[5] > 1:
+        if self.bleedt[0] > 1 or self.bleedt[1] > 1 or self.bleedt[2] > 1 or self.bleedt[3] > 1 or self.bleedt[4] > 1 or \
+                self.bleedt[5] > 1:
             for x in self.bleedt:
                 if self.bleedt[x] > 0:
                     self.bleedt[x] -= 1
@@ -249,17 +273,10 @@ if Debug:
     boi.item_change(Medkit(), 2)
     print(boi.items[0].name)
 
+
+
     '''wep = Pistole()
     boi.weapon_add(wep)
     print(boi.weapons[0].name)
     boi.shoot(boi2, wep, 0)
     print(boi2.health[0])'''
-
-
-
-
-
-
-
-
-
