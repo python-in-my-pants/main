@@ -5,6 +5,7 @@ import sys
 
 from Game_objects import *
 from Data import *
+from Characters import Character
 
 elem_size = 25
 debug = True
@@ -205,14 +206,15 @@ class Map(GameObject):
         # if everything is statisfied:
         self.objects.append(game_object)
 
-        if debug and border_size > 0:
+        if border_size > 0:
             self.objects.append(Border(obj_type="default", size_x_=size_x-1, size_y_=size_y-1,
-                                       pos=[game_object.pos[0] - border_size, game_object.pos[1] - border_size], thiccness=border_size))
+                                       pos=[game_object.pos[0] - border_size, game_object.pos[1] - border_size], \
+                                       thiccness=border_size))
 
         # modify unique_pixs TODO because new
         for index, go_pix in enumerate(game_object.get_drawable()):
             mat_counter = 0
-            if not game_object.mat_ind:
+            if game_object.mat_ind:
                 if index > game_object.mat_ind[mat_counter]:
                     mat_counter += 1
             self.unique_pixs[go_pix[1]][go_pix[0]] = material_codes[game_object.materials[mat_counter]]
@@ -257,8 +259,8 @@ class Map(GameObject):
             for d in range(int(self.size_y/elem_size)):
                 pg.draw.rect(get_window(), (0, 99, 0), (i*elem_size, d*elem_size, elem_size, elem_size), 1)'''
 
-        for i in range(get_x()):
-            for d in range(get_y()):
+        for i in range(self.size_x):
+            for d in range(self.size_y):
                 pg.draw.rect(get_window(), (0, 99, 0), (i * elem_size, d * elem_size, elem_size, elem_size), 1)
 
 
@@ -284,19 +286,17 @@ screen_h = int(mon.current_h)
 screen_w = int(mon.current_w)
 
 fields_x = 50  # width
-fields_y = 25  # height
+fields_y = 50  # height
 
-#elem_size = int(screen_h/fields_y) if int(screen_h/fields_y) < int(screen_w/fields_x) else int(screen_w/fields_x)
 elem_size = int(screen_w/fields_x) if int(screen_w/fields_x) < int(screen_h/fields_y) else int(screen_h/fields_y)
-print(elem_size)
 
 x = elem_size * fields_x  # mult of 10
 y = elem_size * fields_y  # mult of 10
 
-window = pg.display.set_mode([x, y])  # TODO set_mode takes no keyword arguments
+window = pg.display.set_mode(flags=pg.FULLSCREEN)  # TODO set_mode takes no keyword arguments
 pg.display.set_caption("Xepa")
 
-map = Map(x/elem_size, y/elem_size, window)
+map = Map(fields_x, fields_y, window)
 
 redraw_house = True
 draw_character = False
@@ -315,6 +315,11 @@ while True:
             sys.exit()
 
         if event.type == pg.KEYDOWN:
+            if event.key == pg.K_ESCAPE:
+                pg.quit()
+                sys.exit()
+
+        if event.type == pg.KEYDOWN:
             if event.key == ord("n"):
                 redraw_house = True
 
@@ -325,7 +330,7 @@ while True:
         if event.type == pg.KEYDOWN:
             if event.key == ord("c"):
                 map.clear()
-                window.fill((0, 0, 0))
+                window.fill((23, 157, 0))
                 map.draw_map()
 
         if event.type == pg.KEYDOWN:
@@ -333,13 +338,12 @@ while True:
                 x += elem_size
                 window = pg.display.set_mode((x, y))
                 map.draw_map()
-                print(window.get_size())
         if event.type == pg.KEYDOWN:
             if event.key == K_DOWN:
                 y += elem_size
                 window = pg.display.set_mode((x, y))
                 map.draw_map()
-                print(window.get_size())
+
         if event.type == pg.KEYUP:
             if event.key == ord("n"):
                 redraw_house = False
@@ -348,7 +352,7 @@ while True:
 
         # draw changes to screen
         if redraw_house:
-            window.fill((0, 0, 0))
+            window.fill((23, 157, 0))
 
             for i in range(10):
 
@@ -367,6 +371,26 @@ while True:
                 else:
                     counter += 1
 
+            bush_counter = 0
+            limit = 0
+
+            for i in range(10):
+
+                h = Bush(name=("Simple bush " + str(bush_counter)), obj_type="default", \
+                               pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
+
+                # while there is a house (to add) and it does not fit and you did not try 100 times yet generate a new one
+                limit = 0
+                while h != 0 and map.add_object(h, border_size=1) != 1 and limit < 100:
+                    h = Bush(name=("Simple bush " + str(bush_counter)), obj_type="default", \
+                                    pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
+                    limit += 1
+
+                if limit >= 100:
+                    print("Could not place another object")
+                else:
+                    bush_counter += 1
+
             map.draw_map()
             redraw_house = False
 
@@ -375,7 +399,9 @@ while True:
 
         if draw_character:
 
-            window.fill((0, 0, 0))
+            window.fill((0, 99, 0))
+
+            char = Character()
 
             map.draw_map()
             draw_character = False

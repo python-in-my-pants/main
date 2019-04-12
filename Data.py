@@ -6,6 +6,7 @@ mat_colour = {
     "team_0": (0, 255, 0),
     "team_1": (0, 0, 255),
     "team_2": (255, 0, 0),
+    "bush": (0, 87, 0),
     "default": (255, 20, 147)
 }
 
@@ -14,5 +15,6 @@ material_codes = {
     "border": 2,
     "dirt": 3,
     "oak wood": 4,
+    "bush": 5,
     "default": -1
 }
