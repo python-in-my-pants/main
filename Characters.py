@@ -5,7 +5,7 @@ from Game_objects import GameObject
 import Data
 import pygame as pg
 
-Debug = True
+Debug = False
 
 
 class Character(GameObject):

@@ -131,6 +131,31 @@ class Border(GameObject):
         return self.pixs
 
 
+class Bush(GameObject):
+
+    def __init__(self, obj_type, name="Bush_def", materials_=["bush"], pos=[0, 0]):
+        super().__init__(obj_type=obj_type, name=name, materials=materials_, pos=pos)
+
+        self.pixs = []
+
+        self.pixs.append([0, 0])
+        self.pixs.append([0, 1])
+        self.pixs.append([1, 0])
+        self.pixs.append([1, 1])
+        self.pixs.append([0, 2])
+        self.pixs.append([1, 2])
+
+        self.size_x = 2
+        self.size_y = 3
+
+        for point in self.pixs:
+            point[0] += self.pos[0]
+            point[1] += self.pos[1]
+
+    def get_drawable(self):
+        return self.pixs
+
+
 class SimpleHouse(GameObject):
 
     def __init__(self, obj_type, name="SimpleHouse_def", materials_=["sandstone"], pos=[0, 0]):
@@ -138,9 +163,9 @@ class SimpleHouse(GameObject):
 
         # set rdm size for the house
         if self.size_x is 0:
-            size_x = numpy.random.randint(3, 10)
+            size_x = numpy.random.randint(5, 10)
         if self.size_y is 0:
-            size_y = numpy.random.randint(3, 10)
+            size_y = numpy.random.randint(5, 10)
 
         self.size_x = size_x
         self.size_y = size_y
