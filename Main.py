@@ -239,20 +239,8 @@ class Map(GameObject):
     def draw_map(self):  # STATUS: new
 
         for go in self.objects:
-            if go.type == "character":
-                # left arm
-                pg.draw.circle(self.window, mat_colour[go.team],\
-                               [go.pos[0]*elem_size + int(elem_size*0.15), go.pos[1]*elem_size + int(elem_size*0.5)],\
-                               radius=int(elem_size*0.3), width=0)
-                # right arm
-                pg.draw.circle(self.window, mat_colour[go.team],\
-                               [go.pos[0]*elem_size + int(elem_size*0.50), go.pos[1]*elem_size + int(elem_size*0.5)],\
-                               radius=int(elem_size*0.3), width=0)
-                # head
-                pg.draw.circle(self.window, mat_colour[go.team],\
-                               [go.pos[0]*elem_size + int(elem_size*0.85), go.pos[1]*elem_size + int(elem_size*0.5)],\
-                               radius=int(elem_size*0.4), width=0)
-
+            if go.render_type == "blit":
+                pg.transform.smoothscale()
             else:
                 mat_counter = 0
                 for index, pix in enumerate(go.get_drawable()):
