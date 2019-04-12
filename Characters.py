@@ -7,7 +7,8 @@ Debug = True
 
 
 class Character(GameObject):
-    ''' name = "default_character"
+    '''
+    name = "default_character"
     Health = [100, 100, 100, 100, 100, 100]
     #          0    1    2    3    4    5
     #        kopf larm rarm Torso lbein rbein
@@ -177,8 +178,8 @@ class Character(GameObject):
         if self.blindt > 0:
             self.blindt -= 1
 
-        if self.bleedt[0] > 1 or self.bleedt[1] > 1 or self.bleedt[2] > 1 or self.bleedt[3] > 1 or self.bleedt[4] > 1 or \
-                self.bleedt[5] > 1:
+        if self.bleedt[0] > 1 or self.bleedt[1] > 1 or self.bleedt[2] > 1 or self.bleedt[3] > 1 or self.bleedt[4] > 1 \
+                or self.bleedt[5] > 1:
             for x in self.bleedt:
                 if self.bleedt[x] > 0:
                     self.bleedt[x] -= 1
@@ -247,8 +248,6 @@ if Debug:
     boi.item_drop(2)
     boi.item_change(Medkit(), 2)
     print(boi.items[0].name)
-
-
 
     '''wep = Pistole()
     boi.weapon_add(wep)
