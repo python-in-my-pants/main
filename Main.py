@@ -242,7 +242,11 @@ class Map(GameObject):
 
         for go in self.objects:
             if go.render_type == "blit":
-                pg.transform.smoothscale()
+                go_surf = go.get_drawable_surf()
+                if go.orientation > 0:
+                    go_surf = pg.transform.rotate(go_surf, go.orientation)
+                self.window.blit(pg.transform.smoothscale(go_surf, (elem_size, elem_size)),\
+                                 (go.pos[0]*elem_size, go.pos[1]*elem_size))
             else:
                 mat_counter = 0
                 for index, pix in enumerate(go.get_drawable()):
@@ -399,9 +403,10 @@ while True:
 
         if draw_character:
 
-            window.fill((0, 99, 0))
+            window.fill((23, 157, 0))
 
-            char = Character()
+            char = Character(pos=[10, 10], orientation=77)
+            map.add_object(char)
 
             map.draw_map()
             draw_character = False

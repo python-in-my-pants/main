@@ -2,7 +2,7 @@ import numpy as np
 from Item import *
 from Weapon import *
 from Game_objects import GameObject
-import Data
+from Data import *
 import pygame as pg
 
 Debug = False
@@ -40,18 +40,18 @@ class Character(GameObject):
                  height=1, pos=[0, 0], bleed=[False, False, False, False, False, False], bleed_t=[0, 0, 0, 0, 0, 0], \
                  burn=False, burnt=0, poison=False, poison_t=0, blind=False, blind_t=0, items=[], weapons=[], \
                  orientation=0):
-        super().__init__(name=name, obj_type=object_type, pos=pos)
+        super().__init__(name=name, obj_type=object_type, pos=pos, materials=["player"])
         self.name = name
         self.object_type = object_type
         self.team = team
         self.health = health[:]
         self.dexterity = dexterity
         self.strength = strength
-        self.gear = gear
+        self.gear = gear[:]
         self.stamina = stamina
         self.speed = speed
         self.height = height
-        self.pos = pos
+        self.pos = pos[:]
         self.bleed = bleed[:]
         self.bleed_t = bleed_t[:]
         self.burn = burn
@@ -63,23 +63,41 @@ class Character(GameObject):
         self.items = items[:]
         self.weapons = weapons[:]
         self.orientation = orientation
-        self.pixs = pos
+        self.pixs = pos[:]
         self.render_type = "blit"
 
+        self.pixs = [self.pos]
+
     def get_drawable(self):
-        character_surf = pg.Surface((50, 50))
+        return self.pixs
+
+    def get_drawable_surf(self):
+        character_surf = pg.Surface((200, 200))
+        character_surf.fill((0, 0, 0))
+
         # left arm
-        pg.draw.circle(character_surf, self.mat_colour[self.team], \
-                       [self.pos[0] * 50 + int(50 * 0.15), self.pos[1] * 50 + int(50 * 0.5)], \
-                       radius=int(50 * 0.3), width=0)
+        pg.draw.circle(character_surf, mat_colour[self.team], \
+                       [int(character_surf.get_width() * 0.15), int(character_surf.get_height() * 0.5)], \
+                       int(character_surf.get_width() * 0.15), 0)
+
         # right arm
-        pg.draw.circle(character_surf, self.mat_colour[self.team], \
-                       [self.pos[0] * 50 + int(50 * 0.50), self.pos[1] * 50 + int(50 * 0.5)], \
-                       radius=int(50 * 0.3), width=0)
+        pg.draw.circle(character_surf, mat_colour[self.team], \
+                       [int(character_surf.get_width() * 0.85), int(character_surf.get_height() * 0.5)], \
+                       int(character_surf.get_width() * 0.15), 0)
+
+        # torso
+        pg.draw.rect(character_surf, mat_colour[self.team], \
+                     ( int(character_surf.get_width() * 0.15), \
+                       int(character_surf.get_height() * 0.35), \
+                       int(character_surf.get_width() * 0.75), \
+                       int(character_surf.get_width() * 0.3)))
+
         # head
-        pg.draw.circle(character_surf, self.mat_colour[self.team], \
-                       [self.pos[0] * 50 + int(50 * 0.85), self.pos[1] * 50 + int(50 * 0.5)], \
-                       radius=int(50 * 0.4), width=0)
+        pg.draw.circle(character_surf, mat_colour[self.team], \
+                       [int(character_surf.get_width() * 0.5), int(character_surf.get_height() * 0.5)], \
+                       int(character_surf.get_width() * 0.25), 0)
+
+        character_surf.set_colorkey((0, 0, 0))
 
         return character_surf
 

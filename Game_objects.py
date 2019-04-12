@@ -29,6 +29,7 @@ class GameObject:
         self.id = str(datetime.now().time())
         self.mat_ind = mat_ind[:]
         self.render_type = "draw"
+        self.orientation = 0  # attribute ONLY for render type "blit", has nothing to do  with "turn" method
 
     def move(self, direction):
 

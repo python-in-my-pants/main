@@ -16,5 +16,6 @@ material_codes = {
     "dirt": 3,
     "oak wood": 4,
     "bush": 5,
+    "player": 6,
     "default": -1
 }
