@@ -245,13 +245,8 @@ class Map(GameObject):
                 go_surf = go.get_drawable_surf()
                 if go.orientation > 0:
                     go_surf = pg.transform.rotate(go_surf, go.orientation)
-                factor = ((numpy.sqrt(2)-1)/2) * numpy.sin(3.5 * numpy.pi + 4 * numpy.deg2rad(go.orientation)) + \
-                         ((numpy.sqrt(2)-1)/2)+1
-                factor = 1
-                self.window.blit(pg.transform.smoothscale(go_surf, (int(elem_size*factor), int(elem_size*factor))), \
-                                 (int(go.pos[0]*elem_size), int(go.pos[1]*elem_size)))
-                shit = pg.transform.smoothscale(go_surf, (int(elem_size*factor), int(elem_size*factor)))
-                print("-"*10+str(shit.get_width()))
+                self.window.blit(pg.transform.smoothscale(go_surf, (elem_size, elem_size)),\
+                                 (go.pos[0]*elem_size, go.pos[1]*elem_size))
             else:
                 mat_counter = 0
                 for index, pix in enumerate(go.get_drawable()):
@@ -332,8 +327,9 @@ while True:
             if event.key == ord("n"):
                 redraw_house = True
 
-        if pg.key.get_pressed()[ord("p")]:
-            draw_character = True
+        if event.type == pg.KEYDOWN:
+            if event.key == ord("p"):
+                draw_character = True
 
         if event.type == pg.KEYDOWN:
             if event.key == ord("c"):
@@ -387,7 +383,7 @@ while True:
                 h = Bush(name=("Simple bush " + str(bush_counter)), obj_type="default", \
                                pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
 
-                # while there is a house (to add) and it doesn't fit and you didn't try 100 times yet generate a new one
+                # while there is a house (to add) and it does not fit and you did not try 100 times yet generate a new one
                 limit = 0
                 while h != 0 and map.add_object(h, border_size=1) != 1 and limit < 100:
                     h = Bush(name=("Simple bush " + str(bush_counter)), obj_type="default", \
@@ -409,9 +405,7 @@ while True:
 
             window.fill((23, 157, 0))
 
-            char = Character(pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)], \
-                             orientation=numpy.random.randint(0, 359), team="team_0" if \
-                             numpy.random.randint(0, 2) % 2 == 1 else "team_1")
+            char = Character(pos=[10, 10], orientation=77)
             map.add_object(char)
 
             map.draw_map()
