@@ -5,7 +5,7 @@ from Game_objects import GameObject
 from Data import *
 import pygame as pg
 
-Debug = False
+Debug = True
 
 
 class Character(GameObject):
@@ -289,7 +289,7 @@ if Debug:
     boi.item_add(Healstation())
     boi.item_drop(2)
     boi.item_change(Medkit(), 2)
-    print(boi.items[0].name)
+    print(boi.items)
 
 
 
