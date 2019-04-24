@@ -1,4 +1,5 @@
 import numpy
+import pygame
 import sys
 import copy
 from datetime import datetime
@@ -30,6 +31,12 @@ class GameObject:
         self.mat_ind = mat_ind[:]
         self.render_type = "draw"
         self.orientation = 0  # attribute ONLY for render type "blit", has nothing to do  with "turn" method
+        self.special_pixs = []  # array for doors etc. with functionality
+        self.collider = 0
+        self.changed = False # TODO only draw game_objects, if changed is True
+
+    def confirm(self):
+        pass
 
     def move(self, direction):
 
@@ -75,7 +82,7 @@ class GameObject:
             for p in self.pixs:
                 p[0] += self.size_x
         elif direction == "ccw":
-            for p in self.pix:
+            for p in self.pixs:
                 p[1] += self.size_y
 
         return self.get_drawable()
@@ -92,6 +99,27 @@ class GameObject:
         print("Type: " + self.type)
         print("ID: " + self.id)
         print()
+
+
+class CollAtom(pygame.sprite.Sprite):
+
+    def __init__(self, pos, w=1, h=1, height=1, name="collAtom", opaque=True):
+        """"
+        pos: gives the position in pixel coordinates like in pixs from GameObject [x,y]
+          w: width of the collAtom, usually 1, not intended to be changed
+          h: height of the collAtom, usually 1, not intended to be changend
+        height: theoretical height of the object in game, used for evaluating visibility
+                possible values are: 1 (default), 0.5 (for walls with windows etc.) and so on
+        """
+        super().__init__() #pygame.sprite.Sprite
+        self.pos = pos
+        self.w = w
+        self.h = h
+        self.height = height
+        self.name = name
+        self.opaque = opaque
+
+        self.rect = pygame.Rect(self.pos, (w, h))
 
 
 class Border(GameObject):
@@ -202,6 +230,10 @@ class SimpleHouse(GameObject):
 
         self.pixs.remove(self.pixs[door_pos])
 
+        self.special_pixs.append(door)
+
+        #  -------------------------------------------------------------------------------------------------------------
+
         # assign material for door and update mat_ind
         self.add_elem("oak wood", [door])
 
@@ -214,10 +246,36 @@ class SimpleHouse(GameObject):
 
         self.add_elem("dirt", floor)
 
+        #  -------------------------------------------------------------------------------------------------------------
+
         # adjust pixels to desired position on map
         for point in self.pixs:
             point[0] += self.pos[0]
             point[1] += self.pos[1]
+
+    def confirm(self):  # is called, when object is put in at final pos on map
+
+        # create collider
+        wall = []
+        for i in range(self.size_x):
+            wall.append([i, 0])
+            wall.append([i, self.size_y-1])
+        for i in range(self.size_y):
+            wall.append([0, i])
+            wall.append([self.size_x-1, i])
+
+        wall.append([self.size_x-1, self.size_y-1])
+
+        for point in wall:
+            point[0] += self.pos[0]
+            point[1] += self.pos[1]
+
+        collAtoms = [CollAtom(p, name=("door" if self.special_pixs.__contains__(p) else "wall")) for p in wall]
+
+        self.collider = pygame.sprite.Group()
+
+        for atom in collAtoms:
+            atom.add(self.collider)
 
     def add_elem(self, material, elem_pixs):  # adds new element to pixs and adjusts mat_ind and materials
 

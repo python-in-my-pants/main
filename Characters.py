@@ -1,7 +1,9 @@
-import numpy as np
+# encoding: UTF-8
+
+import math
 from Item import *
 from Weapon import *
-from Game_objects import GameObject
+from Game_objects import GameObject, CollAtom
 from Data import *
 import pygame as pg
 
@@ -65,11 +67,24 @@ class Character(GameObject):
         self.orientation = orientation
         self.pixs = pos[:]
         self.render_type = "blit"
+        self.collider = 0
 
         self.pixs = [self.pos]
 
     def get_drawable(self):
         return self.pixs
+
+    def confirm(self):
+        self.collider = pg.sprite.Group(CollAtom(self.pos))
+
+    def get_shoulders(self): # TODO: approximate sin/cos using Kleinwinkel approximation to optimize runtime
+
+        if self.orientation == 0:
+            return [[self.pos[0]+0.15, self.pos[1]+0.5], [self.pos[0]+0.85, self.pos[1]+0.5]]
+
+        #  shoulder positions
+        return [[-0.35 * math.cos(360-self.orientation), -0.35 * math.sin(360-self.orientation)],
+                [0.35 * math.cos(360-self.orientation), 0.35 * math.sin(360-self.orientation)]]
 
     def get_drawable_surf(self):
         character_surf = pg.Surface((200, 200))

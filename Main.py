@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 import pygame as pg
 from pygame.locals import *
 import numpy
@@ -150,43 +152,60 @@ class Map(GameObject):
         ### collision handling ###
         ##########################
 
-        # collision with other objects?
-        for go_pix in game_object.get_drawable():
-            if self.unique_pixs[go_pix[1]][go_pix[0]] is not 0:
-                # TODO: define function "shift(index)"
-                # 0 is origin, return vec in according direction:
-                '''
-                      K 9 D
-                    J 8 1 5 E
-                    C 4 0 2 A
-                    I 7 3 6 F
-                      H B G
+        # collision with characters should happen with colliders, not pixels of objects
+        if game_object.type == "character":
 
-                    usw.
+            for obj in self.objects:
+                if obj.collider != 0:
 
-                    ...maybe via permutations?
+                    # use new sprite group for collision, because using game_objects could result in false results after
+                    # moving the object (sprites are NOT moved by GameObject methods!)
+                    for collAtom in pg.sprite.Group(CollAtom(game_object.pos)).sprites():  # TODO: adjust so that laying characters are handled with 2 sprites
+                        if pg.sprite.spritecollide(collAtom, obj.collider, dokill=0):
 
-                    counter is [a,b] while a is counter for rounds
+                            game_object.move([numpy.random.randint(-1, 1), numpy.random.randint(-1, 1)])
+                            return self.add_object(game_object, border_size, recursion_depth)
 
-                    round 1 is 1,2,3,4 ä
-                        round 2 is 5,6,7,8
-                    round 3 is 8,A,B,C
-                        round 4 is D,E,F,G,H,I,J,K
-                    round 5 is L,M,N,O
+        else:
 
-                    and so on
-                    and b is the index in the round
-                    
-                    just pretend ur drawing a spiral BOI
-                '''
-                # simple solution: move in random direction
-                game_object.move([numpy.random.randint(-10, 10), numpy.random.randint(-10, 10)])
-                return self.add_object(game_object, border_size, recursion_depth)
+            # collision with other objects?
+            for go_pix in game_object.get_drawable():
+                if self.unique_pixs[go_pix[1]][go_pix[0]] is not 0:
+                    # TODO: define function "shift(index)"
+                    # 0 is origin, return vec in according direction:
+                    '''
+                          K 9 D
+                        J 8 1 5 E
+                        C 4 0 2 A
+                        I 7 3 6 F
+                          H B G
+    
+                        usw.
+    
+                        ...maybe via permutations?
+    
+                        counter is [a,b] while a is counter for rounds
+    
+                        round 1 is 1,2,3,4 ä
+                            round 2 is 5,6,7,8
+                        round 3 is 8,A,B,C
+                            round 4 is D,E,F,G,H,I,J,K
+                        round 5 is L,M,N,O
+    
+                        and so on
+                        and b is the index in the round
+                        
+                        just pretend ur drawing a spiral BOI
+                    '''
+                    # simple solution: move in random direction
+                    game_object.move([numpy.random.randint(-10, 10), numpy.random.randint(-10, 10)])
+                    return self.add_object(game_object, border_size, recursion_depth)
 
         # check border
         if border_size > 0:
             for go_pix in Border(obj_type="default", size_x_=size_x-1, size_y_=size_y-1,
-                                 pos=[game_object.pos[0] - border_size, game_object.pos[1] - border_size], thiccness=border_size).get_drawable():
+                                  pos=[game_object.pos[0] - border_size, game_object.pos[1] - border_size], \
+                                   thiccness=border_size).get_drawable():
                 if self.unique_pixs[go_pix[1]][go_pix[0]] is not 0:
                     # simple solution: move in random direction
                     # TODO: apply better solution
@@ -205,6 +224,8 @@ class Map(GameObject):
 
         # if everything is statisfied:
         self.objects.append(game_object)
+        if game_object.type == "character":
+            self.characters.append(game_object)
 
         if border_size > 0:
             self.objects.append(Border(obj_type="default", size_x_=size_x-1, size_y_=size_y-1,
@@ -218,6 +239,8 @@ class Map(GameObject):
                 if index > game_object.mat_ind[mat_counter]:
                     mat_counter += 1
             self.unique_pixs[go_pix[1]][go_pix[0]] = material_codes[game_object.materials[mat_counter]]
+
+        game_object.confirm()
 
         return 1
 
@@ -237,6 +260,17 @@ class Map(GameObject):
 
         self.objects = []
         self.unique_pixs = [[0 for _ in range(int(self.size_x))] for _ in range(int(self.size_y))]
+
+    def get_vmat(self):
+
+        # TODO return visibility matrix containing visibility for every char on the map
+        for char1, count1 in enumerate(self.characters.__len__()):
+            for char2 in self.characters:
+                if char1 is not char2:
+                    cand = [char1, char2]
+
+
+        pass
 
     def draw_map(self):  # STATUS: new
 
@@ -291,18 +325,18 @@ pg.init()
 
 mon = pg.display.Info()
 #screen_h = int((mon.current_h-150) * 0.66)
-screen_h = int(mon.current_h)
-screen_w = int(mon.current_w)
+screen_h = int(mon.current_h)-3*elem_size
+screen_w = int(mon.current_w)-3*elem_size
 
-fields_x = 50  # width
-fields_y = 50  # height
+fields_x = 30  # width
+fields_y = 30  # height
 
 elem_size = int(screen_w/fields_x) if int(screen_w/fields_x) < int(screen_h/fields_y) else int(screen_h/fields_y)
 
 x = elem_size * fields_x  # mult of 10
 y = elem_size * fields_y  # mult of 10
 
-window = pg.display.set_mode(flags=pg.FULLSCREEN)  # TODO set_mode takes no keyword arguments
+window = pg.display.set_mode((x,y))  #flags=pg.FULLSCREEN)
 pg.display.set_caption("Xepa")
 
 map = Map(fields_x, fields_y, window)
@@ -332,8 +366,9 @@ while True:
             if event.key == ord("n"):
                 redraw_house = True
 
-        if pg.key.get_pressed()[ord("p")]:
-            draw_character = True
+        if event.type == pg.KEYDOWN:
+            if event.key == ord("p"):
+                draw_character = True
 
         if event.type == pg.KEYDOWN:
             if event.key == ord("c"):
@@ -362,7 +397,7 @@ while True:
         if redraw_house:
             window.fill((23, 157, 0))
 
-            for i in range(10):
+            for i in range(5):
 
                 h = SimpleHouse(name=("Simple house " + str(counter)), obj_type="default", \
                                 pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
@@ -382,7 +417,7 @@ while True:
             bush_counter = 0
             limit = 0
 
-            for i in range(10):
+            for i in range(5):
 
                 h = Bush(name=("Simple bush " + str(bush_counter)), obj_type="default", \
                                pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
@@ -410,8 +445,8 @@ while True:
             window.fill((23, 157, 0))
 
             char = Character(pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)], \
-                             orientation=numpy.random.randint(0, 359), team="team_0" if \
-                             numpy.random.randint(0, 2) % 2 == 1 else "team_1")
+                             orientation=numpy.random.randint(0, 359), team="team_3" if \
+                             numpy.random.randint(0, 2) % 2 == 1 else "team_4")
             map.add_object(char)
 
             map.draw_map()
