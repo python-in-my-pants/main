@@ -111,7 +111,7 @@ class CollAtom(pygame.sprite.Sprite):
         height: theoretical height of the object in game, used for evaluating visibility
                 possible values are: 1 (default), 0.5 (for walls with windows etc.) and so on
         """
-        super().__init__() #pygame.sprite.Sprite
+        super().__init__()  # pygame.sprite.Sprite
         self.pos = pos
         self.w = w
         self.h = h
@@ -119,8 +119,21 @@ class CollAtom(pygame.sprite.Sprite):
         self.name = name
         self.opaque = opaque
 
+        # print(type(pygame.Rect(self.pos, (w, h))))
+
         self.rect = pygame.Rect(self.pos, (w, h))
 
+
+class LineOfSight(GameObject):
+
+    def __init__(self, x, y):
+        super().__init__()
+        for i in range(x):
+            self.pixs.append([x, y])
+        self.material = "border"
+
+    def get_drawable(self):
+        return self.pixs
 
 class Border(GameObject):
 

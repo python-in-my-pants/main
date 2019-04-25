@@ -2,7 +2,8 @@
 
 import pygame as pg
 from pygame.locals import *
-import numpy
+from skimage.draw import line_aa
+import numpy as np
 import sys
 
 from Game_objects import *
@@ -225,7 +226,7 @@ class Map(GameObject):
         # if everything is statisfied:
         self.objects.append(game_object)
         if game_object.type == "character":
-            self.characters.append(game_object)
+            self.characters.append(self.objects.__len__()-1)
 
         if border_size > 0:
             self.objects.append(Border(obj_type="default", size_x_=size_x-1, size_y_=size_y-1,
@@ -264,13 +265,46 @@ class Map(GameObject):
     def get_vmat(self):
 
         # TODO return visibility matrix containing visibility for every char on the map
-        for char1, count1 in enumerate(self.characters.__len__()):
-            for char2 in self.characters:
+        chars = []
+        for ind, obj in enumerate(self.objects):
+            if self.characters.__contains__(ind):
+                chars.append(obj)
+
+        mat = [[[8, 8] for _ in range(chars.__len__())] for _ in range(chars.__len__())]
+
+        for ind1, char1 in enumerate(chars):
+            for ind2, char2 in enumerate(chars):
                 if char1 is not char2:
-                    cand = [char1, char2]
 
+                    line_gr = pg.sprite.Group()  # line group
 
-        pass
+                    # TODO maybe try switching x,y
+                    #  AND try line()
+                    y_coord, x_coord, _ = line_aa(char1.pos[1], char1.pos[0], char2.pos[1], char2.pos[0])  # y1, x1, y2, x2
+
+                    for index in range(y_coord.__len__()):
+                        CollAtom([x_coord[index], y_coord[index]], name="line").add(line_gr)
+
+                    mat[ind1][ind2] = self.get_mat_x_y(line_gr, char1, char2)
+
+        return mat
+
+    def get_mat_x_y(self, line_gr, char1, char2):
+
+        for obj in self.objects:
+
+            if obj.collider and obj is not char1 and obj is not char2:
+                colliding_objs = pg.sprite.groupcollide(line_gr, obj.collider, dokilla=False, dokillb=False)
+
+                if colliding_objs:
+
+                    for key in colliding_objs:
+                        if key.opaque or colliding_objs[key].opaque:
+                            return [0, 0]  # cannot see, cannot shoot
+
+                    return [1, 0]  # can see, cannot shoot
+
+        return [1, 1]  # can see & shoot
 
     def draw_map(self):  # STATUS: new
 
@@ -285,7 +319,7 @@ class Map(GameObject):
                 self.window.blit(pg.transform.smoothscale(go_surf, (int(elem_size*factor), int(elem_size*factor))), \
                                  (int(go.pos[0]*elem_size), int(go.pos[1]*elem_size)))
                 shit = pg.transform.smoothscale(go_surf, (int(elem_size*factor), int(elem_size*factor)))
-                print("-"*10+str(shit.get_width()))
+                #print("-"*10+str(shit.get_width()))
             else:
                 mat_counter = 0
                 for index, pix in enumerate(go.get_drawable()):
@@ -353,7 +387,7 @@ while True:
     for event in pg.event.get():
 
         # handle events
-        if event.type == QUIT:
+        if event.type == pg.QUIT:
             pg.quit()
             sys.exit()
 
@@ -377,12 +411,12 @@ while True:
                 map.draw_map()
 
         if event.type == pg.KEYDOWN:
-            if event.key == K_RIGHT:
+            if event.key == pg.K_RIGHT:
                 x += elem_size
                 window = pg.display.set_mode((x, y))
                 map.draw_map()
         if event.type == pg.KEYDOWN:
-            if event.key == K_DOWN:
+            if event.key == pg.K_RIGHT:
                 y += elem_size
                 window = pg.display.set_mode((x, y))
                 map.draw_map()
@@ -450,6 +484,16 @@ while True:
             map.add_object(char)
 
             map.draw_map()
+
+            matrix = map.get_vmat()
+
+            for i in range(matrix[0].__len__()):
+                print()
+                for j in range(matrix[0].__len__()):
+                    sys.stdout.write(str(matrix[i][j]) + " ")
+
+            print("---"*100)
+
             draw_character = False
 
         pg.display.update()

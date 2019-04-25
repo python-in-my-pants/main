@@ -77,7 +77,7 @@ class Character(GameObject):
     def confirm(self):
         self.collider = pg.sprite.Group(CollAtom(self.pos))
 
-    def get_shoulders(self): # TODO: approximate sin/cos using Kleinwinkel approximation to optimize runtime
+    def get_inner_shoulders(self): # TODO: approximate sin/cos using Kleinwinkel approximation to optimize runtime
 
         if self.orientation == 0:
             return [[self.pos[0]+0.15, self.pos[1]+0.5], [self.pos[0]+0.85, self.pos[1]+0.5]]
@@ -85,6 +85,10 @@ class Character(GameObject):
         #  shoulder positions
         return [[-0.35 * math.cos(360-self.orientation), -0.35 * math.sin(360-self.orientation)],
                 [0.35 * math.cos(360-self.orientation), 0.35 * math.sin(360-self.orientation)]]
+
+    def get_outer_shoulders(self):
+
+        pass
 
     def get_drawable_surf(self):
         character_surf = pg.Surface((200, 200))
