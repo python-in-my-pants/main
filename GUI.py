@@ -19,4 +19,4 @@ class Button:
             font = pg.font.SysFont("Comic Sans", 24)
             font_render = font.render(text, True, (255, 255, 255))
             self.surf.blit(font_render, (int(dim[0] / 2) - int(font_render.get_width() / 2), \
-                                         int(dim[1]/2) - int(font_render.get_height()/2)))
+                                         int(dim[1] / 2) - int(font_render.get_height()/ 2)))

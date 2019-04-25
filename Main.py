@@ -77,7 +77,7 @@ while True:
             print("Click me harder!")
             global mode
             mode = "test"
-        btn = Button([int(0.618 * screen_w), int(0.069 * screen_h)], name="Button 1", color=(0, 50, 201), \
+        btn = Button([int(0.2 * screen_w), int(0.069 * screen_h)], name="Button 1", color=(0, 50, 201), \
                      action=button_fkt, text="Play")
         mainscreen.blit(btn.surf, (screen_w/2, screen_h/2))
 
