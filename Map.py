@@ -20,7 +20,7 @@ class Map(GameObject):
 
     unique_pixs = []  # holds definite pixel(materials) that will be drawn
     objects = []  # holds list of objects on the map of the form: [id, object]
-    characters = []  # holds list of characters in map
+    characters = []  # holds indices of objects[] of characters
     window = -1
 
     def __init__(self, x_size, y_size, window, elem_size):  # STATUS: working, returns 1 on success, 0 else
@@ -263,7 +263,7 @@ class Map(GameObject):
         self.unique_pixs = [[0 for _ in range(int(self.size_x))] for _ in range(int(self.size_y))]
 
     @staticmethod
-    def get_vmat(self):
+    def get_vmat(self):  # TODO: character height, laying characters hitbox etc
 
         # TODO return visibility matrix containing visibility for every char on the map
         chars = []
@@ -271,7 +271,7 @@ class Map(GameObject):
             if self.characters.__contains__(ind):
                 chars.append(obj)
 
-        mat = [[[8, 8] for _ in range(chars.__len__())] for _ in range(chars.__len__())]
+        mat = [[[1, 1] for _ in range(chars.__len__())] for _ in range(chars.__len__())]
 
         for ind1, char1 in enumerate(chars):
             for ind2, char2 in enumerate(chars):
