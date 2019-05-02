@@ -44,48 +44,13 @@ if True:
 
 #  ---------------------------------------------------------------------------------------------------
 
-
-class MainWindow:
-
-    def __init__(self, size):
-
-        self.buttons = []
-
-        # window handling
-        mainscreen = pg.display.set_mode((size[0], size[1]))
-        pg.display.set_caption("nAme;Rain - Mainscreen")
-
-        main_background_img = pg.image.load("main_background.jpg")
-        main_background_img = pg.transform.scale(main_background_img, (size[0], size[1]))
-        main_background_img = main_background_img.convert()
-
-        mainscreen.blit(main_background_img, (0, 0))
-
-        # set up GUI
-
-        def button_fkt():
-            print("Click me harder!")
-            global mode
-            mode = "test"
-            changed = True
-
-        btn = Button([int(0.2 * size[0]), int(0.069 * size[1])], pos=[size[0] / 2, size[1] / 2], name="Button 1", \
-                     color=(0, 50, 201), action=button_fkt, text="Play")
-        mainscreen.blit(btn.surf, btn.pos)
-        self.buttons.append(btn)
-
-        self.surface = mainscreen
-
-
 while True:
 
     # display main screen and let user choose mode (atm Play/Credits)
 
-    #window_switched = False if old_mode == mode else True
-
     if mode == "mainscreen":
 
-        if changed:
+        if changed:  # set changed false at the end
 
             size = [screen_w-20, screen_h]
 
@@ -103,12 +68,12 @@ while True:
 
             # set up GUI
 
-
             def button_fkt():
 
                 print("Click me harder!")
                 global mode
-                mode = "test"
+                global changed
+                mode = "test"  # if changing mode also change "changed"
                 changed = True
 
             btn = Button([int(0.2 * size[0]), int(0.069 * size[1])], pos=[size[0] / 2, size[1] / 2], name="Button 1", \
@@ -117,6 +82,8 @@ while True:
             buttons.append(btn)
 
             surface = mainscreen
+
+            changed = False
 
         # event handling
         for event in pg.event.get():
@@ -139,8 +106,6 @@ while True:
             pg.display.update()
             redraw = False
 
-        if changed:
-            changed = False
         continue
 
     elif mode == "test":
@@ -155,17 +120,22 @@ while True:
 
             x = elem_size * fields_x  # mult of 10
             y = elem_size * fields_y  # mult of 10
+            gui_overhead = int((1/3) * (x if x < y else y))
 
-            window = pg.displayset_mode((x, y))  # flags=pgFULLSCREEN)
-            pg.displayset_caption("Xepa")
+            map_window = pg.Surface((x, y))
+            window = pg.display.set_mode((x + 2 * gui_overhead, y))  # flags=pgFULLSCREEN)
+            window.fill((255, 255, 255))
+            pg.display.set_caption("Xepa")
 
-            map = Map(fields_x, fields_y, window, elem_size)
+            map = Map(fields_x, fields_y, map_window, elem_size)
 
             redraw_house = True
             draw_character = True
 
             counter = 0
             h = 0
+
+            changed = False
 
         for event in pg.event.get():
 
@@ -212,7 +182,7 @@ while True:
 
         # draw changes to screen
         if redraw_house:
-            window.fill((23, 157, 0))
+            map_window.fill((23, 157, 0))
 
             for i in range(5):
 
@@ -253,12 +223,9 @@ while True:
 
             map.draw_map()
 
-            if debug:
-                print()
-
         if draw_character:
 
-            window.fill((23, 157, 0))
+            map_window.fill((23, 157, 0))
 
             char = Character(pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)], \
                                  orientation=numpy.random.randint(0, 359), team="team_3" if \
@@ -278,8 +245,10 @@ while True:
 
         if redraw_house or changed:
             redraw_house = False
+            window.blit(map_window, (gui_overhead, 0))
             pg.display.update()
         if draw_character or changed:
             draw_character = False
+            window.blit(map_window, (gui_overhead, 0))
             pg.display.update()
 
