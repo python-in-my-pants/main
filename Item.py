@@ -13,41 +13,41 @@ class Item:
 
 class Bandage(Item):
 	def __init__(self, name="Bandage", idi=random.randint(1, 1000), value=25):
-		super().__init__(name, idi)
+		super(Item).__init__(name, idi)
 		self.value = value
 
 
 class Medkit(Item):
 	def __init__(self, name="Medkit", idi=random.randint(1001, 2000), value=75):
-		super().__init__(name, idi)
+		super(Item).__init__(name, idi)
 		self.value = value
 
 
 class Healstation(Item):
 	# TODO Implement heal on more than one bodypart
 	def __init__(self, name="Healstation", idi=random.randint(2001, 3000), value=50):
-		super().__init__(name, idi)
+		super(Item).__init__(name, idi)
 		self.value = value
 
 
 class Accudope(Item):
 	# TODO Add bool for the dopes if they are active
 	def __init__(self, name="Accuracy-Dope", idi=random.randint(3001, 4000), modifier=1.25, timer=5):
-		super().__init__(name, idi)
+		super(Item).__init__(name, idi)
 		self.modifier = modifier
 		self.timer = timer
 
 
 class Stredope(Item):
 	def __init__(self, name="Strength-Dope", idi=random.randint(4001, 5000), modifier=1.25, timer=5):
-		super().__init__(name, idi)
+		super(Item).__init__(name, idi)
 		self.modifier = modifier
 		self.timer = timer
 
 
 class Speeddope(Item):
 	def __init__(self, name="Speed-Dope", idi=random.randint(6001, 7000), modifier=1.5, timer=5):
-		super().__init__(name, idi)
+		super(Item).__init__(name, idi)
 		self.modifier = modifier
 		self.timer = timer
 
@@ -55,13 +55,13 @@ class Speeddope(Item):
 class Defdope(Item):
 	# TODO Change get_damage function to implement defdope
 	def __init__(self, name="Defence-Dope", idi=random.randint(8001, 9000), timer=5):
-		super().__init__(name, idi)
+		super(Item).__init__(name, idi)
 		self.timer = timer
 
 
 class Helm(Item):
 	def __init__(self, name="default_Helm", idi=random.randint(10001, 11000), typ=0, durability=0, reduction=0):
-		super().__init__(name, idi)
+		super(Item).__init__(name, idi)
 		self.typ = typ
 		self.durability = durability
 		self.reduction = reduction
@@ -81,7 +81,7 @@ class Helm(Item):
 
 class Armor(Item):
 	def __init__(self, name="default_Armor", idi=random.randint(11001, 12000), typ=0, durability=50, reduction=0.3):
-		super().__init__(name, idi)
+		super(Item).__init__(name, idi)
 		self.typ = typ
 		self.durability = durability
 		self.reduction = reduction
