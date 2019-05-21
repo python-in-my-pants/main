@@ -11,7 +11,7 @@ from GUI import *
 from Data import *
 from Map import *
 from Characters import Character
-
+char_amount = 0
 elem_size = 25
 debug = True
 
@@ -42,8 +42,7 @@ if True:
     x = elem_size * fields_x  # mult of 10
     y = elem_size * fields_y  # mult of 10
 
-#  ---------------------------------------------------------------------------------------------------
-
+#  --------------------------------------------------------------------------------------------------
 while True:
 
     # display main screen and let user choose mode (atm Play/Credits)
@@ -66,7 +65,7 @@ while True:
 
             mainscreen.blit(main_background_img, (0, 0))
 
-            # set up GUI
+            # set up GUIve
 
             def button_fkt():
 
@@ -112,8 +111,10 @@ while True:
 
         if changed:
 
-            fields_x = 30  # width
-            fields_y = 30  # height
+            buttons.clear()
+
+            fields_x = 50  # width
+            fields_y = 50  # height
 
             elem_size = int(screen_w / fields_x) if int(screen_w / fields_x) < int(screen_h / fields_y) else int(
                 screen_h / fields_y)
@@ -131,9 +132,36 @@ while True:
 
             redraw_house = True
             draw_character = True
+            global select
+            select = False
 
             counter = 0
             h = 0
+
+            def selecter_mode():
+                global select
+                select = True
+                global selected_char
+                global selected_button
+                selected_char = get_selected_char(pg.mouse.get_pos())
+                selected_button = get_selected_button(pg.mouse.get_pos())
+                print("Perter")
+
+
+            def get_selected_char(mouse_pos):
+                for i in map.characters:
+                    p = pg.mouse.get_pos()
+                    if (int((p[0] - gui_overhead) / elem_size)) == map.objects[i].pos[0]:
+                        boi = map.objects[i]
+                        return boi
+
+
+            def get_selected_button(mouse_pos):
+                for i in range(buttons.__len__()):
+                    p = pg.mouse.get_pos()
+                    if button.is_focused(p):
+                        boibut = buttons[i]
+                        return boibut
 
             changed = False
 
@@ -157,6 +185,15 @@ while True:
                 if event.key == ord("p"):
                     draw_character = True
 
+            if event.type == pg.MOUSEBUTTONDOWN:
+                p = pg.mouse.get_pos()
+                print(p)
+                for button in buttons:
+                    print(button.pos)
+                    if button.is_focused(p):
+                        redraw = True
+                        button.action()
+
             if event.type == pg.KEYDOWN:
                 if event.key == ord("c"):
                     map.clear()
@@ -178,6 +215,27 @@ while True:
                 if event.key == ord("n"):
                     redraw_house = False
 
+            # TODO BOI
+            if select:
+                selected_char = get_selected_char(pg.mouse.get_pos())
+                selected_button = get_selected_button(pg.mouse.get_pos())
+
+                if event.type == pg.KEYDOWN:
+                    if event.key == ord("w"):
+                        print("LOLOL")
+                        selected_char.pos[1] += 1
+                        selected_button.pos[1] += 1 * elem_size
+
+                if event.type == pg.MOUSEBUTTONDOWN:
+                    p = pg.mouse.get_pos()
+                    for button in buttons:
+                        if not button.is_focused(p):
+                            select = False
+
+                map_window.fill((23, 157, 0))
+                map.draw_map()
+                window.blit(map_window, (gui_overhead, 0))
+                pg.display.update()
             # apply changes to game state
 
         # draw changes to screen
@@ -224,25 +282,27 @@ while True:
             map.draw_map()
 
         if draw_character:
-
             map_window.fill((23, 157, 0))
-
             char = Character(pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)], \
                                  orientation=numpy.random.randint(0, 359), team="team_3" if \
                                  numpy.random.randint(0, 2) % 2 == 1 else "team_4", name="Character " + str(map.characters.__len__()))
+
+            charBtn = Button([elem_size, elem_size], pos=[char.get_pos(0)*elem_size+gui_overhead, char.get_pos(1)*elem_size],
+                             name="CharB " + str(map.characters.__len__()), action=selecter_mode, text="P")
+            window.blit(charBtn.surf, charBtn.pos)
+            buttons.append(charBtn)
             map.add_object(char)
 
             map.draw_map()
 
-            '''matrix = map.get_vmat(map)
-
-                for i in range(matrix[0].__len__()):
-                    print()
-                    for j in range(matrix[0].__len__()):
-                        sys.stdout.write(str(matrix[i][j]) + " ")
-
-                print("---"*100)'''
-
+            matrix = map.get_vmat(map)
+            '''
+            for i in range(matrix[0].__len__()):
+                print()
+                for j in range(matrix[0].__len__()):
+                    sys.stdout.write(str(matrix[i][j]) + " ")
+                print("---"*100)
+            '''
         if redraw_house or changed:
             redraw_house = False
             window.blit(map_window, (gui_overhead, 0))
@@ -251,4 +311,11 @@ while True:
             draw_character = False
             window.blit(map_window, (gui_overhead, 0))
             pg.display.update()
+        #if map.characters.__len__() > 1:
+          #  map.objects[map.characters[0]].shoot(map.objects[map.characters[1]], 10, 0)
+          #  print("shoot me senpai")
 
+
+
+
+    continue

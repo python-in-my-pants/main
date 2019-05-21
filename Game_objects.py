@@ -107,7 +107,7 @@ class CollAtom(pygame.sprite.Sprite):
         """"
         pos: gives the position in pixel coordinates like in pixs from GameObject [x,y]
           w: width of the collAtom, usually 1, not intended to be changed
-          h: height of the collAtom, usually 1, not intended to be changend
+          h: height of the collAtom, usually 1, not intended to be changed
         height: theoretical height of the object in game, used for evaluating visibility
                 possible values are: 1 (default), 0.5 (for walls with windows etc.) and so on
         """
