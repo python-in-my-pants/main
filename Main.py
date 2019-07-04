@@ -149,19 +149,19 @@ while True:
 
 
             def get_selected_char(mouse_pos):
-                for i in map.characters:
+                for ch in map.characters:
                     p = pg.mouse.get_pos()
-                    if (int((p[0] - gui_overhead) / elem_size)) == map.objects[i].pos[0]:
-                        boi = map.objects[i]
+                    if (int((p[0] - gui_overhead) / elem_size)) == map.objects[ch].pos[0] and \
+                            (int(p[1] / elem_size)) == map.objects[ch].pos[1]:
+                        boi = map.objects[ch]
                         return boi
 
 
             def get_selected_button(mouse_pos):
-                for i in range(buttons.__len__()):
+                for bt in buttons:
                     p = pg.mouse.get_pos()
-                    if button.is_focused(p):
-                        boibut = buttons[i]
-                        return boibut
+                    if bt.is_focused(p):
+                        return bt
 
             changed = False
 
@@ -217,20 +217,39 @@ while True:
 
             # TODO BOI
             if select:
-                selected_char = get_selected_char(pg.mouse.get_pos())
-                selected_button = get_selected_button(pg.mouse.get_pos())
-
+                print("BHASDSAD")
                 if event.type == pg.KEYDOWN:
                     if event.key == ord("w"):
-                        print("LOLOL")
+                        print("W")
+                        selected_char.pos[1] -= 1
+                        selected_button.pos[1] -= 1 * elem_size
+
+                if event.type == pg.KEYDOWN:
+                    if event.key == ord("s"):
+                        print("S")
                         selected_char.pos[1] += 1
                         selected_button.pos[1] += 1 * elem_size
 
+                if event.type == pg.KEYDOWN:
+                    if event.key == ord("a"):
+                        print("A")
+                        selected_char.pos[0] -= 1
+                        selected_button.pos[0] -= 1 * elem_size
+
+                if event.type == pg.KEYDOWN:
+                    if event.key == ord("d"):
+                        print("D")
+                        selected_char.pos[0] += 1
+                        selected_button.pos[0] += 1 * elem_size
+
                 if event.type == pg.MOUSEBUTTONDOWN:
                     p = pg.mouse.get_pos()
+                    checkBtn = 0
                     for button in buttons:
-                        if not button.is_focused(p):
-                            select = False
+                        if button.is_focused(p):
+                            checkBtn += 1
+                    if checkBtn == 0:
+                        select = False
 
                 map_window.fill((23, 157, 0))
                 map.draw_map()
@@ -289,6 +308,7 @@ while True:
 
             charBtn = Button([elem_size, elem_size], pos=[char.get_pos(0)*elem_size+gui_overhead, char.get_pos(1)*elem_size],
                              name="CharB " + str(map.characters.__len__()), action=selecter_mode, text="P")
+
             window.blit(charBtn.surf, charBtn.pos)
             buttons.append(charBtn)
             map.add_object(char)
