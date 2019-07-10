@@ -57,7 +57,6 @@ while True:
             # window handling
             mainscreen = pg.display.set_mode((size[0], size[1]))
             pg.display.set_caption("nAme;Rain - Mainscreen")
-
             main_background_img = pg.image.load("main_background.jpg")
             main_background_img = pg.transform.scale(main_background_img, (size[0], size[1]))
             main_background_img = main_background_img.convert()
@@ -143,7 +142,7 @@ while True:
                 global selected_button
                 selected_char = get_selected_char(pg.mouse.get_pos())
                 selected_button = get_selected_button(pg.mouse.get_pos())
-                print("Perter")
+                #print("Perter")
 
 
             def get_selected_char(mouse_pos):
@@ -222,7 +221,7 @@ while True:
 
             # TODO BOI
             if select:
-                print("BHASDSAD")
+                #print("BHASDSAD")
                 if event.type == pg.KEYDOWN:
                     if event.key == ord("w"):
                         print("W")
