@@ -27,6 +27,8 @@ role = "nobody"
 teams = []
 select = False
 
+clock = pg.time.Clock()
+
 # get correct screen size
 
 mon = pg.display.Info()
@@ -79,10 +81,8 @@ while True:
                 global mode
                 global changed
 
-                pg.mixer.music.load("ass.mp3")
-                pg.mixer.music.play(0)
-                time.sleep(2.5)
-                pass
+                #pg.mixer.music.load("ass.mp3")
+                #pg.mixer.music.play(0)
 
                 mode = "test"  # if changing mode also change "changed"
                 changed = True
@@ -324,17 +324,24 @@ while True:
             map_window.fill((23, 157, 0))
 
             char = Character(pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)], \
-                                 orientation=numpy.random.randint(0, 359), team="team_3" if \
-                                 numpy.random.randint(0, 2) % 2 == 1 else "team_4", name="Character " + str(map.characters.__len__()))
+                             orientation=numpy.random.randint(0, 359), team="team_3" ,
+                             name="Character " + str(map.characters.__len__()))
 
-            charBtn = Button([elem_size, elem_size], pos=[char.get_pos(0)*elem_size+gui_overhead, char.get_pos(1)*elem_size],
-                             name="CharB " + str(map.characters.__len__()), action=selecter_mode, text="P")
+            print(char.get_pos(0))
+            print(char.get_pos(1))
+            charBtn = Button(dim=[elem_size, elem_size],
+                             pos=[char.get_pos(0)*elem_size, char.get_pos(1)*elem_size],
+                             name="CharB " + str(map.characters.__len__()),
+                             img="rand.png",
+                             action=selecter_mode,
+                             text="")
 
-            window.blit(charBtn.surf, charBtn.pos)
-            buttons.append(charBtn)
             map.add_object(char)
 
             map.draw_map()
+
+            buttons.append(charBtn)
+            map_window.blit(charBtn.surf, charBtn.pos)
 
             matrix = map.get_vmat(map)
             '''
@@ -372,41 +379,38 @@ while True:
             size[1] = size[1] * 5
 
             # window handling
-            mainscreen = pg.display.set_mode(size)
+            connect_screen = pg.display.set_mode(size)
             pg.display.set_caption("nAme;Rain - Verbindungskonfiguration ...")
 
             main_background_img = pg.transform.scale(main_background_img, (size[0], size[1]))
             main_background_img = main_background_img.convert()
 
-            mainscreen.blit(main_background_img, (0, 0))
-
-            buttons = []
-
+            connect_screen.blit(main_background_img, (0, 0))
 
             # set up GUI
 
-            def button_fkt():
-                print("Click me harder!")
-                global mode
-                global changed
-                mode = "test"  # if changing mode also change "changed"
-                changed = True
-
-
-            '''btn = Button([int(0.2 * size[0]), int(0.069 * size[1])], \
-                         pos=[size[0]/2 - int(0.2 * size[0])/2, size[1]/2 - int(0.069 * size[1])/2], name="Button 1", \
-                         color=(0, 50, 201), action=button_fkt, text="Play")'''
-            btn = Button([int(0.2 * size[0]), int(0.069 * size[1])],
-                         pos=[size[0] / 2 - int(0.2 * size[0]) / 2, size[1] / 2 - int(0.069 * size[1]) / 2 + 200],
-                         name="Button 1", img="blue_button_menu.jpg", action=button_fkt, text="Play")
-
-            mainscreen.blit(btn.surf, btn.pos)
-            print(btn.dim)
-            buttons.append(btn)
-
-            surface = mainscreen
+            surface = connect_screen
 
             changed = False
+
+        # handle input events
+        for event in pg.event.get():
+
+            # handle events
+            if event.type == pg.QUIT:
+                pg.quit()
+                sys.exit()
+
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_ESCAPE:
+                    pg.quit()
+                    sys.exit()
+
+        if redraw or changed:
+            pg.display.update()
+            redraw = False
+
+        continue
 
     elif mode == "char_select":
 
@@ -601,4 +605,3 @@ while True:
 
             # don't touch this
             changed = False
-
