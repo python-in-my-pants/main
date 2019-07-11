@@ -5,6 +5,7 @@ from pygame.locals import *
 from skimage.draw import line_aa
 import numpy as np
 import sys
+import pickle
 
 from Game_objects import *
 from GUI import *
@@ -401,7 +402,9 @@ while True:
 
                 # get global representation of map - without window but with elem size
                 # TODO: for client, set clients elem_size after building map from transmitted data
-                map.get_map()
+                global_map = map.get_map()
+
+                # TODO: pickle and send to host
 
                 # set vars for drawing contents later on
                 # TODO: are they used here at all? maybe delete
