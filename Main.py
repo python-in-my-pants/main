@@ -233,6 +233,12 @@ while True:
                     print("Q")
                     net.send_data(map.get_map())
 
+            if event.type == pg.KEYDOWN:
+                if event.key == ord("e"):
+                    print("E")
+                    ret = net.receive_data()
+                    print(ret)
+
             # TODO BOI
             if select:
                 if event.type == pg.KEYDOWN:
@@ -273,10 +279,6 @@ while True:
                 window.blit(map_window, (gui_overhead, 0))
                 pg.display.update()
             # apply changes to game
-
-        data = "Aw Mah Shoulder!!!!!"
-        ret = net.receive_data(data)
-        print(ret)
 
         # --------------------------------------------------------------------------------------------------------------
         # draw changes to screen

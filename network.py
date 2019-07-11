@@ -1,5 +1,6 @@
 import socket
 import pickle
+from retrying import retry
 
 
 class Network:
@@ -13,41 +14,28 @@ class Network:
 
     def connect(self):
         self.client.connect(self.addr)
-        return self.client.recv(1048576).decode()
+        return self.client.recv(65536).decode()
 
     def send(self, data):
-        """
-        :param data: str
-        :return: str
-        """
         try:
-            self.client.send(str.encode(data))
-            reply = self.client.recv(1048576).decode()
-            return reply
+            self.client.send(data)
         except socket.error as e:
             return str(e)
 
     def send_data(self, stuff):
-        """
-        Send position to server
-        :return: None
-        """
-        data = str(self.id) + ":" + str(pickle.dumps(stuff, 2))
-        reply = self.send(data)
-        return reply
-
-    def receive_data(self, data):
+        data = pickle.dumps(stuff, 2)
+        self.send(data)
+    @retry
+    def receive_data(self):
+        self.client.setblocking(False)
         try:
-            self.client.send(str.encode(data))
-            reply = self.client.recv(2048).decode()
+            reply = self.parse_data(self.client.recv(65536))#1048576
+            print("PENIS")
+            if reply is None:
+                raise IOError("Broken af")
             return reply
-        except socket.error as e:
-            return str(e)
-
-    @staticmethod
-    def parse_data(data):
-        try:
-            d = data.split(":")[1]
-            return pickle.loads(d[1])
         except:
             pass
+
+    def parse_data(self, data):
+            return pickle.loads(data)
