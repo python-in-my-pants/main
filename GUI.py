@@ -28,7 +28,7 @@ class Button:
             self.surf.blit(font_render, (int(dim[0] / 2) - int(font_render.get_width() / 2),
                                          int(dim[1] / 2) - int(font_render.get_height() / 2)))
 
-    def is_focused(self, mouse_pos):  # TODO: changed !!! if it does not work go back to commented version!
+    def is_focused(self, mouse_pos):
 
         if mouse_pos[0] > self.pos[0] and mouse_pos[0] < self.pos[0] + self.dim[0] and \
            mouse_pos[1] > self.pos[1] and mouse_pos[1] < self.pos[1] + self.dim[1]:
@@ -52,7 +52,7 @@ class Textfield:
 
         self.action = on_click
 
-    def is_focused(self, mouse_pos):  # TODO: changed !!! if it does not work go back to commented version!
+    def is_focused(self, mouse_pos):
 
         if mouse_pos[0] > self.pos[0] and mouse_pos[0] < self.pos[0] + self.dim[0] and \
            mouse_pos[1] > self.pos[1] and mouse_pos[1] < self.pos[1] + self.dim[1]:

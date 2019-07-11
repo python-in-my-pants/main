@@ -75,7 +75,7 @@ while True:
 
             def button_fkt():
 
-                print("Click me harder!")
+                # print("Click me harder!")
                 global mode
                 global changed
 
@@ -479,7 +479,6 @@ while True:
                 # TODO: get into wait status and receive transmission from host
 
                 map_data = ...  # TODO: after recieving data, unpickle it into "map_data"
-
 
                 # user side
                 # ------------------------------------------------------------------------------------------------------
