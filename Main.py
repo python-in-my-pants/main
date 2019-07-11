@@ -43,7 +43,6 @@ while True:
 
     # display main screen and let user choose mode (atm Play/Credits)
 
-    select = False
 
     if mode == "mainscreen":
 
@@ -374,7 +373,7 @@ while True:
 
             redraw_house = True
             draw_character = True
-            global select
+            #global select
             select = False
 
             counter = 0
