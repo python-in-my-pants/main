@@ -5,7 +5,6 @@ from pygame.locals import *
 from skimage.draw import line_aa
 import numpy as np
 import sys
-import pickle
 
 from Game_objects import *
 from GUI import *
@@ -15,8 +14,6 @@ from Characters import Character
 char_amount = 0
 elem_size = 25
 debug = True
-
-select = False
 
 pg.init()
 mode = "mainscreen"
@@ -45,6 +42,8 @@ if True:
 while True:
 
     # display main screen and let user choose mode (atm Play/Credits)
+
+    select = False
 
     if mode == "mainscreen":
 
@@ -82,9 +81,9 @@ while True:
             '''btn = Button([int(0.2 * size[0]), int(0.069 * size[1])], \
                          pos=[size[0]/2 - int(0.2 * size[0])/2, size[1]/2 - int(0.069 * size[1])/2], name="Button 1", \
                          color=(0, 50, 201), action=button_fkt, text="Play")'''
-            btn = Button([int(0.2 * size[0]), int(0.069 * size[1])], \
-                         pos=[size[0]/2 - int(0.2 * size[0])/2, size[1]/2 - int(0.069 * size[1])/2 + 200], name="Button 1", \
-                         img="blue_button_menu.jpg", action=button_fkt, text="Play")
+            btn = Button([int(0.2 * size[0]), int(0.069 * size[1])],
+                         pos=[size[0]/2 - int(0.2 * size[0])/2, size[1]/2 - int(0.069 * size[1])/2 + 200],
+                         name="Button 1", img="blue_button_menu.jpg", action=button_fkt, text="Play")
             mainscreen.blit(btn.surf, btn.pos)
             print(btn.dim)
             buttons.append(btn)
@@ -142,6 +141,7 @@ while True:
 
             redraw_house = True
             draw_character = True
+            global select
             select = False
 
             counter = 0
@@ -154,8 +154,6 @@ while True:
                 global selected_button
                 selected_char = get_selected_char(pg.mouse.get_pos())
                 selected_button = get_selected_button(pg.mouse.get_pos())
-                #print("Perter")
-
 
             def get_selected_char(mouse_pos):
                 for ch in map.characters:
@@ -164,7 +162,6 @@ while True:
                             (int(p[1] / elem_size)) == map.objects[ch].pos[1]:
                         boi = map.objects[ch]
                         return boi
-
 
             def get_selected_button(mouse_pos):
                 for bt in buttons:
@@ -225,13 +222,6 @@ while True:
                 if event.key == ord("n"):
                     redraw_house = False
 
-            if event.type == pg.KEYDOWN:
-                if event.key == ord("o"):
-                    print("ORA ORA")
-                    pickled = pickle.dumps(Map.objects, 2)
-                    unpickled = pickle.loads(pickled)
-                    print(unpickled)
-
             # TODO BOI
             if select:
                 #print("BHASDSAD")
@@ -276,6 +266,7 @@ while True:
 
         # draw changes to screen
         if redraw_house:
+
             map_window.fill((23, 157, 0))
 
             for i in range(5):
@@ -354,7 +345,62 @@ while True:
           #  map.objects[map.characters[0]].shoot(map.objects[map.characters[1]], 10, 0)
           #  print("shoot me senpai")
 
+    elif mode == "char_select":
+        pass
+
+    elif mode == "game":
+
+        # "changed" is true, if you are new in this window mode, then change
+        if changed:
+
+            buttons.clear()
+
+            fields_x = 50  # width
+            fields_y = 50  # height
+
+            elem_size = int(screen_w / fields_x) if int(screen_w / fields_x) < int(screen_h / fields_y) else int(
+                screen_h / fields_y)
+
+            x = elem_size * fields_x  # mult of 10
+            y = elem_size * fields_y  # mult of 10
+            gui_overhead = int((1 / 3) * (x if x < y else y))
+
+            map_window = pg.Surface((x, y))
+            window = pg.display.set_mode((x + 2 * gui_overhead, y))  # flags=pgFULLSCREEN)
+            window.fill((255, 255, 255))
+            pg.display.set_caption("Xepa")
+
+            map = Map(fields_x, fields_y, map_window, elem_size)
+
+            redraw_house = True
+            draw_character = True
+            global select
+            select = False
+
+            counter = 0
+            h = 0
+
+            def selecter_mode():
+                global select
+                select = True
+                global selected_char
+                global selected_button
+                selected_char = get_selected_char(pg.mouse.get_pos())
+                selected_button = get_selected_button(pg.mouse.get_pos())
+
+            def get_selected_char(mouse_pos):
+                for ch in map.characters:
+                    p = pg.mouse.get_pos()
+                    if (int((p[0] - gui_overhead) / elem_size)) == map.objects[ch].pos[0] and \
+                            (int(p[1] / elem_size)) == map.objects[ch].pos[1]:
+                        boi = map.objects[ch]
+                        return boi
+
+            def get_selected_button(mouse_pos):
+                for bt in buttons:
+                    p = pg.mouse.get_pos()
+                    if bt.is_focused(p):
+                        return bt
 
 
-
-    continue
+            changed = False
