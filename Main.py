@@ -20,6 +20,8 @@ mode = "mainscreen"
 changed = True
 redraw = True
 
+global select
+select = False
 # get correct screen size
 
 mon = pg.display.Info()
@@ -40,10 +42,7 @@ if True:
 
 #  --------------------------------------------------------------------------------------------------
 while True:
-
     # display main screen and let user choose mode (atm Play/Credits)
-
-
     if mode == "mainscreen":
 
         if changed:  # set changed false at the end
@@ -140,7 +139,7 @@ while True:
 
             redraw_house = True
             draw_character = True
-            global select
+            #global select
             select = False
 
             counter = 0
