@@ -20,8 +20,8 @@ mode = "mainscreen"
 changed = True
 redraw = True
 
-global select
 select = False
+
 # get correct screen size
 
 mon = pg.display.Info()
@@ -82,6 +82,7 @@ while True:
             btn = Button([int(0.2 * size[0]), int(0.069 * size[1])],
                          pos=[size[0]/2 - int(0.2 * size[0])/2, size[1]/2 - int(0.069 * size[1])/2 + 200],
                          name="Button 1", img="blue_button_menu.jpg", action=button_fkt, text="Play")
+
             mainscreen.blit(btn.surf, btn.pos)
             print(btn.dim)
             buttons.append(btn)
@@ -116,6 +117,7 @@ while True:
     elif mode == "test":
 
         # "changed" is true, if you are new in this window mode, then change
+        # set up all visible stuff and set vars for drawing map contents later on
         if changed:
 
             buttons.clear()
@@ -169,6 +171,7 @@ while True:
 
             changed = False
 
+        # --------------------------------------------------------------------------------------------------------------
         # handle input events
         for event in pg.event.get():
 
@@ -222,30 +225,29 @@ while True:
 
             # TODO BOI
             if select:
-                #print("BHASDSAD")
                 if event.type == pg.KEYDOWN:
                     if event.key == ord("w"):
                         print("W")
                         selected_char.pos[1] -= 1
-                        selected_button.pos[1] -= 1 * elem_size
+                        selected_button.pos[1] -= elem_size
 
                 if event.type == pg.KEYDOWN:
                     if event.key == ord("s"):
                         print("S")
                         selected_char.pos[1] += 1
-                        selected_button.pos[1] += 1 * elem_size
+                        selected_button.pos[1] += elem_size
 
                 if event.type == pg.KEYDOWN:
                     if event.key == ord("a"):
                         print("A")
                         selected_char.pos[0] -= 1
-                        selected_button.pos[0] -= 1 * elem_size
+                        selected_button.pos[0] -= elem_size
 
                 if event.type == pg.KEYDOWN:
                     if event.key == ord("d"):
                         print("D")
                         selected_char.pos[0] += 1
-                        selected_button.pos[0] += 1 * elem_size
+                        selected_button.pos[0] += elem_size
 
                 if event.type == pg.MOUSEBUTTONDOWN:
                     p = pg.mouse.get_pos()
@@ -262,6 +264,7 @@ while True:
                 pg.display.update()
             # apply changes to game state
 
+        # --------------------------------------------------------------------------------------------------------------
         # draw changes to screen
         if redraw_house:
 
@@ -331,20 +334,135 @@ while True:
                     sys.stdout.write(str(matrix[i][j]) + " ")
                 print("---"*100)
             '''
+
         if redraw_house or changed:
             redraw_house = False
             window.blit(map_window, (gui_overhead, 0))
             pg.display.update()
+
         if draw_character or changed:
             draw_character = False
             window.blit(map_window, (gui_overhead, 0))
             pg.display.update()
+
         #if map.characters.__len__() > 1:
           #  map.objects[map.characters[0]].shoot(map.objects[map.characters[1]], 10, 0)
           #  print("shoot me senpai")
 
     elif mode == "char_select":
-        pass
+
+        '''
+        two cases:
+        case 1: you are host
+            create map 
+            send it to client
+        case 2: you are client
+            wait for map
+            create map from transmission
+        
+        both parties calculate army size dependent on map size           
+        '''
+
+        if changed:
+
+            role = get_role()  # TODO: what am I?
+
+            if role == "host":
+
+                # global - set only if you are the host, else get it from transm
+                fields_x = 50  # width
+                fields_y = 50  # height
+
+                # user side
+                # ------------------------------------------------------------------------------------------------------
+                elem_size = int(screen_w / fields_x) if int(screen_w / fields_x) < int(screen_h / fields_y) else int(
+                    screen_h / fields_y)
+
+                # user side for elem_size is user side
+                x = elem_size * fields_x  # mult of 10
+                y = elem_size * fields_y  # mult of 10
+
+                # user side
+                gui_overhead = int((1 / 3) * (x if x < y else y))
+
+                # all user side, for display/window is not transmitted
+                map_window = pg.Surface((x, y))
+                window = pg.display.set_mode((x + 2 * gui_overhead, y))  # flags=pgFULLSCREEN)
+                window.fill((255, 255, 255))
+                pg.display.set_caption("Xepa")
+
+                # ------------------------------------------------------------------------------------------------------
+
+                # build map from all data
+                # user side
+                map = Map(fields_x, fields_y, map_window, elem_size)
+
+                # get global representation of map - without window but with elem size
+                # TODO: for client, set clients elem_size after building map from transmitted data
+                map.get_map()
+
+                # set vars for drawing contents later on
+                # TODO: are they used here at all? maybe delete
+                redraw_house = True
+                draw_character = True
+                select = False
+                counter = 0
+                h = 0
+
+            elif role == "client":
+
+                # wait for transmission from host
+                # TODO: get into wait status and recieve transmission from host
+
+                map_data = ...  # TODO: after recieving data, unpickle it into "map_data"
+
+
+                # user side
+                # ------------------------------------------------------------------------------------------------------
+                elem_size = int(screen_w / fields_x) if int(screen_w / fields_x) < int(screen_h / fields_y) else \
+                            int(screen_h / fields_y)
+
+                # user side for elem_size is user side
+                x = elem_size * fields_x  # mult of 10
+                y = elem_size * fields_y  # mult of 10
+
+                # user side
+                gui_overhead = int((1 / 3) * (x if x < y else y))
+
+                # all user side, for display/window is not transmitted
+                map_window = pg.Surface((x, y))
+                window = pg.display.set_mode((x + 2 * gui_overhead, y))
+                window.fill((255, 255, 255))
+                pg.display.set_caption("Xepa")
+
+                # ------------------------------------------------------------------------------------------------------
+
+                # create local map object from map_data
+                '''
+                lis = [self.unique_pixs,        0
+                       self.objects,            1
+                       self.characters,         2
+                       self.size_x,             3
+                       self.size_y]             4
+                '''
+
+                map = Map(map_data[3],
+                          map_data[4],
+                          window=map_window,
+                          elem_size=elem_size,
+                          objects=map_data[1],
+                          characters=map_data[2],
+                          unique_pixels=map_data[0])
+
+                # set vars for drawing contents later on
+                # TODO: are they used here at all? maybe delete
+                redraw_house = True
+                draw_character = True
+                select = False
+                counter = 0
+                h = 0
+
+        changed = False
 
     elif mode == "game":
 
@@ -353,8 +471,9 @@ while True:
 
             buttons.clear()
 
-            fields_x = 50  # width
-            fields_y = 50  # height
+            # get this from transmission of host
+            fields_x = ...  # width
+            fields_y = ...  # height
 
             elem_size = int(screen_w / fields_x) if int(screen_w / fields_x) < int(screen_h / fields_y) else int(
                 screen_h / fields_y)
@@ -372,12 +491,12 @@ while True:
 
             redraw_house = True
             draw_character = True
-            #global select
             select = False
 
             counter = 0
             h = 0
 
+            # functions for character movement
             def selecter_mode():
                 global select
                 select = True
@@ -400,5 +519,6 @@ while True:
                     if bt.is_focused(p):
                         return bt
 
-
+            # don't touch this
             changed = False
+
