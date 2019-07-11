@@ -5,6 +5,7 @@ from pygame.locals import *
 from skimage.draw import line_aa
 import numpy as np
 import sys
+import pickle
 
 from Game_objects import *
 from GUI import *
@@ -15,9 +16,7 @@ char_amount = 0
 elem_size = 25
 debug = True
 
-
-
-
+select = False
 
 pg.init()
 mode = "mainscreen"
@@ -132,7 +131,6 @@ while True:
 
             redraw_house = True
             draw_character = True
-            global select
             select = False
 
             counter = 0
@@ -214,6 +212,13 @@ while True:
             if event.type == pg.KEYUP:
                 if event.key == ord("n"):
                     redraw_house = False
+
+            if event.type == pg.KEYDOWN:
+                if event.key == ord("o"):
+                    print("ORA ORA")
+                    pickled = pickle.dumps(Map.objects, 2)
+                    unpickled = pickle.loads(pickled)
+                    print(unpickled)
 
             # TODO BOI
             if select:
