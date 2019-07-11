@@ -20,6 +20,7 @@ mode = "mainscreen"
 changed = True
 redraw = True
 
+role = "nobody"
 select = False
 
 # get correct screen size
@@ -365,6 +366,7 @@ while True:
 
         if changed:
 
+            global role
             role = get_role()  # TODO: what am I?
 
             if role == "host":
@@ -446,8 +448,8 @@ while True:
                        self.size_y]             4
                 '''
 
-                map = Map(map_data[3],
-                          map_data[4],
+                map = Map(x_size=map_data[3],
+                          y_size=map_data[4],
                           window=map_window,
                           elem_size=elem_size,
                           objects=map_data[1],
