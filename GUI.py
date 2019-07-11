@@ -1,5 +1,5 @@
 import pygame as pg
-
+import sys
 
 class Button:
 
@@ -14,29 +14,36 @@ class Button:
 
         if img:
             background_img = pg.image.load(img)
+            background_img.set_colorkey((0, 0, 0))
             background_img = pg.transform.scale(background_img, dim)
-            background_img = background_img.convert()
             self.surf.blit(background_img, (0, 0))
-            font = pg.font.SysFont("comicsansms", 24)
-            font_render = font.render(text, True, (255, 255, 255))
-            self.surf.blit(font_render, (int(dim[0] / 2) - int(font_render.get_width() / 2),
-                                         int(dim[1] / 2) - int(font_render.get_height() / 2)))
         else:
             self.surf.fill(color)
-            font = pg.font.SysFont("comicsansms", 24)
-            font_render = font.render(text, True, (255, 255, 255))
-            self.surf.blit(font_render, (int(dim[0] / 2) - int(font_render.get_width() / 2),
-                                         int(dim[1] / 2) - int(font_render.get_height() / 2)))
 
-    def is_focused(self, mouse_pos):  # TODO: changed !!! if it does not work go back to commented version!
+        font = pg.font.SysFont("comicsansms", 24)
+        font_render = font.render(text, True, (255, 255, 255))
+        self.surf.blit(font_render, (int(dim[0] / 2) - int(font_render.get_width() / 2),
+                                     int(dim[1] / 2) - int(font_render.get_height() / 2)))
+
+    def is_focused(self, mouse_pos):
 
         if mouse_pos[0] > self.pos[0] and mouse_pos[0] < self.pos[0] + self.dim[0] and \
             mouse_pos[1] > self.pos[1] and mouse_pos[1] < self.pos[1] + self.dim[1]:
             return True
         return False
 
+    @staticmethod
+    def blit_alpha(target, source, location, opacity):
+        x = location[0]
+        y = location[1]
+        temp = pg.Surface((source.get_width(), source.get_height())).convert()
+        temp.blit(target, (-x, -y))
+        temp.blit(source, (0, 0))
+        temp.set_alpha(opacity)
+        target.blit(temp, location)
 
-class Textfield:
+
+'''class Textfield:
 
     def __init__(self, dim, pos=[], background_colour=(255, 255, 255), name="Textfield"):
 
@@ -48,11 +55,11 @@ class Textfield:
         self.content = "Enter IP here"
 
         def on_click():
-            pass
+
 
         self.action = on_click
 
-    def is_focused(self, mouse_pos):  # TODO: changed !!! if it does not work go back to commented version!
+    def is_focused(self, mouse_pos):
 
         if mouse_pos[0] > self.pos[0] and mouse_pos[0] < self.pos[0] + self.dim[0] and \
            mouse_pos[1] > self.pos[1] and mouse_pos[1] < self.pos[1] + self.dim[1]:
@@ -67,4 +74,4 @@ class Textfield:
         self.surf.blit(font_render, (int(self.dimension[0] / 2) - int(font_render.get_width() / 2),
                                      int(self.dimension[1] / 2) - int(font_render.get_height() / 2)))
 
-        return self.surf
+        return self.surf'''
