@@ -6,12 +6,14 @@ from skimage.draw import line_aa
 import numpy as np
 import sys
 import pickle
+import time
 
 from Game_objects import *
 from GUI import *
 from Data import *
 from Map import *
 from Characters import Character
+
 char_amount = 0
 elem_size = 25
 debug = True
@@ -22,6 +24,7 @@ changed = True
 redraw = True
 
 role = "nobody"
+teams = []
 select = False
 
 # get correct screen size
@@ -75,6 +78,11 @@ while True:
                 print("Click me harder!")
                 global mode
                 global changed
+
+                pg.mixer.music.load("ass.mp3")
+                pg.mixer.music.play(0)
+                time.sleep(2.5)
+
                 mode = "test"  # if changing mode also change "changed"
                 changed = True
 
@@ -86,7 +94,6 @@ while True:
                          name="Button 1", img="blue_button_menu.jpg", action=button_fkt, text="Play")
 
             mainscreen.blit(btn.surf, btn.pos)
-            print(btn.dim)
             buttons.append(btn)
 
             surface = mainscreen
@@ -351,6 +358,55 @@ while True:
           #  map.objects[map.characters[0]].shoot(map.objects[map.characters[1]], 10, 0)
           #  print("shoot me senpai")
 
+    elif mode == "connection_setup":
+
+        if changed:  # set changed false at the end
+
+            # size = [1650, 928]  # [mon.current_w-100, mon.current_h-100]
+
+            main_background_img = pg.image.load("108.gif")  # "main_background.jpg")
+
+            size = list(main_background_img.get_size())
+            size[0] = size[0] * 5
+            size[1] = size[1] * 5
+
+            # window handling
+            mainscreen = pg.display.set_mode(size)
+            pg.display.set_caption("nAme;Rain - Verbindungskonfiguration ...")
+
+            main_background_img = pg.transform.scale(main_background_img, (size[0], size[1]))
+            main_background_img = main_background_img.convert()
+
+            mainscreen.blit(main_background_img, (0, 0))
+
+            buttons = []
+
+
+            # set up GUI
+
+            def button_fkt():
+                print("Click me harder!")
+                global mode
+                global changed
+                mode = "test"  # if changing mode also change "changed"
+                changed = True
+
+
+            '''btn = Button([int(0.2 * size[0]), int(0.069 * size[1])], \
+                         pos=[size[0]/2 - int(0.2 * size[0])/2, size[1]/2 - int(0.069 * size[1])/2], name="Button 1", \
+                         color=(0, 50, 201), action=button_fkt, text="Play")'''
+            btn = Button([int(0.2 * size[0]), int(0.069 * size[1])],
+                         pos=[size[0] / 2 - int(0.2 * size[0]) / 2, size[1] / 2 - int(0.069 * size[1]) / 2 + 200],
+                         name="Button 1", img="blue_button_menu.jpg", action=button_fkt, text="Play")
+
+            mainscreen.blit(btn.surf, btn.pos)
+            print(btn.dim)
+            buttons.append(btn)
+
+            surface = mainscreen
+
+            changed = False
+
     elif mode == "char_select":
 
         '''
@@ -367,8 +423,8 @@ while True:
 
         if changed:
 
-            global role
-            role = get_role()  # TODO: what am I?
+            #global role
+            #role = get_role()  # TODO: what am I?
 
             if role == "host":
 
@@ -419,7 +475,7 @@ while True:
             elif role == "client":
 
                 # wait for transmission from host
-                # TODO: get into wait status and recieve transmission from host
+                # TODO: get into wait status and receive transmission from host
 
                 map_data = ...  # TODO: after recieving data, unpickle it into "map_data"
 
@@ -450,7 +506,8 @@ while True:
                        self.objects,            1
                        self.characters,         2
                        self.size_x,             3
-                       self.size_y]             4
+                       self.size_y,             4
+                       team_number]             5
                 '''
 
                 map = Map(x_size=map_data[3],
@@ -461,6 +518,8 @@ while True:
                           characters=map_data[2],
                           unique_pixels=map_data[0])
 
+                team_number = map_data[5]
+
                 # set vars for drawing contents later on
                 # TODO: are they used here at all? maybe delete
                 redraw_house = True
@@ -469,7 +528,21 @@ while True:
                 counter = 0
                 h = 0
 
+            else:
+                print("Something went wrong assigning the role 'client/host'!")
+
         changed = False
+
+        #global teams
+
+        '''if role == "host":
+            teams[team_number] = Team( ... )  # TODO: create standard guy somewhere and add him to the team here
+        elif role == "client":
+            teams[team_number] = Team( ... )  # TODO: as above BUT give him a different name
+        else:
+            print("Something went wrong assigning the role 'client/host'!")'''
+
+        # gui for character selection goes here
 
     elif mode == "game":
 

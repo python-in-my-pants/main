@@ -28,9 +28,47 @@ class Button:
             self.surf.blit(font_render, (int(dim[0] / 2) - int(font_render.get_width() / 2),
                                          int(dim[1] / 2) - int(font_render.get_height() / 2)))
 
-    def is_focused(self, mouse_pos):
+    def is_focused(self, mouse_pos):  # TODO: changed !!! if it does not work go back to commented version!
 
-        if mouse_pos[0] > self.pos[0] and mouse_pos[0] < self.pos[0] + self.dim[0] and \
-            mouse_pos[1] > self.pos[1] and mouse_pos[1] < self.pos[1] + self.dim[1]:
+        #  mouse_pos[0] > self.pos[0] and mouse_pos[0] < self.pos[0] + self.dim[0] and \
+        #  mouse_pos[1] > self.pos[1] and mouse_pos[1] < self.pos[1] + self.dim[1]:
+
+        if mouse_pos[0] - self.pos[0] < self.dim[0] and mouse_pos[1] - self.pos[1] < self.dim[1]:
             return True
         return False
+
+
+class Textfield:
+
+    def __init__(self, dim, pos=[], background_colour=(255, 255, 255), name="Textfield"):
+
+        self.dimension = dim[:]
+        self.pos = pos[:]
+        self.background_colour = background_colour
+        self.name = name
+        self.surf = pg.Surface(dim)
+        self.content = "Enter IP here"
+
+        def on_click():
+            pass
+
+        self.action = on_click
+
+    def is_focused(self, mouse_pos):  # TODO: changed !!! if it does not work go back to commented version!
+
+        #  mouse_pos[0] > self.pos[0] and mouse_pos[0] < self.pos[0] + self.dim[0] and \
+        #  mouse_pos[1] > self.pos[1] and mouse_pos[1] < self.pos[1] + self.dim[1]:
+
+        if mouse_pos[0] - self.pos[0] < self.dimension[0] and mouse_pos[1] - self.pos[1] < self.dimension[1]:
+            return True
+        return False
+
+    def draw(self):  # returns surface of button
+
+        self.surf.fill(self.background_colour)
+        font = pg.font.SysFont("comicsansms", 24)
+        font_render = font.render(self.content, True, (255, 255, 255))
+        self.surf.blit(font_render, (int(self.dimension[0] / 2) - int(font_render.get_width() / 2),
+                                     int(self.dimension[1] / 2) - int(font_render.get_height() / 2)))
+
+        return self.surf

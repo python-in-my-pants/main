@@ -33,6 +33,8 @@ class Map(GameObject):
         self.size_x = x_size
         self.size_y = y_size
 
+        self.starting_areas = []  # holds lists [a,b,c,d]
+
         # beware, when using you have to call [y][x]
         if not unique_pixels:
             self.unique_pixs = [[0 for _ in range(int(x_size))] for _ in range(int(y_size))]

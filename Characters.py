@@ -11,6 +11,7 @@ Debug = True
 
 
 class Character(GameObject):
+
     def __init__(self, created_num=0, name="default_character", object_type="character", team="team_0", \
                  health=[100, 100, 100, 100, 100, 100], gear=[], dexterity=25, strength=15, stamina=1000, speed=1, \
                  height=1, pos=[0, 0], bleed=[False, False, False, False, False, False], bleed_t=[0, 0, 0, 0, 0, 0], \
