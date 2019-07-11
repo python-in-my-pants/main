@@ -50,20 +50,28 @@ while True:
 
         if changed:  # set changed false at the end
 
-            size = [screen_w-20, screen_h]
+            #size = [1650, 928]  # [mon.current_w-100, mon.current_h-100]
 
-            buttons = []
+            main_background_img = pg.image.load("108.gif")  # "main_background.jpg")
+
+            size = list(main_background_img.get_size())
+            print(size)
+            size[0] = size[0] * 5
+            size[1] = size[1] * 5
+            print(size)
 
             # window handling
-            mainscreen = pg.display.set_mode((size[0], size[1]))
+            mainscreen = pg.display.set_mode(size)
             pg.display.set_caption("nAme;Rain - Mainscreen")
-            main_background_img = pg.image.load("main_background.jpg")
+
             main_background_img = pg.transform.scale(main_background_img, (size[0], size[1]))
             main_background_img = main_background_img.convert()
 
             mainscreen.blit(main_background_img, (0, 0))
 
-            # set up GUIve
+            buttons = []
+
+            # set up GUI
 
             def button_fkt():
 
@@ -73,9 +81,14 @@ while True:
                 mode = "test"  # if changing mode also change "changed"
                 changed = True
 
-            btn = Button([int(0.2 * size[0]), int(0.069 * size[1])], pos=[size[0] / 2, size[1] / 2], name="Button 1", \
-                         color=(0, 50, 201), action=button_fkt, text="Play")
+            '''btn = Button([int(0.2 * size[0]), int(0.069 * size[1])], \
+                         pos=[size[0]/2 - int(0.2 * size[0])/2, size[1]/2 - int(0.069 * size[1])/2], name="Button 1", \
+                         color=(0, 50, 201), action=button_fkt, text="Play")'''
+            btn = Button([int(0.2 * size[0]), int(0.069 * size[1])], \
+                         pos=[size[0]/2 - int(0.2 * size[0])/2, size[1]/2 - int(0.069 * size[1])/2 + 200], name="Button 1", \
+                         img="blue_button_menu.jpg", action=button_fkt, text="Play")
             mainscreen.blit(btn.surf, btn.pos)
+            print(btn.dim)
             buttons.append(btn)
 
             surface = mainscreen
@@ -107,6 +120,7 @@ while True:
 
     elif mode == "test":
 
+        # "changed" is true, if you are new in this window mode, then change
         if changed:
 
             buttons.clear()
@@ -162,6 +176,7 @@ while True:
 
             changed = False
 
+        # handle input events
         for event in pg.event.get():
 
             # handle events
@@ -305,7 +320,9 @@ while True:
             map.draw_map()
 
         if draw_character:
+
             map_window.fill((23, 157, 0))
+
             char = Character(pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)], \
                                  orientation=numpy.random.randint(0, 359), team="team_3" if \
                                  numpy.random.randint(0, 2) % 2 == 1 else "team_4", name="Character " + str(map.characters.__len__()))
