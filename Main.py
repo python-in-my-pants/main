@@ -82,6 +82,7 @@ while True:
                 pg.mixer.music.load("ass.mp3")
                 pg.mixer.music.play(0)
                 time.sleep(2.5)
+                pass
 
                 mode = "test"  # if changing mode also change "changed"
                 changed = True
