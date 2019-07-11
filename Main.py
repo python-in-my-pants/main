@@ -367,8 +367,7 @@ while True:
 
         if changed:
 
-            global role
-            role = get_role()  # TODO: what am I?
+            role = 12#get_role()  # TODO: what am I?
 
             if role == "host":
 
