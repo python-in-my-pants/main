@@ -56,10 +56,8 @@ while True:
             main_background_img = pg.image.load("108.gif")  # "main_background.jpg")
 
             size = list(main_background_img.get_size())
-            print(size)
             size[0] = size[0] * 5
             size[1] = size[1] * 5
-            print(size)
 
             # window handling
             mainscreen = pg.display.set_mode(size)
