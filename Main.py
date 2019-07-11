@@ -11,6 +11,7 @@ from Game_objects import *
 from GUI import *
 from Data import *
 from Map import *
+from network import *
 from Characters import Character
 char_amount = 0
 elem_size = 25
@@ -20,6 +21,8 @@ pg.init()
 mode = "mainscreen"
 changed = True
 redraw = True
+
+net = Network()
 
 role = "nobody"
 select = False
@@ -225,6 +228,11 @@ while True:
                 if event.key == ord("n"):
                     redraw_house = False
 
+            if event.type == pg.KEYDOWN:
+                if event.key == ord("q"):
+                    print("Q")
+                    net.send_data(map.get_map())
+
             # TODO BOI
             if select:
                 if event.type == pg.KEYDOWN:
@@ -264,7 +272,11 @@ while True:
                 map.draw_map()
                 window.blit(map_window, (gui_overhead, 0))
                 pg.display.update()
-            # apply changes to game state
+            # apply changes to game
+
+        data = "Aw Mah Shoulder!!!!!"
+        ret = net.receive_data(data)
+        print(ret)
 
         # --------------------------------------------------------------------------------------------------------------
         # draw changes to screen

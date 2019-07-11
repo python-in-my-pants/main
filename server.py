@@ -35,17 +35,12 @@ def threaded_client(conn):
                 break
             else:
                 print("Received: " + reply)
-                arr = reply.split(":")
-                id = int(arr[0])
-
-                if id == 0: nid = 1
-                if id == 1: nid = 0
-
                 print("Sending: " + reply)
 
             conn.sendall(str.encode(reply))
         except:
-            break
+            pass
+            #break
 
     print("Connection Closed")
     conn.close()

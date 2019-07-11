@@ -13,7 +13,7 @@ class Network:
 
     def connect(self):
         self.client.connect(self.addr)
-        return self.client.recv(2048).decode()
+        return self.client.recv(1048576).decode()
 
     def send(self, data):
         """
@@ -22,7 +22,7 @@ class Network:
         """
         try:
             self.client.send(str.encode(data))
-            reply = self.client.recv(2048).decode()
+            reply = self.client.recv(1048576).decode()
             return reply
         except socket.error as e:
             return str(e)
@@ -32,9 +32,17 @@ class Network:
         Send position to server
         :return: None
         """
-        data = str(self.id) + ":" + pickle.dumps(stuff, 2)
+        data = str(self.id) + ":" + str(pickle.dumps(stuff, 2))
         reply = self.send(data)
         return reply
+
+    def receive_data(self, data):
+        try:
+            self.client.send(str.encode(data))
+            reply = self.client.recv(2048).decode()
+            return reply
+        except socket.error as e:
+            return str(e)
 
     @staticmethod
     def parse_data(data):
