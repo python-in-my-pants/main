@@ -44,6 +44,7 @@ class Character(GameObject):
         self.render_type = "blit"
         self.collider = 0
         self.pixs = [self.pos]
+        self.is_selected = False
 
     def get_pos(self, i):
         return self.pos[i]
@@ -62,10 +63,6 @@ class Character(GameObject):
         #  shoulder positions
         return [[-0.35 * math.cos(360-self.orientation), -0.35 * math.sin(360-self.orientation)],
                 [0.35 * math.cos(360-self.orientation), 0.35 * math.sin(360-self.orientation)]]
-
-    def get_outer_shoulders(self):
-
-        pass
 
     def get_drawable_surf(self):
         character_surf = pg.Surface((200, 200))
@@ -92,6 +89,9 @@ class Character(GameObject):
         pg.draw.circle(character_surf, mat_colour[self.team],
                        [int(character_surf.get_width() * 0.5), int(character_surf.get_height() * 0.5)],
                        int(character_surf.get_width() * 0.25), 0)
+
+        if self.is_selected:
+            pg.draw.circle(character_surf, (170, 0, 0), [100, 100], 105, 5)
 
         character_surf.set_colorkey((0, 0, 0))
 

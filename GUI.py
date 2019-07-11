@@ -13,17 +13,25 @@ class Button:
         self.dim = dim[:]
 
         if img:
-            background_img = pg.image.load(img)
+            background_img = pg.image.load(img).convert()
+
             background_img.set_colorkey((0, 0, 0))
+
             background_img = pg.transform.scale(background_img, dim)
+
             self.surf.blit(background_img, (0, 0))
+
+            '''font = pg.font.SysFont("comicsansms", 24)
+            font_render = font.render(text, True, (255, 255, 255))
+            self.surf.blit(font_render, (int(dim[0] / 2) - int(font_render.get_width() / 2),
+                                         int(dim[1] / 2) - int(font_render.get_height() / 2)))'''
+
         else:
             self.surf.fill(color)
-
-        font = pg.font.SysFont("comicsansms", 24)
-        font_render = font.render(text, True, (255, 255, 255))
-        self.surf.blit(font_render, (int(dim[0] / 2) - int(font_render.get_width() / 2),
-                                     int(dim[1] / 2) - int(font_render.get_height() / 2)))
+            font = pg.font.SysFont("comicsansms", 24)
+            font_render = font.render(text, True, (255, 255, 255))
+            self.surf.blit(font_render, (int(dim[0] / 2) - int(font_render.get_width() / 2),
+                                         int(dim[1] / 2) - int(font_render.get_height() / 2)))
 
     def is_focused(self, mouse_pos):
 

@@ -132,8 +132,8 @@ while True:
 
             buttons.clear()
 
-            fields_x = 50  # width
-            fields_y = 50  # height
+            fields_x = 30  # width
+            fields_y = 30  # height
 
             elem_size = int(screen_w / fields_x) if int(screen_w / fields_x) < int(screen_h / fields_y) else int(
                 screen_h / fields_y)
@@ -168,9 +168,13 @@ while True:
             def get_selected_char(mouse_pos):
                 for ch in map.characters:
                     p = pg.mouse.get_pos()
-                    if (int((p[0] - gui_overhead) / elem_size)) == map.objects[ch].pos[0] and \
+                    if (int(((p[0]) - gui_overhead) / elem_size)) == map.objects[ch].pos[0] and \
                             (int(p[1] / elem_size)) == map.objects[ch].pos[1]:
                         boi = map.objects[ch]
+                        for chari in map.characters:
+                            map.objects[chari].is_selected = False
+                        boi.is_selected = True
+
                         return boi
 
             def get_selected_button(mouse_pos):
@@ -238,26 +242,30 @@ while True:
                 if event.type == pg.KEYDOWN:
                     if event.key == ord("w"):
                         print("W")
-                        selected_char.pos[1] -= 1
-                        selected_button.pos[1] -= elem_size
+                        if map.movement_possible(selected_char, [selected_char.pos[0], selected_char.pos[1] - 1]):
+                            selected_char.pos[1] -= 1
+                            selected_button.pos[1] -= elem_size
 
                 if event.type == pg.KEYDOWN:
                     if event.key == ord("s"):
                         print("S")
-                        selected_char.pos[1] += 1
-                        selected_button.pos[1] += elem_size
+                        if map.movement_possible(selected_char, [selected_char.pos[0], selected_char.pos[1]+1]):
+                            selected_char.pos[1] += 1
+                            selected_button.pos[1] += elem_size
 
                 if event.type == pg.KEYDOWN:
                     if event.key == ord("a"):
                         print("A")
-                        selected_char.pos[0] -= 1
-                        selected_button.pos[0] -= elem_size
+                        if map.movement_possible(selected_char, [selected_char.pos[0] - 1, selected_char.pos[1]]):
+                            selected_char.pos[0] -= 1
+                            selected_button.pos[0] -= elem_size
 
                 if event.type == pg.KEYDOWN:
                     if event.key == ord("d"):
                         print("D")
-                        selected_char.pos[0] += 1
-                        selected_button.pos[0] += elem_size
+                        if map.movement_possible(selected_char, [selected_char.pos[0] + 1, selected_char.pos[1]]):
+                            selected_char.pos[0] += 1
+                            selected_button.pos[0] += elem_size
 
                 if event.type == pg.MOUSEBUTTONDOWN:
                     p = pg.mouse.get_pos()
@@ -267,6 +275,8 @@ while True:
                             checkBtn += 1
                     if checkBtn == 0:
                         select = False
+                        for chari in map.characters:
+                            map.objects[chari].is_selected = False
 
                 map_window.fill((23, 157, 0))
                 map.draw_map()
@@ -324,24 +334,24 @@ while True:
             map_window.fill((23, 157, 0))
 
             char = Character(pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)], \
-                             orientation=numpy.random.randint(0, 359), team="team_3" ,
+                             orientation=numpy.random.randint(0, 359), team="team_3",
                              name="Character " + str(map.characters.__len__()))
 
-            print(char.get_pos(0))
-            print(char.get_pos(1))
             charBtn = Button(dim=[elem_size, elem_size],
-                             pos=[char.get_pos(0)*elem_size, char.get_pos(1)*elem_size],
+                             pos=[(char.get_pos(0))*elem_size + gui_overhead, char.get_pos(1)*elem_size],
                              name="CharB " + str(map.characters.__len__()),
-                             img="rand.png",
+                             img="roter_rand.jpg",
                              action=selecter_mode,
                              text="")
 
+            print("char pos: " + str(char.pos[0]*elem_size + gui_overhead) + " " + str(char.pos[1]*elem_size))
+            print("btn pos: " + str(charBtn.pos))
+
             map.add_object(char)
+            buttons.append(charBtn)
 
             map.draw_map()
-
-            buttons.append(charBtn)
-            map_window.blit(charBtn.surf, charBtn.pos)
+            window.blit(charBtn.surf, charBtn.pos)
 
             matrix = map.get_vmat(map)
             '''
@@ -361,6 +371,10 @@ while True:
             draw_character = False
             window.blit(map_window, (gui_overhead, 0))
             pg.display.update()
+
+        if redraw or changed:
+            pg.display.update()
+            redraw = False
 
         #if map.characters.__len__() > 1:
           #  map.objects[map.characters[0]].shoot(map.objects[map.characters[1]], 10, 0)
