@@ -404,6 +404,8 @@ while True:
                 # TODO: for client, set clients elem_size after building map from transmitted data
                 global_map = map.get_map()
 
+                team_number = np.random.randint(0, 2)
+
                 # TODO: pickle and send to host
 
                 # set vars for drawing contents later on
