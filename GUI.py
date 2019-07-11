@@ -30,10 +30,8 @@ class Button:
 
     def is_focused(self, mouse_pos):  # TODO: changed !!! if it does not work go back to commented version!
 
-        #  mouse_pos[0] > self.pos[0] and mouse_pos[0] < self.pos[0] + self.dim[0] and \
-        #  mouse_pos[1] > self.pos[1] and mouse_pos[1] < self.pos[1] + self.dim[1]:
-
-        if mouse_pos[0] - self.pos[0] < self.dim[0] and mouse_pos[1] - self.pos[1] < self.dim[1]:
+        if mouse_pos[0] > self.pos[0] and mouse_pos[0] < self.pos[0] + self.dim[0] and \
+           mouse_pos[1] > self.pos[1] and mouse_pos[1] < self.pos[1] + self.dim[1]:
             return True
         return False
 
@@ -56,10 +54,8 @@ class Textfield:
 
     def is_focused(self, mouse_pos):  # TODO: changed !!! if it does not work go back to commented version!
 
-        #  mouse_pos[0] > self.pos[0] and mouse_pos[0] < self.pos[0] + self.dim[0] and \
-        #  mouse_pos[1] > self.pos[1] and mouse_pos[1] < self.pos[1] + self.dim[1]:
-
-        if mouse_pos[0] - self.pos[0] < self.dimension[0] and mouse_pos[1] - self.pos[1] < self.dimension[1]:
+        if mouse_pos[0] > self.pos[0] and mouse_pos[0] < self.pos[0] + self.dim[0] and \
+           mouse_pos[1] > self.pos[1] and mouse_pos[1] < self.pos[1] + self.dim[1]:
             return True
         return False
 
