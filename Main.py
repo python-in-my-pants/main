@@ -243,6 +243,17 @@ while True:
                 if event.key == ord("n"):
                     redraw_house = False
 
+            if event.type == pg.KEYDOWN:
+                if event.key == ord("q"):
+                    print("Q")
+                    net.send_data(map.get_map())
+
+            if event.type == pg.KEYDOWN:
+                if event.key == ord("e"):
+                    print("E")
+                    ret = net.receive_data()
+                    print(ret)
+
             # TODO BOI
             if select:
                 if event.type == pg.KEYDOWN:
