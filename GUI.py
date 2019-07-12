@@ -1,6 +1,7 @@
 import pygame as pg
 import sys
 
+
 class Button:
 
     def __init__(self, dim, pos=[0, 0], color=(170, 0, 0), img=0, text="Button", name="Button", \
