@@ -274,16 +274,16 @@ class Map(GameObject):
             if obj.collider != 0 and obj is not char:
                 # use new sprite group for collision, because using game_objects could result in false results after
                 # moving the object (sprites are NOT moved by GameObject methods!)
-                for collAtom in pg.sprite.Group(CollAtom(
-                        char.pos)).sprites():  # TODO: adjust so that laying characters are handled with 2 sprites
+                for collAtom in pg.sprite.Group(CollAtom(new_pos)).sprites():
+                    # TODO: adjust so that laying characters are handled with 2 sprites
                     if pg.sprite.spritecollide(collAtom, obj.collider, dokill=0):
                         # collision with other char occurs
-                        print("collision with other char")
+                        print("collision with other collidable object")
                         return False
 
-        if self.unique_pixs[new_pos[1]][new_pos[0]] != 0:
+        '''if self.unique_pixs[new_pos[1]][new_pos[0]] != 0:
             print("coll with some obj")
-            return False
+            return False'''
 
         return True
 

@@ -46,6 +46,9 @@ class Character(GameObject):
         self.pixs = [self.pos]
         self.is_selected = False
 
+    def is_dead(self):  # returns if dead
+        return self.health[0] <= 0 or self.health[3] <= 0
+
     def get_pos(self, i):
         return self.pos[i]
 
