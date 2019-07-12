@@ -15,25 +15,43 @@ debug = True
 # TODO: Nur Map wird gezeichnet und ist ein container für alle anderen drawables, Änderungen an drawables werden \
 #       durchgeführt und diese dann erneut Map hinzugefügt, die alten gelöscht
 
+
 class Map(GameObject):
     # container class for all other drawable game objects
 
-    unique_pixs = []  # holds definite pixel(materials) that will be drawn
+    '''
+    # unique_pixs = []  # holds definite pixel(materials) that will be drawn
     objects = []  # holds list of objects on the map of the form: [id, object]
-    characters = []  # holds indices of objects[] of characters
-    window = -1
+    characters = []
+    # window = -1
+    '''
 
-    def __init__(self, x_size, y_size, window, elem_size):  # STATUS: working, returns 1 on success, 0 else
-        self.size_x = x_size  # size_x holds map size in actual drawable pixels coords, x and y are to be \
+    def __init__(self, x_size, y_size, window, elem_size, objects=[], characters=[], unique_pixels=[]):  # STATUS: working, returns 1 on success, 0 else
+
+        # size_x holds map size in actual drawable pixels coords, x and y are to be
         # commited in desired size in elements * elem_size
+        self.size_x = x_size
         self.size_y = y_size
-        self.unique_pixs = [[0 for _ in range(int(x_size))] for _ in range(int(y_size))]  # beware, when using you have\
-        # to call [y][x]
+
+        self.starting_areas = []  # holds lists [a,b,c,d]
+
+        # beware, when using you have to call [y][x]
+        if not unique_pixels:
+            self.unique_pixs = [[0 for _ in range(int(x_size))] for _ in range(int(y_size))]
+        else:
+            self.unique_pixs = unique_pixels[:]
+
         self.window = window
         self.elem_size = elem_size
 
-    def add_object(self, game_object, border_size=0, recursion_depth=0,
-                   permutation_lenght=[0, 0]):  # STATUS: partially working, border
+        # just testing stuff 11072019 1511
+        self.objects = objects[:]           # holds list of objects on the map of the form: [id, object]
+        self.characters = characters[:]     # holds indices of objects[] of characters
+
+    def set_elem_size(self, elem_size):
+        self.elem_size = elem_size
+
+    def add_object(self, game_object, border_size=0, recursion_depth=0, permutation_lenght=[0, 0]):  # STATUS: partially working, border
         # stuff not yet, crashes when too deep recursion occurs
 
         """
@@ -164,6 +182,7 @@ class Map(GameObject):
                     for collAtom in pg.sprite.Group(CollAtom(
                             game_object.pos)).sprites():  # TODO: adjust so that laying characters are handled with 2 sprites
                         if pg.sprite.spritecollide(collAtom, obj.collider, dokill=0):
+                            # collision with other char occurs
                             game_object.move([numpy.random.randint(-1, 1), numpy.random.randint(-1, 1)])
                             return self.add_object(game_object, border_size, recursion_depth)
 
@@ -244,6 +263,29 @@ class Map(GameObject):
         game_object.confirm()
 
         return 1
+
+    def movement_possible(self, char, new_pos):  # returns true or false
+
+        if new_pos[0] < 0 or new_pos[0] > self.size_x-1 or new_pos[1] < 0 or new_pos[1] > self.size_y-1:
+            print("out of map")
+            return False
+
+        for obj in self.objects:
+            if obj.collider != 0 and obj is not char:
+                # use new sprite group for collision, because using game_objects could result in false results after
+                # moving the object (sprites are NOT moved by GameObject methods!)
+                for collAtom in pg.sprite.Group(CollAtom(new_pos)).sprites():
+                    # TODO: adjust so that laying characters are handled with 2 sprites
+                    if pg.sprite.spritecollide(collAtom, obj.collider, dokill=0):
+                        # collision with other char occurs
+                        print("collision with other collidable object")
+                        return False
+
+        '''if self.unique_pixs[new_pos[1]][new_pos[0]] != 0:
+            print("coll with some obj")
+            return False'''
+
+        return True
 
     def remove_object_by_id(self, go):  # STATUS: new
 
@@ -341,3 +383,13 @@ class Map(GameObject):
         for i in range(self.size_x):
             for d in range(self.size_y):
                 pg.draw.rect(self.window, (0, 99, 0), (i * self.elem_size, d * self.elem_size, self.elem_size, self.elem_size), 1)
+
+    def get_map(self):  # return all data from map BUT NOT self.window
+
+        lis = [self.unique_pixs,
+               self.objects,
+               self.characters,
+               self.size_x,
+               self.size_y]
+
+        return lis

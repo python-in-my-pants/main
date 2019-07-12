@@ -7,40 +7,15 @@ from Game_objects import GameObject, CollAtom
 from Data import *
 import pygame as pg
 
-Debug = False
+Debug = True
 
 
 class Character(GameObject):
-    ''' name = "default_character"
-    Health = [100, 100, 100, 100, 100, 100]
-    #          0    1    2    3    4    5
-    #        kopf larm rarm Torso lbein rbein
-    gear = []
-    dexterity = 0
-    strength = 0
-    stamina = 1000
-    speed = 1
-    height = 1
-    pos = [0, 0]
-    bleed =[False, False, False, False, False, False]
-    bleedt =[0, 0, 0, 0, 0, 0]
-    #         siehe Health
-    burning = False
-    burnt = 0
-    poison= False
-    poisont = 0
-    blind = False
-    blindt = 0
-    items = []
-    weapons = []
-    orientation = 0
-    pow(bullshit, 10)
-    '''
 
-    def __init__(self, name="default_character", object_type="character", team="team_0", \
+    def __init__(self, created_num=0, name="default_character", object_type="character", team="team_0", \
                  health=[100, 100, 100, 100, 100, 100], gear=[], dexterity=25, strength=15, stamina=1000, speed=1, \
                  height=1, pos=[0, 0], bleed=[False, False, False, False, False, False], bleed_t=[0, 0, 0, 0, 0, 0], \
-                 burn=False, burnt=0, poison=False, poison_t=0, blind=False, blind_t=0, items=[], weapons=[], \
+                 burn=False, burn_t=0, poison=False, poison_t=0, blind=False, blind_t=0, items=[], weapons=[], \
                  orientation=0):
         super().__init__(name=name, obj_type=object_type, pos=pos, materials=["player"])
         self.name = name
@@ -57,7 +32,7 @@ class Character(GameObject):
         self.bleed = bleed[:]
         self.bleed_t = bleed_t[:]
         self.burn = burn
-        self.burnt = burnt
+        self.burn_t = burn_t
         self.poison = poison
         self.poison_t = poison_t
         self.blind = blind
@@ -68,8 +43,14 @@ class Character(GameObject):
         self.pixs = pos[:]
         self.render_type = "blit"
         self.collider = 0
-
         self.pixs = [self.pos]
+        self.is_selected = False
+
+    def is_dead(self):  # returns if dead
+        return self.health[0] <= 0 or self.health[3] <= 0
+
+    def get_pos(self, i):
+        return self.pos[i]
 
     def get_drawable(self):
         return self.pixs
@@ -86,35 +67,34 @@ class Character(GameObject):
         return [[-0.35 * math.cos(360-self.orientation), -0.35 * math.sin(360-self.orientation)],
                 [0.35 * math.cos(360-self.orientation), 0.35 * math.sin(360-self.orientation)]]
 
-    def get_outer_shoulders(self):
-
-        pass
-
     def get_drawable_surf(self):
         character_surf = pg.Surface((200, 200))
         character_surf.fill((0, 0, 0))
 
         # left arm
-        pg.draw.circle(character_surf, mat_colour[self.team], \
-                       [int(character_surf.get_width() * 0.15), int(character_surf.get_height() * 0.5)], \
+        pg.draw.circle(character_surf, mat_colour[self.team],
+                       [int(character_surf.get_width() * 0.15), int(character_surf.get_height() * 0.5)],
                        int(character_surf.get_width() * 0.15), 0)
 
         # right arm
-        pg.draw.circle(character_surf, mat_colour[self.team], \
-                       [int(character_surf.get_width() * 0.85), int(character_surf.get_height() * 0.5)], \
+        pg.draw.circle(character_surf, mat_colour[self.team],
+                       [int(character_surf.get_width() * 0.85), int(character_surf.get_height() * 0.5)],
                        int(character_surf.get_width() * 0.15), 0)
 
         # torso
-        pg.draw.rect(character_surf, mat_colour[self.team], \
-                     ( int(character_surf.get_width() * 0.15), \
-                       int(character_surf.get_height() * 0.35), \
-                       int(character_surf.get_width() * 0.75), \
+        pg.draw.rect(character_surf, mat_colour[self.team],
+                     ( int(character_surf.get_width() * 0.15),
+                       int(character_surf.get_height() * 0.35),
+                       int(character_surf.get_width() * 0.75),
                        int(character_surf.get_width() * 0.3)))
 
         # head
-        pg.draw.circle(character_surf, mat_colour[self.team], \
-                       [int(character_surf.get_width() * 0.5), int(character_surf.get_height() * 0.5)], \
+        pg.draw.circle(character_surf, mat_colour[self.team],
+                       [int(character_surf.get_width() * 0.5), int(character_surf.get_height() * 0.5)],
                        int(character_surf.get_width() * 0.25), 0)
+
+        if self.is_selected:
+            pg.draw.circle(character_surf, (170, 0, 0), [100, 100], 105, 5)
 
         character_surf.set_colorkey((0, 0, 0))
 
@@ -230,34 +210,34 @@ class Character(GameObject):
         self.statchange()
 
     def status_timer(self):
-        if self.burnt > 0:
-            self.burnt -= 1
+        if self.burn_t > 0:
+            self.burn_t -= 1
 
-        if self.poisont > 0:
-            self.poisont -= 1
+        if self.poison_t > 0:
+            self.poison_t -= 1
 
-        if self.blindt > 0:
-            self.blindt -= 1
+        if self.blind_t > 0:
+            self.blind_t -= 1
 
-        if self.bleedt[0] > 1 or self.bleedt[1] > 1 or self.bleedt[2] > 1 or self.bleedt[3] > 1 or self.bleedt[4] > 1 or \
-                self.bleedt[5] > 1:
-            for x in self.bleedt:
-                if self.bleedt[x] > 0:
-                    self.bleedt[x] -= 1
+        if self.bleed_t[0] > 1 or self.bleed_t[1] > 1 or self.bleed_t[2] > 1 or self.bleed_t[3] > 1 \
+                or self.bleed_t[4] > 1 or self.bleed_t[5] > 1:
+            for x in self.bleed_t:
+                if self.bleed_t[x] > 0:
+                    self.bleed_t[x] -= 1
 
     def get_burn(self):
         self.burn = True
-        self.burnt = 10
+        self.burn_t = 10
         self.statusprint(0)
 
     def get_poison(self):
         self.poison = True
-        self.poisont = 10
+        self.poison_t = 10
         self.statusprint(1)
 
     def get_blind(self):
         self.blind = True
-        self.blindt = 10
+        self.blind_t = 10
         self.statusprint(3)
 
     def get_bleed(self, partind):
@@ -291,8 +271,8 @@ class Character(GameObject):
 
 
 if Debug:
-    boi = Character()
-    boi2 = Character()
+    #boi = Character()
+    #boi2 = Character()
     #boi.get_damaged(150, 4)
     #boi.get_damaged(150, 5)
     #boi.get_damaged(150, 1)
@@ -302,14 +282,13 @@ if Debug:
     #print(boi.speed)
     #print(boi.strength)
     #print(boi.dexterity)
-    boi.item_add(Armor(typ=3))
-    boi.item_add(Bandage())
-    boi.item_add(Defdope())
-    boi.item_add(Healstation())
-    boi.item_drop(2)
-    boi.item_change(Medkit(), 2)
-    print(boi.items[0].name)
-
+    #boi.item_add(Armor(typ=3))
+    #boi.item_add(Bandage())
+    #boi.item_add(Defdope())
+    #boi.item_add(Healstation())
+    #boi.item_drop(2)
+    #boi.item_change(Medkit(), 2)
+    #print(boi.items)
 
 
     '''wep = Pistole()

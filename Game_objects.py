@@ -107,7 +107,7 @@ class CollAtom(pygame.sprite.Sprite):
         """"
         pos: gives the position in pixel coordinates like in pixs from GameObject [x,y]
           w: width of the collAtom, usually 1, not intended to be changed
-          h: height of the collAtom, usually 1, not intended to be changend
+          h: height of the collAtom, usually 1, not intended to be changed
         height: theoretical height of the object in game, used for evaluating visibility
                 possible values are: 1 (default), 0.5 (for walls with windows etc.) and so on
         """
@@ -134,6 +134,7 @@ class LineOfSight(GameObject):
 
     def get_drawable(self):
         return self.pixs
+
 
 class Border(GameObject):
 
@@ -243,7 +244,7 @@ class SimpleHouse(GameObject):
 
         self.pixs.remove(self.pixs[door_pos])
 
-        self.special_pixs.append(door)
+        self.special_pixs.append(door)  # holds stuff like doors and windows
 
         #  -------------------------------------------------------------------------------------------------------------
 
@@ -278,6 +279,10 @@ class SimpleHouse(GameObject):
             wall.append([self.size_x-1, i])
 
         wall.append([self.size_x-1, self.size_y-1])
+
+        # TODO: this removes door from collider - comment out to make it wall again
+        door = [self.special_pixs[0][0]-self.pos[0], self.special_pixs[0][1]-self.pos[1]]
+        wall.remove(door)
 
         for point in wall:
             point[0] += self.pos[0]
