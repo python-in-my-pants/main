@@ -36,7 +36,7 @@ def threaded_client(conn):
             else:
                 if len(data) <= 5000:
                     print("Recieved: " + reply)
-                    print("Fecker")
+                    print("Send it boi!")
                     conn.send(datadude)
 
                 elif len(data) >= 5000:
