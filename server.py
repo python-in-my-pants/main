@@ -19,26 +19,33 @@ s.listen(2)
 print("Waiting for a connection")
 
 currentId = "0"
-
+datadude = "Oh my shoulder!"
+def this_stupid(conn):
+    conn.send(datadude)
 
 def threaded_client(conn):
-    global currentId
-    conn.send(str.encode(currentId))
-    currentId = "1"
+    global datadude
+    #conn.send(str.encode("POI"))
     reply = ''
     while True:
         try:
-            data = conn.recv(65536)
+            data = conn.recv(1048576)
             if not data:
                 conn.send(str.encode("Goodbye"))
                 break
             else:
-                print("Received: " + str(data))
-                print("Sending: Something")
-            conn.sendall(data)
+                if len(data) <= 5000:
+                    print("Recieved: " + reply)
+                    print("Fecker")
+                    conn.send(datadude)
+
+                elif len(data) >= 5000:
+                    datadude = data
+                    print("Data Saved")
+                    print(datadude)
+
         except:
             pass
-            #break
 
     print("Connection Closed")
     conn.close()
