@@ -351,6 +351,8 @@ while True:
                              action=selecter_mode,
                              text="")
 
+            # some comment to commit
+
             buttons.append(charBtn)
             window.blit(charBtn.surf, charBtn.pos)
 
