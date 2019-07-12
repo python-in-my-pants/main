@@ -22,7 +22,7 @@ class Network:
             return str(e)
 
     def sendd(self, data):
-        self.client.settimeout(3)
+        self.client.settimeout(2)
         try:
             self.client.send(str.encode(data))
             reply = self.client.recv(1048576)
@@ -39,8 +39,10 @@ class Network:
         data = self.sendd(token)
         if data is None:
             raise IOError("Broken af")
-
-        parsed = pickle.loads(data)
+        try:
+            parsed = pickle.loads(data)
+        except TypeError as q:
+            return str(q)
         return parsed
 
     def parse_data(self, data):

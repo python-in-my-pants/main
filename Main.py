@@ -251,8 +251,10 @@ while True:
             if event.type == pg.KEYDOWN:
                 if event.key == ord("e"):
                     print("E")
-                    ret = net.receive_data()
-                    print(ret)
+                    map_data = net.receive_data()
+                    while map_data == "a bytes-like object is required, not 'str'":
+                        map_data = net.receive_data()
+                    print(map_data)
 
             # TODO BOI
             if select:
@@ -465,6 +467,7 @@ while True:
 
             if role == "host":
 
+                net = Network()
                 # global - set only if you are the host, else get it from transm
                 fields_x = 50  # width
                 fields_y = 50  # height
@@ -501,7 +504,7 @@ while True:
                 opp_team_number = -team_number +1
 
                 # TODO: pickle and send to host [global map, opp team number]
-
+                net.send_data(global_map)
                 # set vars for drawing contents later on
                 # TODO: are they used here at all? maybe delete
                 redraw_house = True
@@ -511,11 +514,12 @@ while True:
                 h = 0
 
             elif role == "client":
-
+                net = Network()
                 # wait for transmission from host
                 # TODO: get into wait status and receive transmission from host
-
-                map_data = ...  # TODO: after recieving data, unpickle it into "map_data"
+                map_data = net.receive_data()  # TODO: after recieving data, unpickle it into "map_data"
+                while map_data == "a bytes-like object is required, not 'str'":
+                    map_data = net.receive_data()
 
                 # user side
                 # ------------------------------------------------------------------------------------------------------
