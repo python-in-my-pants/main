@@ -9,6 +9,7 @@ import sys
 import pickle
 import time
 
+from network import *
 from Game_objects import *
 from GUI import *
 from Data import *
@@ -25,6 +26,7 @@ changed = True
 redraw = True
 
 # client / server stuff
+net = Network()
 role = "nobody"
 teams = []
 map_data = []  # holds data of map received from server PLUS the team number you have
