@@ -6,7 +6,6 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 server = ''
 port = 5555
-
 server_ip = socket.gethostbyname(server)
 
 try:
@@ -18,26 +17,43 @@ except socket.error as e:
 s.listen(2)
 print("Waiting for a connection")
 
-currentId = "0"
-datadude = "Oh my shoulder!"
-def this_stupid(conn):
-    conn.send(datadude)
+Map = b''
+
 
 def threaded_client(conn):
-    global datadude
-    #conn.send(str.encode("POI"))
+    global Map
     reply = ''
     while True:
         try:
+            #print("1")
+            data = conn.recv(104857645)
+            #print("2")
+            if data[0:8] == b'Map OwO!':
+                print(data)
+                Map = data[14:len(data)]
+                print(Map)
+                print("Saved Successfully!")
+            if data[0:13] == b'Map pls UwU !':
+                conn.send(Map)
+                print("Map Send!")
+        except:
+            pass
+        """try:
             data = conn.recv(1048576)
+            print("Recieved BOi!")
+            print(data)
+            reply = data.decode
+            print(reply)
             if not data:
                 conn.send(str.encode("Goodbye"))
                 break
             else:
                 if len(data) <= 5000:
+                    reply = data.decode()
                     print("Recieved: " + reply)
-                    print("Send it boi!")
-                    conn.send(datadude)
+                    if reply == "Map pls UwU !":
+                        print("Send it poi!")
+                        conn.send(datadude)
 
                 elif len(data) >= 5000:
                     datadude = data
@@ -45,10 +61,11 @@ def threaded_client(conn):
                     print(datadude)
 
         except:
-            pass
+            pass"""
 
     print("Connection Closed")
     conn.close()
+
 
 while True:
     conn, addr = s.accept()

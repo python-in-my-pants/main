@@ -8,6 +8,8 @@ import numpy as np
 import sys
 import pickle
 import time
+import subprocess
+import os
 
 from network import *
 from Game_objects import *
@@ -26,6 +28,7 @@ changed = True
 redraw = True
 
 # client / server stuff
+os.startfile("server.py")
 net = Network()
 role = "nobody"
 teams = []
@@ -110,8 +113,9 @@ while True:
 
             # handle events
             if event.type == pg.QUIT:
-                pg.quit()
-                sys.exit()
+                os.system('taskkill /f /im python.exe')
+                #pg.quit()
+                #sys.exit()
 
             if event.type == pg.MOUSEBUTTONDOWN:
                 p = pg.mouse.get_pos()
@@ -196,13 +200,15 @@ while True:
 
             # handle events
             if event.type == pg.QUIT:
-                pg.quit()
-                sys.exit()
+                os.system('taskkill /f /im python.exe')
+                #pg.quit()
+                #sys.exit()
 
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
-                    pg.quit()
-                    sys.exit()
+                    os.system('taskkill /f /im python.exe')
+                    #pg.quit()
+                    #sys.exit()
 
             if event.type == pg.KEYDOWN:
                 if event.key == ord("n"):
@@ -233,6 +239,7 @@ while True:
                     x += elem_size
                     window = pg.display.set_mode((x, y))
                     map.draw_map()
+
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_RIGHT:
                     y += elem_size
@@ -245,15 +252,50 @@ while True:
 
             if event.type == pg.KEYDOWN:
                 if event.key == ord("q"):
-                    print("Q")
-                    net.send_data(map.get_map())
+                    print("Q")  # Map OwO!
+                    net.send_data_pickle("Map OwO!", map.get_map())
+                    print(map.get_map())
+
+            if event.type == pg.KEYDOWN:
+                if event.key == ord("g"):
+                    #print("g")
+                    #print(net.send_data("Karte", "Peter Schilling ist ein krasser Motherlover!"))
+                    print(len("Map OwO!"))
+
+            if event.type == pg.KEYDOWN:
+                if event.key == ord("t"):
+                    #print("T")
+                    peterm = pickle.dumps(map.get_map())
+                    print(len(peterm))
+                    print(int(len(peterm)/4096))
+                    print(peterm)
+                    peter = "Map pls UwU !"
+                    data = peter.encode()
+                    print(data)
+                    size = "050000"
+                    data += size.encode()
+                    print(data)
+                    data += peterm
+                    print(data)
+                    print(len(data))
+                    print("_____")
+                    if data.count(b"Map pls UwU !") == 1:
+                        boi = data[0: len(peter)]
+                        sin = data[(len(peter)+len(size)):len(data)]
+                        sinsin = data[len(peter):(len(size)+len(peter))]
+                        print(boi)
+                        print(sinsin)
+                        print(sin)
+                        print(data)
+                        print("___________")
+                        sinsin = int(sinsin)
+                        print(sinsin)
+                    #net.send_stuff(Peter, 1)
 
             if event.type == pg.KEYDOWN:
                 if event.key == ord("e"):
                     print("E")
-                    map_data = net.receive_data()
-                    while map_data == "a bytes-like object is required, not 'str'":
-                        map_data = net.receive_data()
+                    map_data = net.receive_data_pickle("Map pls UwU !")
                     print(map_data)
 
             # TODO BOI
@@ -501,7 +543,7 @@ while True:
                 global_map = map.get_map()
 
                 team_number = np.random.randint(0, 2)
-                opp_team_number = -team_number +1
+                opp_team_number = -team_number + 1
 
                 # TODO: pickle and send to host [global map, opp team number]
                 net.send_data(global_map)

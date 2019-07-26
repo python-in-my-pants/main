@@ -1,49 +1,55 @@
 import socket
 import pickle
-from retrying import retry
+import sys
+
+from requests import get
 
 
 class Network:
 
     def __init__(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.host = "192.168.0.7"   # What's my Ip is gr8 for this
+        self.host = get('https://api.ipify.org').text   # What's my Ip is gr8 for this
         self.port = 5555
         self.addr = (self.host, self.port)
         self.id = self.connect()
+        #self.client.setblocking(False)
 
     def connect(self):
         self.client.connect(self.addr)
 
-    def send(self, data):
-        try:
-            self.client.send(data)
-        except socket.error as e:
-            return str(e)
+    def send_data(self, token, data):
+        # Sendformat: Token, Size, Data
+        taube = token.encode()
+        size = self.size_wrapper(str(len(data)+len(token)+6))  # 6 für die Größe der Size in Bytes
+        taube += size.encode()
+        taube += data.encode()
+        self.client.send(taube)
 
-    def sendd(self, data):
-        self.client.settimeout(2)
-        try:
-            self.client.send(str.encode(data))
-            reply = self.client.recv(1048576)
-            return reply
-        except socket.error as e:
-            return str(e)
+    def send_data_pickle(self, token, data):
+        # Sendformat: Token, Size, Data
+        pickletaube = token.encode()
+        size = self.size_wrapper(str(len(data)+len(token)+6))  # 6 für die Größe der Size in Bytes
+        pickletaube += size.encode()
+        pickletaube += pickle.dumps(data)
+        print(pickle.dumps(data))
+        self.client.send(pickletaube)
 
-    def send_data(self, data):
-        sendstuff = pickle.dumps(data, 2)
-        self.send(sendstuff)
+    def receive_data(self, token):
+        self.client.send(token.encode())
+        reply = self.client.recv(1048576)
+        return reply
 
-    def receive_data(self):
-        token = str(1) + "§" + str("Boi next door")
-        data = self.sendd(token)
-        if data is None:
-            raise IOError("Broken af")
-        try:
-            parsed = pickle.loads(data)
-        except TypeError as q:
-            return str(q)
-        return parsed
+    def receive_data_pickle(self, token):
+        self.client.send(token.encode())
+        reply = pickle.loads(self.client.recv(1048576))
+        return reply
 
-    def parse_data(self, data):
-            return pickle.loads(data)
+    @staticmethod
+    def size_wrapper(size):
+        size_len = 6 - len(size)
+        reply = ""
+        for i in range(size_len):
+            reply += "0"
+        reply += size
+        return reply
