@@ -10,8 +10,9 @@ import pickle
 import time
 import subprocess
 import os
+from _thread import *
 
-from network import *
+from Network import *
 from Game_objects import *
 from GUI import *
 from Data import *
@@ -30,6 +31,7 @@ redraw = True
 # client / server stuff
 os.startfile("server.py")
 net = Network()
+start_new_thread(net.routine_threaded_listener, ())
 role = "nobody"
 teams = []
 map_data = []  # holds data of map received from server PLUS the team number you have
@@ -296,7 +298,7 @@ while True:
                 if event.key == ord("e"):
                     print("E")
                     map_data = net.receive_data_pickle("Map pls UwU !")
-                    print(map_data)
+                    print(net.map)
 
             # TODO BOI
             if select:
@@ -310,7 +312,7 @@ while True:
                 if event.type == pg.KEYDOWN:
                     if event.key == ord("s"):
                         print("S")
-                        if map.movement_possible(selected_char, [selected_char.pos[0], selected_char.pos[1]+1]):
+                        if map.movement_possible(selected_char, [selected_char.pos[0], selected_char.pos[1] + 1]):
                             selected_char.pos[1] += 1
                             selected_button.pos[1] += elem_size
 
@@ -510,6 +512,7 @@ while True:
             if role == "host":
 
                 net = Network()
+                start_new_thread(net.routine_threaded_listener, ())
                 # global - set only if you are the host, else get it from transm
                 fields_x = 50  # width
                 fields_y = 50  # height
@@ -557,9 +560,10 @@ while True:
 
             elif role == "client":
                 net = Network()
+                start_new_thread(net.routine_threaded_listener, ())
                 # wait for transmission from host
                 # TODO: get into wait status and receive transmission from host
-                map_data = net.receive_data()  # TODO: after recieving data, unpickle it into "map_data"
+                # TODO: after recieving data, unpickle it into "map_data"
                 while map_data == "a bytes-like object is required, not 'str'":
                     map_data = net.receive_data()
 

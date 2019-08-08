@@ -13,7 +13,21 @@ class Network:
         self.port = 5555
         self.addr = (self.host, self.port)
         self.id = self.connect()
+        self.team = ""
+        self.map = b''
         #self.client.setblocking(False)
+
+    def routine_threaded_listener(self):
+        while True:
+            try:
+                data = self.client.recv(104857645)
+                if data[0:3] == b'Map':
+                    self.map = data[9:len(data)]
+                if data[0:4] == b'Team':
+                    self.team = data[10:len(data)].decode()
+            except:
+                pass
+        pass
 
     def connect(self):
         self.client.connect(self.addr)
@@ -37,13 +51,13 @@ class Network:
 
     def receive_data(self, token):
         self.client.send(token.encode())
-        reply = self.client.recv(1048576)
-        return reply
+        #reply = self.client.recv(1048576)
+        #return reply
 
     def receive_data_pickle(self, token):
         self.client.send(token.encode())
-        reply = pickle.loads(self.client.recv(1048576))
-        return reply
+        #reply = pickle.loads(self.client.recv(1048576))
+        #return reply
 
     @staticmethod
     def size_wrapper(size):

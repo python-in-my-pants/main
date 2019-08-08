@@ -17,24 +17,29 @@ except socket.error as e:
 s.listen(2)
 print("Waiting for a connection")
 
-Map = b''
+map = b''
+client_team = ""
 
 
 def threaded_client(conn):
-    global Map
+    global map
     reply = ''
     while True:
         try:
-            #print("1")
             data = conn.recv(104857645)
-            #print("2")
-            if data[0:8] == b'Map OwO!':
-                print(data)
-                Map = data[14:len(data)]
-                print(Map)
+            # Map
+            if data[0:8] == b'Team OwO!':
+                map = data[14:len(data)]
                 print("Saved Successfully!")
-            if data[0:13] == b'Map pls UwU !':
-                conn.send(Map)
+            if data[0:13] == b'Team pls UwU !':
+                sender(b'Team', client_team, conn)
+                print("Team Send!")
+            # Team
+            if data[0:8] == b'Map OwO!':
+                map = data[14:len(data)]
+                print("Saved Successfully!")
+            if data[0:14] == b'Map pls UwU !':
+                sender(b'Map', map, conn)
                 print("Map Send!")
         except:
             pass
@@ -65,6 +70,12 @@ def threaded_client(conn):
 
     print("Connection Closed")
     conn.close()
+
+
+def sender(token, data, concon):
+    reply = token
+    reply += data
+    concon.send(reply)
 
 
 while True:
