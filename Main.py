@@ -12,7 +12,7 @@ import subprocess
 import os
 from _thread import *
 
-from Network import *
+from network import *
 from Game_objects import *
 from Data import *
 from GUI import *
@@ -307,7 +307,7 @@ while True:
             if event.type == pg.KEYDOWN:
                 if event.key == ord("e"):
                     print("E")
-                    map_data = net.receive_data_pickle("Map pls UwU !")
+                    map_data = net.receive_data("Map pls UwU !")
                     print(net.map)
 
             # TODO BOI

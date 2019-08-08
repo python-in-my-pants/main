@@ -54,11 +54,6 @@ class Network:
         #reply = self.client.recv(1048576)
         #return reply
 
-    def receive_data_pickle(self, token):
-        self.client.send(token.encode())
-        #reply = pickle.loads(self.client.recv(1048576))
-        #return reply
-
     @staticmethod
     def size_wrapper(size):
         size_len = 6 - len(size)
