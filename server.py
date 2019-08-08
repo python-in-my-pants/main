@@ -17,29 +17,29 @@ except socket.error as e:
 s.listen(2)
 print("Waiting for a connection")
 
-map = b''
+karte = b''
 client_team = ""
 
 
 def threaded_client(conn):
-    global map
+    global karte
     reply = ''
     while True:
         try:
             data = conn.recv(104857645)
             # Map
             if data[0:8] == b'Team OwO!':
-                map = data[14:len(data)]
+                karte = data[14:len(data)]
                 print("Saved Successfully!")
             if data[0:13] == b'Team pls UwU !':
                 sender(b'Team', client_team, conn)
                 print("Team Send!")
             # Team
             if data[0:8] == b'Map OwO!':
-                map = data[14:len(data)]
+                karte = data[14:len(data)]
                 print("Saved Successfully!")
             if data[0:14] == b'Map pls UwU !':
-                sender(b'Map', map, conn)
+                sender(b'Map', karte, conn)
                 print("Map Send!")
         except:
             pass
