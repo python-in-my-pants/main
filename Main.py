@@ -14,8 +14,8 @@ from _thread import *
 
 from Network import *
 from Game_objects import *
-from GUI import *
 from Data import *
+from GUI import *
 from Map import *
 from Characters import Character
 
@@ -58,6 +58,7 @@ if True:
 
 #  --------------------------------------------------------------------------------------------------
 while True:
+
     # display main screen and let user choose mode (atm Play/Credits)
     if mode == "mainscreen":
 
@@ -92,6 +93,7 @@ while True:
 
                 pg.mixer.music.load("assets/ass.mp3")
                 pg.mixer.music.play(0)
+                time.sleep(2.5)
 
                 mode = "test"  # if changing mode also change "changed"
                 changed = True
@@ -99,6 +101,7 @@ while True:
             '''btn = Button([int(0.2 * size[0]), int(0.069 * size[1])], \
                          pos=[size[0]/2 - int(0.2 * size[0])/2, size[1]/2 - int(0.069 * size[1])/2], name="Button 1", \
                          color=(0, 50, 201), action=button_fkt, text="Play")'''
+
             btn = Button([int(0.2 * size[0]), int(0.069 * size[1])],
                          pos=[size[0]/2 - int(0.2 * size[0])/2, size[1]/2 - int(0.069 * size[1])/2 + 200],
                          name="Button 1", img="assets/blue_button_menu.jpg", action=button_fkt, text="Play")
@@ -162,28 +165,35 @@ while True:
 
             redraw_house = True
             draw_character = True
-            #global select
             select = False
 
             counter = 0
             h = 0
 
             def selecter_mode():
+
                 global select
-                select = True
                 global selected_char
                 global selected_button
+
+                select = True
                 selected_char = get_selected_char(pg.mouse.get_pos())
                 selected_button = get_selected_button(pg.mouse.get_pos())
 
-            def get_selected_char(mouse_pos):  # TODO: every 10th character or so has its button like 10 field underneath him
+            def get_selected_char(mouse_pos):
+
                 for ch in map.characters:
+
                     p = pg.mouse.get_pos()
+
                     if (int(((p[0]) - gui_overhead) / elem_size)) == map.objects[ch].pos[0] and \
                        (int(p[1] / elem_size)) == map.objects[ch].pos[1]:
+
                         boi = map.objects[ch]
+
                         for chari in map.characters:
                             map.objects[chari].is_selected = False
+
                         boi.is_selected = True
 
                         return boi
@@ -301,7 +311,7 @@ while True:
                     print(net.map)
 
             # TODO BOI
-            if select:
+            if select:  # executed if char is selected atm
                 if event.type == pg.KEYDOWN:
                     if event.key == ord("w"):
                         print("W")
@@ -335,8 +345,30 @@ while True:
                     checkBtn = 0
                     for button in buttons:
                         if button.is_focused(p):
+                            # TODO greif den dude an, dessen button selected ist außer es bist du selbst
+                            old_sel_char = selected_char
+
+                            def get_atk_target():
+                                for ch in map.characters:
+                                    if (int(((p[0]) - gui_overhead) / elem_size)) == map.objects[ch].pos[0] and \
+                                            (int(p[1] / elem_size)) == map.objects[ch].pos[1]:
+                                        boi = map.objects[ch]
+                                        return boi
+
+                            new_sel_char = get_atk_target()  # atk target
+
+                            # old sel char attacks new sel char
+                            # -----------------------------------------------------
+
+                            # can old see new?
+
+                            #v_mat = map.get_vmat()
+
+                            # set selected char back to old sel char
+                            selected_char = old_sel_char
+
                             checkBtn += 1
-                    if checkBtn == 0:
+                    if checkBtn == 0:  # user clicked somewhere without button
                         select = False
                         for chari in map.characters:
                             map.objects[chari].is_selected = False
@@ -345,6 +377,7 @@ while True:
                 map.draw_map()
                 window.blit(map_window, (gui_overhead, 0))
                 pg.display.update()
+
             # apply changes to game state
 
         # --------------------------------------------------------------------------------------------------------------

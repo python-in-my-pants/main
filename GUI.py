@@ -1,9 +1,10 @@
 import pygame as pg
 import sys
 
+
 class Button:
 
-    def __init__(self, dim, pos=[0, 0], color=(170, 0, 0), img=0, text="Button", name="Button", \
+    def __init__(self, dim=0, pos=[0, 0], color=(170, 0, 0), img=0, text="Button", name="Button", use_dim=True, \
                  action=(lambda: print("Clicked"))):
 
         self.surf = pg.Surface(dim)
@@ -11,13 +12,18 @@ class Button:
         self.name = name
         self.pos = pos[:]
         self.dim = dim[:]
+        self.use_dim = use_dim
+        self.text = text
 
         if img:
             background_img = pg.image.load(img).convert()
 
             #background_img.set_colorkey((0, 0, 0))
 
-            background_img = pg.transform.scale(background_img, dim)
+            if use_dim:
+                background_img = pg.transform.scale(background_img, dim)
+            else:
+                dim = list(background_img.get_rect().get_size())
 
             self.surf.blit(background_img, (0, 0))
 
