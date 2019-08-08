@@ -10,8 +10,8 @@ import pickle
 import time
 
 from Game_objects import *
-from GUI import *
 from Data import *
+from GUI import *
 from Map import *
 from Characters import Character
 
@@ -51,6 +51,7 @@ if True:
 
 #  --------------------------------------------------------------------------------------------------
 while True:
+
     # display main screen and let user choose mode (atm Play/Credits)
     if mode == "mainscreen":
 
@@ -85,6 +86,7 @@ while True:
 
                 pg.mixer.music.load("assets/ass.mp3")
                 pg.mixer.music.play(0)
+                time.sleep(2.5)
 
                 mode = "test"  # if changing mode also change "changed"
                 changed = True
@@ -92,6 +94,7 @@ while True:
             '''btn = Button([int(0.2 * size[0]), int(0.069 * size[1])], \
                          pos=[size[0]/2 - int(0.2 * size[0])/2, size[1]/2 - int(0.069 * size[1])/2], name="Button 1", \
                          color=(0, 50, 201), action=button_fkt, text="Play")'''
+
             btn = Button([int(0.2 * size[0]), int(0.069 * size[1])],
                          pos=[size[0]/2 - int(0.2 * size[0])/2, size[1]/2 - int(0.069 * size[1])/2 + 200],
                          name="Button 1", img="assets/blue_button_menu.jpg", action=button_fkt, text="Play")
@@ -154,13 +157,13 @@ while True:
 
             redraw_house = True
             draw_character = True
-            #global select
             select = False
 
             counter = 0
             h = 0
 
             def selecter_mode():
+
                 global select
                 global selected_char
                 global selected_button
@@ -170,6 +173,7 @@ while True:
                 selected_button = get_selected_button(pg.mouse.get_pos())
 
             def get_selected_char(mouse_pos):
+
                 for ch in map.characters:
 
                     p = pg.mouse.get_pos()
@@ -299,7 +303,7 @@ while True:
 
                             # can old see new?
 
-                            v_mat = map.get_vmat()
+                            #v_mat = map.get_vmat()
 
                             # set selected char back to old sel char
                             selected_char = old_sel_char
@@ -512,7 +516,7 @@ while True:
                 global_map = map.get_map()
 
                 team_number = np.random.randint(0, 2)
-                opp_team_number = -team_number +1
+                opp_team_number = -team_number + 1
 
                 # TODO: pickle and send to host [global map, opp team number]
 
