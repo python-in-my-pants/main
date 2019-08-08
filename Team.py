@@ -23,5 +23,11 @@ class Team:
             if char.name == name or char.pos == pos:
                 self.characters.remove(char)
 
+    def all_dead(self):
+
+        for char in self.characters:
+            if not char.is_dead():
+                return False
+
     def calc_val(self):  # TODO: calculate value by adding cost of all units
         return 1

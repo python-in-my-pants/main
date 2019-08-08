@@ -6,7 +6,6 @@ from datetime import datetime
 
 import Data
 
-# bullshitasdf asdF SDFYBVAGDSFghjghjghjghjhgjghjghjgjh
 
 class GameObject:
 
@@ -135,6 +134,7 @@ class LineOfSight(GameObject):
     def get_drawable(self):
         return self.pixs
 
+
 class Border(GameObject):
 
     def __init__(self, obj_type, size_x_, size_y_, name="Border", materials_=["dirt"], pos=[0, 0], thiccness="1"):
@@ -243,7 +243,7 @@ class SimpleHouse(GameObject):
 
         self.pixs.remove(self.pixs[door_pos])
 
-        self.special_pixs.append(door)
+        self.special_pixs.append(door)  # holds stuff like doors and windows
 
         #  -------------------------------------------------------------------------------------------------------------
 
@@ -278,6 +278,10 @@ class SimpleHouse(GameObject):
             wall.append([self.size_x-1, i])
 
         wall.append([self.size_x-1, self.size_y-1])
+
+        # TODO: this removes door from collider - comment out to make it wall again
+        door = [self.special_pixs[0][0]-self.pos[0], self.special_pixs[0][1]-self.pos[1]]
+        wall.remove(door)
 
         for point in wall:
             point[0] += self.pos[0]
