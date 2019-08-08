@@ -8,7 +8,11 @@ import numpy as np
 import sys
 import pickle
 import time
+import subprocess
+import os
+from _thread import *
 
+from network import *
 from Game_objects import *
 from GUI import *
 from Data import *
@@ -27,6 +31,9 @@ changed = True
 redraw = True
 
 # client / server stuff
+os.startfile("server.py")
+net = Network()
+start_new_thread(net.routine_threaded_listener, ())
 role = "nobody"
 teams = []
 map_data = []  # holds data of map received from server PLUS the team number you have
@@ -116,7 +123,7 @@ while True:
                 pg.mixer.music.play(0)
                 time.sleep(2.5)
 
-                mode = "test"  # if changing mode also change "changed"
+                mode = "connection_setup"  # if changing mode also change "changed"
                 changed = True
 
             btn = Button([int(0.2 * size[0]), int(0.069 * size[1])], \
@@ -141,8 +148,9 @@ while True:
 
             # handle events
             if event.type == pg.QUIT:
-                pg.quit()
-                sys.exit()
+                os.system('taskkill /f /im python.exe')
+                #pg.quit()
+                #sys.exit()
 
             if event.type == pg.MOUSEBUTTONDOWN:
                 p = pg.mouse.get_pos()
@@ -237,13 +245,15 @@ while True:
 
             # handle events
             if event.type == pg.QUIT:
-                pg.quit()
-                sys.exit()
+                os.system('taskkill /f /im python.exe')
+                #pg.quit()
+                #sys.exit()
 
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
-                    pg.quit()
-                    sys.exit()
+                    os.system('taskkill /f /im python.exe')
+                    #pg.quit()
+                    #sys.exit()
 
             if event.type == pg.KEYDOWN:
                 if event.key == ord("n"):
@@ -274,6 +284,7 @@ while True:
                     x += elem_size
                     window = pg.display.set_mode((x, y))
                     map.draw_map()
+
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_RIGHT:
                     y += elem_size
@@ -283,6 +294,55 @@ while True:
             if event.type == pg.KEYUP:
                 if event.key == ord("n"):
                     redraw_house = False
+
+            if event.type == pg.KEYDOWN:
+                if event.key == ord("q"):
+                    print("Q")  # Map OwO!
+                    net.send_data_pickle("Map OwO!", map.get_map())
+                    print(map.get_map())
+
+            if event.type == pg.KEYDOWN:
+                if event.key == ord("g"):
+                    #print("g")
+                    #print(net.send_data("Karte", "Peter Schilling ist ein krasser Motherlover!"))
+                    print(len("Map OwO!"))
+
+            if event.type == pg.KEYDOWN:
+                if event.key == ord("t"):
+                    #print("T")
+                    peterm = pickle.dumps(map.get_map())
+                    print(len(peterm))
+                    print(int(len(peterm)/4096))
+                    print(peterm)
+                    peter = "Map pls UwU !"
+                    data = peter.encode()
+                    print(data)
+                    size = "050000"
+                    data += size.encode()
+                    print(data)
+                    data += peterm
+                    print(data)
+                    print(len(data))
+                    print("_____")
+                    if data.count(b"Map pls UwU !") == 1:
+                        boi = data[0: len(peter)]
+                        sin = data[(len(peter)+len(size)):len(data)]
+                        sinsin = data[len(peter):(len(size)+len(peter))]
+                        print(boi)
+                        print(sinsin)
+                        print(sin)
+                        print(data)
+                        print("___________")
+                        sinsin = int(sinsin)
+                        print(sinsin)
+                    #net.send_stuff(Peter, 1)
+
+            if event.type == pg.KEYDOWN:
+                if event.key == ord("e"):
+                    print("E")
+                    net.receive_data("Map pls UwU !")
+                    time.sleep(2)
+                    print(net.map)
 
             # TODO BOI
             if select:  # executed if char is selected atm
@@ -296,7 +356,7 @@ while True:
                 if event.type == pg.KEYDOWN:
                     if event.key == ord("s"):
                         print("S")
-                        if map.movement_possible(selected_char, [selected_char.pos[0], selected_char.pos[1]+1]):
+                        if map.movement_possible(selected_char, [selected_char.pos[0], selected_char.pos[1] + 1]):
                             selected_char.pos[1] += 1
                             selected_button.pos[1] += elem_size
 
@@ -417,6 +477,8 @@ while True:
                              action=selecter_mode,
                              text="")
 
+            # some comment to commit
+
             buttons.append(charBtn)
             window.blit(charBtn.surf, charBtn.pos)
 
@@ -516,6 +578,8 @@ while True:
 
             if role == "host":
 
+                net = Network()
+                start_new_thread(net.routine_threaded_listener, ())
                 # global - set only if you are the host, else get it from transm
                 fields_x = 50  # width
                 fields_y = 50  # height
@@ -552,7 +616,7 @@ while True:
                 opp_team_number = -team_number + 1
 
                 # TODO: pickle and send to host [global map, opp team number]
-
+                net.send_data(global_map)
                 # set vars for drawing contents later on
                 # TODO: are they used here at all? maybe delete
                 redraw_house = True
@@ -562,11 +626,13 @@ while True:
                 h = 0
 
             elif role == "client":
-
+                net = Network()
+                start_new_thread(net.routine_threaded_listener, ())
                 # wait for transmission from host
                 # TODO: get into wait status and receive transmission from host
-
-                map_data = ...  # TODO: after recieving data, unpickle it into "map_data"
+                # TODO: after recieving data, unpickle it into "map_data"
+                while map_data == "a bytes-like object is required, not 'str'":
+                    map_data = net.receive_data()
 
                 # user side
                 # ------------------------------------------------------------------------------------------------------
