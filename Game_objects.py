@@ -6,7 +6,6 @@ from datetime import datetime
 
 import Data
 
-# bullshitasdf asdF SDFYBVAGDSFghjghjghjghjhgjghjghjgjh
 
 class GameObject:
 
