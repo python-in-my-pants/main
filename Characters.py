@@ -13,14 +13,16 @@ Debug = True
 class Character(GameObject):
 
     def __init__(self, created_num=0, name="default_character", object_type="character", team="team_0", \
-                 health=[100, 100, 100, 100, 100, 100], gear=[], dexterity=25, strength=15, stamina=1000, speed=1, \
-                 height=1, pos=[0, 0], bleed=[False, False, False, False, False, False], bleed_t=[0, 0, 0, 0, 0, 0], \
-                 burn=False, burn_t=0, poison=False, poison_t=0, blind=False, blind_t=0, items=[], weapons=[], \
-                 orientation=0):
+                 unit_class=0, health=[100, 100, 100, 100, 100, 100], gear=[], dexterity=25, strength=15, stamina=1000,\
+                 speed=1, height=1, pos=[0, 0], bleed=[False, False, False, False, False, False], \
+                 bleed_t=[0, 0, 0, 0, 0, 0], burn=False, burn_t=0, poison=False, poison_t=0, blind=False, blind_t=0, \
+                 items=[], weapons=[], orientation=0):
         super().__init__(name=name, obj_type=object_type, pos=pos, materials=["player"])
         self.name = name
         self.object_type = object_type
         self.team = team
+        self.unit_class = unit_class
+
         self.health = health[:]
         self.dexterity = dexterity
         self.strength = strength
@@ -29,6 +31,7 @@ class Character(GameObject):
         self.speed = speed
         self.height = height
         self.pos = pos[:]
+
         self.bleed = bleed[:]
         self.bleed_t = bleed_t[:]
         self.burn = burn
@@ -37,9 +40,11 @@ class Character(GameObject):
         self.poison_t = poison_t
         self.blind = blind
         self.blind_t = blind_t
+
         self.items = items[:]
         self.weapons = weapons[:]
         self.orientation = orientation
+
         self.pixs = pos[:]
         self.render_type = "blit"
         self.collider = 0
@@ -58,7 +63,7 @@ class Character(GameObject):
     def confirm(self):
         self.collider = pg.sprite.Group(CollAtom(self.pos))
 
-    def get_inner_shoulders(self): # TODO: approximate sin/cos using Kleinwinkel approximation to optimize runtime
+    def get_inner_shoulders(self):  # TODO: approximate sin/cos using Kleinwinkel approximation to optimize runtime
 
         if self.orientation == 0:
             return [[self.pos[0]+0.15, self.pos[1]+0.5], [self.pos[0]+0.85, self.pos[1]+0.5]]
@@ -94,7 +99,7 @@ class Character(GameObject):
                        int(character_surf.get_width() * 0.25), 0)
 
         if self.is_selected:
-            pg.draw.circle(character_surf, (170, 0, 0), [100, 100], 105, 5)
+            pg.draw.circle(character_surf, (255, 0, 0), [100, 100], 105, 5)
 
         character_surf.set_colorkey((0, 0, 0))
 

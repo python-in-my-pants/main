@@ -18,7 +18,7 @@ class Button:
         if img:
             background_img = pg.image.load(img).convert()
 
-            #background_img.set_colorkey((0, 0, 0))
+            # background_img.set_colorkey((0, 0, 0))
 
             if use_dim:
                 background_img = pg.transform.scale(background_img, dim)

@@ -354,6 +354,8 @@ class Map(GameObject):
 
         for go in self.objects:
             if go.render_type == "blit":
+                if go.is_selected is True:
+                    go.orientation = go.orientation  # TODO: look at mouse OR at char to attack
                 go_surf = go.get_drawable_surf()
                 if go.orientation > 0:
                     go_surf = pg.transform.rotate(go_surf, go.orientation)

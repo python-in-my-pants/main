@@ -10,6 +10,7 @@ import pickle
 import time
 
 from Game_objects import *
+from GUI import *
 from Data import *
 from GUI import *
 from Map import *
