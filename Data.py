@@ -21,3 +21,5 @@ material_codes = {
     "player": 6,
     "default": -1
 }
+
+# TODO: add mapping from character types (heavy, sniper, etc.) to numbers according to character card images

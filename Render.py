@@ -7,6 +7,7 @@ Gives general classes and fuctions for rendering on screen
 import Map
 import pygame as pg
 from GUI import *
+from Team import *
 import time
 
 
@@ -18,6 +19,7 @@ fields
 
 def update(self):  # not really needed here but implemented for consistency
     pg.display.update()
+
 
 class MainWindow:
 
@@ -39,7 +41,7 @@ class MainWindow:
 
         # scale image to desired size ("size")
         main_background_img = pg.transform.scale(main_background_img, (size[0], size[1]))
-        # use convert for better redering performance
+        # use convert for better rendering performance
         main_background_img = main_background_img.convert()
 
         # draw background image on screen
@@ -90,6 +92,9 @@ class ConnectionSetup:
 
     def __init__(self):
 
+        # TODO overthink if this works
+        self.new_window_target = CharacterSelection
+
         main_background_img = pg.image.load("assets/108.gif")  # "main_background.jpg")
 
         size = list(main_background_img.get_size())
@@ -97,7 +102,7 @@ class ConnectionSetup:
         size[1] = size[1] * 5
 
         # create window
-        self.connect_screen = pg.display.set_mode(size)
+        self.screen = pg.display.set_mode(size)
         # set title
         pg.display.set_caption("nAme;Rain - Verbindungskonfiguration ...")
 
@@ -106,7 +111,7 @@ class ConnectionSetup:
         main_background_img = main_background_img.convert()
 
         # draw background to screen
-        self.connect_screen.blit(main_background_img, (0, 0))
+        self.screen.blit(main_background_img, (0, 0))
 
         # set up GUI ---------------------------------------------------------------------------------------------------
 
@@ -213,8 +218,8 @@ class ConnectionSetup:
 
         # put right and left surface to screen
 
-        self.connect_screen.blit(left_surf, (0, 0))
-        self.connect_screen.blit(right_surf, (surfs_size[0], 0))
+        self.screen.blit(left_surf, (0, 0))
+        self.screen.blit(right_surf, (surfs_size[0], 0))
 
     def event_handling(self):
 
@@ -289,4 +294,108 @@ class ConnectionSetup:
                             b.action()
 
 
+class CharacterSelection:
 
+    def __init__(self):
+
+        self.new_window_target = InGame
+
+        size = [pg.display.Info().current_w(), pg.display.Info().current_h()]
+
+        self.screen = pg.display.set_mode(size, flags=pg.FULLSCREEN)
+
+        self.ownTeam = Team()  # holds actual object of own team
+
+        # set up surfaces for screen
+        # -------------------------------------------------------------------------------------------------------------
+
+        #############
+        # left side #
+        #############
+        troop_overview = pg.Surface([int(0.8 * size[0]), size[1]])
+
+        # TODO: add in some kind of scrollable surface here later
+
+        # background image for points to spend
+        points = pg.image.load("remaining_points.png").convert()
+
+        # character cards go here as buttons
+
+        ##############
+        # right side #
+        ##############
+        player_overview = pg.Surface([int(0.2 * size[0]), size[1]])
+
+        player_banner_back = pg.Surface([int(0.2 * size[0]), int(0.2 * size[0])])
+        player_banner_img = pg.image.load("default_player_banner.png")  # TODO: add custom player banners
+
+        selected_units_back = pg.Surface([int(0.2 * size[0]), int(size[1] - player_banner_back.get_height()*2)])
+        selected_units_box = pg.Surface([selected_units_back.get_size()[0] - 10, selected_units_back.get_size()[1] - 10])
+
+        selected_weapons_back = pg.Surface([int(0.2 * size[0]), int(size[1] - player_banner_back.get_height()*2)])
+        selected_units_box = pg.Surface([selected_weapons_back.get_size()[0]-10, selected_weapons_back.get_size()[1]-10])
+
+        # set up buttons
+        # -------------------------------------------------------------------------------------------------------------
+
+        ########
+        # left #
+        ########
+
+        character_cards = []
+        number_of_character_cards = 0
+        line_len = 5
+
+        # room between cards should be 1/8 of their width, 5 cards per line makes 6 spaces, so 5* 8/8 + 6 * 1/8
+        # = 46/8, so the width has to be split in 46 equal parts where 1/46 makes the space between 2 cards
+        # 46 = line_len * 9 + 1
+        gap_size = int(troop_overview.get_size()[0]/(line_len*9+1))
+        card_w = int(troop_overview.get_size()[0]*8/(line_len*9+1))
+        card_h = int(card_w * 1.457)  # dimensions of 59/86 like Yu-gi-oh cards
+
+        def function_binder(name, card_num):
+
+            def butn_fkt(card_num):
+
+                # TODO:_add corresponding card to own team
+                pass
+
+            butn_fkt.__name__ = name
+            return butn_fkt
+
+        for i in range(number_of_character_cards):
+
+            w_pos = gap_size + (i % (line_len-1)) * (card_w+gap_size)
+
+            #               height of point counter + line_len_factor         *  card height plus gap
+            h_pos = points.get_size()[1] + 5 + i*int((i+1) / line_len) * (gap_size + card_h)
+
+            card_btn = Button(pos=[w_pos, h_pos], img=("cc_" + str(i) + ".png"), action=function_binder("cc_btn_function_" + str(i), i))
+
+            character_cards.append(card_btn)
+
+        # TODO: Add this later, see plan for this screen for details
+        # category_banner_weapons_btn = Button()
+
+        #########
+        # right #
+        #########
+
+        # buttons for own team members
+        # if you click them, the weapons and item of this character are show and bought items are equipped to this char
+
+        # blit to selected_units_box
+        team_chat_btns = []
+        small_line_len = 3
+
+        w_small_card =
+        h_small_card =
+
+        for i in range(self.ownTeam.characters.__len__()):
+
+            btn = Button(dim)
+
+class InGame:
+
+    def __init__(self):
+        pass
