@@ -320,7 +320,12 @@ class CharacterSelection:
         # TODO: add in some kind of scrollable surface here later
 
         # background image for points to spend
-        points = pg.image.load("remaining_points.png").convert()
+        def get_rem_points():
+            pass  # TODO ret rem points
+
+        points = Button(img="remaining_points.png", use_dim=True, \
+                        dim=[int(troop_overview.get_size()[0]*0.21), int(size[1]*0.1)], \
+                        pos=[int(troop_overview.get_size()[0]*0.305), 0], action=(lambda: None), text=get_rem_points())
 
         # character cards go here as buttons
 
@@ -437,11 +442,15 @@ class CharacterSelection:
         # -------------------------------------------------------------------------------------------------------------
         # now blit everything to the desired position
 
-        #TODO
+        ########
+        # left #
+        ########
+
+
 
     def event_handling(self):
 
-
+        pass
 
 
 class InGame:
