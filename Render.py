@@ -18,7 +18,7 @@ fields
 '''
 
 
-def update(self):  # not really needed here but implemented for consistency
+def update():  # not really needed here but implemented for consistency
     pg.display.update()
 
 
@@ -297,17 +297,29 @@ class ConnectionSetup:
 
 class CharacterSelection:
 
-    def __init__(self):
+    def __init__(self, points_to_spend):
 
         self.new_window_target = InGame
+
+        self.spent_points = 0
 
         size = [pg.display.Info().current_w(), pg.display.Info().current_h()]
 
         self.screen = pg.display.set_mode(size, flags=pg.FULLSCREEN)
 
         self.ownTeam = Team()  # holds actual object of own team
-
+        self.selectedChar = None
         self.ready = False
+
+        self.cc_num = ...  # TODO number of character cards
+        self.wc_num = ...  # number of weapon cards
+        self.ic_num = ...  # number of item cards
+
+        self.render_char_ban = True
+        self.render_weap_ban = True
+        self.render_item_ban = True
+
+        self.scroll_offset = 0
 
         # set up surfaces for screen
         # -------------------------------------------------------------------------------------------------------------
@@ -315,34 +327,66 @@ class CharacterSelection:
         #############
         # left side #
         #############
-        troop_overview = pg.Surface([int(0.7 * size[0]), size[1]])
-
-        # TODO: add in some kind of scrollable surface here later
-
-        # background image for points to spend
-        def get_rem_points():
-            pass  # TODO ret rem points
-
-        points = Button(img="remaining_points.png", use_dim=True, \
-                        dim=[int(troop_overview.get_size()[0]*0.21), int(size[1]*0.1)], \
-                        pos=[int(troop_overview.get_size()[0]*0.305), 0], action=(lambda: None), text=get_rem_points())
 
         # character cards go here as buttons
+        troop_overview = pg.Surface([int(0.7 * size[0]), size[1]*10])  # make very long for scroll stuff
+
+        # some vars and constants
+        self.character_cards = []  # TODO: buttons
+        self.weapon_cards = []
+        self.item_cards = []
+        self.banners = []  # TODO: buttons
+        self.team_char_btns = []  # TODO: buttons
+        # room between cards should be 1/8 of their width, 5 cards per line makes 6 spaces, so 5* 8/8 + 6 * 1/8
+        # = 46/8, so the width has to be split in 46 equal parts where 1/46 makes the space between 2 cards
+        # 46 = line_len * 9 + 1
+        line_len = 5
+        gap_size = int(troop_overview.get_size()[0]/(line_len*9+1))
+        card_w = int(troop_overview.get_size()[0]*8/(line_len*9+1))
+        card_h = int(card_w * 1.457)  # dimensions of 59/86 like Yu-gi-oh cards
+
+        # to blit button on
+        rem_point_back = pg.Surface([troop_overview.get_size()[0], int(size[1]*0.1)])
+
+        # to blit character_banner and character_content on
+        character_back = pg.Surface([troop_overview.get_size()[0],
+                                     int(2*gap_size + int(card_h*self.cc_num/line_len) +
+                                    (int(self.cc_num/line_len)-1)*gap_size + int(card_h*0.5))])  # add place for banner
+        character_content = pg.Surface([character_back.get_size()[0], character_back.get_size()[1]-int(card_h/2)])
+
+        weapon_back = pg.Surface([troop_overview.get_size()[0],
+                                  int(2*gap_size + int(card_h*self.wc_num/line_len) +
+                                  (int(self.wc_num/line_len)-1)*gap_size + int(card_h*0.5))])  # add place for banner
+        weapon_content = pg.Surface([weapon_back.get_size()[0], weapon_back.get_size()[1]-int(card_h/2)])
+
+        item_back = pg.Surface([troop_overview.get_size()[0],
+                                int(2 * gap_size + int(card_h * self.ic_num / line_len) +
+                               (int(self.ic_num / line_len) - 1) * gap_size + int(card_h * 0.5))])  # add place for banner
+        item_content = pg.Surface([item_back.get_size()[0], item_back.get_size()[1]-int(card_h/2)])
 
         ##############
         # right side #
         ##############
+
         player_overview = pg.Surface([int(0.3 * size[0]), size[1]])
 
         player_banner_back = pg.Surface([int(0.3 * size[0]), int(0.3 * size[0])])
-        player_banner_img = pg.image.load("default_player_banner.png")  # TODO: add custom player banners
+        player_banner_img = pg.image.load("assets/default_player_banner.png")  # TODO: add custom player banners
 
         selected_units_back = pg.Surface([int(0.3 * size[0]), int(size[1] - player_banner_back.get_height()*2)])
         selected_units_box = pg.Surface([selected_units_back.get_size()[0] - 10, selected_units_back.get_size()[1] - 10])
 
         selected_weapons_back = pg.Surface([int(0.3 * size[0]), int(size[1] - player_banner_back.get_height()*2)])
-        selected_units_box = pg.Surface([selected_weapons_back.get_size()[0]-10, selected_weapons_back.get_size()[1]-10])
+        selected_weapons_box = pg.Surface([selected_weapons_back.get_size()[0]-10, selected_weapons_back.get_size()[1]-10])
+        # TODO: show items of selected char here
 
+        # constants
+        small_line_len = 3
+        small_gap_size = int(selected_units_box.get_size()[0]/(small_line_len*9+1))
+        w_small_card = int(selected_units_box.get_size()[0]*8/(small_line_len*9+1))
+        h_small_card = int(w_small_card*1.457)
+
+        # -------------------------------------------------------------------------------------------------------------
         # set up buttons
         # -------------------------------------------------------------------------------------------------------------
 
@@ -350,61 +394,113 @@ class CharacterSelection:
         # left #
         ########
 
-        character_cards = []  #TODO: buttons
-        number_of_character_cards = 0
-        line_len = 5
+        # points to spend
+        def get_rem_points():
+            return points_to_spend-self.spent_points
 
-        # room between cards should be 1/8 of their width, 5 cards per line makes 6 spaces, so 5* 8/8 + 6 * 1/8
-        # = 46/8, so the width has to be split in 46 equal parts where 1/46 makes the space between 2 cards
-        # 46 = line_len * 9 + 1
-        gap_size = int(troop_overview.get_size()[0]/(line_len*9+1))
-        card_w = int(troop_overview.get_size()[0]*8/(line_len*9+1))
-        card_h = int(card_w * 1.457)  # dimensions of 59/86 like Yu-gi-oh cards
+        self.points_btn = Button(img="assets/remaining_points.png", use_dim=True, \
+                                 dim=[int(troop_overview.get_size()[0]*0.21), int(size[1]*0.1)], \
+                                 pos=[int(troop_overview.get_size()[0]*0.305), 0], action=(lambda: None), \
+                                 text=get_rem_points())
 
+        # banners
+        def char_ban_func():
+            if self.render_char_ban:
+                character_back.get_size()[1] -= character_content.get_size()[1]
+            else:
+                character_back.get_size()[1] -= character_content.get_size()[1]
+
+            self.render_char_ban = not self.render_char_ban
+
+        def weap_ban_func():
+            if self.render_weap_ban:
+                weapon_back.get_size()[1] -= weapon_content.get_size()[1]
+            else:
+                weapon_back.get_size()[1] -= weapon_content.get_size()[1]
+
+            self.render_weap_ban = not self.render_weap_ban
+
+        def item_ban_func():
+            if self.render_item_ban:
+                item_back.get_size()[1] -= item_content.get_size()[1]
+            else:
+                item_back.get_size()[1] -= item_content.get_size()[1]
+
+            self.render_item_ban = not self.render_item_ban
+
+        # TODO: Button
+        # hide of show character_content on click, height must be card_h/2 and y padding card_h/4
+        character_banner = Button(dim=[int(troop_overview.get_size()[0]*0.9), int(card_h/2)],
+                                  pos=[int(troop_overview.get_size()[0]*0.05), int(card_h/4)],
+                                  text="Characters", color=(50, 30, 230),
+                                  action=char_ban_func)
+        self.banners.append(character_banner)
+
+        weapons_banner = Button(dim=[int(troop_overview.get_size()[0]*0.9), int(card_h/2)],
+                                pos=[int(troop_overview.get_size()[0]*0.05), int(card_h/4)],
+                                text="Weapons", color=(230, 50, 30),
+                                action=weap_ban_func)
+        self.banners.append(weapons_banner)
+
+        item_banner = Button(dim=[int(troop_overview.get_size()[0]*0.9), int(card_h/2)],
+                             pos=[int(troop_overview.get_size()[0]*0.05), int(card_h/4)],
+                             text="Items", color=(30, 230, 50),
+                             action=item_ban_func)
+        self.banners.append(item_banner)
+
+        # character cards
         def function_binder(name, card_num):
 
             def butn_fkt(card_num):
 
-                char = ... # TODO: add function call to get instance of corresponding class
-                self.ownTeam.add_char(char)
+                char = ...  # TODO: add function call to get instance of corresponding class
+                if self.spent_points + char.cost <= points_to_spend:
+                    self.ownTeam.add_char(char)
+                    self.spent_points -= char.cost
+                else:
+                    # TODO: take out
+                    print("Too expensive, cannot buy")
 
             butn_fkt.__name__ = name
             return butn_fkt
 
-        for i in range(number_of_character_cards):
+        for i in range(self.cc_num):
 
             w_pos = gap_size + (i % (line_len-1)) * (card_w+gap_size)
 
             #               height of point counter + line_len_factor         *  card height plus gap
-            h_pos = points.get_size()[1] + 5 + i*int((i+1) / line_len) * (gap_size + card_h)
+            h_pos = self.points_btn.get_size()[1] + 5 + i * int((i + 1) / line_len) * (gap_size + card_h)
 
-            card_btn = Button(pos=[w_pos, h_pos], img=("cc_" + str(i) + ".png"), dim=[card_w, card_h], use_dim=True, \
-                              action=function_binder("cc_btn_function_" + str(i), i))
+            card_btn = Button(pos=[w_pos, h_pos], img=("assets/cc/cc_" + str(i) + ".png"), dim=[card_w, card_h], \
+                              use_dim=True, action=function_binder("cc_btn_function_" + str(i), i))
 
-            character_cards.append(card_btn)
-
-        # TODO: Add this later, see plan for this screen for details
-        # category_banner_weapons_btn = Button()
+            self.character_cards.append(card_btn)
 
         #########
         # right #
         #########
 
+        # --------------------------------------------------------------------
         # buttons for own team members
         # if you click them, the weapons and item of this character are show and bought items are equipped to this char
+        # --------------------------------------------------------------------
 
         # blit to selected_units_box
-        team_char_btns = []  #TODO: buttons
-        small_line_len = 3
+        def cc_function_binder(name, _char_id):
 
-        small_gap_size = int(selected_units_box.get_size()[0]/(small_line_len*9+1))
-        w_small_card = int(selected_units_box.get_size()[0]*8/(small_line_len*9+1))
-        h_small_card = int(w_small_card*1.457)
+            def btn_fkt(_char_id, button=1):
+                if button == 1:
+                    # show characters items in selected_weapons_box and set him as selected char
+                    self.selectedChar = self.ownTeam.get_char_by_id(_char_id)
+                if button == 3:
+                    # sell this character
+                    char = self.ownTeam.get_char_by_id(_char_id)
+                    self.ownTeam.remove_char_by_obj(char)
+                    self.selectedChar = self.ownTeam.characters[0]
 
-        def cc_function_binder(name, id):
-
-            def btn_fkt(id):
-                pass
+                    self.spent_points -= char.cost
+                    nonlocal points_to_spend
+                    points_to_spend += char.cost
 
             btn_fkt.__name__ = name
             return btn_fkt
@@ -412,45 +508,245 @@ class CharacterSelection:
         for i in range(self.ownTeam.characters.__len__()):
 
             pos_w = small_gap_size + (i % (small_line_len-1)) * (w_small_card+small_gap_size)
-            pos_h = small_gap_size + i * int( (i+1) / small_line_len) * (small_gap_size + h_small_card)
+            pos_h = small_gap_size + i * int((i+1) / small_line_len) * (small_gap_size + h_small_card)
 
             class_num = character_classes[self.ownTeam.characters[i].unit_class]
 
             btn = Button(dim=[w_small_card, h_small_card], pos=[pos_w, pos_h], \
-                         img=("cc_" + str(class_num) + ".png"),
-                         use_dim=True, action=cc_function_binder("cc_small_btn_func" + str(i), \
+                         img=("assets/cc/cc_" + str(class_num) + ".png"),
+                         use_dim=True, action=cc_function_binder("assets/cc/cc_small_btn_func" + str(i), \
                                                                  self.ownTeam.characters[i].id))
 
-            team_char_btns.append(btn)
+            self.team_char_btns.append(btn)
 
-        # blit to player_banner_back
+        # ----------------------------------------------------------
+        # equipped items and shit
+        # ----------------------------------------------------------
+
+        if self.selectedChar is not None:
+            gear = self.selectedChar.gear
+            weapons = self.selectedChar.weapons
+            items = self.selectedChar.items
+        else:
+            gear = []
+            weapons = []
+            items = []
+
+        def ic_function_binder(name, _category, _id):
+
+            def btn_fkt(_category, _id, button=1):
+                if button == 3:
+
+                    # sell this item
+                    thing_to_sell = None
+
+                    if _category == "gear":
+                        for g in gear:
+                            if g.id == _id:
+                                thing_to_sell = g
+
+                                self.spent_points -= thing_to_sell.cost
+                                nonlocal points_to_spend
+                                points_to_spend += thing_to_sell.cost
+
+                                gear.remove(g)
+
+                    if _category == "weapon":
+                        for w in weapons:
+                            if w.id == _id:
+                                thing_to_sell = w
+
+                                self.spent_points -= thing_to_sell.cost
+                                nonlocal points_to_spend
+                                points_to_spend += thing_to_sell.cost
+
+                                weapons.remove(w)
+
+                    if _category == "item":
+                        for item in items:
+                            if item.id == _id:
+                                thing_to_sell = item
+
+                                self.spent_points -= thing_to_sell.cost
+                                nonlocal points_to_spend
+                                points_to_spend += thing_to_sell.cost
+
+                                item.remove(item)
+
+            btn_fkt.__name__ = name
+            return btn_fkt
+
+        for i in range(gear.__len__() + weapons.__len__() + items.__len__()):
+
+            pos_w = small_gap_size + (i % (small_line_len-1)) * (w_small_card+small_gap_size)
+            pos_h = small_gap_size + i * int((i+1) / small_line_len) * (small_gap_size + h_small_card)
+
+            image_uri = ""
+            cat = None
+            id = 0
+
+            # TODO check for errors
+            if i < gear.__len__():
+                image_uri = "assets/gc/gc_" + str(i) + ".png"
+                cat = "gear"
+                id = i
+
+            if gear.__len__() <= i < weapons.__len__() + gear.__len__():
+                image_uri = "assets/wc/wc_" + str(i-gear.__len__()) + ".png"
+                cat = "weapon"
+                id = i - gear.__len__()
+
+            if i >= gear.__len__() + weapons.__len__():
+                image_uri = "assets/ic/ic_" + str(i-gear.__len__()-weapons.__len__()) + ".png"
+                cat = "item"
+                id = i - gear.__len__() - weapons.__len__()
+
+            btn = Button(dim=[w_small_card, h_small_card], pos=[pos_w, pos_h],
+                         img=image_uri, use_dim=True, action=ic_function_binder("ci_small_btn_func" + str(i),
+                                                                                _category=cat, _id=id))
+
+            self.team_char_btns.append(btn)
+
+        # to blit to player_banner_back
         # ready button
         def ready_up():
 
             self.ready = not self.ready
+            # TODO: CHRISTIAN <3 when ready, sync wait for other player to be
 
         def get_text():
             return "Unready" if self.ready else "Ready!"
 
-        ready_btn = Button(dim=[player_banner_back.get_size()[0]*0.8, player_banner_back.get_size()[1]*0.25],
-                           text=get_text(), \
-                           pos=[player_banner_back.get_size()[0]*0.1, \
-                                player_banner_back.get_size()[1], player_banner_img.get_size()[1]],
-                           action=ready_up)
         #TODO: button
+        self.ready_btn = Button(dim=[player_banner_back.get_size()[0]*0.8, player_banner_back.get_size()[1]*0.25],
+                                text=get_text(), \
+                                pos=[player_banner_back.get_size()[0]*0.1, \
+                                player_banner_back.get_size()[1], player_banner_img.get_size()[1]],
+                                action=ready_up)
 
         # -------------------------------------------------------------------------------------------------------------
         # now blit everything to the desired position
+        # -------------------------------------------------------------------------------------------------------------
 
         ########
         # left #
         ########
 
+        # TODO: maybe add big image of selected char and selected weap at left side
 
+        # cards and banners
+        character_back.blit(character_banner, character_banner.pos)
+        if self.render_char_ban:
+            for char_btn in self.character_cards:
+                character_content.blit(char_btn, char_btn.pos)
+            character_back.blit(character_content, [0, character_banner.dim[1]])
+
+        weapon_back.blit(weapons_banner, weapons_banner.pos)
+        if self.render_weap_ban:
+            for weapon_btn in self.weapon_cards:
+                weapon_content.blit(weapon_btn, weapon_btn.pos)
+            weapon_back.blit(weapon_content, [0, weapons_banner.dim[1]])
+
+        item_back.blit(item_banner, item_banner.pos)
+        if self.render_item_ban:
+            for item_btn in self.item_cards:
+                item_content.blit(item_btn, item_btn.pos)
+            item_back.blit(item_content, [0, item_banner.dim[1]])
+
+        # TODO: blit background image
+        # points btn to left side
+        troop_overview.blit(self.points_btn, dest=self.points_btn.pos)
+
+        troop_overview.blit(character_back, dest=[0, self.points_btn.dim[1]])
+        troop_overview.blit(weapon_back, dest=[0, self.points_btn.dim[1]+character_back.get_size()[1]])
+        troop_overview.blit(item_back, dest=[0, self.points_btn.dim[1]+character_back.get_size()[1]+weapon_back.get_size()[1]])
+
+        #########
+        # right #
+        #########
+
+        # player banner
+        player_banner_back.blit(player_banner_img, dest=[0, 0])
+        player_banner_back.blit(self.ready_btn, self.ready_btn.pos)
+
+        player_overview.blit(player_banner_back, [0, 0])
+
+        # selected units
+        for sm_char_btn in self.team_char_btns:
+            selected_units_box.blit(sm_char_btn, sm_char_btn.pos)
+
+        selected_units_back.blit(selected_units_box, dest=
+                                 [int((selected_units_back.get_size()[0]-selected_units_box.get_size()[0])/2),
+                                  int((selected_units_back.get_size()[1]-selected_units_box.get_size()[1])/2)])
+
+        player_overview.blit(selected_units_back, dest=[0, player_banner_back.get_size()[1]])
+
+        # selected weapons
+
+        selected_weapons_back.blit(selected_weapons_box, dest=
+                                   [int((selected_weapons_back.get_size()[0]-selected_weapons_box.get_size()[0])/2),
+                                    int((selected_weapons_back.get_size()[0]-selected_weapons_box.get_size()[0])/2)])
+
+        player_overview.blit(selected_weapons_back, dest=
+                             [0, player_banner_back.get_size()[1] + selected_weapons_back.get_size()[1]])
+
+        ###########################
+        # right and left together #
+        ###########################
+
+        self.screen.blit(troop_overview, [0, self.scroll_offset])
+        self.screen.blit(player_overview, [troop_overview.get_size()[0], 0])
 
     def event_handling(self):
 
-        pass
+        # event handling
+        for event in pg.event.get():
+
+            # handle events
+            if event.type == pg.QUIT:
+                pg.quit()
+                sys.exit()
+
+            if event.type == pg.MOUSEBUTTONDOWN:
+                p = pg.mouse.get_pos()
+
+                if event.button == 1:  # on left click
+                    for button in self.character_cards:
+                        if button.is_focused(p):
+                            button.action()
+
+                    for button in self.weapon_cards:
+                        if button.is_focused(p):
+                            button.action()
+
+                    for button in self.item_cards:
+                        if button.is_focused(p):
+                            button.action()
+
+                    for button in self.team_char_btns:
+                        if button.is_focused(p):
+                            button.action()
+
+                    if self.ready_btn.is_focused(p):
+                        self.ready_btn.action()
+
+                    for banner_btn in self.banners:
+                        if banner_btn.is_focused(p):
+                            banner_btn.action()
+
+                if event.button == 3:  # on right click
+
+                    for button in self.team_char_btns:
+                        if button.is_focused(p):
+                            button.action(button=3)
+
+                if event.button == 4:  # scroll up
+
+                    self.scroll_offset -= 10
+
+                if event.button == 5:  # scroll down
+
+                    self.scroll_offset += 10
 
 
 class InGame:

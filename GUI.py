@@ -41,8 +41,8 @@ class Button:
 
     def is_focused(self, mouse_pos):
 
-        if mouse_pos[0] >= self.pos[0] and mouse_pos[0] <= self.pos[0] + self.dim[0] and \
-           mouse_pos[1] >= self.pos[1] and mouse_pos[1] <= self.pos[1] + self.dim[1]:
+        if self.pos[0] + self.dim[0] >= mouse_pos[0] >= self.pos[0] and \
+           self.pos[1] + self.dim[1] >= mouse_pos[1] >= self.pos[1]:
             return True
         return False
 

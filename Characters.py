@@ -12,9 +12,11 @@ Debug = True
 
 class Character(GameObject):
 
+    # TODO: make id class variable instead of instance!!! with id_counter like in Team()
+
     def __init__(self, created_num=0, name="default_character", object_type="character", team="team_0", \
                  unit_class=0, health=[100, 100, 100, 100, 100, 100], gear=[], dexterity=25, strength=15, stamina=1000,\
-                 speed=1, height=1, pos=[0, 0], bleed=[False, False, False, False, False, False], \
+                 speed=1, height=1, pos=[0, 0], bleed=[False, False, False, False, False, False], cost=1, \
                  bleed_t=[0, 0, 0, 0, 0, 0], burn=False, burn_t=0, poison=False, poison_t=0, blind=False, blind_t=0, \
                  items=[], weapons=[], orientation=0):
         super().__init__(name=name, obj_type=object_type, pos=pos, materials=["player"])
@@ -22,6 +24,7 @@ class Character(GameObject):
         self.object_type = object_type
         self.team = team
         self.unit_class = unit_class
+        self.cost = cost
 
         self.health = health[:]
         self.dexterity = dexterity
