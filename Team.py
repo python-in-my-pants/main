@@ -35,6 +35,7 @@ class Team:
         for char in self.characters:
             if char.id == id:
                 return char
+        return False
 
     def all_dead(self):
 

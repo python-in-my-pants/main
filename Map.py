@@ -29,7 +29,7 @@ class Map(GameObject):
     def __init__(self, x_size, y_size, window, elem_size, objects=[], characters=[], unique_pixels=[]):  # STATUS: working, returns 1 on success, 0 else
 
         # size_x holds map size in actual drawable pixels coords, x and y are to be
-        # commited in desired size in elements * elem_size
+        # committed in desired size in elements * elem_size
         self.size_x = x_size
         self.size_y = y_size
 
@@ -364,7 +364,7 @@ class Map(GameObject):
                 factor = 1
                 self.window.blit(pg.transform.smoothscale(go_surf, (int(self.elem_size * factor), int(self.elem_size * factor))), \
                                  (int(go.pos[0] * self.elem_size), int(go.pos[1] * self.elem_size)))
-                shit = pg.transform.smoothscale(go_surf, (int(self.elem_size * factor), int(self.elem_size * factor)))
+                #shit = pg.transform.smoothscale(go_surf, (int(self.elem_size * factor), int(self.elem_size * factor)))
                 # print("-"*10+str(shit.get_width()))
             else:
                 mat_counter = 0
@@ -374,9 +374,9 @@ class Map(GameObject):
                             mat_counter += 1
                     pg.draw.rect(self.window, mat_colour[go.materials[mat_counter]],
                                  (pix[0] * self.elem_size, pix[1] * self.elem_size, self.elem_size, self.elem_size))
-        self.draw_grid()
+        self.__draw_grid()
 
-    def draw_grid(self):  # maybe static? (but who cares tbh)
+    def __draw_grid(self):  # maybe static? (but who cares tbh)
 
         '''for i in range(int(self.size_x/elem_size)):
             for d in range(int(self.size_y/elem_size)):
@@ -395,3 +395,4 @@ class Map(GameObject):
                self.size_y]
 
         return lis
+
