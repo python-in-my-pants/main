@@ -23,22 +23,23 @@ client_team = ""
 
 def threaded_client(conn):
     global karte
+    global client_team
     reply = ''
     while True:
         try:
             data = conn.recv(104857645)
             # Map
-            if data[0:8] == b'Team OwO!':
-                karte = data[14:len(data)]
+            if data[0:5] == b'Teams':
+                client_team = data[11:len(data)]
                 print("Saved Successfully!")
-            if data[0:13] == b'Team pls UwU !':
+            if data[0:8] == b'Team pls':
                 sender(b'Team', client_team, conn)
                 print("Team Send!")
             # Team
-            if data[0:8] == b'Map OwO!':
-                karte = data[14:len(data)]
+            if data[0:4] == b'Maps':
+                karte = data[10:len(data)]
                 print("Saved Successfully!")
-            if data[0:14] == b'Map pls UwU !':
+            if data[0:7] == b'Map pls':
                 sender(b'Map', karte, conn)
                 print("Map Send!")
         except:

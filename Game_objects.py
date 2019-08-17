@@ -305,3 +305,70 @@ class SimpleHouse(GameObject):
 
         # returns element positions in map coordinates
         return self.pixs
+
+
+class Spawnarea(GameObject):
+    seitenlaenge = 0
+
+    def __init__(self, obj_type, name="Spawnareal_def", materials_=["border"], pos=[0, 0]):
+        super().__init__(obj_type=obj_type, name=name, materials=materials_, pos=pos)
+        if self.size_x is 0:
+            size_x = self.seitenlaenge
+        if self.size_y is 0:
+            size_y = self.seitenlaenge
+
+        self.size_x = size_x
+        self.size_y = size_y
+
+        self.pixs = []
+        self.characters = []
+
+        for x in range(self.size_x):
+            for y in range(self.size_y):
+                self.pixs.append([x, y])
+
+        for point in self.pixs:
+            point[0] += self.pos[0]
+            point[1] += self.pos[1]
+
+        for point in self.pixs:
+            self.characters.append([point[0], point[1], 0])
+
+    def place_character(self, boi):
+        for i in range(self.characters.__len__()):
+            if self.characters[i][2] == 0:
+                boi.pos = [self.characters[i][0], self.characters[i][1]]
+                self.characters[i][2] = 1
+                break
+        print("Spawnareal Voll Boi :D")
+
+    @staticmethod
+    def create_areals(map_size):
+        # Assign Area1 and Area2 to the corners randomly
+        p = int((map_size[0]*map_size[1]/250)/2)
+        Spawnarea.seitenlaenge = int(numpy.sqrt(p))
+        if Spawnarea.seitenlaenge.__pow__(2) < p:
+            Spawnarea.seitenlaenge += 1
+        areas = []
+        if numpy.random.randint(0, 2) == 1:
+            areas.append(Spawnarea.create_spawn(map_size, 1, "L"))
+            areas.append(Spawnarea.create_spawn(map_size, 2, "R"))
+        else:
+            areas.append(Spawnarea.create_spawn(map_size, 1, "R"))
+            areas.append(Spawnarea.create_spawn(map_size, 2, "L"))
+        return areas
+
+    @staticmethod
+    def create_spawn(map_size, team, position):
+        # Create left upper corner spawnareal
+        if position == "L":
+            area = Spawnarea(name="Spawnareal "+str(team), obj_type="default", pos=[0, 0])
+        if position == "R":
+            area = Spawnarea(name="Spawnareal "+str(team), obj_type="default", pos=[map_size[0]-Spawnarea.seitenlaenge,
+                                                                                   map_size[1]-Spawnarea.seitenlaenge])
+        return area
+
+    def get_drawable(self):  # STATUS: tested
+
+        # returns element positions in map coordinates
+        return self.pixs

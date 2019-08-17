@@ -93,7 +93,7 @@ while True:
 
                 pg.mixer.music.load("assets/ass.mp3")
                 pg.mixer.music.play(0)
-                time.sleep(2.5)
+                #time.sleep(2.5)
 
                 mode = "test"  # if changing mode also change "changed"
                 changed = True
@@ -146,8 +146,9 @@ while True:
 
             buttons.clear()
 
-            fields_x = 30  # width
-            fields_y = 30  # height
+            fields_x = 50  # width
+            fields_y = 50  # height
+            print(fields_x *fields_y/250)
 
             elem_size = int(screen_w / fields_x) if int(screen_w / fields_x) < int(screen_h / fields_y) else int(
                 screen_h / fields_y)
@@ -162,7 +163,45 @@ while True:
             pg.display.set_caption("Xepa")
 
             map = Map(fields_x, fields_y, map_window, elem_size)
-
+            areals = Spawnarea.create_areals([fields_x, fields_y])
+            booii = Character.create_character("Peter", "team_0", "Sniper")
+            areals[0].place_character(booii)
+            booiii = Character.create_character("Peter", "team_0", "Sniper")
+            areals[0].place_character(booiii)
+            booiiii = Character.create_character("Peter", "team_0", "Sniper")
+            areals[0].place_character(booiiii)
+            booiiiii = Character.create_character("Peter", "team_0", "Sniper")
+            areals[0].place_character(booiiiii)
+            booiiiiii = Character.create_character("Peter", "team_0", "Sniper")
+            areals[0].place_character(booiiiiii)
+            booiiiiiii = Character.create_character("Peter", "team_0", "Sniper")
+            areals[0].place_character(booiiiiiii)
+            pooii = Character.create_character("Petra", "team_0", "Sniper")
+            areals[1].place_character(pooii)
+            pooiii = Character.create_character("Petra", "team_0", "Sniper")
+            areals[1].place_character(pooiii)
+            pooiiii = Character.create_character("Petra", "team_0", "Sniper")
+            areals[1].place_character(pooiiii)
+            pooiiiii = Character.create_character("Petra", "team_0", "Sniper")
+            areals[1].place_character(pooiiiii)
+            pooiiiiii = Character.create_character("Petra", "team_0", "Sniper")
+            areals[1].place_character(pooiiiiii)
+            pooiiiiiii = Character.create_character("Petra", "team_0", "Sniper")
+            areals[1].place_character(pooiiiiiii)
+            map.add_object(areals[0])
+            map.add_object(areals[1])
+            map.add_object(booii)
+            map.add_object(booiii)
+            map.add_object(booiiii)
+            map.add_object(booiiiii)
+            map.add_object(booiiiiii)
+            map.add_object(booiiiiiii)
+            map.add_object(pooii)
+            map.add_object(pooiii)
+            map.add_object(pooiiii)
+            map.add_object(pooiiiii)
+            map.add_object(pooiiiiii)
+            map.add_object(pooiiiiiii)
             redraw_house = True
             draw_character = True
             select = False
@@ -265,49 +304,32 @@ while True:
             if event.type == pg.KEYDOWN:
                 if event.key == ord("q"):
                     print("Q")  # Map OwO!
-                    net.send_data_pickle("Map OwO!", map.get_map())
+                    net.send_data_pickle("Maps", map.get_map())
                     print(map.get_map())
 
             if event.type == pg.KEYDOWN:
                 if event.key == ord("g"):
-                    #print("g")
-                    #print(net.send_data("Karte", "Peter Schilling ist ein krasser Motherlover!"))
-                    print(len("Map OwO!"))
+                    # print("g")
+                    net.send_data("Teams", "2")
+
 
             if event.type == pg.KEYDOWN:
                 if event.key == ord("t"):
                     #print("T")
-                    peterm = pickle.dumps(map.get_map())
-                    print(len(peterm))
-                    print(int(len(peterm)/4096))
-                    print(peterm)
-                    peter = "Map pls UwU !"
-                    data = peter.encode()
-                    print(data)
-                    size = "050000"
-                    data += size.encode()
-                    print(data)
-                    data += peterm
-                    print(data)
-                    print(len(data))
-                    print("_____")
-                    if data.count(b"Map pls UwU !") == 1:
-                        boi = data[0: len(peter)]
-                        sin = data[(len(peter)+len(size)):len(data)]
-                        sinsin = data[len(peter):(len(size)+len(peter))]
-                        print(boi)
-                        print(sinsin)
-                        print(sin)
-                        print(data)
-                        print("___________")
-                        sinsin = int(sinsin)
-                        print(sinsin)
-                    #net.send_stuff(Peter, 1)
+                    while net.map == b'':
+                        net.receive_data("Map pls")
+                        time.sleep(0.500)
+                    while net.team == "":
+                        time.sleep(0.500)
+                        net.receive_data("Team pls")
+                    print(net.map)
+                    print(net.team)
 
             if event.type == pg.KEYDOWN:
                 if event.key == ord("e"):
                     print("E")
-                    map_data = net.receive_data("Map pls UwU !")
+                    net.receive_data("Map pls")
+                    time.sleep(0.400)
                     print(net.map)
 
             # TODO BOI
@@ -582,7 +604,8 @@ while True:
                 opp_team_number = -team_number + 1
 
                 # TODO: pickle and send to host [global map, opp team number]
-                net.send_data(global_map)
+                net.send_data_pickle("Map", global_map)
+                net.send_data("Team", opp_team_number)
                 # set vars for drawing contents later on
                 # TODO: are they used here at all? maybe delete
                 redraw_house = True
@@ -597,8 +620,13 @@ while True:
                 # wait for transmission from host
                 # TODO: get into wait status and receive transmission from host
                 # TODO: after recieving data, unpickle it into "map_data"
-                while map_data == "a bytes-like object is required, not 'str'":
-                    map_data = net.receive_data()
+                while net.map == b'':
+                    net.receive_data("Map pls")
+                    time.sleep(250)
+                while net.team == "":
+                    net.receive_data("Team pls")
+                    time.sleep(250)
+
 
                 # user side
                 # ------------------------------------------------------------------------------------------------------
