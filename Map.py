@@ -16,7 +16,7 @@ debug = True
 #       durchgeführt und diese dann erneut Map hinzugefügt, die alten gelöscht
 
 
-class Map(GameObject):
+class Map(GameObject):  # TODO add selective renderer that renders only visible characters from own team
     # container class for all other drawable game objects
 
     '''
