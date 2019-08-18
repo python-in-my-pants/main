@@ -55,12 +55,13 @@ class MainWindow:
 
         def button_fkt():
 
-            pg.mixer.music.load("assets/ass.mp3")
+            pg.mixer.music.load("assets/ass.mp3") # TODO replace with omae wa mou and play on window open in loop
             pg.mixer.music.play(0)
             time.sleep(2.5)
 
             # go to different window and kill this one
             self.new_window_target = ConnectionSetup
+
             # delete this from Main!
 
         btn = Button([int(0.2 * size[0]), int(0.069 * size[1])],
@@ -143,21 +144,23 @@ class ConnectionSetup:
 
         # define buttons and put them on their surface
 
-        host_btn = Button([int(surfs_size[0]/3), int(surfs_size[1] * 0.07)],
-                          pos=[int(surfs_size[0]/3), int(surfs_size[1]/6)],
-                          real_pos=[int(surfs_size[0]/3), int(surfs_size[1]/6)],
+        host_btn = Button(dim=[int(surfs_size[0]/3), int(surfs_size[1] * 0.07)],
+                          pos=[int((left_surf.get_size()[0]-int(surfs_size[0]/3)/2)),
+                               int(surfs_size[1]/6)],
                           name="host_btn", color=(135, 206, 235), action=host_btn_fkt, text="Host")
 
         self.buttons.append(host_btn)
 
-        host_stat_btn = Button([int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],  # TODO mach, dass der den stat anzeigt
-                               pos=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.43)],
+        host_stat_btn = Button([int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],  # TODO mach, dass der den status anzeigt
+                               pos=[int((left_surf.get_size()[0]-int(surfs_size[0]/3)/2)),
+                                    int(surfs_size[1] * 0.43)],
                                name="host_stat", color=(135, 206, 235), action=(lambda: None), text="Status goes here")
 
         self.buttons.append(host_stat_btn)
 
-        host_cancel_btn = Button([int(surfs_size[0]/3), int(surfs_size[1] * 0.07)],
-                                 pos=[int(surfs_size[0]/3), int(surfs_size[1] * 0.7)],
+        host_cancel_btn = Button(dim=[int(surfs_size[0]/3), int(surfs_size[1] * 0.07)],
+                                 pos=[int((left_surf.get_size()[0]-int(surfs_size[0]/3)/2)),
+                                      int(surfs_size[1] * 0.7)],
                                  name="cancel_host", color=(250, 128, 114), action=cancel_host_fkt, text="Cancel")
 
         self.buttons.append(host_cancel_btn)
@@ -188,31 +191,40 @@ class ConnectionSetup:
                 ip_to_join_btn.text = ""
                 first_click = False
 
-        join_btn = Button([int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
-                          pos=[int(surfs_size[0] / 3), int(surfs_size[1] / 6)],
-                          real_pos=[int(surfs_size[0] / 3) + left_surf.get_size()[0], int(surfs_size[1] / 6)],
+        join_btn = Button(dim=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
+                          pos=[int((right_surf.get_size[0]-(surfs_size[0]/3))/2),
+                               int(surfs_size[1] / 6)],
+                          real_pos=[int((right_surf.get_size[0]-(surfs_size[0]/3))/2) +
+                                    left_surf.get_size()[0],
+                                    int(surfs_size[1] / 6)],
                           name="join_btn", color=(135, 206, 235), action=join_btn_fkt, text="Join")
 
         self.buttons.append(join_btn)
 
-        join_stat_btn = Button([int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
-                               # TODO mach, dass der den stat anzeigt
-                               pos=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.43)],
-                               real_pos=[int(surfs_size[0] / 3) + left_surf.get_size()[0], int(surfs_size[1] * 0.43)],
+        join_stat_btn = Button(dim=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
+                               # TODO mach, dass der den status anzeigt
+                               pos=[int((right_surf.get_size[0]-(surfs_size[0]/3))/2),
+                                    int(surfs_size[1] * 0.43)],
+                               real_pos=[int((right_surf.get_size[0]-(surfs_size[0]/3))/2) +
+                                         left_surf.get_size()[0], int(surfs_size[1] * 0.43)],
                                name="join_stat", color=(135, 206, 235), action=(lambda: None), text="Status goes here")
 
         self.buttons.append(join_stat_btn)
 
         ip_to_join_btn = Button([int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
-                                pos=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.7)],
-                                real_pos=[int(surfs_size[0] / 3) + left_surf.get_size()[0], int(surfs_size[1] * 0.7)],
+                                pos=[int((right_surf.get_size[0]-(surfs_size[0]/3))/2),
+                                     int(surfs_size[1] * 0.7)],
+                                real_pos=[int((right_surf.get_size[0]-(surfs_size[0]/3))/2) +
+                                          left_surf.get_size()[0], int(surfs_size[1] * 0.7)],
                                 name="ip_to_join_btn", color=(0, 0, 0), action=ip_field_fkt, text="Enter the Host-IP")
 
         self.buttons.append(ip_to_join_btn)
 
-        join_cancel_btn = Button([int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
-                                 pos=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.84)],
-                                 real_pos=[int(surfs_size[0] / 3) + left_surf.get_size()[0], int(surfs_size[1] * 0.84)],
+        join_cancel_btn = Button(dim=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
+                                 pos=[int((right_surf.get_size[0]-(surfs_size[0]/3))/2),
+                                      int(surfs_size[1] * 0.84)],
+                                 real_pos=[int((right_surf.get_size[0]-(surfs_size[0]/3))/2) +
+                                           left_surf.get_size()[0], int(surfs_size[1] * 0.84)],
                                  name="cancel_join", color=(250, 128, 114), action=cancel_join_fkt, text="Cancel")
 
         self.buttons.append(join_cancel_btn)
@@ -405,7 +417,8 @@ class CharacterSelection:
 
         self.points_btn = Button(img="assets/remaining_points.png", use_dim=True, \
                                  dim=[int(troop_overview.get_size()[0]*0.21), int(size[1]*0.1)], \
-                                 pos=[int(troop_overview.get_size()[0]*0.305), 0], action=(lambda: None), \
+                                 pos=[int(troop_overview.get_size()[0]*0.305), 0],
+                                 action=(lambda: None),
                                  text=get_rem_points())
 
         # banners
@@ -437,18 +450,31 @@ class CharacterSelection:
         # hide of show character_content on click, height must be card_h/2 and y padding card_h/4
         character_banner = Button(dim=[int(troop_overview.get_size()[0]*0.9), int(card_h/2)],
                                   pos=[int(troop_overview.get_size()[0]*0.05), int(card_h/4)],
+                                  real_pos=[int(troop_overview.get_size()[0]*0.05),
+                                            int(card_h/4)+
+                                            self.points_btn.dim[1]
+                                            ],
                                   text="Characters", color=(50, 30, 230),
                                   action=char_ban_func)
         self.banners.append(character_banner)
 
         weapons_banner = Button(dim=[int(troop_overview.get_size()[0]*0.9), int(card_h/2)],
                                 pos=[int(troop_overview.get_size()[0]*0.05), int(card_h/4)],
+                                real_pos=[int(troop_overview.get_size()[0]*0.05),
+                                          int(card_h/4)] +
+                                          self.points_btn.dim[1] +
+                                          character_back.get_size()[1],
                                 text="Weapons", color=(230, 50, 30),
                                 action=weap_ban_func)
         self.banners.append(weapons_banner)
 
         item_banner = Button(dim=[int(troop_overview.get_size()[0]*0.9), int(card_h/2)],
                              pos=[int(troop_overview.get_size()[0]*0.05), int(card_h/4)],
+                             real_pos=[int(troop_overview.get_size()[0]*0.05),
+                                       int(card_h/4) +
+                                       self.points_btn.dim[1]+
+                                       character_back.get_size()[1]+
+                                       weapon_back.get_size()[1]],
                              text="Items", color=(30, 230, 50),
                              action=item_ban_func)
         self.banners.append(item_banner)
@@ -476,10 +502,84 @@ class CharacterSelection:
             #               height of point counter + line_len_factor         *  card height plus gap
             h_pos = self.points_btn.get_size()[1] + 5 + i * int((i + 1) / line_len) * (gap_size + card_h)
 
-            card_btn = Button(pos=[w_pos, h_pos], img=("assets/cc/cc_" + str(i) + ".png"), dim=[card_w, card_h], \
+            card_btn = Button(pos=[w_pos, h_pos],
+                              real_pos=[w_pos,
+                                        h_pos +
+                                        self.points_btn.dim[1] +
+                                        character_banner.dim[1]],
+                              img=("assets/cc/cc_" + str(i) + ".png"), dim=[card_w, card_h], \
                               use_dim=True, action=function_binder("cc_btn_function_" + str(i), i))
 
             self.character_cards.append(card_btn)
+
+        # weapon cards
+        def weapon_function_binder(name, card_num):
+
+            def butn_fkt(card_num):
+
+                weap = ...  # TODO: add function call to get instance of corresponding class
+                if self.spent_points + weap.cost <= points_to_spend:
+                    self.selectedChar.weapons.append(weap)
+                    self.spent_points -= weap.cost
+                else:
+                    # TODO: take out
+                    print("Too expensive, cannot buy")
+
+            butn_fkt.__name__ = name
+            return butn_fkt
+
+        for i in range(self.wc_num):
+
+            w_pos = gap_size + (i % (line_len-1)) * (card_w+gap_size)
+
+            #               height of point counter + line_len_factor         *  card height plus gap
+            h_pos = self.points_btn.get_size()[1] + 5 + i * int((i + 1) / line_len) * (gap_size + card_h)
+
+            card_btn = Button(pos=[w_pos, h_pos],
+                              real_pos=[w_pos,
+                                        h_pos +
+                                        self.points_btn.dim[1]] +
+                                        character_back.get_size()[1] +
+                                        weapons_banner.dim[1],
+                              img=("assets/wc/wc_" + str(i) + ".png"), dim=[card_w, card_h], \
+                              use_dim=True, action=weapon_function_binder("wc_btn_function_" + str(i), i))
+
+            self.weapon_cards.append(card_btn)
+
+        # item cards
+        def item_function_binder(name, card_num):
+
+            def butn_fkt(card_num):
+
+                item = ...  # TODO: add function call to get instance of corresponding class
+                if self.spent_points + item.cost <= points_to_spend:
+                    self.ownTeam.add_char(item)
+                    self.spent_points -= item.cost
+                else:
+                    # TODO: take out
+                    print("Too expensive, cannot buy")
+
+            butn_fkt.__name__ = name
+            return butn_fkt
+
+        for i in range(self.ic_num):
+
+            w_pos = gap_size + (i % (line_len-1)) * (card_w+gap_size)
+
+            #               height of point counter + line_len_factor         *  card height plus gap
+            h_pos = self.points_btn.get_size()[1] + 5 + i * int((i + 1) / line_len) * (gap_size + card_h)
+
+            card_btn = Button(pos=[w_pos, h_pos],
+                              real_pos=[w_pos,
+                                        h_pos +
+                                        self.points_btn.dim[1] +
+                                        character_back.dim[1] +
+                                        weapon_back.dim[1] +
+                                        item_banner.dim[1]],
+                              img=("assets/ic/ic_" + str(i) + ".png"), dim=[card_w, card_h], \
+                              use_dim=True, action=item_function_binder("ic_btn_function_" + str(i), i))
+
+            self.item_cards.append(card_btn)
 
         #########
         # right #
@@ -894,6 +994,9 @@ class InGame:
 
             btn = Button(dim=[btn_w, btn_h],
                          pos=[pos_w, pos_h],
+                         real_pos=[pos_w,
+                                   pos_h +
+                                   char_stat_back.get_size()[1]],
                          img="assets/ic/small/ic_" + str(self.selected_own_char.gear.class_num) + ".png",
                          text="", name=("gear " + str(self.selected_own_char.gear.class_num) + " button"),
                          action=(lambda: None))
@@ -908,6 +1011,9 @@ class InGame:
 
             btn = Button(dim=[btn_w, btn_h],
                          pos=[pos_w, pos_h],
+                         real_pos=[pos_w,
+                                   pos_h +
+                                   char_stat_back.get_size()[1]],
                          img="assets/wc/small/wc_" + str(self.selected_own_char.weapons.class_num) + ".png",
                          text="", name=("weapon " + str(self.selected_own_char.weapons.class_num) + ".png"),
                          action=weap_func_binder("weapon " + str(self.selected_own_char.weapons.class_num),
@@ -923,6 +1029,10 @@ class InGame:
 
             btn = Button(dim=[btn_w, btn_h],
                          pos=[pos_w, pos_h],
+                         real_pos=[pos_w,
+                                   pos_h +
+                                   char_stat_back.get_size()[1] +
+                                   inventory_gear_weapons.get_size()[1]],
                          img="assets/ic/small/ic_" + str(self.selected_own_char.items.class_num) + ".png",
                          text="", name=("item " + str(self.selected_own_char.items.class_num) + ".png"),
                          action=weap_func_binder("item " + str(self.selected_own_char.items.class_num),
@@ -957,6 +1067,10 @@ class InGame:
 
             btn = Button(dim=[btn_w, btn_h],
                          pos=[pos_w, pos_h],
+                         real_pos=[pos_w +
+                                   char_stat_back.get_size()[0] +
+                                   int(minimap_surf.get_size()[0]*0.05),
+                                   pos_h],
                          img=("assets/cc/small/cc_" + str(own_team.characters[i].unit_class) + ".png"),
                          text="", name="char btn " + str(own_team.characters[i].unit_class),
                          action=sel_own_char_binder("chat_btn_" + str(own_team.characters.idi), own_team.characters[i].idi))
@@ -968,6 +1082,9 @@ class InGame:
 
             btn = Button(dim=[self.element_size, self.element_size],
                          pos=[char.get_pos(0) * self.element_size, char.get_pos(1) * self.element_size],
+                         real_pos=[char.get_pos(0) * self.element_size +
+                                   char_stat_back.get_size()[0],
+                                   char.get_pos(1) * self.element_size],
                          img="assets/char/" + str(char.unit_class) + ".png",
                          action=sel_char_binder("map_char_btn_" + str(char.idi), char.idi))
 
@@ -976,6 +1093,10 @@ class InGame:
         # done button
         done_btn = Button(dim=[int(7*w/32), int(4*h/18)], # TODO button
                           pos=[0,0],
+                          real_pos=[char_stat_back.get_size()[0] +
+                                    map_surface.get_size()[0],
+                                    player_banners.get_size()[1] +
+                                    minimap_surf.get_size()[1]],
                           img="assets/done_button.png",
                           name="Done Button", action=done_button_action)
 
@@ -1008,7 +1129,7 @@ class InGame:
         for btn in own_team_stat_buttons:
             own_team_stats.blit(btn.surf, btn.pos)
 
-        map_surface.blit(own_team_stats, dest=[int(0.1*map_surface.get_size()[0]), 0])
+        map_surface.blit(own_team_stats, dest=[int(0.05*map_surface.get_size()[0]), 0]) # TODO beware of 0.05 as constant
 
         player_banners.blit(match_stats, dest=[0, int(0.8*player_banners.get_size()[1])])
 
@@ -1028,3 +1149,4 @@ class InGame:
                                               player_banners.get_size()[1]+minimap_surf.get_size()[1]])
 
     def event_handling(self):
+        pass
