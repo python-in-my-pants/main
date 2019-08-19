@@ -5,12 +5,15 @@ import numpy as np
 
 class Team:
 
+    id_counter = 0
+
     def __init__(self, id=0, characters=[]):
 
         if id:
             self.id = id
         else:
-            self.id = np.random.randint(0, 100)
+            self.id = self.id_counter
+            self.id_counter += 1
 
         self.characters = characters[:]
         self.value = self.calc_val()
@@ -22,6 +25,17 @@ class Team:
         for char in self.characters:
             if char.name == name or char.pos == pos:
                 self.characters.remove(char)
+
+    def remove_char_by_obj(self, char_obj):
+        for char in self.characters:
+            if char is char_obj:
+                self.characters.remove(char)
+
+    def get_char_by_id(self, id):
+        for char in self.characters:
+            if char.id == id:
+                return char
+        return False
 
     def all_dead(self):
 

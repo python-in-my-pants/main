@@ -11,17 +11,26 @@ Debug = True
 
 # ToDo active weapon / item
 class Character(GameObject):
-    def __init__(self, idi=0, created_num=0, name="default_character", object_type="character", unit_class="default",
-                 team="team_0", health=[100, 100, 100, 100, 100, 100], gear=[], dexterity=25, strength=15, stamina=1000,
-                 speed=1, height=1, pos=[0, 0], bleed=[False, False, False, False, False, False],
-                 bleed_t=[0, 0, 0, 0, 0, 0], burn=False, burn_t=0, poison=False, poison_t=0, blind=False, blind_t=0,
-                 items=[], weapons=[], orientation=0, carry=100):
+
+    # TODO: make id class variable instead of instance!!! with id_counter like in Team()
+    id_counter = 0
+
+    def __init__(self, created_num=0, name="default_character", object_type="character", team="team_0", \
+                 unit_class=0, health=[100, 100, 100, 100, 100, 100], gear=[], dexterity=25, strength=15, stamina=1000,\
+                 speed=1, height=1, pos=[0, 0], bleed=[False, False, False, False, False, False], cost=1, \
+                 bleed_t=[0, 0, 0, 0, 0, 0], burn=False, burn_t=0, poison=False, poison_t=0, blind=False, blind_t=0, \
+                 items=[], weapons=[], orientation=0):
         super().__init__(name=name, obj_type=object_type, pos=pos, materials=["player"])
-        self.idi = idi
         self.name = name
         self.object_type = object_type
         self.unit_class = unit_class
         self.team = team
+        self.unit_class = unit_class
+        self.cost = cost
+
+        self.idi = self.id_counter
+        self.id_counter += 1
+
         self.health = health[:]
         self.dexterity = dexterity
         self.strength = strength
@@ -30,6 +39,7 @@ class Character(GameObject):
         self.speed = speed
         self.height = height
         self.pos = pos[:]
+
         self.bleed = bleed[:]
         self.bleed_t = bleed_t[:]
         self.burn = burn
@@ -38,9 +48,11 @@ class Character(GameObject):
         self.poison_t = poison_t
         self.blind = blind
         self.blind_t = blind_t
+
         self.items = items[:]
         self.weapons = weapons[:]
         self.orientation = orientation
+
         self.pixs = pos[:]
         self.render_type = "blit"
         self.collider = 0
@@ -97,7 +109,7 @@ class Character(GameObject):
     def confirm(self):
         self.collider = pg.sprite.Group(CollAtom(self.pos))
 
-    def get_inner_shoulders(self): # TODO: approximate sin/cos using Kleinwinkel approximation to optimize runtime
+    def get_inner_shoulders(self):  # TODO: approximate sin/cos using Kleinwinkel approximation to optimize runtime
 
         if self.orientation == 0:
             return [[self.pos[0]+0.15, self.pos[1]+0.5], [self.pos[0]+0.85, self.pos[1]+0.5]]
@@ -133,7 +145,7 @@ class Character(GameObject):
                        int(character_surf.get_width() * 0.25), 0)
 
         if self.is_selected:
-            pg.draw.circle(character_surf, (170, 0, 0), [100, 100], 105, 5)
+            pg.draw.circle(character_surf, (255, 0, 0), [100, 100], 105, 5)
 
         character_surf.set_colorkey((0, 0, 0))
 
@@ -193,37 +205,37 @@ class Character(GameObject):
             }
             print(switcher[partind])
 
-    def add_item(self, new_item):
+    def item_add(self, new_item):
         if self.items.__len__() < 8:
             self.items.append(new_item)
         else:
             print("You can't carry anymore!")
 
-    def drop_item(self, index):
+    def item_drop(self, index):
         if self.items.__len__() >= 1:
             self.items.pop(index)
         else:
             print("You don't have any items!")
 
-    def change_item(self, new_item, index):
+    def item_change(self, new_item, index):
         if self.items.__len__() >= 1:
             self.items[index] = new_item
         else:
             print("You can't exchange any items!")
 
-    def add_weapon(self, new_wep):
+    def weapon_add(self, new_wep):
         if self.weapons.__len__() < 4:
             self.weapons.append(new_wep)
         else:
             print("You can't carry any more weapons!")
 
-    def drop_weapon(self, index):
+    def weapon_drop(self, index):
         if self.weapons.__len__() >= 1:
             self.weapons.pop(index)
         else:
             print("You don't carry any weapon!")
 
-    def change_weapon(self, new_weapon, index):
+    def weapon_change(self, new_weapon, index):
         if self.weapons.__len__() >= 1:
             self.weapons[index] = new_weapon
         else:

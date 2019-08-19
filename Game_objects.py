@@ -32,7 +32,7 @@ class GameObject:
         self.orientation = 0  # attribute ONLY for render type "blit", has nothing to do  with "turn" method
         self.special_pixs = []  # array for doors etc. with functionality
         self.collider = 0
-        self.changed = False # TODO only draw game_objects, if changed is True
+        self.changed = False  # TODO only draw game_objects, if changed is True
 
     def confirm(self):
         pass

@@ -16,7 +16,8 @@ debug = True
 #       durchgeführt und diese dann erneut Map hinzugefügt, die alten gelöscht
 
 
-class Map(GameObject):
+class Map(GameObject):  # TODO add selective renderer that renders only visible characters from own team
+                        # TODO maybe dont inherit from GObj
     # container class for all other drawable game objects
 
     '''
@@ -29,7 +30,7 @@ class Map(GameObject):
     def __init__(self, x_size, y_size, window, elem_size, objects=[], characters=[], unique_pixels=[]):  # STATUS: working, returns 1 on success, 0 else
 
         # size_x holds map size in actual drawable pixels coords, x and y are to be
-        # commited in desired size in elements * elem_size
+        # committed in desired size in elements * elem_size
         self.size_x = x_size
         self.size_y = y_size
 
@@ -354,6 +355,8 @@ class Map(GameObject):
 
         for go in self.objects:
             if go.render_type == "blit":
+                if go.is_selected is True:
+                    go.orientation = go.orientation  # TODO: look at mouse OR at char to attack
                 go_surf = go.get_drawable_surf()
                 if go.orientation > 0:
                     go_surf = pg.transform.rotate(go_surf, go.orientation)
@@ -362,7 +365,7 @@ class Map(GameObject):
                 factor = 1
                 self.window.blit(pg.transform.smoothscale(go_surf, (int(self.elem_size * factor), int(self.elem_size * factor))), \
                                  (int(go.pos[0] * self.elem_size), int(go.pos[1] * self.elem_size)))
-                shit = pg.transform.smoothscale(go_surf, (int(self.elem_size * factor), int(self.elem_size * factor)))
+                #shit = pg.transform.smoothscale(go_surf, (int(self.elem_size * factor), int(self.elem_size * factor)))
                 # print("-"*10+str(shit.get_width()))
             else:
                 mat_counter = 0
@@ -372,9 +375,9 @@ class Map(GameObject):
                             mat_counter += 1
                     pg.draw.rect(self.window, mat_colour[go.materials[mat_counter]],
                                  (pix[0] * self.elem_size, pix[1] * self.elem_size, self.elem_size, self.elem_size))
-        self.draw_grid()
+        self.__draw_grid()
 
-    def draw_grid(self):  # maybe static? (but who cares tbh)
+    def __draw_grid(self):  # maybe static? (but who cares tbh)
 
         '''for i in range(int(self.size_x/elem_size)):
             for d in range(int(self.size_y/elem_size)):
@@ -393,3 +396,4 @@ class Map(GameObject):
                self.size_y]
 
         return lis
+
