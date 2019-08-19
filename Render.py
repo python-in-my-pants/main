@@ -10,7 +10,7 @@ from GUI import *
 from Team import *
 from Data import *
 import time
-
+import copy
 
 '''
 elem size,
@@ -103,6 +103,7 @@ class ConnectionSetup:
 
         self.ip_focus = False
         self.size_focus = False
+        self.role = "unknown"
 
         main_background_img = pg.image.load("assets/108.gif")  # "main_background.jpg")
 
@@ -151,7 +152,7 @@ class ConnectionSetup:
                 desired_board_size_button.text = ""
                 board_first_click = False
 
-        def host_btn_fkt():
+        def host_btn_fkt():  # when successfull self.role = host
             pass  # TODO für Dich, Christian <3
 
         def cancel_host_fkt():
@@ -204,7 +205,7 @@ class ConnectionSetup:
 
         # -------------------------------------------------------------------------------------------------------------
 
-        def join_btn_fkt():
+        def join_btn_fkt():   # when successfull self.role =
             pass  # TODO für Dich, Christian <3, kannst von ausgehen, dass die ip im text von ip_to_join_btn steht
 
         def cancel_join_fkt():
@@ -374,7 +375,7 @@ class ConnectionSetup:
 
 class CharacterSelection:
 
-    def __init__(self, points_to_spend):
+    def __init__(self, points_to_spend, game_map):
 
         self.new_window_target = None
 
@@ -447,13 +448,16 @@ class CharacterSelection:
 
         player_overview = pg.Surface([int(0.3 * size[0]), size[1]])
 
-        player_banner_back = pg.Surface([int(0.3 * size[0]), int(0.3 * size[0])])
-        player_banner_img = pg.image.load("assets/default_player_banner.png")  # TODO: add custom player banners
+        #player_banner_back = pg.Surface([int(0.3 * size[0]), int(0.3 * size[0])])
+        #player_banner_img = pg.image.load("assets/default_player_banner.png")  # TODO: add custom player banners
 
-        selected_units_back = pg.Surface([int(0.3 * size[0]), int(size[1] - player_banner_back.get_height()*2)])
+        minimap_surf = pg.Surface([int(0.3 * size[0]), int(0.3 * size[0])])
+        map_surf = copy.deepcopy(game_map.window)
+
+        selected_units_back = pg.Surface([int(0.3 * size[0]), int(size[1] - minimap_surf.get_height()*2)])
         selected_units_box = pg.Surface([selected_units_back.get_size()[0] - 10, selected_units_back.get_size()[1] - 10])
 
-        selected_weapons_back = pg.Surface([int(0.3 * size[0]), int(size[1] - player_banner_back.get_height()*2)])
+        selected_weapons_back = pg.Surface([int(0.3 * size[0]), int(size[1] - minimap_surf.get_height()*2)])
         selected_weapons_box = pg.Surface([selected_weapons_back.get_size()[0]-10, selected_weapons_back.get_size()[1]-10])
         # TODO: show items of selected char here
 
@@ -683,7 +687,7 @@ class CharacterSelection:
                                    troop_overview.get_size()[0],
                                    pos_h +
                                    int((selected_units_back.get_size()[1] - selected_units_box.get_size()[1]) / 2) +
-                                   player_banner_back.get_size()[1]],
+                                   minimap_surf.get_size()[1]],
                          img=("assets/cc/cc_" + str(class_num) + ".png"),
                          use_dim=True, action=cc_function_binder("assets/cc/cc_small_btn_func" + str(i), \
                                                                  self.ownTeam.characters[i].id))
@@ -777,7 +781,7 @@ class CharacterSelection:
                                    troop_overview.get_size()[0] +
                                    int((selected_weapons_back.get_size()[0]-selected_units_box.get_size()[0])/2),
                                    pos_h +
-                                   player_banner_back.get_size()[1] +
+                                   minimap_surf.get_size()[1] +
                                    selected_units_box.get_size()[0] +
                                    int((selected_weapons_back.get_size()[1]-selected_units_box.get_size()[1])/2)],
                          img=image_uri, use_dim=True, action=ic_function_binder("ci_small_btn_func" + str(i),
@@ -796,12 +800,12 @@ class CharacterSelection:
             return "Unready" if self.ready else "Ready!"
 
         #TODO: button
-        self.ready_btn = Button(dim=[int(player_banner_back.get_size()[0]*0.8), int(player_banner_back.get_size()[1]*0.25)],
+        self.ready_btn = Button(dim=[int(minimap_surf.get_size()[0]*0.8), int(minimap_surf.get_size()[1]*0.25)],
                                 text=get_text(), \
-                                pos=[int(player_banner_back.get_size()[0]*0.1), player_banner_img.get_size()[1]],
-                                real_pos=[int(player_banner_back.get_size()[0]*0.1) +
+                                pos=[int(minimap_surf.get_size()[0]*0.1), minimap_surf.get_size()[1]],
+                                real_pos=[int(minimap_surf.get_size()[0]*0.1) +
                                           troop_overview.get_size()[0],
-                                          player_banner_img.get_size()[1]],
+                                          minimap_surf.get_size()[1]],
                                 action=ready_up)
 
         # -------------------------------------------------------------------------------------------------------------
@@ -835,7 +839,8 @@ class CharacterSelection:
 
         # TODO: blit background image
         # points btn to left side
-        troop_overview.blit(self.points_btn.surf, dest=self.points_btn.pos)
+        rem_point_back.blit(self.points_btn, dest=self.points_btn.pos)
+        troop_overview.blit(rem_point_back, dest=int((troop_overview.get_size()[0]-rem_point_back.get_size()[0])/2))
 
         troop_overview.blit(character_back, dest=[0, self.points_btn.dim[1]])
         troop_overview.blit(weapon_back, dest=[0, self.points_btn.dim[1]+character_back.get_size()[1]])
@@ -845,11 +850,19 @@ class CharacterSelection:
         # right #
         #########
 
+        # swapped out for minimap
         # player banner
-        player_banner_back.blit(player_banner_img, dest=[0, 0])
-        player_banner_back.blit(self.ready_btn.surf, self.ready_btn.pos)
+        #player_banner_back.blit(player_banner_img, dest=[0, 0])
+        #player_banner_back.blit(self.ready_btn.surf, self.ready_btn.pos)
 
-        player_overview.blit(player_banner_back, [0, 0])
+        #player_overview.blit(player_banner_back, [0, 0])
+
+        s = minimap_surf.get_size()
+        minimap_dims = [s[0], s[0]] if s[0] < s[1] else [s[1], s[1]]
+
+        map_surf = pg.transform.smoothscale(map_surf, minimap_dims)
+        minimap_surf.blit(map_surf, dest=[int((minimap_surf.get_size()[0]-map_surf.get_size()[0])/2),
+                                          int((minimap_surf.get_size()[1]-map_surf.get_size()[1])/2)])
 
         # selected units
         for sm_char_btn in self.team_char_btns:
@@ -859,7 +872,7 @@ class CharacterSelection:
                                  [int((selected_units_back.get_size()[0]-selected_units_box.get_size()[0])/2),
                                   int((selected_units_back.get_size()[1]-selected_units_box.get_size()[1])/2)])
 
-        player_overview.blit(selected_units_back, dest=[0, player_banner_back.get_size()[1]])
+        player_overview.blit(selected_units_back, dest=[0, minimap_surf.get_size()[1]])
 
         # selected weapons
 
@@ -868,7 +881,7 @@ class CharacterSelection:
                                     int((selected_weapons_back.get_size()[0]-selected_weapons_box.get_size()[0])/2)])
 
         player_overview.blit(selected_weapons_back, dest=
-                             [0, player_banner_back.get_size()[1] + selected_weapons_back.get_size()[1]])
+                             [0, minimap_surf.get_size()[1] + selected_weapons_back.get_size()[1]])
 
         ###########################
         # right and left together #

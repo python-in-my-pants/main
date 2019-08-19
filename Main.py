@@ -66,9 +66,9 @@ while True:
 
         if active_window.new_window_target:  # should be connection setup
 
-            new_target = active_window.new_window_target()
+            new_target = active_window.new_window_target
             active_window.harakiri()
-            active_window = new_target
+            active_window = new_target()
 
         else:  # if no new target is set, stay
 
@@ -78,9 +78,20 @@ while True:
 
         if active_window.new_window_target:  # should be character selection
 
-            new_target = active_window.new_window_target()
-            active_window.harakiri()
-            active_window = new_target
+            if active_window.role is "host":
+
+                # I am host
+                # -> generate map
+                new_target = active_window.new_window_target
+                desired_map_size = str(active_window.buttons[7].text)
+                active_window.harakiri()
+                active_window = new_target(points_to_spend=...,
+                                           map=...)  # TODO add after balancing dependent on desired_map_size
+                                                                 # cheapest char but full equipped for all team members
+            elif active_window.role is "client":
+
+                # I am client
+                pass
 
         else:
 
@@ -88,9 +99,14 @@ while True:
 
     if isinstance(active_window, character_selection):
 
+        if active_window.new_window_target:
 
+            new_target = active_window.new_window_target  # should be in_game
+            active_window.harakiri()
+            active_window = new_target()
 
     if isinstance(active_window, in_game):
+        ...
 
     '''
     # display main screen and let user choose mode (atm Play/Credits)

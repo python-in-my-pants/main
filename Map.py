@@ -397,3 +397,15 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
 
         return lis
 
+
+class MapBuilder:
+
+    def build_map(size=30):
+
+        # build map without characters
+        pass
+
+    def populate(self, team):
+        # add all team members to characters
+        pass
+
