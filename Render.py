@@ -27,7 +27,7 @@ class MainWindow:
     def __init__(self):  # creates main window with contents -> "mainscreen"
 
         # holds new window target if you want to leave this screen because the user clicked a button or sth
-        self.new_window_target = "None"
+        self.new_window_target = None
 
         main_background_img = pg.image.load("assets/108.gif")  # "assets/main_background.jpg")
 
@@ -55,7 +55,7 @@ class MainWindow:
 
         def button_fkt():
 
-            pg.mixer.music.load("assets/ass.mp3") # TODO replace with omae wa mou and play on window open in loop
+            pg.mixer.music.load("assets/ass.mp3")  # TODO replace with omae wa mou and play on window open in loop
             pg.mixer.music.play(0)
             time.sleep(2.5)
 
@@ -89,13 +89,16 @@ class MainWindow:
                     if button.is_focused(p):
                         button.action()
 
+    def harakiri(self):
+        del self
+
 
 class ConnectionSetup:
 
     def __init__(self):
 
         # TODO overthink if this works
-        self.new_window_target = CharacterSelection
+        self.new_window_target = None  # update if you want to leave this screen
 
         main_background_img = pg.image.load("assets/108.gif")  # "main_background.jpg")
 
@@ -311,12 +314,15 @@ class ConnectionSetup:
                         if b.is_focused(pg.mouse.get_pos()):
                             b.action()
 
+    def harakiri(self):
+        del self
+
 
 class CharacterSelection:
 
     def __init__(self, points_to_spend):
 
-        self.new_window_target = InGame
+        self.new_window_target = None
 
         self.spent_points = 0
 
@@ -868,6 +874,9 @@ class CharacterSelection:
 
                     self.scroll_offset += 10
 
+    def harakiri(self):
+        del self
+
 
 class InGame:
 
@@ -880,10 +889,10 @@ class InGame:
         size = [pg.display.Info().current_w(), pg.display.Info().current_h()]
         w = size[0]
         h = size[1]
-        self.element_size = int(w*9/(16*30)) # default is 30 elem width
+        self.element_size = int(w*9/(16*30))  # default is 30 elem width
         self.screen = pg.display.set_mode(size, flags=pg.FULLSCREEN)
 
-        self.selected_own_char = own_team[0] # TODO
+        self.selected_own_char = own_team[0]  # TODO
         self.selected_item = own_team[0].items[0]
         self.selected_weapon = own_team[0].weapons[0]
 
@@ -893,7 +902,7 @@ class InGame:
         # -------------------------------------------------------------------------------------------------------------
 
         char_stat_back = pg.Surface([int(7*w/32), int(7*h/18)])
-        char_stat_card = pg.image.load(...) # TODO enter URI for sel character card square, empty stub for begin
+        char_stat_card = pg.image.load(...)  # TODO enter URI for sel character card square, empty stub for begin
 
         char_inventory = pg.Surface([int(7*w/32), int(4*h/18)])
         inventory_gear_weapons = pg.Surface([int(7*w/32), int(0.34*4*h/18)]) # 2 first are gear, last 3 are weapons
@@ -903,13 +912,11 @@ class InGame:
         # TODO make so that actual stats are shown in character card instead of just standard stats
         item_stat_card = pg.image.load(...)
 
-
         map_surface = game_map.window #(int(9*w/16), h)
         #                   gap size up and down        factor                                    gap size                btn_h * 1.6 for hp bar
         own_team_height = 2*int((1/32) * 7*w/32) + (int(own_team.characters.__len__() / 10)+1) * (int((1/32) * 7*w/32) + int(1.6 * (5/32) * 7*w/32))
         own_team_stats = pg.Surface([int(map_surface.get_size()[0]*0.9), own_team_height]) #int(0.2*7*h/18)])
-        own_team_stats_back_img = pg.image.load(...) # TODO size from own team stats
-
+        own_team_stats_back_img = pg.image.load(...)  # TODO size from own team stats
 
         player_banners = pg.Surface([int(7*w/32), int(7*h/18)])
         match_stats = pg.Surface([player_banners.get_size()[0], int(player_banners.get_size()[1]*0.2)])
@@ -966,20 +973,20 @@ class InGame:
             func.__name__ = name
             return func
 
-        def done_button_action(): # TODO
+        def done_button_action():  # TODO
             pass
 
         # -------------------------------------------------------------------------------------------------------------
         # buttons and bars
 
-        gear_buttons = []  # TODO buttons
-        weapon_buttons = []
-        item_buttons = []
+        self.gear_buttons = []  # TODO buttons
+        self.weapon_buttons = []
+        self.item_buttons = []
 
-        own_team_stat_buttons= []
+        self.own_team_stat_buttons = []
         hp_bars = []
 
-        char_map_buttons = []
+        self.char_map_buttons = []
 
         # constants
         inventory_gap_size = int((1/32) * 7*w/32)
@@ -1001,7 +1008,7 @@ class InGame:
                          text="", name=("gear " + str(self.selected_own_char.gear.class_num) + " button"),
                          action=(lambda: None))
 
-            gear_buttons.append(btn)
+            self.gear_buttons.append(btn)
 
         # weapon buttons
         for i in range(self.selected_own_char.weapons.__len__()):
@@ -1019,7 +1026,7 @@ class InGame:
                          action=weap_func_binder("weapon " + str(self.selected_own_char.weapons.class_num),
                                                  self.selected_own_char.weapons[i].idi, type="weapon"))
 
-            weapon_buttons.append(btn)
+            self.weapon_buttons.append(btn)
 
         # item buttons
         for i in range(self.selected_own_char.items.__len__()):
@@ -1038,7 +1045,7 @@ class InGame:
                          action=weap_func_binder("item " + str(self.selected_own_char.items.class_num),
                                                  self.selected_own_char.items[i].idi, type="item"))
 
-            item_buttons.append(btn)
+            self.item_buttons.append(btn)
 
         # hp bars, blit to own team stats
         # TODO update hp bars each tick
@@ -1075,7 +1082,7 @@ class InGame:
                          text="", name="char btn " + str(own_team.characters[i].unit_class),
                          action=sel_own_char_binder("chat_btn_" + str(own_team.characters.idi), own_team.characters[i].idi))
 
-            own_team_stat_buttons.append(btn)
+            self.own_team_stat_buttons.append(btn)
 
         for index in game_map.characters:
             char = game_map.objects[index]
@@ -1088,11 +1095,11 @@ class InGame:
                          img="assets/char/" + str(char.unit_class) + ".png",
                          action=sel_char_binder("map_char_btn_" + str(char.idi), char.idi))
 
-            char_map_buttons.append(btn)
+            self.char_map_buttons.append(btn)
 
         # done button
-        done_btn = Button(dim=[int(7*w/32), int(4*h/18)], # TODO button
-                          pos=[0,0],
+        self.done_btn = Button(dim=[int(7*w/32), int(4*h/18)],  # TODO button
+                          pos=[0, 0],
                           real_pos=[char_stat_back.get_size()[0] +
                                     map_surface.get_size()[0],
                                     player_banners.get_size()[1] +
@@ -1106,13 +1113,13 @@ class InGame:
         char_stat_back.blit(char_stat_card, dest=[int(char_stat_back.get_size()[0]*0.05),
                                                   int(char_stat_back.get_size()[0]*0.05)])
 
-        for btn in gear_buttons:
+        for btn in self.gear_buttons:
             inventory_gear_weapons.blit(btn.surf, btn.pos)
 
-        for btn in weapon_buttons:
+        for btn in self.weapon_buttons:
             inventory_gear_weapons.blit(btn.surf, btn.pos)
 
-        for btn in item_buttons:
+        for btn in self.item_buttons:
             inventory_items.blit(btn.surf, btn.pos)
 
         char_inventory.blit(inventory_gear_weapons, dest=[0, 0])
@@ -1124,17 +1131,18 @@ class InGame:
         own_team_stats.blit(own_team_stats_back_img, dest=[0, 0])
 
         for bar in hp_bars:
-            own_team_stats.blit(bar.surf, bar.pos)
+            for b in bar:
+                own_team_stats.blit(b.surf, b.pos)
 
-        for btn in own_team_stat_buttons:
+        for btn in self.own_team_stat_buttons:
             own_team_stats.blit(btn.surf, btn.pos)
 
-        map_surface.blit(own_team_stats, dest=[int(0.05*map_surface.get_size()[0]), 0]) # TODO beware of 0.05 as constant
+        # TODO beware of 0.05 as constant
+        map_surface.blit(own_team_stats, dest=[int(0.05*map_surface.get_size()[0]), 0])
 
         player_banners.blit(match_stats, dest=[0, int(0.8*player_banners.get_size()[1])])
 
-        done_btn_surf.blit(done_btn.surf, done_btn.pos)
-
+        done_btn_surf.blit(self.done_btn.surf, self.done_btn.pos)
 
         self.screen.blit(char_stat_back, dest=[0, 0])
         self.screen.blit(char_inventory, dest=[0, char_stat_back.get_size()[1]])
@@ -1149,4 +1157,54 @@ class InGame:
                                               player_banners.get_size()[1]+minimap_surf.get_size()[1]])
 
     def event_handling(self):
-        pass
+
+        # event handling
+        for event in pg.event.get():
+
+            # handle events
+            if event.type == pg.QUIT:
+                pg.quit()
+                sys.exit()
+
+            if event.type == pg.MOUSEBUTTONDOWN:
+                p = pg.mouse.get_pos()
+
+                if event.button == 1:  # on left click
+
+                    for button in self.gear_buttons:
+                        if button.is_focused(p):
+                            button.action()
+
+                    for button in self.weapon_buttons:
+                        if button.is_focused(p):
+                            button.action()
+
+                    for button in self.item_buttons:
+                        if button.is_focused(p):
+                            button.action()
+
+                    for button in self.own_team_stat_buttons:
+                        if button.is_focused(p):
+                            button.action()
+
+                    if self.done_btn.is_focused(p):
+                        self.done_btn.action()
+
+                    for button in self.char_map_buttons:
+                        if button.is_focused(p):
+                            button.action()
+
+                if event.button == 3:  # on right click
+
+                    ...
+
+                if event.button == 4:  # scroll up
+
+                    ...
+
+                if event.button == 5:  # scroll down
+
+                    ...
+
+    def harakiri(self):
+        del self

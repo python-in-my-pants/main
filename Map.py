@@ -17,6 +17,7 @@ debug = True
 
 
 class Map(GameObject):  # TODO add selective renderer that renders only visible characters from own team
+                        # TODO maybe dont inherit from GObj
     # container class for all other drawable game objects
 
     '''
