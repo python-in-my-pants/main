@@ -62,9 +62,21 @@ while True:
 
         active_window = main_window()
 
-    if isinstance(active_window, main_window) or isinstance(active_window, connection_setup):
+    if isinstance(active_window, main_window):
 
-        if active_window.new_window_target:
+        if active_window.new_window_target:  # should be connection setup
+
+            new_target = active_window.new_window_target()
+            active_window.harakiri()
+            active_window = new_target
+
+        else:  # if no new target is set, stay
+
+            active_window.event_handling()
+
+    if isinstance(active_window, connection_setup):
+
+        if active_window.new_window_target:  # should be character selection
 
             new_target = active_window.new_window_target()
             active_window.harakiri()
@@ -75,6 +87,8 @@ while True:
             active_window.event_handling()
 
     if isinstance(active_window, character_selection):
+
+
 
     if isinstance(active_window, in_game):
 
