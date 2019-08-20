@@ -957,6 +957,11 @@ class InGame:
         w = size[0]
         h = size[1]
         self.element_size = int(w*9/(16*30))  # default is 30 elem width
+
+        self.zoom_factor = 1
+        self.zoom_center = [0, 0]
+        self.zoom_size = [0, 0]
+
         self.screen = pg.display.set_mode(size, flags=pg.FULLSCREEN)
 
         self.selected_own_char = own_team[0]  # TODO
@@ -979,7 +984,9 @@ class InGame:
         # TODO make so that actual stats are shown in character card instead of just standard stats
         item_stat_card = pg.image.load(...)
 
-        map_surface = game_map.window #(int(9*w/16), h)
+        map_surface = pg.Surface([int(9*w/16), h])
+        map_content = game_map.window
+
         #                   gap size up and down        factor                                    gap size                btn_h * 1.6 for hp bar
         own_team_height = 2*int((1/32) * 7*w/32) + (int(own_team.characters.__len__() / 10)+1) * (int((1/32) * 7*w/32) + int(1.6 * (5/32) * 7*w/32))
         own_team_stats = pg.Surface([int(map_surface.get_size()[0]*0.9), own_team_height]) #int(0.2*7*h/18)])
@@ -988,7 +995,7 @@ class InGame:
         player_banners = pg.Surface([int(7*w/32), int(7*h/18)])
         match_stats = pg.Surface([player_banners.get_size()[0], int(player_banners.get_size()[1]*0.2)])
 
-        minimap_surf = pg.Surface([int(7*w/32), int(7*h/18)]) # TODO
+        minimap_surf = pg.Surface([int(7*w/32), int(7*h/18)])  # TODO
         done_btn_surf = pg.Surface([int(7*w/32), int(4*h/18)])
 
         # set up buttons
@@ -1204,6 +1211,10 @@ class InGame:
         for btn in self.own_team_stat_buttons:
             own_team_stats.blit(btn.surf, btn.pos)
 
+        map_surface.blit(pg.transform.smoothscale(map_content,
+                                                  (map_content.get_size()[0]*self.zoom_factor,
+                                                   map_content.get_size()[1]*self.zoom_factor)),
+                         dest=[])
         # TODO beware of 0.05 as constant
         map_surface.blit(own_team_stats, dest=[int(0.05*map_surface.get_size()[0]), 0])
 
@@ -1267,11 +1278,14 @@ class InGame:
 
                 if event.button == 4:  # scroll up
 
-                    pass
+                    self.zoom_factor -= 0.1
+                    x =
+                    y =
+                    self.zoom_size = [x, y]
 
                 if event.button == 5:  # scroll down
 
-                    pass
+                    self.zoom_factor += 0.1
 
     def harakiri(self):
         del self
