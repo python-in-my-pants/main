@@ -400,12 +400,81 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
 
 class MapBuilder:
 
-    def build_map(size=30):
+    def __init__(self):
+        self.map = None
+
+    def build_map(self, size=30):
 
         # build map without characters
-        pass
+        surf = pg.Surface([500, 500])
+        elem_size = 25
+
+        fields_x = fields_y = size
+
+        self.map = Map(x_size=size, y_size=size, window=surf, elem_size=elem_size)
+
+        # ------------------------------------------------------------------------------------------------------------
+
+        self.map.map_window.fill((23, 157, 0))
+
+        # add spawns
+
+        areas = Spawnarea.create_areals([size, size])  # TODO
+
+        for area in areas:
+            self.map.add_object(area)
+
+        # add houses
+
+        house_limit = int((size*size) / 25)
+        house_counter = 0
+
+        for i in range(house_limit):
+
+            h = SimpleHouse(name=("Simple house " + str(house_counter)), obj_type="default", \
+                            pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
+
+            # while there is a house (to add) and it does not fit and you did not try 100 times yet generate a new one
+            limit = 0
+            while h != 0 and self.map.add_object(h, border_size=1) != 1 and limit < 100:
+                h = SimpleHouse(name=("Simple house " + str(house_counter)), obj_type="default", \
+                                pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
+                limit += 1
+
+            if limit >= 100:
+                print("Could not place another object")
+            else:
+                house_counter += 1
+
+        # add bushes
+
+        bush_limit = int((size*size)/15)
+        bush_counter = 0
+
+        for i in range(bush_limit):
+
+            h = Bush(name=("Simple bush " + str(bush_counter)), obj_type="default", \
+                     pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
+
+            # while there is a house (to add) and it doesn't fit and you didn't try 100 times yet generate a new one
+            limit = 0
+            while h != 0 and self.map.add_object(h, border_size=1) != 1 and limit < 100:
+                h = Bush(name=("Simple bush " + str(bush_counter)), obj_type="default", \
+                         pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
+                limit += 1
+
+            if limit >= 100:
+                print("Could not place another object")
+            else:
+                bush_counter += 1
+
+        # draw everything to surf
+
+        self.map.draw_map()
 
     def populate(self, team):
         # add all team members to characters
-        pass
+        for char in team.characters:
+
+            self.map.add_object(char)
 

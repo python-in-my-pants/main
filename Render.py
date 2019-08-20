@@ -375,9 +375,12 @@ class ConnectionSetup:
 
 class CharacterSelection:
 
-    def __init__(self, points_to_spend, game_map):
+    def __init__(self, points_to_spend, game_map, role="unknown", net=None):
 
         self.new_window_target = None
+
+        self.role = role
+        self.net = net
 
         self.spent_points = 0
 
@@ -891,7 +894,7 @@ class CharacterSelection:
         self.screen.blit(player_overview, [troop_overview.get_size()[0], 0])
 
     def event_handling(self):
-
+        # TODO only request char buttons if theirs rect is contained in map_surf
         # event handling
         for event in pg.event.get():
 
@@ -951,7 +954,7 @@ class InGame:
 
         self.next_window_target = MainWindow  # TODO
 
-        self.char_prev_selected = False  # holds if own team character is already selected
+        self.char_prev_selected = False  # holds wether own team character is already selected
 
         size = [pg.display.Info().current_w(), pg.display.Info().current_h()]
         w = size[0]
@@ -997,6 +1000,13 @@ class InGame:
 
         minimap_surf = pg.Surface([int(7*w/32), int(7*h/18)])  # TODO
         done_btn_surf = pg.Surface([int(7*w/32), int(4*h/18)])
+
+        # TODO check if this makes sense, coded when sick
+        self.zoom_size = [int(((9*w/16) / (self.zoom_center[0]-char_stat_back.get_size()[0])) *
+                          # TODO maybe not map surface but content
+                              (((2**0.5)/2) * np.abs((self.zoom_factor-1)*map_surface.get_size()[0]))),
+                          int((h/self.zoom_center[1]) *
+                          (((2**0.5)/2) * np.abs((self.zoom_factor-1)*map_surface.get_size()[1])))]
 
         # set up buttons
         # TODO characters on map must have buttons to select them as sel char
@@ -1161,11 +1171,14 @@ class InGame:
         for index in game_map.characters:
             char = game_map.objects[index]
 
-            btn = Button(dim=[self.element_size, self.element_size],
-                         pos=[char.get_pos(0) * self.element_size, char.get_pos(1) * self.element_size],
+            btn = Button(dim=[self.element_size*self.zoom_factor, self.element_size*self.zoom_factor],
+                         pos=[char.get_pos(0) * self.element_size + self.zoom_size[0],
+                              char.get_pos(1) * self.element_size + self.zoom_size[1]],
                          real_pos=[char.get_pos(0) * self.element_size +
-                                   char_stat_back.get_size()[0],
-                                   char.get_pos(1) * self.element_size],
+                                   char_stat_back.get_size()[0] +
+                                   self.zoom_size[0],
+                                   char.get_pos(1) * self.element_size +
+                                   self.zoom_size[1]],
                          img="assets/char/" + str(char.unit_class) + ".png",
                          action=sel_char_binder("map_char_btn_" + str(char.idi), char.idi))
 
@@ -1214,7 +1227,7 @@ class InGame:
         map_surface.blit(pg.transform.smoothscale(map_content,
                                                   (map_content.get_size()[0]*self.zoom_factor,
                                                    map_content.get_size()[1]*self.zoom_factor)),
-                         dest=[])
+                         dest=self.zoom_size)
         # TODO beware of 0.05 as constant
         map_surface.blit(own_team_stats, dest=[int(0.05*map_surface.get_size()[0]), 0])
 
@@ -1279,8 +1292,7 @@ class InGame:
                 if event.button == 4:  # scroll up
 
                     self.zoom_factor -= 0.1
-                    x =
-                    y =
+                    self.zoom_center = p
                     self.zoom_size = [x, y]
 
                 if event.button == 5:  # scroll down

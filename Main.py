@@ -78,6 +78,9 @@ while True:
 
         if active_window.new_window_target:  # should be character selection
 
+            net_var = active_window.net
+            role = active_window.role
+
             if active_window.role is "host":
 
                 # I am host
@@ -85,8 +88,14 @@ while True:
                 new_target = active_window.new_window_target
                 desired_map_size = str(active_window.buttons[7].text)
                 active_window.harakiri()
+
+                builder = MapBuilder()
+                game_map = builder.build_map(desired_map_size)
+
                 active_window = new_target(points_to_spend=...,
-                                           map=...)  # TODO add after balancing dependent on desired_map_size
+                                           map=game_map,
+                                           net=net_var,
+                                           role=role)  # TODO add after balancing dependent on desired_map_size
                                                                  # cheapest char but full equipped for all team members
             elif active_window.role is "client":
 
