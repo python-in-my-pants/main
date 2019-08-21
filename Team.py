@@ -19,6 +19,7 @@ class Team:
         self.value = self.calc_val()
 
     def add_char(self, char):
+        # TODO set team of char to this teams id
         self.characters.append(char)
 
     def remove_char_by_name(self, name="", pos=[]):  # removes all characters with given name or given position
