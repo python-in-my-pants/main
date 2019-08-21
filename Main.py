@@ -131,7 +131,10 @@ while True:
             active_window = new_target()
 
     if isinstance(active_window, in_game):
-        ...
+        print("too far")
+
+    clock.tick(60)
+    pg.display.flip()
 
     '''
     # display main screen and let user choose mode (atm Play/Credits)

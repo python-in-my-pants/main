@@ -1,6 +1,6 @@
 '''
 
-Gives general classes and fuctions for rendering on screen
+Gives general classes and functions for rendering on screen
 
 '''
 
@@ -57,15 +57,14 @@ class MainWindow:
 
             pg.mixer.music.load("assets/ass.mp3")  # TODO replace with omae wa mou and play on window open in loop
             pg.mixer.music.play(0)
-            time.sleep(2.5)
+            #time.sleep(2.5)
 
             # go to different window and kill this one
             self.new_window_target = ConnectionSetup
 
-            # delete this from Main!
-
         btn = Button([int(0.2 * size[0]), int(0.069 * size[1])],
-                     pos=[size[0] / 2 - int(0.2 * size[0]) / 2, size[1] / 2 - int(0.069 * size[1]) / 2 + 200],
+                     pos=[size[0] / 2 - int(0.2 * size[0]) / 2,
+                          size[1] / 2 - int(0.069 * size[1]) / 2 + 200],
                      name="Button 1", img="assets/blue_button_menu.jpg", action=button_fkt, text="Play")
 
         # render Button to screen
@@ -128,12 +127,14 @@ class ConnectionSetup:
         # we need 2 surfaces that are transparent
 
         left_surf = pg.Surface([int(size[0]/2), size[1]])  # TODO: is it working?
-        left_surf.set_colorkey((255, 255, 255))
+        left_surf.fill((255, 12, 255))
+        left_surf.set_colorkey((255, 12, 255))
 
         right_surf = pg.Surface([int(size[0]/2), size[1]])
-        right_surf.set_colorkey((255, 255, 255))
+        right_surf.fill((255, 12, 255))
+        right_surf.set_colorkey((255, 12, 255))
 
-        surfs_size = list(left_surf.get_size())  # only 1 because they are equally big
+        surfs_size = [left_surf.get_size()[0], left_surf.get_size()[1]]  # only 1 because they are equally big
 
         # define list of buttons
 
@@ -161,13 +162,12 @@ class ConnectionSetup:
         def back_fkt():
             self.new_window_target = MainWindow
 
-# shit to push
         # define buttons and put them on their surface
 
         desired_board_size_button = Button(dim=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
-                                           pos=[int((left_surf.get_size()[0]-int(surfs_size[0]/3)/2)),
+                                           pos=[int((left_surf.get_size()[0]-int(surfs_size[0]/3))/2),
                                                 int(surfs_size[1] * 0.07)],
-                                           real_pos=[int((right_surf.get_size[0]-(surfs_size[0]/3))/2),
+                                           real_pos=[int((right_surf.get_size()[0]-(surfs_size[0]/3))/2),
                                                      int(surfs_size[1] * 0.07)],
                                            name="board_size_button", color=(255, 255, 255),
                                            action=desired_board_size_button_fkt, text="Enter the desired size")
@@ -175,34 +175,32 @@ class ConnectionSetup:
         # append later to not mess up indices
 
         host_btn = Button(dim=[int(surfs_size[0]/3), int(surfs_size[1] * 0.07)],
-                          pos=[int((left_surf.get_size()[0]-int(surfs_size[0]/3)/2)),
+                          pos=[int((left_surf.get_size()[0]-int(surfs_size[0]/3))/2),
                                int(surfs_size[1]/6)],
                           name="host_btn", color=(135, 206, 235), action=host_btn_fkt, text="Host")
 
         self.buttons.append(host_btn)
 
         host_stat_btn = Button([int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],  # TODO mach, dass der den status anzeigt
-                               pos=[int((left_surf.get_size()[0]-int(surfs_size[0]/3)/2)),
+                               pos=[int((left_surf.get_size()[0]-int(surfs_size[0]/3))/2),
                                     int(surfs_size[1] * 0.43)],
                                name="host_stat", color=(135, 206, 235), action=(lambda: None), text="Status goes here")
 
         self.buttons.append(host_stat_btn)
 
         host_cancel_btn = Button(dim=[int(surfs_size[0]/3), int(surfs_size[1] * 0.07)],
-                                 pos=[int((left_surf.get_size()[0]-int(surfs_size[0]/3)/2)),
+                                 pos=[int((left_surf.get_size()[0]-int(surfs_size[0]/3))/2),
                                       int(surfs_size[1] * 0.7)],
+                                 real_pos=[int((left_surf.get_size()[0]-int(surfs_size[0]/3))/2),
+                                          int(surfs_size[1] * 0.7)],
                                  name="cancel_host", color=(250, 128, 114), action=cancel_host_fkt, text="Cancel")
 
         self.buttons.append(host_cancel_btn)
 
-        back_btn = Button(pos=[0, 0], use_dim=False, name="back_btn", img="geiler_button.png", action=back_fkt, text="")
+        back_btn = Button(pos=[0, 0], use_dim=False, name="back_btn", img="assets/blue_button_menu.jpg",
+                          action=back_fkt, text="")
 
         self.buttons.append(back_btn)
-
-        left_surf.blit(host_btn.surf, host_btn.pos)
-        left_surf.blit(host_stat_btn.surf, host_stat_btn.pos)
-        left_surf.blit(host_cancel_btn.surf, host_cancel_btn.pos)
-        left_surf.blit(back_btn.surf, back_btn.pos)
 
         # -------------------------------------------------------------------------------------------------------------
 
@@ -224,9 +222,9 @@ class ConnectionSetup:
                 first_click = False
 
         join_btn = Button(dim=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
-                          pos=[int((right_surf.get_size[0]-(surfs_size[0]/3))/2),
+                          pos=[int((right_surf.get_size()[0]-(surfs_size[0]/3))/2),
                                int(surfs_size[1] / 6)],
-                          real_pos=[int((right_surf.get_size[0]-(surfs_size[0]/3))/2) +
+                          real_pos=[int((right_surf.get_size()[0]-(surfs_size[0]/3))/2) +
                                     left_surf.get_size()[0],
                                     int(surfs_size[1] / 6)],
                           name="join_btn", color=(135, 206, 235), action=join_btn_fkt, text="Join")
@@ -235,18 +233,18 @@ class ConnectionSetup:
 
         join_stat_btn = Button(dim=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
                                # TODO mach, dass der den status anzeigt
-                               pos=[int((right_surf.get_size[0]-(surfs_size[0]/3))/2),
+                               pos=[int((right_surf.get_size()[0]-(surfs_size[0]/3))/2),
                                     int(surfs_size[1] * 0.43)],
-                               real_pos=[int((right_surf.get_size[0]-(surfs_size[0]/3))/2) +
+                               real_pos=[int((right_surf.get_size()[0]-(surfs_size[0]/3))/2) +
                                          left_surf.get_size()[0], int(surfs_size[1] * 0.43)],
                                name="join_stat", color=(135, 206, 235), action=(lambda: None), text="Status goes here")
 
         self.buttons.append(join_stat_btn)
 
         ip_to_join_btn = Button([int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
-                                pos=[int((right_surf.get_size[0]-(surfs_size[0]/3))/2),
+                                pos=[int((right_surf.get_size()[0]-(surfs_size[0]/3))/2),
                                      int(surfs_size[1] * 0.7)],
-                                real_pos=[int((right_surf.get_size[0]-(surfs_size[0]/3))/2) +
+                                real_pos=[int((right_surf.get_size()[0]-(surfs_size[0]/3))/2) +
                                           left_surf.get_size()[0], int(surfs_size[1] * 0.7)],
                                 name="ip_to_join_btn", color=(255, 255, 255), action=ip_field_fkt, text="Enter the Host-IP")
 
@@ -254,13 +252,20 @@ class ConnectionSetup:
         self.buttons.append(desired_board_size_button)
 
         join_cancel_btn = Button(dim=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
-                                 pos=[int((right_surf.get_size[0]-(surfs_size[0]/3))/2),
+                                 pos=[int((right_surf.get_size()[0]-(surfs_size[0]/3))/2),
                                       int(surfs_size[1] * 0.84)],
-                                 real_pos=[int((right_surf.get_size[0]-(surfs_size[0]/3))/2) +
+                                 real_pos=[int((right_surf.get_size()[0]-(surfs_size[0]/3))/2) +
                                            left_surf.get_size()[0], int(surfs_size[1] * 0.84)],
                                  name="cancel_join", color=(250, 128, 114), action=cancel_join_fkt, text="Cancel")
 
         self.buttons.append(join_cancel_btn)
+
+        # ----------------------------------------------------------------------------------------------------------
+
+        left_surf.blit(host_btn.surf, host_btn.pos)
+        left_surf.blit(host_stat_btn.surf, host_stat_btn.pos)
+        left_surf.blit(host_cancel_btn.surf, host_cancel_btn.pos)
+        left_surf.blit(back_btn.surf, back_btn.pos)
 
         right_surf.blit(join_btn.surf, join_btn.pos)
         right_surf.blit(join_stat_btn.surf, join_stat_btn.pos)
@@ -718,6 +723,7 @@ class CharacterSelection:
 
                     # sell this item
                     thing_to_sell = None
+                    nonlocal points_to_spend
 
                     if _category == "gear":
                         for g in gear:
@@ -725,7 +731,6 @@ class CharacterSelection:
                                 thing_to_sell = g
 
                                 self.spent_points -= thing_to_sell.cost
-                                nonlocal points_to_spend
                                 points_to_spend += thing_to_sell.cost
 
                                 gear.remove(g)
@@ -736,7 +741,6 @@ class CharacterSelection:
                                 thing_to_sell = w
 
                                 self.spent_points -= thing_to_sell.cost
-                                nonlocal points_to_spend
                                 points_to_spend += thing_to_sell.cost
 
                                 weapons.remove(w)
@@ -747,7 +751,6 @@ class CharacterSelection:
                                 thing_to_sell = item
 
                                 self.spent_points -= thing_to_sell.cost
-                                nonlocal points_to_spend
                                 points_to_spend += thing_to_sell.cost
 
                                 item.remove(item)
@@ -953,7 +956,7 @@ class InGame:
 
     def __init__(self, own_team, game_map):
 
-        self.next_window_target = MainWindow  # TODO
+        self.next_window_target = None  # TODO
 
         self.char_prev_selected = False  # holds whether own team character is already selected
 

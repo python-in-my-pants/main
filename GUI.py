@@ -4,14 +4,21 @@ import sys
 
 class Button:
 
-    def __init__(self, dim=0, pos=[0, 0], real_pos=[-1, -1], color=(170, 0, 0), img=0, text="Button", name="Button",
+    def __init__(self, dim=[0, 0], pos=[0, 0], real_pos=[-1, -1], color=(170, 0, 0), img=0, text="Button", name="Button",
                  use_dim=True, action=(lambda: print("Clicked"))):
 
-        self.surf = pg.Surface(dim)
+        if use_dim:
+            self.surf = pg.Surface(dim)
         self.action = action
         self.name = name
         self.pos = pos[:]
-        self.real_pos = real_pos[:] if real_pos is not [-1, -1] else pos[:]
+
+        self.real_pos = 0
+        if real_pos[0] == -1 and real_pos[1] == -1:
+            self.real_pos = self.pos[:]
+        else:
+            self.real_pos = real_pos[:]
+
         self.dim = dim[:]
         self.use_dim = use_dim
         self.text = text
@@ -24,7 +31,8 @@ class Button:
             if use_dim:
                 background_img = pg.transform.scale(background_img, dim)
             else:
-                dim = list(background_img.get_rect().get_size())
+                dim = [background_img.get_rect()[2], background_img.get_rect()[3]]
+                self.surf = pg.Surface(dim)
 
             self.surf.blit(background_img, (0, 0))
 
@@ -40,7 +48,7 @@ class Button:
             self.surf.blit(font_render, (int(dim[0] / 2) - int(font_render.get_width() / 2),
                                          int(dim[1] / 2) - int(font_render.get_height() / 2)))
 
-    def is_focused(self, mouse_pos): # TODO: FIX: will not work because btn pos is relative to surface it is blitted to
+    def is_focused(self, mouse_pos):
 
         if self.real_pos[0] + self.dim[0] >= mouse_pos[0] >= self.real_pos[0] and \
            self.real_pos[1] + self.dim[1] >= mouse_pos[1] >= self.real_pos[1]:
