@@ -6,6 +6,10 @@ Gives general classes and fuctions for rendering on screen
 
 import Map
 import pygame as pg
+import os
+from pickle import *
+from _thread import *
+from network import *
 from GUI import *
 from Team import *
 from Data import *
@@ -99,7 +103,12 @@ class ConnectionSetup:
 
         # TODO overthink if this works
         self.new_window_target = None  # update if you want to leave this screen
-
+        self.role = "unknown"
+        self.field_size = 0
+        self.net = None
+        self.join_stat = ""
+        self.host_stat = ""
+        self.map = None
         main_background_img = pg.image.load("assets/108.gif")  # "main_background.jpg")
 
         size = list(main_background_img.get_size())
@@ -137,10 +146,33 @@ class ConnectionSetup:
         # button functions need to be defined before buttons
 
         def host_btn_fkt():
-            pass  # TODO für Dich, Christian <3
+            os.startfile("server.py")
+            self.net = Network.ip_setup(get('https://api.ipify.org').text)
+            start_new_thread(self.net.routine_threaded_listener, ())
+            self.host_stat = "Waiting for a Connection!"
+            while self.net.g_amount != 2:
+                time.sleep(0.500)  # Sleep tight Aniki!
+            while desired_board_size_button.text == "Enter the desired size":
+                self.host_stat = "Enter the desired map size!"
+                time.sleep(0.500)  # Sleep tighter Aniki!!
+            self.field_size = int(desired_board_size_button.text)
+            self.role = "host"
+            self.host_stat = "Waiting on other Player to get ready!"
+            while self.net.client_status != "Ready":
+                time.sleep(0.500)  # Sleep even tighter Aniki!!!
+            self.host_stat = "Waiting on other Player's confirmation for the map!"
+            while self.net.client_got_map != "Yes":
+                time.sleep(0.500)  # Sleep the tightest Aniki!!!!
+            self.host_stat = "Let's start!"
+            self.new_window_target = CharacterSelection
+            # TODO Check obs funzt
 
         def cancel_host_fkt():
-            pass  # TODO für Dich, Christian <3
+            self.net.send_control("Close")
+            self.net = None
+            self.role = "unknown"
+            self.host_stat = "Hosting canceled!"
+            # TODO Sollte Funzen
 
         def back_fkt():
             pass  # TODO mach ich
@@ -154,10 +186,10 @@ class ConnectionSetup:
 
         self.buttons.append(host_btn)
 
-        host_stat_btn = Button([int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],  # TODO mach, dass der den status anzeigt
+        host_stat_btn = Button([int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],  # TODO Doneso |mach, dass der den status anzeigt
                                pos=[int((left_surf.get_size()[0]-int(surfs_size[0]/3)/2)),
                                     int(surfs_size[1] * 0.43)],
-                               name="host_stat", color=(135, 206, 235), action=(lambda: None), text="Status goes here")
+                               name="host_stat", color=(135, 206, 235), action=(lambda: None), text=self.host_stat)
 
         self.buttons.append(host_stat_btn)
 
@@ -180,10 +212,30 @@ class ConnectionSetup:
         # -------------------------------------------------------------------------------------------------------------
 
         def join_btn_fkt():
-            pass  # TODO für Dich, Christian <3, kannst von ausgehen, dass die ip im text von ip_to_join_btn steht
+            if ip_to_join_btn.text.count(".") == 3 and ip_to_join_btn.text.__len__() >= 4:
+                self.net = Network.ip_setup(ip_to_join_btn.text)
+                start_new_thread(self.net.routine_threaded_listener, ())
+                self.join_stat = "Connecting..."
+            else:
+                self.join_stat = "You have to enter an IP!"
+                return
+            self.role = "Client"
+            self.net.send_control("Client_ready")
+            self.join_stat = "Waiting on the map!"
+            while self.net.map == b'':
+                time.sleep(0.500)  # I'm a Performanceartist!
+            self.map = pickle.loads(self.net.map)
+            self.net.send_control("Map recieved!")
+            time.sleep(1)
+            self.new_window_target = CharacterSelection
+            # TODO Sollte passen |für Dich, Christian <3, kannst von ausgehen,
+            #  dass die ip im text von ip_to_join_btn steht
 
         def cancel_join_fkt():
-            pass  # TODO für Dich, Christian <3
+            self.net = None
+            self.role = "unknown"
+            self.join_stat = "Joining Cancelled!"
+            pass  # TODO Doneso |für Dich, Christian <3
 
         first_click = True
 
@@ -205,12 +257,12 @@ class ConnectionSetup:
         self.buttons.append(join_btn)
 
         join_stat_btn = Button(dim=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
-                               # TODO mach, dass der den status anzeigt
+                               # TODO Doneso |mach, dass der den status anzeigt
                                pos=[int((right_surf.get_size[0]-(surfs_size[0]/3))/2),
                                     int(surfs_size[1] * 0.43)],
                                real_pos=[int((right_surf.get_size[0]-(surfs_size[0]/3))/2) +
                                          left_surf.get_size()[0], int(surfs_size[1] * 0.43)],
-                               name="join_stat", color=(135, 206, 235), action=(lambda: None), text="Status goes here")
+                               name="join_stat", color=(135, 206, 235), action=(lambda: None), text=self.join_stat)
 
         self.buttons.append(join_stat_btn)
 
@@ -320,7 +372,7 @@ class ConnectionSetup:
 
 class CharacterSelection:
 
-    def __init__(self, points_to_spend):
+    def __init__(self, role, net, points_to_spend):
 
         self.new_window_target = None
 
@@ -330,6 +382,8 @@ class CharacterSelection:
 
         self.screen = pg.display.set_mode(size, flags=pg.FULLSCREEN)
 
+        self.role = role
+        self.net = net
         self.ownTeam = Team()  # holds actual object of own team
         self.selectedChar = None
         self.ready = False
@@ -734,8 +788,24 @@ class CharacterSelection:
         # to blit to player_banner_back
         # ready button
         def ready_up():
-
-            self.ready = not self.ready
+            if self.role == "host":
+                self.ready = not self.ready
+                if self.ready:
+                    self.net.send_control("Host_ready")
+                else:
+                    self.net.send_control("Host_not_ready")
+                while self.net.client_status != "Ready":
+                    time.sleep(0.500)
+                    self.net.send_control("Client_status")
+            if self.role == "client":
+                self.ready = not self.ready
+                if self.ready:
+                    self.net.send_control("Client_ready")
+                else:
+                    self.net.send_control("Client_not_ready")
+                while self.net.host_status != "Ready":
+                    time.sleep(0.500)
+                    self.net.send_control("Host_status")
             # TODO: CHRISTIAN <3 when ready, sync wait for other player to be
 
         def get_text():

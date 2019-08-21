@@ -18,7 +18,7 @@ from GUI import *
 from Data import *
 from GUI import *
 from Map import *
-from Render import *
+# from Render import *
 from Characters import Character
 
 char_amount = 0
@@ -32,7 +32,7 @@ redraw = True
 
 # client / server stuff
 os.startfile("server.py")
-net = Network()
+net = Network(get('https://api.ipify.org').text)
 start_new_thread(net.routine_threaded_listener, ())
 role = "nobody"
 teams = []
@@ -54,17 +54,17 @@ if True:
     elem_size = int(screen_w/fields_x) if int(screen_w/fields_x) < int(screen_h/fields_y) else int(screen_h/fields_y)
     x = elem_size * fields_x  # mult of 10
     y = elem_size * fields_y  # mult of 10
-
+'''
 active_window = None
 
 main_window = MainWindow
 connection_setup = ConnectionSetup
 character_selection = CharacterSelection
 in_game = InGame
-
+'''
 #  --------------------------------------------------------------------------------------------------
 while True:
-
+    '''
     if not active_window:
 
         active_window = main_window()
@@ -88,7 +88,6 @@ while True:
     '''
     # display main screen and let user choose mode (atm Play/Credits)
     if mode == "mainscreen":
-
 
         if changed:  # set changed false at the end
 
@@ -125,10 +124,10 @@ while True:
 
                 mode = "connection_setup"  # if changing mode also change "changed"
                 changed = True
-
+            '''
             btn = Button([int(0.2 * size[0]), int(0.069 * size[1])], \
                          pos=[size[0]/2 - int(0.2 * size[0])/2, size[1]/2 - int(0.069 * size[1])/2], name="Button 1", \
-                         color=(0, 50, 201), action=button_fkt, text="Play")
+                         color=(0, 50, 201), action=button_fkt, text="Play")'''
 
             btn = Button([int(0.2 * size[0]), int(0.069 * size[1])],
                          pos=[size[0]/2 - int(0.2 * size[0])/2, size[1]/2 - int(0.069 * size[1])/2 + 200],
@@ -139,7 +138,7 @@ while True:
 
             surface = mainscreen
 
-            main_window = MainWindow()
+            # main_window = MainWindow()
 
             changed = False
 
@@ -148,9 +147,9 @@ while True:
 
             # handle events
             if event.type == pg.QUIT:
-                os.system('taskkill /f /im python.exe')
-                #pg.quit()
-                #sys.exit()
+                net.send_control("Close")
+                pg.quit()
+                sys.exit()
 
             if event.type == pg.MOUSEBUTTONDOWN:
                 p = pg.mouse.get_pos()
@@ -160,9 +159,22 @@ while True:
                     if button.is_focused(p):
                         redraw = True
                         button.action()
+
+            if event.type == pg.KEYDOWN:
+                if event.key == ord("q"):
+                    print("Q")
+                    net.send_control("Host_ready")
+
+
+
+            if event.type == pg.KEYDOWN:
+                if event.key == ord("e"):
+                    print("E")
+                    print(net.host_status)
+
         
 
-        main_window.event_handling()        
+        # main_window.event_handling()
 
         if redraw or changed:
             pg.display.update()
@@ -581,7 +593,7 @@ while True:
 
     elif mode == "char_select":
 
-        
+        '''
         two cases:
         case 1: you are host
             create map 
@@ -591,7 +603,7 @@ while True:
             create map from transmission
         
         both parties calculate army size dependent on map size           
-        
+        '''
 
         if changed:
 
@@ -689,8 +701,8 @@ while True:
                        self.size_x,             3
                        self.size_y,             4
                        team_number]             5
-                '''
-
+                
+            
                 map = Map(x_size=map_data[3],
                           y_size=map_data[4],
                           window=map_window,
@@ -698,7 +710,7 @@ while True:
                           objects=map_data[1],
                           characters=map_data[2],
                           unique_pixels=map_data[0])
-
+                '''
                 team_number = map_data[5]
 
                 # set vars for drawing contents later on
@@ -926,4 +938,4 @@ while True:
                     map.draw_map()
                     window.blit(map_window, (gui_overhead, 0))
                     pg.display.update()
-    '''
+    # '''
