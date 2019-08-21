@@ -69,13 +69,59 @@ while True:
 
         active_window = main_window()
 
-    if isinstance(active_window, main_window) or isinstance(active_window, connection_setup):
+    if isinstance(active_window, main_window):
 
-        if active_window.new_window_target:
+        if active_window.new_window_target:  # should be connection setup
 
-            new_target = active_window.new_window_target()
+            new_target = active_window.new_window_target
             active_window.harakiri()
-            active_window = new_target
+            active_window = new_target()
+
+        else:  # if no new target is set, stay
+
+            active_window.event_handling()
+
+    if isinstance(active_window, connection_setup):
+
+        if active_window.new_window_target:  # should be character selection
+
+            net_var = active_window.net
+            role = active_window.role
+
+            if active_window.role is "host":
+
+                # I am host
+                # -> generate map
+                new_target = active_window.new_window_target
+                desired_map_size = str(active_window.buttons[7].text)
+                active_window.harakiri()
+
+                builder = MapBuilder()
+                game_map = builder.build_map(desired_map_size)
+                points_to_spend = int((game_map.x_size * game_map.y_size)/400)  # TODO change maybe
+
+                active_window = new_target(points_to_spend=points_to_spend,
+                                           map=game_map,
+                                           net=net_var,
+                                           role=role)  # TODO add after balancing dependent on desired_map_size
+                                                       # cheapest char but full equipped for all team members
+            elif active_window.role is "client":
+
+                # I am client
+                game_map = pickle.loads(net_var.map)
+                points_to_spend = int((game_map.x_size * game_map.y_size)/400)   # TODO change maybe
+
+                new_target = active_window.new_window_target
+                active_window.harakiri()
+
+                active_window = new_target(points_to_spend=points_to_spend,
+                                           map=game_map,
+                                           net=net_var,
+                                           role=role)  # TODO add after balancing dependent on desired_map_size
+                                                       # cheapest char but full equipped for all team members
+
+            else:
+                print("Something went wrong assigning the role!")
 
         else:
 
@@ -83,7 +129,16 @@ while True:
 
     if isinstance(active_window, character_selection):
 
+        print("I got here!")
+
+        if active_window.new_window_target:
+
+            new_target = active_window.new_window_target  # should be in_game
+            active_window.harakiri()
+            active_window = new_target()
+
     if isinstance(active_window, in_game):
+        ...
 
     '''
     # display main screen and let user choose mode (atm Play/Credits)

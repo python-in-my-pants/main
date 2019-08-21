@@ -10,7 +10,7 @@ from GUI import *
 from Team import *
 from Data import *
 import time
-
+import copy
 
 '''
 elem size,
@@ -93,12 +93,17 @@ class MainWindow:
         del self
 
 
+# TODO save last entered ip in file and fill ip field with it
 class ConnectionSetup:
 
     def __init__(self):
 
         # TODO overthink if this works
         self.new_window_target = None  # update if you want to leave this screen
+
+        self.ip_focus = False
+        self.size_focus = False
+        self.role = "unknown"
 
         main_background_img = pg.image.load("assets/108.gif")  # "main_background.jpg")
 
@@ -136,16 +141,38 @@ class ConnectionSetup:
 
         # button functions need to be defined before buttons
 
-        def host_btn_fkt():
+        board_first_click = True
+
+        def desired_board_size_button_fkt():
+
+            self.size_focus = True
+            self.ip_focus = False
+            nonlocal board_first_click
+            if board_first_click:
+                desired_board_size_button.text = ""
+                board_first_click = False
+
+        def host_btn_fkt():  # when successfull self.role = host
             pass  # TODO für Dich, Christian <3
 
         def cancel_host_fkt():
             pass  # TODO für Dich, Christian <3
 
         def back_fkt():
-            pass  # TODO mach ich
+            self.new_window_target = MainWindow
 
+# shit to push
         # define buttons and put them on their surface
+
+        desired_board_size_button = Button(dim=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
+                                           pos=[int((left_surf.get_size()[0]-int(surfs_size[0]/3)/2)),
+                                                int(surfs_size[1] * 0.07)],
+                                           real_pos=[int((right_surf.get_size[0]-(surfs_size[0]/3))/2),
+                                                     int(surfs_size[1] * 0.07)],
+                                           name="board_size_button", color=(255, 255, 255),
+                                           action=desired_board_size_button_fkt, text="Enter the desired size")
+
+        # append later to not mess up indices
 
         host_btn = Button(dim=[int(surfs_size[0]/3), int(surfs_size[1] * 0.07)],
                           pos=[int((left_surf.get_size()[0]-int(surfs_size[0]/3)/2)),
@@ -179,7 +206,7 @@ class ConnectionSetup:
 
         # -------------------------------------------------------------------------------------------------------------
 
-        def join_btn_fkt():
+        def join_btn_fkt():   # when successfull self.role =
             pass  # TODO für Dich, Christian <3, kannst von ausgehen, dass die ip im text von ip_to_join_btn steht
 
         def cancel_join_fkt():
@@ -189,6 +216,8 @@ class ConnectionSetup:
 
         def ip_field_fkt():
             # on first click erase content, else do nothing
+            self.size_focus = False
+            self.ip_focus = True
             nonlocal first_click
             if first_click:
                 ip_to_join_btn.text = ""
@@ -219,9 +248,10 @@ class ConnectionSetup:
                                      int(surfs_size[1] * 0.7)],
                                 real_pos=[int((right_surf.get_size[0]-(surfs_size[0]/3))/2) +
                                           left_surf.get_size()[0], int(surfs_size[1] * 0.7)],
-                                name="ip_to_join_btn", color=(0, 0, 0), action=ip_field_fkt, text="Enter the Host-IP")
+                                name="ip_to_join_btn", color=(255, 255, 255), action=ip_field_fkt, text="Enter the Host-IP")
 
         self.buttons.append(ip_to_join_btn)
+        self.buttons.append(desired_board_size_button)
 
         join_cancel_btn = Button(dim=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
                                  pos=[int((right_surf.get_size[0]-(surfs_size[0]/3))/2),
@@ -253,49 +283,69 @@ class ConnectionSetup:
 
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_KP0:
-                    self.buttons[6].text.append("0")
+                    self.buttons[6].text.append("0") if self.ip_focus else (self.buttons[7].text.append("0") if
+                                                                            self.size_focus else None)
                 if event.key == pg.K_KP1:
-                    self.buttons[6].text.append("1")
+                    self.buttons[6].text.append("1") if self.ip_focus else (self.buttons[7].text.append("1") if
+                                                                            self.size_focus else None)
                 if event.key == pg.K_KP2:
-                    self.buttons[6].text.append("2")
+                    self.buttons[6].text.append("2") if self.ip_focus else (self.buttons[7].text.append("2") if
+                                                                            self.size_focus else None)
                 if event.key == pg.K_KP3:
-                    self.buttons[6].text.append("3")
+                    self.buttons[6].text.append("3") if self.ip_focus else (self.buttons[7].text.append("3") if
+                                                                            self.size_focus else None)
                 if event.key == pg.K_KP4:
-                    self.buttons[6].text.append("4")
+                    self.buttons[6].text.append("4") if self.ip_focus else (self.buttons[7].text.append("4") if
+                                                                            self.size_focus else None)
                 if event.key == pg.K_KP5:
-                    self.buttons[6].text.append("5")
+                    self.buttons[6].text.append("5") if self.ip_focus else (self.buttons[7].text.append("5") if
+                                                                            self.size_focus else None)
                 if event.key == pg.K_KP6:
-                    self.buttons[6].text.append("6")
+                    self.buttons[6].text.append("6") if self.ip_focus else (self.buttons[7].text.append("6") if
+                                                                            self.size_focus else None)
                 if event.key == pg.K_KP7:
-                    self.buttons[6].text.append("7")
+                    self.buttons[6].text.append("7") if self.ip_focus else (self.buttons[7].text.append("7") if
+                                                                            self.size_focus else None)
                 if event.key == pg.K_KP8:
-                    self.buttons[6].text.append("8")
+                    self.buttons[6].text.append("8") if self.ip_focus else (self.buttons[7].text.append("8") if
+                                                                            self.size_focus else None)
                 if event.key == pg.K_KP9:
-                    self.buttons[6].text.append("9")
+                    self.buttons[6].text.append("9") if self.ip_focus else (self.buttons[7].text.append("9") if
+                                                                            self.size_focus else None)
 
                 if event.key == pg.K_0:
-                    self.buttons[6].text.append("0")
+                    self.buttons[6].text.append("0") if self.ip_focus else (self.buttons[7].text.append("0") if
+                                                                            self.size_focus else None)
                 if event.key == pg.K_1:
-                    self.buttons[6].text.append("1")
+                    self.buttons[6].text.append("1") if self.ip_focus else (self.buttons[7].text.append("1") if
+                                                                            self.size_focus else None)
                 if event.key == pg.K_2:
-                    self.buttons[6].text.append("2")
+                    self.buttons[6].text.append("2") if self.ip_focus else (self.buttons[7].text.append("2") if
+                                                                            self.size_focus else None)
                 if event.key == pg.K_3:
-                    self.buttons[6].text.append("3")
+                    self.buttons[6].text.append("3") if self.ip_focus else (self.buttons[7].text.append("3") if
+                                                                            self.size_focus else None)
                 if event.key == pg.K_4:
-                    self.buttons[6].text.append("4")
+                    self.buttons[6].text.append("4") if self.ip_focus else (self.buttons[7].text.append("4") if
+                                                                            self.size_focus else None)
                 if event.key == pg.K_5:
-                    self.buttons[6].text.append("5")
+                    self.buttons[6].text.append("5") if self.ip_focus else (self.buttons[7].text.append("5") if
+                                                                            self.size_focus else None)
                 if event.key == pg.K_6:
-                    self.buttons[6].text.append("6")
+                    self.buttons[6].text.append("6") if self.ip_focus else (self.buttons[7].text.append("6") if
+                                                                            self.size_focus else None)
                 if event.key == pg.K_7:
-                    self.buttons[6].text.append("7")
+                    self.buttons[6].text.append("7") if self.ip_focus else (self.buttons[7].text.append("7") if
+                                                                            self.size_focus else None)
                 if event.key == pg.K_8:
-                    self.buttons[6].text.append("8")
+                    self.buttons[6].text.append("8") if self.ip_focus else (self.buttons[7].text.append("8") if
+                                                                            self.size_focus else None)
                 if event.key == pg.K_9:
-                    self.buttons[6].text.append("9")
+                    self.buttons[6].text.append("9") if self.ip_focus else (self.buttons[7].text.append("9") if
+                                                                            self.size_focus else None)
 
                 for char in "abcdefghijklmnopqrstuvwxyz":
-                    if event.key == ord(char):
+                    if event.key == ord(char) and self.ip_focus:
                         self.buttons[6].text.append(char)
 
                 if event.key == pg.K_PERIOD:
@@ -306,7 +356,13 @@ class ConnectionSetup:
                     self.buttons[6].text.append(":")
 
                 if event.key == pg.K_BACKSPACE:
-                    del self.buttons[6].text[-1]
+
+                    if self.ip_focus:
+                        del self.buttons[6].text[-1]
+                    elif self.size_focus:
+                        del self.buttons[7].text[-1]
+                    else:
+                        pass
 
             if event.type == pg.MOUSEBUTTONDOWN:
                 if pg.mouse.get_pressed()[0]:
@@ -320,9 +376,12 @@ class ConnectionSetup:
 
 class CharacterSelection:
 
-    def __init__(self, points_to_spend):
+    def __init__(self, points_to_spend, game_map, role="unknown", net=None):
 
         self.new_window_target = None
+
+        self.role = role
+        self.net = net
 
         self.spent_points = 0
 
@@ -393,13 +452,16 @@ class CharacterSelection:
 
         player_overview = pg.Surface([int(0.3 * size[0]), size[1]])
 
-        player_banner_back = pg.Surface([int(0.3 * size[0]), int(0.3 * size[0])])
-        player_banner_img = pg.image.load("assets/default_player_banner.png")  # TODO: add custom player banners
+        #player_banner_back = pg.Surface([int(0.3 * size[0]), int(0.3 * size[0])])
+        #player_banner_img = pg.image.load("assets/default_player_banner.png")  # TODO: add custom player banners
 
-        selected_units_back = pg.Surface([int(0.3 * size[0]), int(size[1] - player_banner_back.get_height()*2)])
+        minimap_surf = pg.Surface([int(0.3 * size[0]), int(0.3 * size[0])])
+        map_surf = copy.deepcopy(game_map.window)
+
+        selected_units_back = pg.Surface([int(0.3 * size[0]), int(size[1] - minimap_surf.get_height()*2)])
         selected_units_box = pg.Surface([selected_units_back.get_size()[0] - 10, selected_units_back.get_size()[1] - 10])
 
-        selected_weapons_back = pg.Surface([int(0.3 * size[0]), int(size[1] - player_banner_back.get_height()*2)])
+        selected_weapons_back = pg.Surface([int(0.3 * size[0]), int(size[1] - minimap_surf.get_height()*2)])
         selected_weapons_box = pg.Surface([selected_weapons_back.get_size()[0]-10, selected_weapons_back.get_size()[1]-10])
         # TODO: show items of selected char here
 
@@ -513,7 +575,7 @@ class CharacterSelection:
                                         h_pos +
                                         self.points_btn.dim[1] +
                                         character_banner.dim[1]],
-                              img=("assets/cc/cc_" + str(i) + ".png"), dim=[card_w, card_h], \
+                              img=("assets/cc/cc_" + str(i) + ".png"), dim=[card_w, card_h],
                               use_dim=True, action=function_binder("cc_btn_function_" + str(i), i))
 
             self.character_cards.append(card_btn)
@@ -629,7 +691,7 @@ class CharacterSelection:
                                    troop_overview.get_size()[0],
                                    pos_h +
                                    int((selected_units_back.get_size()[1] - selected_units_box.get_size()[1]) / 2) +
-                                   player_banner_back.get_size()[1]],
+                                   minimap_surf.get_size()[1]],
                          img=("assets/cc/cc_" + str(class_num) + ".png"),
                          use_dim=True, action=cc_function_binder("assets/cc/cc_small_btn_func" + str(i), \
                                                                  self.ownTeam.characters[i].id))
@@ -723,7 +785,7 @@ class CharacterSelection:
                                    troop_overview.get_size()[0] +
                                    int((selected_weapons_back.get_size()[0]-selected_units_box.get_size()[0])/2),
                                    pos_h +
-                                   player_banner_back.get_size()[1] +
+                                   minimap_surf.get_size()[1] +
                                    selected_units_box.get_size()[0] +
                                    int((selected_weapons_back.get_size()[1]-selected_units_box.get_size()[1])/2)],
                          img=image_uri, use_dim=True, action=ic_function_binder("ci_small_btn_func" + str(i),
@@ -742,12 +804,12 @@ class CharacterSelection:
             return "Unready" if self.ready else "Ready!"
 
         #TODO: button
-        self.ready_btn = Button(dim=[int(player_banner_back.get_size()[0]*0.8), int(player_banner_back.get_size()[1]*0.25)],
+        self.ready_btn = Button(dim=[int(minimap_surf.get_size()[0]*0.8), int(minimap_surf.get_size()[1]*0.25)],
                                 text=get_text(), \
-                                pos=[int(player_banner_back.get_size()[0]*0.1), player_banner_img.get_size()[1]],
-                                real_pos=[int(player_banner_back.get_size()[0]*0.1) +
+                                pos=[int(minimap_surf.get_size()[0]*0.1), minimap_surf.get_size()[1]],
+                                real_pos=[int(minimap_surf.get_size()[0]*0.1) +
                                           troop_overview.get_size()[0],
-                                          player_banner_img.get_size()[1]],
+                                          minimap_surf.get_size()[1]],
                                 action=ready_up)
 
         # -------------------------------------------------------------------------------------------------------------
@@ -781,7 +843,8 @@ class CharacterSelection:
 
         # TODO: blit background image
         # points btn to left side
-        troop_overview.blit(self.points_btn.surf, dest=self.points_btn.pos)
+        rem_point_back.blit(self.points_btn, dest=self.points_btn.pos)
+        troop_overview.blit(rem_point_back, dest=int((troop_overview.get_size()[0]-rem_point_back.get_size()[0])/2))
 
         troop_overview.blit(character_back, dest=[0, self.points_btn.dim[1]])
         troop_overview.blit(weapon_back, dest=[0, self.points_btn.dim[1]+character_back.get_size()[1]])
@@ -791,11 +854,19 @@ class CharacterSelection:
         # right #
         #########
 
+        # swapped out for minimap
         # player banner
-        player_banner_back.blit(player_banner_img, dest=[0, 0])
-        player_banner_back.blit(self.ready_btn.surf, self.ready_btn.pos)
+        #player_banner_back.blit(player_banner_img, dest=[0, 0])
+        #player_banner_back.blit(self.ready_btn.surf, self.ready_btn.pos)
 
-        player_overview.blit(player_banner_back, [0, 0])
+        #player_overview.blit(player_banner_back, [0, 0])
+
+        s = minimap_surf.get_size()
+        minimap_dims = [s[0], s[0]] if s[0] < s[1] else [s[1], s[1]]
+
+        map_surf = pg.transform.smoothscale(map_surf, minimap_dims)
+        minimap_surf.blit(map_surf, dest=[int((minimap_surf.get_size()[0]-map_surf.get_size()[0])/2),
+                                          int((minimap_surf.get_size()[1]-map_surf.get_size()[1])/2)])
 
         # selected units
         for sm_char_btn in self.team_char_btns:
@@ -805,7 +876,7 @@ class CharacterSelection:
                                  [int((selected_units_back.get_size()[0]-selected_units_box.get_size()[0])/2),
                                   int((selected_units_back.get_size()[1]-selected_units_box.get_size()[1])/2)])
 
-        player_overview.blit(selected_units_back, dest=[0, player_banner_back.get_size()[1]])
+        player_overview.blit(selected_units_back, dest=[0, minimap_surf.get_size()[1]])
 
         # selected weapons
 
@@ -814,7 +885,7 @@ class CharacterSelection:
                                     int((selected_weapons_back.get_size()[0]-selected_weapons_box.get_size()[0])/2)])
 
         player_overview.blit(selected_weapons_back, dest=
-                             [0, player_banner_back.get_size()[1] + selected_weapons_back.get_size()[1]])
+                             [0, minimap_surf.get_size()[1] + selected_weapons_back.get_size()[1]])
 
         ###########################
         # right and left together #
@@ -824,7 +895,7 @@ class CharacterSelection:
         self.screen.blit(player_overview, [troop_overview.get_size()[0], 0])
 
     def event_handling(self):
-
+        # TODO only request char buttons if theirs rect is contained in map_surf
         # event handling
         for event in pg.event.get():
 
@@ -884,12 +955,17 @@ class InGame:
 
         self.next_window_target = MainWindow  # TODO
 
-        self.char_prev_selected = False  # holds if own team character is already selected
+        self.char_prev_selected = False  # holds whether own team character is already selected
 
         size = [pg.display.Info().current_w(), pg.display.Info().current_h()]
         w = size[0]
         h = size[1]
         self.element_size = int(w*9/(16*30))  # default is 30 elem width
+
+        self.zoom_factor = 1
+        self.zoom_center = [0, 0]
+        self.zoom_size = [0, 0]
+
         self.screen = pg.display.set_mode(size, flags=pg.FULLSCREEN)
 
         self.selected_own_char = own_team[0]  # TODO
@@ -912,17 +988,26 @@ class InGame:
         # TODO make so that actual stats are shown in character card instead of just standard stats
         item_stat_card = pg.image.load(...)
 
-        map_surface = game_map.window #(int(9*w/16), h)
+        self.map_surface = pg.Surface([int(9*w/16), h])
+        map_content = game_map.window
+
         #                   gap size up and down        factor                                    gap size                btn_h * 1.6 for hp bar
         own_team_height = 2*int((1/32) * 7*w/32) + (int(own_team.characters.__len__() / 10)+1) * (int((1/32) * 7*w/32) + int(1.6 * (5/32) * 7*w/32))
-        own_team_stats = pg.Surface([int(map_surface.get_size()[0]*0.9), own_team_height]) #int(0.2*7*h/18)])
+        own_team_stats = pg.Surface([int(self.map_surface.get_size()[0]*0.9), own_team_height]) #int(0.2*7*h/18)])
         own_team_stats_back_img = pg.image.load(...)  # TODO size from own team stats
 
         player_banners = pg.Surface([int(7*w/32), int(7*h/18)])
         match_stats = pg.Surface([player_banners.get_size()[0], int(player_banners.get_size()[1]*0.2)])
 
-        minimap_surf = pg.Surface([int(7*w/32), int(7*h/18)]) # TODO
+        minimap_surf = pg.Surface([int(7*w/32), int(7*h/18)])  # TODO
         done_btn_surf = pg.Surface([int(7*w/32), int(4*h/18)])
+
+        # TODO check if this makes sense, coded when sick
+        self.zoom_size = [int(((9*w/16) / (self.zoom_center[0]-char_stat_back.get_size()[0])) *
+                          # TODO maybe not map surface but content
+                              (((2**0.5)/2) * np.abs((self.zoom_factor-1)*self.map_surface.get_size()[0]))),
+                          int((h/self.zoom_center[1]) *
+                          (((2**0.5)/2) * np.abs((self.zoom_factor-1)*self.map_surface.get_size()[1])))]
 
         # set up buttons
         # TODO characters on map must have buttons to select them as sel char
@@ -942,7 +1027,7 @@ class InGame:
 
                 if type == "item":
                     for item in self.selected_own_char.items:
-                        if weap.idi == _id:
+                        if item.idi == _id:
                             self.selected_own_char.active_item = item
                             return
 
@@ -1069,7 +1154,7 @@ class InGame:
         # team buttons
         for i in range(own_team.characters.__len__()):
 
-            pos_w = btn_w + (i%10)*(btn_w+inventory_gap_size)
+            pos_w = btn_w + (i % 10)*(btn_w+inventory_gap_size)
             pos_h = inventory_gap_size + int(i / 10)*(btn_h + inventory_gap_size + btn_h*0.6)
 
             btn = Button(dim=[btn_w, btn_h],
@@ -1087,11 +1172,14 @@ class InGame:
         for index in game_map.characters:
             char = game_map.objects[index]
 
-            btn = Button(dim=[self.element_size, self.element_size],
-                         pos=[char.get_pos(0) * self.element_size, char.get_pos(1) * self.element_size],
+            btn = Button(dim=[self.element_size*self.zoom_factor, self.element_size*self.zoom_factor],
+                         pos=[char.get_pos(0) * self.element_size + self.zoom_size[0],
+                              char.get_pos(1) * self.element_size + self.zoom_size[1]],
                          real_pos=[char.get_pos(0) * self.element_size +
-                                   char_stat_back.get_size()[0],
-                                   char.get_pos(1) * self.element_size],
+                                   char_stat_back.get_size()[0] +
+                                   self.zoom_size[0],
+                                   char.get_pos(1) * self.element_size +
+                                   self.zoom_size[1]],
                          img="assets/char/" + str(char.unit_class) + ".png",
                          action=sel_char_binder("map_char_btn_" + str(char.idi), char.idi))
 
@@ -1099,13 +1187,13 @@ class InGame:
 
         # done button
         self.done_btn = Button(dim=[int(7*w/32), int(4*h/18)],  # TODO button
-                          pos=[0, 0],
-                          real_pos=[char_stat_back.get_size()[0] +
-                                    map_surface.get_size()[0],
-                                    player_banners.get_size()[1] +
-                                    minimap_surf.get_size()[1]],
-                          img="assets/done_button.png",
-                          name="Done Button", action=done_button_action)
+                               pos=[0, 0],
+                               real_pos=[char_stat_back.get_size()[0] +
+                                         self.map_surface.get_size()[0],
+                                         player_banners.get_size()[1] +
+                                         minimap_surf.get_size()[1]],
+                               img="assets/done_button.png",
+                               name="Done Button", action=done_button_action)
 
         # blit everything to positions
         # ------------------------------------------------------------------------------------------------------------
@@ -1137,8 +1225,12 @@ class InGame:
         for btn in self.own_team_stat_buttons:
             own_team_stats.blit(btn.surf, btn.pos)
 
+        self.map_surface.blit(pg.transform.smoothscale(map_content,
+                                                      (map_content.get_size()[0]*self.zoom_factor,
+                                                       map_content.get_size()[1]*self.zoom_factor)),
+                                                       dest=self.zoom_size)
         # TODO beware of 0.05 as constant
-        map_surface.blit(own_team_stats, dest=[int(0.05*map_surface.get_size()[0]), 0])
+        self.map_surface.blit(own_team_stats, dest=[int(0.05*self.map_surface.get_size()[0]), 0])
 
         player_banners.blit(match_stats, dest=[0, int(0.8*player_banners.get_size()[1])])
 
@@ -1148,12 +1240,12 @@ class InGame:
         self.screen.blit(char_inventory, dest=[0, char_stat_back.get_size()[1]])
         self.screen.blit(item_stat_back, dest=[0, char_stat_back.get_size()[1]+char_inventory.get_size()[1]])
 
-        self.screen.blit(map_surface, dest=[char_stat_back.get_size()[1], 0])
+        self.screen.blit(self.map_surface, dest=[char_stat_back.get_size()[1], 0])
 
-        self.screen.blit(player_banners, dest=[char_stat_back.get_size()[0]+map_surface.get_size()[0], 0])
-        self.screen.blit(minimap_surf, dest=[char_stat_back.get_size()[0]+map_surface.get_size()[0],
+        self.screen.blit(player_banners, dest=[char_stat_back.get_size()[0]+self.map_surface.get_size()[0], 0])
+        self.screen.blit(minimap_surf, dest=[char_stat_back.get_size()[0]+self.map_surface.get_size()[0],
                                              player_banners.get_size()[1]])
-        self.screen.blit(done_btn_surf, dest=[char_stat_back.get_size()[0]+map_surface.get_size()[0],
+        self.screen.blit(done_btn_surf, dest=[char_stat_back.get_size()[0]+self.map_surface.get_size()[0],
                                               player_banners.get_size()[1]+minimap_surf.get_size()[1]])
 
     def event_handling(self):
@@ -1190,21 +1282,22 @@ class InGame:
                     if self.done_btn.is_focused(p):
                         self.done_btn.action()
 
-                    for button in self.char_map_buttons:
-                        if button.is_focused(p):
-                            button.action()
+                    if self.map_surface.get_rect().collidepoint(p[0], p[1]):
+                        for button in self.char_map_buttons:
+                            if button.is_focused(p):
+                                button.action()
 
                 if event.button == 3:  # on right click
-
-                    ...
+                    pass
 
                 if event.button == 4:  # scroll up
 
-                    ...
+                    self.zoom_factor -= 0.1
+                    self.zoom_center = p
 
                 if event.button == 5:  # scroll down
 
-                    ...
+                    self.zoom_factor += 0.1
 
     def harakiri(self):
         del self
