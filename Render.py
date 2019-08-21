@@ -718,6 +718,7 @@ class CharacterSelection:
                     self.selectedChar = self.ownTeam.get_char_by_id(_char_id)
                 if button == 3:
                     # sell this character
+
                     char = self.ownTeam.get_char_by_id(_char_id)
                     self.ownTeam.remove_char_by_obj(char)
                     self.selectedChar = self.ownTeam.characters[0]
@@ -769,6 +770,7 @@ class CharacterSelection:
 
                     # sell this item
                     thing_to_sell = None
+                    nonlocal points_to_spend
 
                     if _category == "gear":
                         for g in gear:
@@ -776,7 +778,6 @@ class CharacterSelection:
                                 thing_to_sell = g
 
                                 self.spent_points -= thing_to_sell.cost
-                                nonlocal points_to_spend
                                 points_to_spend += thing_to_sell.cost
 
                                 gear.remove(g)
@@ -787,7 +788,6 @@ class CharacterSelection:
                                 thing_to_sell = w
 
                                 self.spent_points -= thing_to_sell.cost
-                                nonlocal points_to_spend
                                 points_to_spend += thing_to_sell.cost
 
                                 weapons.remove(w)
@@ -798,7 +798,6 @@ class CharacterSelection:
                                 thing_to_sell = item
 
                                 self.spent_points -= thing_to_sell.cost
-                                nonlocal points_to_spend
                                 points_to_spend += thing_to_sell.cost
 
                                 item.remove(item)

@@ -40,7 +40,7 @@ class Button:
             self.surf.blit(font_render, (int(dim[0] / 2) - int(font_render.get_width() / 2),
                                          int(dim[1] / 2) - int(font_render.get_height() / 2)))
 
-    def is_focused(self, mouse_pos): # TODO: FIX: will not work because btn pos is relative to surface it is blitted to
+    def is_focused(self, mouse_pos):
 
         if self.real_pos[0] + self.dim[0] >= mouse_pos[0] >= self.real_pos[0] and \
            self.real_pos[1] + self.dim[1] >= mouse_pos[1] >= self.real_pos[1]:

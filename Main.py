@@ -18,7 +18,7 @@ from GUI import *
 from Data import *
 from GUI import *
 from Map import *
-# from Render import *
+from Render import *
 from Characters import Character
 
 char_amount = 0
@@ -54,17 +54,17 @@ if True:
     elem_size = int(screen_w/fields_x) if int(screen_w/fields_x) < int(screen_h/fields_y) else int(screen_h/fields_y)
     x = elem_size * fields_x  # mult of 10
     y = elem_size * fields_y  # mult of 10
-'''
+
 active_window = None
 
 main_window = MainWindow
 connection_setup = ConnectionSetup
 character_selection = CharacterSelection
 in_game = InGame
-'''
+
 #  --------------------------------------------------------------------------------------------------
 while True:
-    '''
+
     if not active_window:
 
         active_window = main_window()
@@ -179,10 +179,10 @@ while True:
 
                 mode = "connection_setup"  # if changing mode also change "changed"
                 changed = True
-            '''
+            
             btn = Button([int(0.2 * size[0]), int(0.069 * size[1])], \
                          pos=[size[0]/2 - int(0.2 * size[0])/2, size[1]/2 - int(0.069 * size[1])/2], name="Button 1", \
-                         color=(0, 50, 201), action=button_fkt, text="Play")'''
+                         color=(0, 50, 201), action=button_fkt, text="Play")
 
             btn = Button([int(0.2 * size[0]), int(0.069 * size[1])],
                          pos=[size[0]/2 - int(0.2 * size[0])/2, size[1]/2 - int(0.069 * size[1])/2 + 200],
@@ -648,7 +648,7 @@ while True:
 
     elif mode == "char_select":
 
-        '''
+        
         two cases:
         case 1: you are host
             create map 
@@ -657,8 +657,7 @@ while True:
             wait for map
             create map from transmission
         
-        both parties calculate army size dependent on map size           
-        '''
+        both parties calculate army size dependent on map size
 
         if changed:
 
@@ -749,7 +748,6 @@ while True:
                 # ------------------------------------------------------------------------------------------------------
 
                 # create local map object from map_data
-                '''
                 lis = [self.unique_pixs,        0
                        self.objects,            1
                        self.characters,         2
@@ -765,7 +763,6 @@ while True:
                           objects=map_data[1],
                           characters=map_data[2],
                           unique_pixels=map_data[0])
-                '''
                 team_number = map_data[5]
 
                 # set vars for drawing contents later on
@@ -993,4 +990,4 @@ while True:
                     map.draw_map()
                     window.blit(map_window, (gui_overhead, 0))
                     pg.display.update()
-    # '''
+    '''
