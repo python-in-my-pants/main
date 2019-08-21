@@ -123,6 +123,15 @@ class ConnectionSetup:
         self.desi_board_text = "Enter board size"
         self.game_map = None
 
+        self.main_background_img = pg.image.load("assets/108.gif")  # "main_background.jpg")
+
+        self.size = list(self.main_background_img.get_size())
+        self.size[0] = self.size[0] * 5  # change to sth dependent on screen size instead of 5
+        self.size[1] = self.size[1] * 5
+
+        # create window
+        self.screen = pg.display.set_mode(self.size, flags=pg.RESIZABLE)
+
         self.update()
 
     def update(self):
@@ -132,19 +141,21 @@ class ConnectionSetup:
         self.role = "unknown"
         self.field_size = 0
 
-        main_background_img = pg.image.load("assets/108.gif")  # "main_background.jpg")
+        size = self.size
+
+        '''main_background_img = pg.image.load("assets/108.gif")  # "main_background.jpg")
 
         size = list(main_background_img.get_size())
         size[0] = size[0] * 5  # change to sth dependent on screen size instead of 5
         size[1] = size[1] * 5
 
         # create window
-        self.screen = pg.display.set_mode(size)
+        self.screen = pg.display.set_mode(size, flags=pg.RESIZABLE)'''
         # set title
         pg.display.set_caption("nAme;Rain - Verbindungskonfiguration ...")
 
         # scale image
-        main_background_img = pg.transform.scale(main_background_img, (size[0], size[1]))
+        main_background_img = pg.transform.scale(self.main_background_img, (size[0], size[1]))
         main_background_img = main_background_img.convert()
 
         # draw background to screen
@@ -199,7 +210,7 @@ class ConnectionSetup:
             self.host_stat = "Waiting on other Player to get ready!"
 
             while self.net.client_status != "Ready":
-                time.sleep(0.500)  # Sleep even tighter Aniki!!!
+                pass  # Sleep even tighter Aniki!!!
 
             builder = Map.MapBuilder()
             self.game_map = builder.build_map(self.field_size)
