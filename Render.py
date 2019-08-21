@@ -191,32 +191,33 @@ class ConnectionSetup:
                 self.host_stat = "Waiting for a Connection!"
 
                 while self.net.g_amount != 2:
-                    time.sleep(1.00)  # Sleep tight Aniki!
+                    pass  # Sleep tight Aniki!
 
                 while desired_board_size_button.text == "Enter the desired size":
                     self.host_stat = "Enter the desired map size!"
-                    time.sleep(0.500)  # Sleep tighter Aniki!!
+                    pass  # Sleep tighter Aniki!!
 
                 self.field_size = int(desired_board_size_button.text)
                 self.role = "host"
                 self.host_stat = "Waiting on other Player to get ready!"
 
                 while self.net.client_status != "Ready":
-                    time.sleep(0.500)  # Sleep even tighter Aniki!!!
+                    pass  # Sleep even tighter Aniki!!!
 
                 self.host_stat = "Waiting on other Player's confirmation for the map!"
 
                 while self.net.client_got_map != "Yes":
-                    time.sleep(0.500)  # Sleep the tightest Aniki!!!!
+                    pass  # Sleep the tightest Aniki!!!!
                 self.host_stat = "Let's start!"
                 self.new_window_target = CharacterSelection
                 # TODO Check obs funzt
             return
 
         def cancel_host_fkt():
-            self.net.send_control("Close")
-            self.net = None
-            self.role = "unknown"
+            if self.net is not None:
+                self.net.send_control("Close")
+                self.net = None
+                self.role = "unknown"
             self.host_stat = "Hosting canceled!"
             # TODO Sollte Funzen
 
@@ -281,7 +282,7 @@ class ConnectionSetup:
                 self.net.send_control("Client_ready")
                 self.join_stat = "Waiting on the map!"
                 while self.net.map == b'':
-                    time.sleep(0.500)  # I'm a Performanceartist!
+                    pass  # I'm a Performanceartist!
                 self.map = pickle.loads(self.net.map)
                 self.net.send_control("Map recieved!")
                 time.sleep(1)
@@ -434,7 +435,7 @@ class ConnectionSetup:
                     else:
                         pass
 
-                if event.key == pg.K_KP0:
+                if event.key == pg.K_KP8:
                     if self.ip_focus:
                         self.ip_field_text += "8"
                     elif self.size_focus:
@@ -544,9 +545,9 @@ class ConnectionSetup:
                 if event.key == pg.K_BACKSPACE:
 
                     if self.ip_focus:
-                        del self.ip_field_text[-1]
+                        self.ip_field_text = self.ip_field_text[:-1]
                     elif self.size_focus:
-                        del self.desi_board_text[-1]
+                        self.desi_board_text = self.desi_board_text[:-1]
                     else:
                         pass
 
