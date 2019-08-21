@@ -574,7 +574,7 @@ class CharacterSelection:
                                         h_pos +
                                         self.points_btn.dim[1] +
                                         character_banner.dim[1]],
-                              img=("assets/cc/cc_" + str(i) + ".png"), dim=[card_w, card_h], \
+                              img=("assets/cc/cc_" + str(i) + ".png"), dim=[card_w, card_h],
                               use_dim=True, action=function_binder("cc_btn_function_" + str(i), i))
 
             self.character_cards.append(card_btn)
@@ -954,7 +954,7 @@ class InGame:
 
         self.next_window_target = MainWindow  # TODO
 
-        self.char_prev_selected = False  # holds wether own team character is already selected
+        self.char_prev_selected = False  # holds whether own team character is already selected
 
         size = [pg.display.Info().current_w(), pg.display.Info().current_h()]
         w = size[0]
@@ -987,12 +987,12 @@ class InGame:
         # TODO make so that actual stats are shown in character card instead of just standard stats
         item_stat_card = pg.image.load(...)
 
-        map_surface = pg.Surface([int(9*w/16), h])
+        self.map_surface = pg.Surface([int(9*w/16), h])
         map_content = game_map.window
 
         #                   gap size up and down        factor                                    gap size                btn_h * 1.6 for hp bar
         own_team_height = 2*int((1/32) * 7*w/32) + (int(own_team.characters.__len__() / 10)+1) * (int((1/32) * 7*w/32) + int(1.6 * (5/32) * 7*w/32))
-        own_team_stats = pg.Surface([int(map_surface.get_size()[0]*0.9), own_team_height]) #int(0.2*7*h/18)])
+        own_team_stats = pg.Surface([int(self.map_surface.get_size()[0]*0.9), own_team_height]) #int(0.2*7*h/18)])
         own_team_stats_back_img = pg.image.load(...)  # TODO size from own team stats
 
         player_banners = pg.Surface([int(7*w/32), int(7*h/18)])
@@ -1004,9 +1004,9 @@ class InGame:
         # TODO check if this makes sense, coded when sick
         self.zoom_size = [int(((9*w/16) / (self.zoom_center[0]-char_stat_back.get_size()[0])) *
                           # TODO maybe not map surface but content
-                              (((2**0.5)/2) * np.abs((self.zoom_factor-1)*map_surface.get_size()[0]))),
+                              (((2**0.5)/2) * np.abs((self.zoom_factor-1)*self.map_surface.get_size()[0]))),
                           int((h/self.zoom_center[1]) *
-                          (((2**0.5)/2) * np.abs((self.zoom_factor-1)*map_surface.get_size()[1])))]
+                          (((2**0.5)/2) * np.abs((self.zoom_factor-1)*self.map_surface.get_size()[1])))]
 
         # set up buttons
         # TODO characters on map must have buttons to select them as sel char
@@ -1186,13 +1186,13 @@ class InGame:
 
         # done button
         self.done_btn = Button(dim=[int(7*w/32), int(4*h/18)],  # TODO button
-                          pos=[0, 0],
-                          real_pos=[char_stat_back.get_size()[0] +
-                                    map_surface.get_size()[0],
-                                    player_banners.get_size()[1] +
-                                    minimap_surf.get_size()[1]],
-                          img="assets/done_button.png",
-                          name="Done Button", action=done_button_action)
+                               pos=[0, 0],
+                               real_pos=[char_stat_back.get_size()[0] +
+                                         self.map_surface.get_size()[0],
+                                         player_banners.get_size()[1] +
+                                         minimap_surf.get_size()[1]],
+                               img="assets/done_button.png",
+                               name="Done Button", action=done_button_action)
 
         # blit everything to positions
         # ------------------------------------------------------------------------------------------------------------
@@ -1224,12 +1224,12 @@ class InGame:
         for btn in self.own_team_stat_buttons:
             own_team_stats.blit(btn.surf, btn.pos)
 
-        map_surface.blit(pg.transform.smoothscale(map_content,
-                                                  (map_content.get_size()[0]*self.zoom_factor,
-                                                   map_content.get_size()[1]*self.zoom_factor)),
-                         dest=self.zoom_size)
+        self.map_surface.blit(pg.transform.smoothscale(map_content,
+                                                      (map_content.get_size()[0]*self.zoom_factor,
+                                                       map_content.get_size()[1]*self.zoom_factor)),
+                                                       dest=self.zoom_size)
         # TODO beware of 0.05 as constant
-        map_surface.blit(own_team_stats, dest=[int(0.05*map_surface.get_size()[0]), 0])
+        self.map_surface.blit(own_team_stats, dest=[int(0.05*self.map_surface.get_size()[0]), 0])
 
         player_banners.blit(match_stats, dest=[0, int(0.8*player_banners.get_size()[1])])
 
@@ -1239,12 +1239,12 @@ class InGame:
         self.screen.blit(char_inventory, dest=[0, char_stat_back.get_size()[1]])
         self.screen.blit(item_stat_back, dest=[0, char_stat_back.get_size()[1]+char_inventory.get_size()[1]])
 
-        self.screen.blit(map_surface, dest=[char_stat_back.get_size()[1], 0])
+        self.screen.blit(self.map_surface, dest=[char_stat_back.get_size()[1], 0])
 
-        self.screen.blit(player_banners, dest=[char_stat_back.get_size()[0]+map_surface.get_size()[0], 0])
-        self.screen.blit(minimap_surf, dest=[char_stat_back.get_size()[0]+map_surface.get_size()[0],
+        self.screen.blit(player_banners, dest=[char_stat_back.get_size()[0]+self.map_surface.get_size()[0], 0])
+        self.screen.blit(minimap_surf, dest=[char_stat_back.get_size()[0]+self.map_surface.get_size()[0],
                                              player_banners.get_size()[1]])
-        self.screen.blit(done_btn_surf, dest=[char_stat_back.get_size()[0]+map_surface.get_size()[0],
+        self.screen.blit(done_btn_surf, dest=[char_stat_back.get_size()[0]+self.map_surface.get_size()[0],
                                               player_banners.get_size()[1]+minimap_surf.get_size()[1]])
 
     def event_handling(self):
@@ -1281,19 +1281,18 @@ class InGame:
                     if self.done_btn.is_focused(p):
                         self.done_btn.action()
 
-                    for button in self.char_map_buttons:
-                        if button.is_focused(p):
-                            button.action()
+                    if self.map_surface.get_rect().collidepoint(p[0], p[1]):
+                        for button in self.char_map_buttons:
+                            if button.is_focused(p):
+                                button.action()
 
                 if event.button == 3:  # on right click
-
                     pass
 
                 if event.button == 4:  # scroll up
 
                     self.zoom_factor -= 0.1
                     self.zoom_center = p
-                    self.zoom_size = [x, y]
 
                 if event.button == 5:  # scroll down
 

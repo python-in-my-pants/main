@@ -91,22 +91,38 @@ while True:
 
                 builder = MapBuilder()
                 game_map = builder.build_map(desired_map_size)
+                points_to_spend = int((game_map.x_size * game_map.y_size)/400)  # TODO change maybe
 
-                active_window = new_target(points_to_spend=...,
+                active_window = new_target(points_to_spend=points_to_spend,
                                            map=game_map,
                                            net=net_var,
                                            role=role)  # TODO add after balancing dependent on desired_map_size
-                                                                 # cheapest char but full equipped for all team members
+                                                       # cheapest char but full equipped for all team members
             elif active_window.role is "client":
 
                 # I am client
-                pass
+                game_map = pickle.loads(net_var.map)
+                points_to_spend = int((game_map.x_size * game_map.y_size)/400)   # TODO change maybe
+
+                new_target = active_window.new_window_target
+                active_window.harakiri()
+
+                active_window = new_target(points_to_spend=points_to_spend,
+                                           map=game_map,
+                                           net=net_var,
+                                           role=role)  # TODO add after balancing dependent on desired_map_size
+                                                       # cheapest char but full equipped for all team members
+
+            else:
+                print("Something went wrong assigning the role!")
 
         else:
 
             active_window.event_handling()
 
     if isinstance(active_window, character_selection):
+
+        print("I got here!")
 
         if active_window.new_window_target:
 
