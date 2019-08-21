@@ -104,13 +104,16 @@ class ConnectionSetup:
         self.role = "unknown"
         self.field_size = 0
         self.net = None
+
         self.join_stat = "Join Status"
         self.host_stat = "Host Status"
         self.host_thread = 0
         self.join_thread = 0
         self.map = None
+
         self.ip_focus = False
         self.size_focus = False
+
         self.first_click = True
         self.board_first_click = True
 
@@ -128,13 +131,6 @@ class ConnectionSetup:
         self.new_window_target = None  # update if you want to leave this screen
         self.role = "unknown"
         self.field_size = 0
-        self.net = None
-        self.join_stat = "Join Status"
-        self.host_stat = "Host Status"
-
-        self.map = None
-        self.ip_focus = False
-        self.size_focus = False
 
         main_background_img = pg.image.load("assets/108.gif")  # "main_background.jpg")
 
@@ -554,10 +550,10 @@ class ConnectionSetup:
                     else:
                         pass
 
-                if self.ip_focus:
+                '''if self.ip_focus:
                     self.buttons[6].update_text()
                 if self.size_focus:
-                    self.buttons[7].update_text()
+                    self.buttons[7].update_text()'''
 
             if event.type == pg.MOUSEBUTTONDOWN:
                 if pg.mouse.get_pressed()[0]:
