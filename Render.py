@@ -106,8 +106,8 @@ class ConnectionSetup:
         self.role = "unknown"
         self.field_size = 0
         self.net = None
-        self.join_stat = ""
-        self.host_stat = ""
+        self.join_stat = "Join Status"
+        self.host_stat = "Host Status"
         self.map = None
         self.ip_focus = False
         self.size_focus = False
@@ -163,21 +163,28 @@ class ConnectionSetup:
                 board_first_click = False
 
         def host_btn_fkt():
+
             os.startfile("server.py")
             self.net = Network.ip_setup(get('https://api.ipify.org').text)
             start_new_thread(self.net.routine_threaded_listener, ())
             self.host_stat = "Waiting for a Connection!"
+
             while self.net.g_amount != 2:
                 time.sleep(0.500)  # Sleep tight Aniki!
+
             while desired_board_size_button.text == "Enter the desired size":
                 self.host_stat = "Enter the desired map size!"
                 time.sleep(0.500)  # Sleep tighter Aniki!!
+
             self.field_size = int(desired_board_size_button.text)
             self.role = "host"
             self.host_stat = "Waiting on other Player to get ready!"
+
             while self.net.client_status != "Ready":
                 time.sleep(0.500)  # Sleep even tighter Aniki!!!
+
             self.host_stat = "Waiting on other Player's confirmation for the map!"
+
             while self.net.client_got_map != "Yes":
                 time.sleep(0.500)  # Sleep the tightest Aniki!!!!
             self.host_stat = "Let's start!"
@@ -198,9 +205,9 @@ class ConnectionSetup:
 
         desired_board_size_button = Button(dim=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
                                            pos=[int((left_surf.get_size()[0]-int(surfs_size[0]/3))/2),
-                                                int(surfs_size[1] * 0.07)],
+                                                int(surfs_size[1] * 0.7)],
                                            real_pos=[int((right_surf.get_size()[0]-(surfs_size[0]/3))/2),
-                                                     int(surfs_size[1] * 0.07)],
+                                                     int(surfs_size[1] * 0.7)],
                                            name="board_size_button", color=(255, 255, 255),
                                            action=desired_board_size_button_fkt, text="Enter the desired size")
 
@@ -213,7 +220,7 @@ class ConnectionSetup:
 
         self.buttons.append(host_btn)
 
-        host_stat_btn = Button([int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],  # TODO Doneso |mach, dass der den status anzeigt
+        host_stat_btn = Button([int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
                                pos=[int((left_surf.get_size()[0]-int(surfs_size[0]/3))/2),
                                     int(surfs_size[1] * 0.43)],
                                name="host_stat", color=(135, 206, 235), action=(lambda: None), text=self.host_stat)
@@ -222,9 +229,9 @@ class ConnectionSetup:
 
         host_cancel_btn = Button(dim=[int(surfs_size[0]/3), int(surfs_size[1] * 0.07)],
                                  pos=[int((left_surf.get_size()[0]-int(surfs_size[0]/3))/2),
-                                      int(surfs_size[1] * 0.7)],
+                                      int(surfs_size[1] * 0.84)],
                                  real_pos=[int((left_surf.get_size()[0]-int(surfs_size[0]/3))/2),
-                                          int(surfs_size[1] * 0.7)],
+                                           int(surfs_size[1] * 0.84)],
                                  name="cancel_host", color=(250, 128, 114), action=cancel_host_fkt, text="Cancel")
 
         self.buttons.append(host_cancel_btn)
@@ -307,7 +314,8 @@ class ConnectionSetup:
                                  pos=[int((right_surf.get_size()[0]-(surfs_size[0]/3))/2),
                                       int(surfs_size[1] * 0.84)],
                                  real_pos=[int((right_surf.get_size()[0]-(surfs_size[0]/3))/2) +
-                                           left_surf.get_size()[0], int(surfs_size[1] * 0.84)],
+                                           left_surf.get_size()[0],
+                                           int(surfs_size[1] * 0.84)],
                                  name="cancel_join", color=(250, 128, 114), action=cancel_join_fkt, text="Cancel")
 
         self.buttons.append(join_cancel_btn)
@@ -315,6 +323,7 @@ class ConnectionSetup:
         # ----------------------------------------------------------------------------------------------------------
 
         left_surf.blit(host_btn.surf, host_btn.pos)
+        left_surf.blit(desired_board_size_button.surf, desired_board_size_button.pos)
         left_surf.blit(host_stat_btn.surf, host_stat_btn.pos)
         left_surf.blit(host_cancel_btn.surf, host_cancel_btn.pos)
         left_surf.blit(back_btn.surf, back_btn.pos)
@@ -340,77 +349,175 @@ class ConnectionSetup:
 
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_KP0:
-                    self.buttons[6].text.append("0") if self.ip_focus else (self.buttons[7].text.append("0") if
-                                                                            self.size_focus else None)
+                    if self.ip_focus:
+                        self.buttons[6].text += "0"
+                    elif self.size_focus:
+                        self.buttons[7].text += "0"
+                    else:
+                        pass
+
                 if event.key == pg.K_KP1:
-                    self.buttons[6].text.append("1") if self.ip_focus else (self.buttons[7].text.append("1") if
-                                                                            self.size_focus else None)
+                    if self.ip_focus:
+                        self.buttons[6].text += "1"
+                    elif self.size_focus:
+                        self.buttons[7].text += "1"
+                    else:
+                        pass
+
                 if event.key == pg.K_KP2:
-                    self.buttons[6].text.append("2") if self.ip_focus else (self.buttons[7].text.append("2") if
-                                                                            self.size_focus else None)
+                    if self.ip_focus:
+                        self.buttons[6].text += "2"
+                    elif self.size_focus:
+                        self.buttons[7].text += "2"
+                    else:
+                        pass
+
                 if event.key == pg.K_KP3:
-                    self.buttons[6].text.append("3") if self.ip_focus else (self.buttons[7].text.append("3") if
-                                                                            self.size_focus else None)
+                    if self.ip_focus:
+                        self.buttons[6].text += "3"
+                    elif self.size_focus:
+                        self.buttons[7].text += "3"
+                    else:
+                        pass
+
                 if event.key == pg.K_KP4:
-                    self.buttons[6].text.append("4") if self.ip_focus else (self.buttons[7].text.append("4") if
-                                                                            self.size_focus else None)
+                    if self.ip_focus:
+                        self.buttons[6].text += "4"
+                    elif self.size_focus:
+                        self.buttons[7].text += "4"
+                    else:
+                        pass
+
                 if event.key == pg.K_KP5:
-                    self.buttons[6].text.append("5") if self.ip_focus else (self.buttons[7].text.append("5") if
-                                                                            self.size_focus else None)
+                    if self.ip_focus:
+                        self.buttons[6].text += "5"
+                    elif self.size_focus:
+                        self.buttons[7].text += "5"
+                    else:
+                        pass
+
                 if event.key == pg.K_KP6:
-                    self.buttons[6].text.append("6") if self.ip_focus else (self.buttons[7].text.append("6") if
-                                                                            self.size_focus else None)
+                    if self.ip_focus:
+                        self.buttons[6].text += "6"
+                    elif self.size_focus:
+                        self.buttons[7].text += "6"
+                    else:
+                        pass
+
                 if event.key == pg.K_KP7:
-                    self.buttons[6].text.append("7") if self.ip_focus else (self.buttons[7].text.append("7") if
-                                                                            self.size_focus else None)
-                if event.key == pg.K_KP8:
-                    self.buttons[6].text.append("8") if self.ip_focus else (self.buttons[7].text.append("8") if
-                                                                            self.size_focus else None)
+                    if self.ip_focus:
+                        self.buttons[6].text += "7"
+                    elif self.size_focus:
+                        self.buttons[7].text += "7"
+                    else:
+                        pass
+
+                if event.key == pg.K_KP0:
+                    if self.ip_focus:
+                        self.buttons[6].text += "8"
+                    elif self.size_focus:
+                        self.buttons[7].text += "8"
+                    else:
+                        pass
+
                 if event.key == pg.K_KP9:
-                    self.buttons[6].text.append("9") if self.ip_focus else (self.buttons[7].text.append("9") if
-                                                                            self.size_focus else None)
+                    if self.ip_focus:
+                        self.buttons[6].text += "9"
+                    elif self.size_focus:
+                        self.buttons[7].text += "9"
+                    else:
+                        pass
 
                 if event.key == pg.K_0:
-                    self.buttons[6].text.append("0") if self.ip_focus else (self.buttons[7].text.append("0") if
-                                                                            self.size_focus else None)
+                    if self.ip_focus:
+                        self.buttons[6].text += "0"
+                    elif self.size_focus:
+                        self.buttons[7].text += "0"
+                    else:
+                        pass
+
                 if event.key == pg.K_1:
-                    self.buttons[6].text.append("1") if self.ip_focus else (self.buttons[7].text.append("1") if
-                                                                            self.size_focus else None)
+                    if self.ip_focus:
+                        self.buttons[6].text += "1"
+                    elif self.size_focus:
+                        self.buttons[7].text += "1"
+                    else:
+                        pass
+
                 if event.key == pg.K_2:
-                    self.buttons[6].text.append("2") if self.ip_focus else (self.buttons[7].text.append("2") if
-                                                                            self.size_focus else None)
+                    if self.ip_focus:
+                        self.buttons[6].text += "2"
+                    elif self.size_focus:
+                        self.buttons[7].text += "2"
+                    else:
+                        pass
+
                 if event.key == pg.K_3:
-                    self.buttons[6].text.append("3") if self.ip_focus else (self.buttons[7].text.append("3") if
-                                                                            self.size_focus else None)
+                    if self.ip_focus:
+                        self.buttons[6].text += "3"
+                    elif self.size_focus:
+                        self.buttons[7].text += "3"
+                    else:
+                        pass
+
                 if event.key == pg.K_4:
-                    self.buttons[6].text.append("4") if self.ip_focus else (self.buttons[7].text.append("4") if
-                                                                            self.size_focus else None)
+                    if self.ip_focus:
+                        self.buttons[6].text += "4"
+                    elif self.size_focus:
+                        self.buttons[7].text += "4"
+                    else:
+                        pass
+
                 if event.key == pg.K_5:
-                    self.buttons[6].text.append("5") if self.ip_focus else (self.buttons[7].text.append("5") if
-                                                                            self.size_focus else None)
+                    if self.ip_focus:
+                        self.buttons[6].text += "5"
+                    elif self.size_focus:
+                        self.buttons[7].text += "5"
+                    else:
+                        pass
+
                 if event.key == pg.K_6:
-                    self.buttons[6].text.append("6") if self.ip_focus else (self.buttons[7].text.append("6") if
-                                                                            self.size_focus else None)
+                    if self.ip_focus:
+                        self.buttons[6].text += "6"
+                    elif self.size_focus:
+                        self.buttons[7].text += "6"
+                    else:
+                        pass
+
                 if event.key == pg.K_7:
-                    self.buttons[6].text.append("7") if self.ip_focus else (self.buttons[7].text.append("7") if
-                                                                            self.size_focus else None)
+                    if self.ip_focus:
+                        self.buttons[6].text += "7"
+                    elif self.size_focus:
+                        self.buttons[7].text += "7"
+                    else:
+                        pass
+
                 if event.key == pg.K_8:
-                    self.buttons[6].text.append("8") if self.ip_focus else (self.buttons[7].text.append("8") if
-                                                                            self.size_focus else None)
+                    if self.ip_focus:
+                        self.buttons[6].text += "8"
+                    elif self.size_focus:
+                        self.buttons[7].text += "8"
+                    else:
+                        pass
+
                 if event.key == pg.K_9:
-                    self.buttons[6].text.append("9") if self.ip_focus else (self.buttons[7].text.append("9") if
-                                                                            self.size_focus else None)
+                    if self.ip_focus:
+                        self.buttons[6].text += "9"
+                    elif self.size_focus:
+                        self.buttons[7].text += "9"
+                    else:
+                        pass
 
                 for char in "abcdefghijklmnopqrstuvwxyz":
                     if event.key == ord(char) and self.ip_focus:
-                        self.buttons[6].text.append(char)
+                        self.buttons[6].text += str(char)
 
                 if event.key == pg.K_PERIOD:
-                    self.buttons[6].text.append(".")
+                    self.buttons[6].text+=(".")
                 if event.key == pg.K_KP_PERIOD:
-                    self.buttons[6].text.append(".")
+                    self.buttons[6].text+=(".")
                 if event.key == pg.K_COLON:
-                    self.buttons[6].text.append(":")
+                    self.buttons[6].text+=(":")
 
                 if event.key == pg.K_BACKSPACE:
 

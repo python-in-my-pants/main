@@ -44,9 +44,11 @@ class Button:
         else:
             self.surf.fill(color)
             font = pg.font.SysFont("comicsansms", 24)
-            font_render = font.render(text, True, (255, 255, 255))
+            font_render = font.render(text, True, (255-color[0], 255-color[1], 255-color[2]))
             self.surf.blit(font_render, (int(dim[0] / 2) - int(font_render.get_width() / 2),
                                          int(dim[1] / 2) - int(font_render.get_height() / 2)))
+
+
 
     def is_focused(self, mouse_pos):
 
