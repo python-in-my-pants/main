@@ -8,7 +8,11 @@ import numpy as np
 import sys
 import pickle
 import time
+import subprocess
+import os
+from _thread import *
 
+from network import *
 from Game_objects import *
 from GUI import *
 from Data import *
@@ -27,6 +31,9 @@ changed = True
 redraw = True
 
 # client / server stuff
+os.startfile("server.py")
+net = Network(get('https://api.ipify.org').text)
+start_new_thread(net.routine_threaded_listener, ())
 role = "nobody"
 teams = []
 map_data = []  # holds data of map received from server PLUS the team number you have
@@ -140,7 +147,6 @@ while True:
     # display main screen and let user choose mode (atm Play/Credits)
     if mode == "mainscreen":
 
-
         if changed:  # set changed false at the end
 
             #size = [1650, 928]  # [mon.current_w-100, mon.current_h-100]
@@ -172,11 +178,11 @@ while True:
 
                 pg.mixer.music.load("assets/ass.mp3")
                 pg.mixer.music.play(0)
-                time.sleep(2.5)
+                #time.sleep(2.5)
 
-                mode = "test"  # if changing mode also change "changed"
+                mode = "connection_setup"  # if changing mode also change "changed"
                 changed = True
-
+            
             btn = Button([int(0.2 * size[0]), int(0.069 * size[1])], \
                          pos=[size[0]/2 - int(0.2 * size[0])/2, size[1]/2 - int(0.069 * size[1])/2], name="Button 1", \
                          color=(0, 50, 201), action=button_fkt, text="Play")
@@ -190,7 +196,7 @@ while True:
 
             surface = mainscreen
 
-            main_window = MainWindow()
+            # main_window = MainWindow()
 
             changed = False
 
@@ -199,6 +205,7 @@ while True:
 
             # handle events
             if event.type == pg.QUIT:
+                net.send_control("Close")
                 pg.quit()
                 sys.exit()
 
@@ -210,9 +217,22 @@ while True:
                     if button.is_focused(p):
                         redraw = True
                         button.action()
+
+            if event.type == pg.KEYDOWN:
+                if event.key == ord("q"):
+                    print("Q")
+                    net.send_control("Host_ready")
+
+
+
+            if event.type == pg.KEYDOWN:
+                if event.key == ord("e"):
+                    print("E")
+                    print(net.host_status)
+
         
 
-        main_window.event_handling()        
+        # main_window.event_handling()
 
         if redraw or changed:
             pg.display.update()
@@ -229,8 +249,9 @@ while True:
 
             buttons.clear()
 
-            fields_x = 30  # width
-            fields_y = 30  # height
+            fields_x = 50  # width
+            fields_y = 50  # height
+            print(fields_x *fields_y/250)
 
             elem_size = int(screen_w / fields_x) if int(screen_w / fields_x) < int(screen_h / fields_y) else int(
                 screen_h / fields_y)
@@ -245,7 +266,45 @@ while True:
             pg.display.set_caption("Xepa")
 
             map = Map(fields_x, fields_y, map_window, elem_size)
-
+            areals = Spawnarea.create_areals([fields_x, fields_y])
+            booii = Character.create_character("Peter", "team_0", "Sniper")
+            areals[0].place_character(booii)
+            booiii = Character.create_character("Peter", "team_0", "Sniper")
+            areals[0].place_character(booiii)
+            booiiii = Character.create_character("Peter", "team_0", "Sniper")
+            areals[0].place_character(booiiii)
+            booiiiii = Character.create_character("Peter", "team_0", "Sniper")
+            areals[0].place_character(booiiiii)
+            booiiiiii = Character.create_character("Peter", "team_0", "Sniper")
+            areals[0].place_character(booiiiiii)
+            booiiiiiii = Character.create_character("Peter", "team_0", "Sniper")
+            areals[0].place_character(booiiiiiii)
+            pooii = Character.create_character("Petra", "team_0", "Sniper")
+            areals[1].place_character(pooii)
+            pooiii = Character.create_character("Petra", "team_0", "Sniper")
+            areals[1].place_character(pooiii)
+            pooiiii = Character.create_character("Petra", "team_0", "Sniper")
+            areals[1].place_character(pooiiii)
+            pooiiiii = Character.create_character("Petra", "team_0", "Sniper")
+            areals[1].place_character(pooiiiii)
+            pooiiiiii = Character.create_character("Petra", "team_0", "Sniper")
+            areals[1].place_character(pooiiiiii)
+            pooiiiiiii = Character.create_character("Petra", "team_0", "Sniper")
+            areals[1].place_character(pooiiiiiii)
+            map.add_object(areals[0])
+            map.add_object(areals[1])
+            map.add_object(booii)
+            map.add_object(booiii)
+            map.add_object(booiiii)
+            map.add_object(booiiiii)
+            map.add_object(booiiiiii)
+            map.add_object(booiiiiiii)
+            map.add_object(pooii)
+            map.add_object(pooiii)
+            map.add_object(pooiiii)
+            map.add_object(pooiiiii)
+            map.add_object(pooiiiiii)
+            map.add_object(pooiiiiiii)
             redraw_house = True
             draw_character = True
             select = False
@@ -295,13 +354,15 @@ while True:
 
             # handle events
             if event.type == pg.QUIT:
-                pg.quit()
-                sys.exit()
+                os.system('taskkill /f /im python.exe')
+                #pg.quit()
+                #sys.exit()
 
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
-                    pg.quit()
-                    sys.exit()
+                    os.system('taskkill /f /im python.exe')
+                    #pg.quit()
+                    #sys.exit()
 
             if event.type == pg.KEYDOWN:
                 if event.key == ord("n"):
@@ -332,6 +393,7 @@ while True:
                     x += elem_size
                     window = pg.display.set_mode((x, y))
                     map.draw_map()
+
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_RIGHT:
                     y += elem_size
@@ -341,6 +403,37 @@ while True:
             if event.type == pg.KEYUP:
                 if event.key == ord("n"):
                     redraw_house = False
+
+            if event.type == pg.KEYDOWN:
+                if event.key == ord("q"):
+                    print("Q")  # Map OwO!
+                    net.send_data_pickle("Maps", map.get_map())
+                    print(map.get_map())
+
+            if event.type == pg.KEYDOWN:
+                if event.key == ord("g"):
+                    # print("g")
+                    net.send_data("Teams", "2")
+
+
+            if event.type == pg.KEYDOWN:
+                if event.key == ord("t"):
+                    #print("T")
+                    while net.map == b'':
+                        net.receive_data("Map pls")
+                        time.sleep(0.500)
+                    while net.team == "":
+                        time.sleep(0.500)
+                        net.receive_data("Team pls")
+                    print(net.map)
+                    print(net.team)
+
+            if event.type == pg.KEYDOWN:
+                if event.key == ord("e"):
+                    print("E")
+                    net.receive_data("Map pls")
+                    time.sleep(0.400)
+                    print(net.map)
 
             # TODO BOI
             if select:  # executed if char is selected atm
@@ -354,7 +447,7 @@ while True:
                 if event.type == pg.KEYDOWN:
                     if event.key == ord("s"):
                         print("S")
-                        if map.movement_possible(selected_char, [selected_char.pos[0], selected_char.pos[1]+1]):
+                        if map.movement_possible(selected_char, [selected_char.pos[0], selected_char.pos[1] + 1]):
                             selected_char.pos[1] += 1
                             selected_button.pos[1] += elem_size
 
@@ -475,6 +568,8 @@ while True:
                              action=selecter_mode,
                              text="")
 
+            # some comment to commit
+
             buttons.append(charBtn)
             window.blit(charBtn.surf, charBtn.pos)
 
@@ -565,8 +660,7 @@ while True:
             wait for map
             create map from transmission
         
-        both parties calculate army size dependent on map size           
-        
+        both parties calculate army size dependent on map size
 
         if changed:
 
@@ -574,6 +668,8 @@ while True:
 
             if role == "host":
 
+                net = Network()
+                start_new_thread(net.routine_threaded_listener, ())
                 # global - set only if you are the host, else get it from transm
                 fields_x = 50  # width
                 fields_y = 50  # height
@@ -610,7 +706,8 @@ while True:
                 opp_team_number = -team_number + 1
 
                 # TODO: pickle and send to host [global map, opp team number]
-
+                net.send_data_pickle("Map", global_map)
+                net.send_data("Team", opp_team_number)
                 # set vars for drawing contents later on
                 # TODO: are they used here at all? maybe delete
                 redraw_house = True
@@ -620,11 +717,18 @@ while True:
                 h = 0
 
             elif role == "client":
-
+                net = Network()
+                start_new_thread(net.routine_threaded_listener, ())
                 # wait for transmission from host
                 # TODO: get into wait status and receive transmission from host
+                # TODO: after recieving data, unpickle it into "map_data"
+                while net.map == b'':
+                    net.receive_data("Map pls")
+                    time.sleep(250)
+                while net.team == "":
+                    net.receive_data("Team pls")
+                    time.sleep(250)
 
-                map_data = ...  # TODO: after recieving data, unpickle it into "map_data"
 
                 # user side
                 # ------------------------------------------------------------------------------------------------------
@@ -647,7 +751,6 @@ while True:
                 # ------------------------------------------------------------------------------------------------------
 
                 # create local map object from map_data
-                
                 lis = [self.unique_pixs,        0
                        self.objects,            1
                        self.characters,         2
@@ -655,7 +758,7 @@ while True:
                        self.size_y,             4
                        team_number]             5
                 
-
+            
                 map = Map(x_size=map_data[3],
                           y_size=map_data[4],
                           window=map_window,
@@ -663,7 +766,6 @@ while True:
                           objects=map_data[1],
                           characters=map_data[2],
                           unique_pixels=map_data[0])
-
                 team_number = map_data[5]
 
                 # set vars for drawing contents later on

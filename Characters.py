@@ -9,7 +9,7 @@ import pygame as pg
 
 Debug = True
 
-
+# ToDo active weapon / item
 class Character(GameObject):
 
     # TODO: make id class variable instead of instance!!! with id_counter like in Team()
@@ -23,6 +23,7 @@ class Character(GameObject):
         super().__init__(name=name, obj_type=object_type, pos=pos, materials=["player"])
         self.name = name
         self.object_type = object_type
+        self.unit_class = unit_class
         self.team = team
         self.unit_class = unit_class
         self.cost = cost
@@ -57,6 +58,44 @@ class Character(GameObject):
         self.collider = 0
         self.pixs = [self.pos]
         self.is_selected = False
+        self.carry = carry
+
+    @staticmethod
+    def create_character(name, team, type):
+        boi = Character(name=name, team=team, unit_class=type)
+        boi.class_selector()
+        boi.weight_calculator()
+        return boi
+
+    def class_selector(self):
+        if self.unit_class == "Light Gunner":
+            self.dexterity = 25
+            self.strength = 20
+            self.stamina = 2000
+            self.speed = 5
+        if self.unit_class == "Heavy Gunner":
+            self.dexterity = 25
+            self.strength = 50
+            self.stamina = 500
+            self.speed = 1
+        if self.unit_class == "Sniper":
+            self.dexterity = 50
+            self.strength = 15
+            self.stamina = 1000
+            self.speed = 2
+        if self.unit_class == "Specialist":
+            self.dexterity = 15
+            self.strength = 30
+            self.stamina = 1500
+            self.speed = 3
+        if self.unit_class == "Medic":
+            self.dexterity = 15
+            self.strength = 30
+            self.stamina = 1500
+            self.speed = 3
+
+    def weight_calculator(self):
+        self.carry = self.strength *2 * self.dexterity * 0.15
 
     def is_dead(self):  # returns if dead
         return self.health[0] <= 0 or self.health[3] <= 0
@@ -266,6 +305,10 @@ class Character(GameObject):
     def laydown(self):
         self.height = 0.2
 
+    def use_item(self, itemind, partind):
+        if self.items[itemind].name == "Medkit":
+            self.i_need_healing(self.items[itemind].value, partind)
+
     def i_need_healing(self, amount, partind):
         if self.health[partind] <= 0 and self.bleed[partind] is True:
             self.bleed[partind] = False
@@ -283,6 +326,15 @@ class Character(GameObject):
 
 
 if Debug:
+    #boi = Character.create_character("Peter", "team 1", "Light Gunner")
+    #boi.add_item(Medkit())
+    #boi.get_damaged(15, 2)
+    #print(boi.health[2])
+    #boi.use_item(0, 2)
+    #print(boi.health[2])
+    #print(boi.dexterity)
+    #print(boi.strength)
+    #print(50*2*35*0.18)
     #boi = Character()
     #boi2 = Character()
     #boi.get_damaged(150, 4)
