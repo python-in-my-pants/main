@@ -108,6 +108,8 @@ class ConnectionSetup:
         self.net = None
         self.join_stat = "Join Status"
         self.host_stat = "Host Status"
+        self.host_thread = 0
+        self.join_thread = 0
         self.map = None
         self.ip_focus = False
         self.size_focus = False
@@ -163,33 +165,37 @@ class ConnectionSetup:
                 board_first_click = False
 
         def host_btn_fkt():
+            if self.host_thread == 0:
+                self.host_thread = start_new_thread(host_btn_fkt, ())
+                return
+            if self.host_thread != 0 and get_ident() == self.host_thread:
+                os.startfile("server.py")
+                self.net = Network.ip_setup(get('https://api.ipify.org').text)
+                start_new_thread(self.net.routine_threaded_listener, ())
+                self.host_stat = "Waiting for a Connection!"
 
-            os.startfile("server.py")
-            self.net = Network.ip_setup(get('https://api.ipify.org').text)
-            start_new_thread(self.net.routine_threaded_listener, ())
-            self.host_stat = "Waiting for a Connection!"
+                while self.net.g_amount != 2:
+                    time.sleep(1.00)  # Sleep tight Aniki!
 
-            while self.net.g_amount != 2:
-                time.sleep(0.500)  # Sleep tight Aniki!
+                while desired_board_size_button.text == "Enter the desired size":
+                    self.host_stat = "Enter the desired map size!"
+                    time.sleep(0.500)  # Sleep tighter Aniki!!
 
-            while desired_board_size_button.text == "Enter the desired size":
-                self.host_stat = "Enter the desired map size!"
-                time.sleep(0.500)  # Sleep tighter Aniki!!
+                self.field_size = int(desired_board_size_button.text)
+                self.role = "host"
+                self.host_stat = "Waiting on other Player to get ready!"
 
-            self.field_size = int(desired_board_size_button.text)
-            self.role = "host"
-            self.host_stat = "Waiting on other Player to get ready!"
+                while self.net.client_status != "Ready":
+                    time.sleep(0.500)  # Sleep even tighter Aniki!!!
 
-            while self.net.client_status != "Ready":
-                time.sleep(0.500)  # Sleep even tighter Aniki!!!
+                self.host_stat = "Waiting on other Player's confirmation for the map!"
 
-            self.host_stat = "Waiting on other Player's confirmation for the map!"
-
-            while self.net.client_got_map != "Yes":
-                time.sleep(0.500)  # Sleep the tightest Aniki!!!!
-            self.host_stat = "Let's start!"
-            self.new_window_target = CharacterSelection
-            # TODO Check obs funzt
+                while self.net.client_got_map != "Yes":
+                    time.sleep(0.500)  # Sleep the tightest Aniki!!!!
+                self.host_stat = "Let's start!"
+                self.new_window_target = CharacterSelection
+                # TODO Check obs funzt
+            return
 
         def cancel_host_fkt():
             self.net.send_control("Close")
@@ -244,24 +250,28 @@ class ConnectionSetup:
         # -------------------------------------------------------------------------------------------------------------
 
         def join_btn_fkt():
-            if ip_to_join_btn.text.count(".") == 3 and ip_to_join_btn.text.__len__() >= 4:
-                self.net = Network.ip_setup(ip_to_join_btn.text)
-                start_new_thread(self.net.routine_threaded_listener, ())
-                self.join_stat = "Connecting..."
-            else:
-                self.join_stat = "You have to enter an IP!"
+            if self.join_thread == 0:
+                self.join_thread = start_new_thread(join_btn_fkt, ())
                 return
-            self.role = "Client"
-            self.net.send_control("Client_ready")
-            self.join_stat = "Waiting on the map!"
-            while self.net.map == b'':
-                time.sleep(0.500)  # I'm a Performanceartist!
-            self.map = pickle.loads(self.net.map)
-            self.net.send_control("Map recieved!")
-            time.sleep(1)
-            self.new_window_target = CharacterSelection
-            # TODO Sollte passen |für Dich, Christian <3, kannst von ausgehen,
-            #  dass die ip im text von ip_to_join_btn steht
+            if self.join_thread != 0 and get_ident() == self.join_thread:
+                if ip_to_join_btn.text.count(".") == 3 and ip_to_join_btn.text.__len__() >= 4:
+                    self.net = Network.ip_setup(ip_to_join_btn.text)
+                    start_new_thread(self.net.routine_threaded_listener, ())
+                    self.join_stat = "Connecting..."
+                else:
+                    self.join_stat = "You have to enter an IP!"
+                    return
+                self.role = "Client"
+                self.net.send_control("Client_ready")
+                self.join_stat = "Waiting on the map!"
+                while self.net.map == b'':
+                    time.sleep(0.500)  # I'm a Performanceartist!
+                self.map = pickle.loads(self.net.map)
+                self.net.send_control("Map recieved!")
+                time.sleep(1)
+                self.new_window_target = CharacterSelection
+                # TODO Sollte passen |für Dich, Christian <3, kannst von ausgehen,
+                #  dass die ip im text von ip_to_join_btn steht
 
         def cancel_join_fkt():
             self.net = None
