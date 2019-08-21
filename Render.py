@@ -119,8 +119,9 @@ class ConnectionSetup:
         self.screen = None
         self.buttons = None
 
-        self.ip_field_text = "Enter desired shit here"
-        self.desi_board_text = "Enter desired board size here"
+        self.ip_field_text = "Enter host IP"
+        self.desi_board_text = "Enter board size"
+        self.game_map = None
 
         self.update()
 
@@ -187,11 +188,11 @@ class ConnectionSetup:
             self.host_stat = "Waiting for a Connection!"
 
             while self.net.g_amount != 2:
-                time.sleep(0.500)  # Sleep tight Aniki!
+                pass  # Sleep tight Aniki!
 
             while desired_board_size_button.text == "Enter the desired size":
                 self.host_stat = "Enter the desired map size!"
-                time.sleep(0.500)  # Sleep tighter Aniki!!
+                pass  # Sleep tighter Aniki!!
 
             self.field_size = int(desired_board_size_button.text)
             self.role = "host"
@@ -199,6 +200,9 @@ class ConnectionSetup:
 
             while self.net.client_status != "Ready":
                 time.sleep(0.500)  # Sleep even tighter Aniki!!!
+
+            builder = Map.MapBuilder()
+            self.game_map = builder.build_map(self.field_size)
 
             self.host_stat = "Waiting on other Player's confirmation for the map!"
 
@@ -220,7 +224,7 @@ class ConnectionSetup:
 
         # define buttons and put them on their surface
 
-        desired_board_size_button = Button(dim=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
+        desired_board_size_button = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
                                            pos=[int((left_surf.get_size()[0] - int(surfs_size[0] / 3)) / 2),
                                                 int(surfs_size[1] * 0.7)],
                                            real_pos=[int((right_surf.get_size()[0] - (surfs_size[0] / 3)) / 2),
@@ -230,21 +234,21 @@ class ConnectionSetup:
 
         # append later to not mess up indices
 
-        host_btn = Button(dim=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
+        host_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
                           pos=[int((left_surf.get_size()[0] - int(surfs_size[0] / 3)) / 2),
                                int(surfs_size[1] / 6)],
                           name="host_btn", color=(135, 206, 235), action=host_btn_fkt, text="Host")
 
         self.buttons.append(host_btn)
 
-        host_stat_btn = Button([int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
+        host_stat_btn = Button([int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
                                pos=[int((left_surf.get_size()[0] - int(surfs_size[0] / 3)) / 2),
                                     int(surfs_size[1] * 0.43)],
                                name="host_stat", color=(135, 206, 235), action=(lambda: None), text=self.host_stat)
 
         self.buttons.append(host_stat_btn)
 
-        host_cancel_btn = Button(dim=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
+        host_cancel_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
                                  pos=[int((left_surf.get_size()[0] - int(surfs_size[0] / 3)) / 2),
                                       int(surfs_size[1] * 0.84)],
                                  real_pos=[int((left_surf.get_size()[0] - int(surfs_size[0] / 3)) / 2),
@@ -272,10 +276,9 @@ class ConnectionSetup:
             self.net.send_control("Client_ready")
             self.join_stat = "Waiting on the map!"
             while self.net.map == b'':
-                time.sleep(0.500)  # I'm a Performanceartist!
+                pass  # I'm a Performanceartist!
             self.map = pickle.loads(self.net.map)
             self.net.send_control("Map recieved!")
-            time.sleep(1)
             self.new_window_target = CharacterSelection
 
         def cancel_join_fkt():
@@ -293,7 +296,7 @@ class ConnectionSetup:
                 self.ip_field_text = ""
                 self.first_click = False
 
-        join_btn = Button(dim=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
+        join_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
                           pos=[int((right_surf.get_size()[0] - (surfs_size[0] / 3)) / 2),
                                int(surfs_size[1] / 6)],
                           real_pos=[int((right_surf.get_size()[0] - (surfs_size[0] / 3)) / 2) +
@@ -303,7 +306,7 @@ class ConnectionSetup:
 
         self.buttons.append(join_btn)
 
-        join_stat_btn = Button(dim=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
+        join_stat_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
                                # TODO Doneso |mach, dass der den status anzeigt
                                pos=[int((right_surf.get_size()[0] - (surfs_size[0] / 3)) / 2),
                                     int(surfs_size[1] * 0.43)],
@@ -313,7 +316,7 @@ class ConnectionSetup:
 
         self.buttons.append(join_stat_btn)
 
-        ip_to_join_btn = Button([int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
+        ip_to_join_btn = Button([int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
                                 pos=[int((right_surf.get_size()[0] - (surfs_size[0] / 3)) / 2),
                                      int(surfs_size[1] * 0.7)],
                                 real_pos=[int((right_surf.get_size()[0] - (surfs_size[0] / 3)) / 2) +
@@ -324,7 +327,7 @@ class ConnectionSetup:
         self.buttons.append(ip_to_join_btn)
         self.buttons.append(desired_board_size_button)
 
-        join_cancel_btn = Button(dim=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
+        join_cancel_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
                                  pos=[int((right_surf.get_size()[0] - (surfs_size[0] / 3)) / 2),
                                       int(surfs_size[1] * 0.84)],
                                  real_pos=[int((right_surf.get_size()[0] - (surfs_size[0] / 3)) / 2) +
@@ -426,7 +429,7 @@ class ConnectionSetup:
                     else:
                         pass
 
-                if event.key == pg.K_KP0:
+                if event.key == pg.K_KP8:
                     if self.ip_focus:
                         self.ip_field_text += "8"
                     elif self.size_focus:
@@ -530,15 +533,13 @@ class ConnectionSetup:
                     self.ip_field_text += "."
                 if event.key == pg.K_KP_PERIOD:
                     self.ip_field_text += "."
-                if event.key == pg.K_COLON:
-                    self.ip_field_text += ":"
 
                 if event.key == pg.K_BACKSPACE:
 
                     if self.ip_focus:
-                        del self.ip_field_text[-1]
+                        self.ip_field_text = self.ip_field_text[:-1]
                     elif self.size_focus:
-                        del self.desi_board_text[-1]
+                        self.desi_board_text = self.desi_board_text[:-1]
                     else:
                         pass
 
