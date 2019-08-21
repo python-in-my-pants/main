@@ -120,8 +120,18 @@ class ConnectionSetup:
         self.screen = None
         self.buttons = None
 
-        self.ip_field_text = "Enter desired shit here"
-        self.desi_board_text = "Enter desired board size here"
+        self.ip_field_text = "Enter host IP"
+        self.desi_board_text = "Enter board size"
+        self.game_map = None
+
+        self.main_background_img = pg.image.load("assets/108.gif")  # "main_background.jpg")
+
+        self.size = list(self.main_background_img.get_size())
+        self.size[0] = self.size[0] * 5  # change to sth dependent on screen size instead of 5
+        self.size[1] = self.size[1] * 5
+
+        # create window
+        self.screen = pg.display.set_mode(self.size, flags=pg.RESIZABLE)
 
         self.update()
 
@@ -132,19 +142,21 @@ class ConnectionSetup:
         self.role = "unknown"
         self.field_size = 0
 
-        main_background_img = pg.image.load("assets/108.gif")  # "main_background.jpg")
+        size = self.size
+
+        '''main_background_img = pg.image.load("assets/108.gif")  # "main_background.jpg")
 
         size = list(main_background_img.get_size())
         size[0] = size[0] * 5  # change to sth dependent on screen size instead of 5
         size[1] = size[1] * 5
 
         # create window
-        self.screen = pg.display.set_mode(size)
+        self.screen = pg.display.set_mode(size, flags=pg.RESIZABLE)'''
         # set title
         pg.display.set_caption("nAme;Rain - Verbindungskonfiguration ...")
 
         # scale image
-        main_background_img = pg.transform.scale(main_background_img, (size[0], size[1]))
+        main_background_img = pg.transform.scale(self.main_background_img, (size[0], size[1]))
         main_background_img = main_background_img.convert()
 
         # draw background to screen
@@ -201,8 +213,11 @@ class ConnectionSetup:
                 self.role = "host"
                 self.host_stat = "Waiting on other Player to get ready!"
 
-                while self.net.client_status != "Ready":
-                    pass  # Sleep even tighter Aniki!!!
+            while self.net.client_status != "Ready":
+                pass  # Sleep even tighter Aniki!!!
+
+            builder = Map.MapBuilder()
+            self.game_map = builder.build_map(self.field_size)
 
                 self.host_stat = "Waiting on other Player's confirmation for the map!"
 
@@ -226,7 +241,7 @@ class ConnectionSetup:
 
         # define buttons and put them on their surface
 
-        desired_board_size_button = Button(dim=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
+        desired_board_size_button = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
                                            pos=[int((left_surf.get_size()[0] - int(surfs_size[0] / 3)) / 2),
                                                 int(surfs_size[1] * 0.7)],
                                            real_pos=[int((right_surf.get_size()[0] - (surfs_size[0] / 3)) / 2),
@@ -236,21 +251,21 @@ class ConnectionSetup:
 
         # append later to not mess up indices
 
-        host_btn = Button(dim=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
+        host_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
                           pos=[int((left_surf.get_size()[0] - int(surfs_size[0] / 3)) / 2),
                                int(surfs_size[1] / 6)],
                           name="host_btn", color=(135, 206, 235), action=host_btn_fkt, text="Host")
 
         self.buttons.append(host_btn)
 
-        host_stat_btn = Button([int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
+        host_stat_btn = Button([int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
                                pos=[int((left_surf.get_size()[0] - int(surfs_size[0] / 3)) / 2),
                                     int(surfs_size[1] * 0.43)],
                                name="host_stat", color=(135, 206, 235), action=(lambda: None), text=self.host_stat)
 
         self.buttons.append(host_stat_btn)
 
-        host_cancel_btn = Button(dim=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
+        host_cancel_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
                                  pos=[int((left_surf.get_size()[0] - int(surfs_size[0] / 3)) / 2),
                                       int(surfs_size[1] * 0.84)],
                                  real_pos=[int((left_surf.get_size()[0] - int(surfs_size[0] / 3)) / 2),
@@ -302,7 +317,7 @@ class ConnectionSetup:
                 self.ip_field_text = ""
                 self.first_click = False
 
-        join_btn = Button(dim=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
+        join_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
                           pos=[int((right_surf.get_size()[0] - (surfs_size[0] / 3)) / 2),
                                int(surfs_size[1] / 6)],
                           real_pos=[int((right_surf.get_size()[0] - (surfs_size[0] / 3)) / 2) +
@@ -312,7 +327,7 @@ class ConnectionSetup:
 
         self.buttons.append(join_btn)
 
-        join_stat_btn = Button(dim=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
+        join_stat_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
                                # TODO Doneso |mach, dass der den status anzeigt
                                pos=[int((right_surf.get_size()[0] - (surfs_size[0] / 3)) / 2),
                                     int(surfs_size[1] * 0.43)],
@@ -322,7 +337,7 @@ class ConnectionSetup:
 
         self.buttons.append(join_stat_btn)
 
-        ip_to_join_btn = Button([int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
+        ip_to_join_btn = Button([int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
                                 pos=[int((right_surf.get_size()[0] - (surfs_size[0] / 3)) / 2),
                                      int(surfs_size[1] * 0.7)],
                                 real_pos=[int((right_surf.get_size()[0] - (surfs_size[0] / 3)) / 2) +
@@ -333,7 +348,7 @@ class ConnectionSetup:
         self.buttons.append(ip_to_join_btn)
         self.buttons.append(desired_board_size_button)
 
-        join_cancel_btn = Button(dim=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
+        join_cancel_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
                                  pos=[int((right_surf.get_size()[0] - (surfs_size[0] / 3)) / 2),
                                       int(surfs_size[1] * 0.84)],
                                  real_pos=[int((right_surf.get_size()[0] - (surfs_size[0] / 3)) / 2) +
@@ -539,8 +554,6 @@ class ConnectionSetup:
                     self.ip_field_text += "."
                 if event.key == pg.K_KP_PERIOD:
                     self.ip_field_text += "."
-                if event.key == pg.K_COLON:
-                    self.ip_field_text += ":"
 
                 if event.key == pg.K_BACKSPACE:
 
