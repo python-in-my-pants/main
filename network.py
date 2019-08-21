@@ -13,7 +13,7 @@ class Network:
         self.port = 5555
         self.addr = (self.host, self.port)
         self.id = self.connect()
-        self.team = ""
+        self.team = 0
         self.map = b''
         self.g_amount = ""
         self.host_status = ""
@@ -28,7 +28,7 @@ class Network:
                 if data[0:3] == b'Map':
                     self.map = data[3:len(data)]
                 if data[0:4] == b'Team':
-                    self.team = data[4:len(data)].decode()
+                    self.team = int(data[4:len(data)].decode())
                 if data[0:8] == b'G_amount':
                     self.g_amount = data[8:len(data)].decode()
                 if data[0:13] == b'Client_status':

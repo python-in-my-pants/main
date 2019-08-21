@@ -21,7 +21,7 @@ counter = 0
 connections = []
 
 karte = b''
-client_team = ""
+client_team = 0
 host_status = ""
 client_status = ""
 client_got_map = ""
@@ -47,7 +47,7 @@ def threaded_client(conn, number):
                 client_team = data[11:len(data)]
                 print("Saved Successfully!")
             if data[0:8] == b'Team pls':
-                sender(b'Team', client_team.encode(), conn)
+                sender(b'Team', str(client_team).encode(), conn)
                 print("Team Send!")
             # Map
             if data[0:4] == b'Maps':

@@ -8,6 +8,7 @@ import Map
 import pygame as pg
 import os
 from pickle import *
+import numpy
 from _thread import *
 from network import *
 from GUI import *
@@ -110,6 +111,7 @@ class ConnectionSetup:
         self.host_thread = 0
         self.join_thread = 0
         self.map = None
+        self.team_number = 0
 
         self.ip_focus = False
         self.size_focus = False
@@ -218,14 +220,17 @@ class ConnectionSetup:
 
             builder = Map.MapBuilder()
             self.game_map = builder.build_map(self.field_size)
+            self.team_number = numpy.random.randint(0, 2)
+            if self.team_number == 1: self.net.send_data("Teams", str(0))
+            if self.team_number == 0: self.net.send_data("Teams", str(1))
+            self.net.send_data_pickle("Maps", self.game_map)
+            self.host_stat = "Waiting on other Player's confirmation for the map!"
 
-                self.host_stat = "Waiting on other Player's confirmation for the map!"
-
-                while self.net.client_got_map != "Yes":
-                    pass  # Sleep the tightest Aniki!!!!
-                self.host_stat = "Let's start!"
-                self.new_window_target = CharacterSelection
-                # TODO Check obs funzt
+            while self.net.client_got_map != "Yes":
+                pass  # Sleep the tightest Aniki!!!!
+            self.host_stat = "Let's start!"
+            self.new_window_target = CharacterSelection
+            # TODO Check obs funzt
             return
 
         def cancel_host_fkt():
