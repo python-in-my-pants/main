@@ -161,6 +161,7 @@ class ConnectionSetup:
         def back_fkt():
             self.new_window_target = MainWindow
 
+# shit to push
         # define buttons and put them on their surface
 
         desired_board_size_button = Button(dim=[int(surfs_size[0] / 3), int(surfs_size[1] * 0.07)],
