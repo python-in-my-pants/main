@@ -70,11 +70,11 @@ def threaded_client(conn, number):
             # Client_status
             if data[0:12] == b'Client_ready':
                 client_status = "Ready"
-                sender(b'Host_status', host_status.encode(), connections[othernumber])
+                sender(b'Client_status', client_status.encode(), connections[othernumber])
                 print("Client status: Ready!")
             if data[0:16] == b'Client_not_ready':
                 client_status = "Not ready"
-                sender(b'Host_status', host_status.encode(), connections[othernumber])
+                sender(b'Client_status', client_status.encode(), connections[othernumber])
                 print("Client status: Not ready!")
             if data[0:13] == b'Client_status':
                 sender(b'Client_status', client_status.encode(), conn)

@@ -31,9 +31,9 @@ changed = True
 redraw = True
 
 # client / server stuff
-os.startfile("server.py")
-net = Network(get('https://api.ipify.org').text)
-start_new_thread(net.routine_threaded_listener, ())
+# os.startfile("server.py")
+# net = Network(get('https://api.ipify.org').text)
+# start_new_thread(net.routine_threaded_listener, ())
 role = "nobody"
 teams = []
 map_data = []  # holds data of map received from server PLUS the team number you have
