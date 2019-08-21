@@ -81,6 +81,7 @@ while True:
         else:  # if no new target is set, stay
 
             active_window.event_handling()
+            active_window.update()
 
     if isinstance(active_window, connection_setup):
 
@@ -127,6 +128,7 @@ while True:
         else:
 
             active_window.event_handling()
+            active_window.update()
 
     if isinstance(active_window, character_selection):
 
@@ -137,6 +139,11 @@ while True:
             new_target = active_window.new_window_target  # should be in_game
             active_window.harakiri()
             active_window = new_target()
+
+        else:
+
+            active_window.event_handling()
+            active_window.update()
 
     if isinstance(active_window, in_game):
         print("too far")

@@ -20,8 +20,10 @@ class Button:
             self.real_pos = real_pos[:]
 
         self.dim = dim[:]
+        self.img = img
         self.use_dim = use_dim
         self.text = text
+        self.color = color
 
         if img:
             background_img = pg.image.load(img).convert()
@@ -37,18 +39,43 @@ class Button:
             self.surf.blit(background_img, (0, 0))
 
             font = pg.font.SysFont("comicsansms", 24)
-            font_render = font.render(text, True, (255, 255, 255))
-            self.surf.blit(font_render, (int(dim[0] / 2) - int(font_render.get_width() / 2),
-                                         int(dim[1] / 2) - int(font_render.get_height() / 2)))
+            font_render = font.render(self.text, True, (255, 255, 255))
+            self.surf.blit(font_render, (int(self.dim[0] / 2) - int(font_render.get_width() / 2),
+                                         int(self.dim[1] / 2) - int(font_render.get_height() / 2)))
 
         else:
             self.surf.fill(color)
+
             font = pg.font.SysFont("comicsansms", 24)
-            font_render = font.render(text, True, (255-color[0], 255-color[1], 255-color[2]))
-            self.surf.blit(font_render, (int(dim[0] / 2) - int(font_render.get_width() / 2),
-                                         int(dim[1] / 2) - int(font_render.get_height() / 2)))
+            font_render = font.render(self.text, True, (255-color[0], 255-color[1], 255-color[2]))
+            self.surf.blit(font_render, (int(self.dim[0] / 2) - int(font_render.get_width() / 2),
+                                         int(self.dim[1] / 2) - int(font_render.get_height() / 2)))
 
+    def update_text(self):
 
+        if self.img:
+            background_img = pg.image.load(self.img).convert()
+
+            if self.use_dim:
+                background_img = pg.transform.scale(background_img, self.dim)
+            else:
+                dim = [background_img.get_rect()[2], background_img.get_rect()[3]]
+                self.surf = pg.Surface(dim)
+
+            self.surf.blit(background_img, (0, 0))
+
+            font = pg.font.SysFont("comicsansms", 24)
+            font_render = font.render(self.text, True, (255, 255, 255))
+            self.surf.blit(font_render, (int(self.dim[0] / 2) - int(font_render.get_width() / 2),
+                                         int(self.dim[1] / 2) - int(font_render.get_height() / 2)))
+
+        else:
+            self.surf.fill(self.color)
+
+            font = pg.font.SysFont("comicsansms", 24)
+            font_render = font.render(self.text, True, (255 - self.color[0], 255 - self.color[1], 255 - self.color[2]))
+            self.surf.blit(font_render, (int(self.dim[0] / 2) - int(font_render.get_width() / 2),
+                                         int(self.dim[1] / 2) - int(font_render.get_height() / 2)))
 
     def is_focused(self, mouse_pos):
 
