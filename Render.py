@@ -133,7 +133,7 @@ class ConnectionSetup:
         self.size[1] = self.size[1] * 5
 
         # create window
-        self.screen = pg.display.set_mode(self.size, flags=pg.RESIZABLE)
+        self.screen = pg.display.set_mode(self.size, pg.RESIZABLE)  # flags=
 
         self.update()
 
@@ -141,7 +141,7 @@ class ConnectionSetup:
 
         # TODO overthink if this works
         self.new_window_target = None  # update if you want to leave this screen
-        self.role = "unknown"
+        #self.role = "unknown"
         self.field_size = 0
 
         size = self.size
@@ -203,8 +203,9 @@ class ConnectionSetup:
                 self.net = Network.ip_setup(get('https://api.ipify.org').text)
                 start_new_thread(self.net.routine_threaded_listener, ())
                 self.host_stat = "Waiting for a Connection!"
-
-                while self.net.g_amount != 2:
+                while self.net.g_amount != "2":
+                    self.net.send_control("G_amount")
+                    time.sleep(0.500)
                     pass  # Sleep tight Aniki!
 
                 while desired_board_size_button.text == "Enter the desired size":
@@ -215,24 +216,25 @@ class ConnectionSetup:
                 self.role = "host"
                 self.host_stat = "Waiting on other Player to get ready!"
 
-            while self.net.client_status != "Ready":
-                pass  # Sleep even tighter Aniki!!!
-
-            builder = Map.MapBuilder()
-            self.game_map = builder.build_map(self.field_size)
-
-            self.team_number = numpy.random.randint(0, 2)
-            if self.team_number == 1: self.net.send_data("Teams", str(0))
-            if self.team_number == 0: self.net.send_data("Teams", str(1))
-            self.net.send_data_pickle("Maps", self.game_map)
-            self.host_stat = "Waiting on other Player's confirmation for the map!"
-
-            while self.net.client_got_map != "Yes":
-                pass  # Sleep the tightest Aniki!!!!
-            self.host_stat = "Let's start!"
-            self.new_window_target = CharacterSelection
-            # TODO Check obs funzt
-            return
+                while self.net.client_status != "Ready":
+                    self.net.send_control("Client_status")
+                    time.sleep(0.5)
+                    print(self.net.client_status)
+                    pass  # Sleep even tighter Aniki!!!
+                builder = Map.MapBuilder()
+                self.game_map = builder.build_map(self.field_size)
+                self.team_number = numpy.random.randint(0, 2)
+                if self.team_number == 1: self.net.send_data("Teams", str(0))
+                if self.team_number == 0: self.net.send_data("Teams", str(1))
+                print(self.game_map.get_map())
+                self.net.send_data_pickle("Maps", self.game_map.get_map())
+                self.host_stat = "Waiting on other Player's confirmation for the map!"
+                while self.net.client_got_map != "Yes":
+                    pass  # Sleep the tightest Aniki!!!!
+                self.host_stat = "Let's start!"
+                self.new_window_target = CharacterSelection
+                # TODO Check obs funzt
+                return
 
         def cancel_host_fkt():
             if self.net is not None:
@@ -299,13 +301,13 @@ class ConnectionSetup:
                 else:
                     self.join_stat = "You have to enter an IP!"
                     return
-                self.role = "Client"
+                self.role = "client"
                 self.net.send_control("Client_ready")
                 self.join_stat = "Waiting on the map!"
                 while self.net.map == b'':
                     self.net.send_control("Map pls")
-                    # I'm a Performanceartist!
-                print(self.net.map)
+                    time.sleep(0.5)
+                    pass  # I'm a Performanceartist!
                 self.map = pickle.loads(self.net.map)
                 self.net.send_control("Map recieved!")
                 time.sleep(1)

@@ -426,7 +426,7 @@ class MapBuilder:
 
         # add houses
 
-        house_limit = int((size*size) / 25)
+        house_limit = 5 #int((size*size) / 25)
         house_counter = 0
 
         for i in range(house_limit):
@@ -448,7 +448,7 @@ class MapBuilder:
 
         # add bushes
 
-        bush_limit = int((size*size)/15)
+        bush_limit = 5 #int((size*size)/15)
         bush_counter = 0
 
         for i in range(bush_limit):
@@ -471,6 +471,7 @@ class MapBuilder:
         # draw everything to surf
 
         self.map.draw_map()
+        return self.map
 
         return self.map
 
