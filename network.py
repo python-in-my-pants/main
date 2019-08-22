@@ -32,6 +32,7 @@ class Network:
                 if data[0:8] == b'G_amount':
                     self.g_amount = data[8:len(data)].decode()
                 if data[0:13] == b'Client_status':
+                    print(data)
                     self.client_status = data[13:len(data)].decode()
                 if data[0:11] == b'Host_status':
                     self.host_status = data[11:len(data)].decode()
