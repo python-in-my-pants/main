@@ -122,7 +122,7 @@ class ConnectionSetup:
         self.screen = None
         self.buttons = None
 
-        self.ip_field_text = "Enter host IP"
+        self.ip_field_text = "88.150.32.237"
         self.desi_board_text = "Enter board size"
         self.game_map = None
 
@@ -220,6 +220,7 @@ class ConnectionSetup:
 
             builder = Map.MapBuilder()
             self.game_map = builder.build_map(self.field_size)
+
             self.team_number = numpy.random.randint(0, 2)
             if self.team_number == 1: self.net.send_data("Teams", str(0))
             if self.team_number == 0: self.net.send_data("Teams", str(1))
@@ -302,7 +303,9 @@ class ConnectionSetup:
                 self.net.send_control("Client_ready")
                 self.join_stat = "Waiting on the map!"
                 while self.net.map == b'':
-                    pass  # I'm a Performanceartist!
+                    self.net.send_control("Map pls")
+                    # I'm a Performanceartist!
+                print(self.net.map)
                 self.map = pickle.loads(self.net.map)
                 self.net.send_control("Map recieved!")
                 time.sleep(1)

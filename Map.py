@@ -27,7 +27,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
     # window = -1
     '''
 
-    def __init__(self, x_size, y_size, window, elem_size, objects=[], characters=[], unique_pixels=[]):  # STATUS: working, returns 1 on success, 0 else
+    def __init__(self, x_size, y_size, elem_size, window=pg.Surface([1000, 1000]), objects=[], characters=[], unique_pixels=[]):  # STATUS: working, returns 1 on success, 0 else
 
         # size_x holds map size in actual drawable pixels coords, x and y are to be
         # committed in desired size in elements * elem_size
@@ -415,7 +415,7 @@ class MapBuilder:
 
         # ------------------------------------------------------------------------------------------------------------
 
-        self.map.map_window.fill((23, 157, 0))
+        self.map.window.fill((23, 157, 0))
 
         # add spawns
 
@@ -431,7 +431,7 @@ class MapBuilder:
 
         for i in range(house_limit):
 
-            h = SimpleHouse(name=("Simple house " + str(house_counter)), obj_type="default", \
+            h = SimpleHouse(name=("Simple house " + str(house_counter)), obj_type="default",
                             pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
 
             # while there is a house (to add) and it does not fit and you did not try 100 times yet generate a new one
@@ -471,6 +471,8 @@ class MapBuilder:
         # draw everything to surf
 
         self.map.draw_map()
+
+        return self.map
 
     def populate(self, team):
         # add all team members to characters

@@ -64,7 +64,7 @@ class Network:
     def send_control(self, token):
         # Sende Token um Aktionen zu triggern
         strgtaube = token.encode()
-        print(strgtaube)
+        #print(strgtaube)
         self.client.send(strgtaube)
 
     def receive_data(self, token):
