@@ -102,6 +102,7 @@ while True:
                                            net=net_var,
                                            role=role)  # TODO add after balancing dependent on desired_map_size
                                                        # cheapest char but full equipped for all team members
+                # yoink comment for push
             elif active_window.role is "client":
 
                 # I am client
