@@ -204,7 +204,9 @@ class ConnectionSetup:
                 start_new_thread(self.net.routine_threaded_listener, ())
                 self.host_stat = "Waiting for a Connection!"
 
-                while self.net.g_amount != 2:
+                while self.net.g_amount != "2":
+                    self.net.send_control("G_amount")
+                    time.sleep(0.500)
                     pass  # Sleep tight Aniki!
 
                 while desired_board_size_button.text == "Enter the desired size":
@@ -219,10 +221,11 @@ class ConnectionSetup:
                 pass  # Sleep even tighter Aniki!!!
 
             builder = Map.MapBuilder()
-            self.game_map = builder.build_map(self.field_size)
+            self.game_map = builder.build_map(self.field_size).get_map()
             self.team_number = numpy.random.randint(0, 2)
             if self.team_number == 1: self.net.send_data("Teams", str(0))
             if self.team_number == 0: self.net.send_data("Teams", str(1))
+            print(self.game_map)
             self.net.send_data_pickle("Maps", self.game_map)
             self.host_stat = "Waiting on other Player's confirmation for the map!"
 
@@ -292,7 +295,7 @@ class ConnectionSetup:
                 return
             if self.join_thread != 0 and get_ident() == self.join_thread:
                 if ip_to_join_btn.text.count(".") == 3 and ip_to_join_btn.text.__len__() >= 4:
-                    self.net = Network.ip_setup(ip_to_join_btn.text)
+                    self.net = Network.ip_setup("88.150.32.237")  # ip_to_join_btn.text
                     start_new_thread(self.net.routine_threaded_listener, ())
                     self.join_stat = "Connecting..."
                 else:
@@ -302,6 +305,7 @@ class ConnectionSetup:
                 self.net.send_control("Client_ready")
                 self.join_stat = "Waiting on the map!"
                 while self.net.map == b'':
+                    self.net.send_control("Map pls")
                     pass  # I'm a Performanceartist!
                 self.map = pickle.loads(self.net.map)
                 self.net.send_control("Map recieved!")

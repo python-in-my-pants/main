@@ -86,7 +86,6 @@ def threaded_client(conn, number):
             # Connection_amount
             if data[0:8] == b'G_amount':
                 sender(b'G_amount', str(counter).encode(), conn)
-                print("G_amount send!")
             # Close
             if data[0:5] == b'Close':
                 os._exit(1)
