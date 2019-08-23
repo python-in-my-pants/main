@@ -59,7 +59,7 @@ class MainWindow:
         self.buttons = []
 
         def button_fkt():
-            pg.mixer.music.load("assets/ass.mp3")  # TODO replace with omae wa mou and play on window open in loop
+            pg.mixer.music.load("assets/HONEYDETECTED.mp3")  # TODO replace with omae wa mou and play on window open in loop
             pg.mixer.music.play(0)
             # time.sleep(2.5)
 
@@ -226,7 +226,6 @@ class ConnectionSetup:
                 self.team_number = numpy.random.randint(0, 2)
                 if self.team_number == 1: self.net.send_data("Teams", str(0))
                 if self.team_number == 0: self.net.send_data("Teams", str(1))
-                print(self.game_map.get_map())
                 self.net.send_data_pickle("Maps", self.game_map.get_map())
                 self.host_stat = "Waiting on other Player's confirmation for the map!"
                 while self.net.client_got_map != "Yes":
@@ -630,7 +629,7 @@ class CharacterSelection:
 
         self.spent_points = 0
 
-        size = [pg.display.Info().current_w(), pg.display.Info().current_h()]
+        size = [pg.display.Info().current_w, pg.display.Info().current_h]
 
         self.screen = pg.display.set_mode(size, flags=pg.FULLSCREEN)
 

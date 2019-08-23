@@ -1,6 +1,7 @@
 # encoding: UTF-8
 
 import math
+import numpy
 from Item import *
 from Weapon import *
 from Game_objects import GameObject, CollAtom
@@ -19,7 +20,7 @@ class Character(GameObject):
                  unit_class=0, health=[100, 100, 100, 100, 100, 100], gear=[], dexterity=25, strength=15, stamina=1000,\
                  speed=1, height=1, pos=[0, 0], bleed=[False, False, False, False, False, False], cost=1, \
                  bleed_t=[0, 0, 0, 0, 0, 0], burn=False, burn_t=0, poison=False, poison_t=0, blind=False, blind_t=0, \
-                 items=[], weapons=[], orientation=0):
+                 items=[], weapons=[], orientation=0, carry=0, id=0):
         super().__init__(name=name, obj_type=object_type, pos=pos, materials=["player"])
         self.name = name
         self.object_type = object_type
@@ -61,38 +62,44 @@ class Character(GameObject):
         self.carry = carry
 
     @staticmethod
-    def create_character(name, team, type):
-        boi = Character(name=name, team=team, unit_class=type)
+    def create_character(name, team, id):
+        boi = Character(name=name, team=team, id=id)
         boi.class_selector()
         boi.weight_calculator()
         return boi
 
     def class_selector(self):
-        if self.unit_class == "Light Gunner":
-            self.dexterity = 25
-            self.strength = 20
-            self.stamina = 2000
-            self.speed = 5
-        if self.unit_class == "Heavy Gunner":
-            self.dexterity = 25
-            self.strength = 50
-            self.stamina = 500
-            self.speed = 1
-        if self.unit_class == "Sniper":
+        if self.id == 0:  # Pawn
+            self.stamina = 50
+            self.speed = 40
+            self.dexterity = 35
+            self.strength = 35
+        if self.id == 1:  # Leichte Truppe
+            self.stamina = 55
+            self.speed = 70
+            self.dexterity = 45
+            self.strength = 35
+        if self.id == 2:  # Schwere Truppe
+            self.stamina = 40
+            self.speed = 30
             self.dexterity = 50
-            self.strength = 15
-            self.stamina = 1000
-            self.speed = 2
-        if self.unit_class == "Specialist":
-            self.dexterity = 15
-            self.strength = 30
-            self.stamina = 1500
-            self.speed = 3
-        if self.unit_class == "Medic":
-            self.dexterity = 15
-            self.strength = 30
-            self.stamina = 1500
-            self.speed = 3
+            self.strength = 80
+        if self.id == 3:  # Sanitäter
+            self.stamina = 70
+            self.speed = 50
+            self.dexterity = 35
+            self.strength = 50
+        if self.id == 4:  # Scharfschütze
+            self.stamina = 70
+            self.speed = 40
+            self.dexterity = 70
+            self.strength = 35
+        if self.id == 5:  # Spezialist
+            self.stamina = 70
+            self.speed = 50
+            self.dexterity = 35
+            self.strength = 50
+
 
     def weight_calculator(self):
         self.carry = self.strength *2 * self.dexterity * 0.15
@@ -241,8 +248,15 @@ class Character(GameObject):
         else:
             print("You can't exchange any weapons!")
 
+    def range(self, dude):
+        return abs(numpy.sqrt(((self.pos[0]-dude.pos[0])**2)*((self.pos[1]-dude.pos[1])**2)))
+
     def shoot(self, dude, weapon, partind):
-        dude.get_damaged(weapon.dmg, partind)
+        # ToDo Basechance * (0.3 * Dex) - Range
+        chance = weapon.acc * (0.3 * self.dexterity) - self.range(dude)
+        for s in range(weapon.spt):
+            if numpy.random.randint(0, 101) <= chance:
+                dude.get_damaged(weapon.dmg, partind)
 
     def get_damaged(self, dmg, partind):
         if partind == 3:

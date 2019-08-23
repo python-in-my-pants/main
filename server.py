@@ -54,7 +54,6 @@ def threaded_client(conn):
                 karte = data[10:len(data)]
                 print("Saved Successfully!")
             if data[0:7] == b'Map pls':
-                print(karte)
                 sender(b'Map', karte, conn)
                 print("Map send!")
             # Host_status
