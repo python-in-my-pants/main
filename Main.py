@@ -99,7 +99,7 @@ while True:
                 active_window.harakiri()
 
                 active_window = new_target(points_to_spend=points_to_spend,
-                                           map=game_map,
+                                           game_map=game_map,
                                            net=net_var,
                                            role=role)  # TODO add after balancing dependent on desired_map_size
                                                        # cheapest char but full equipped for all team members
@@ -113,7 +113,8 @@ while True:
                                    elem_size=elem_size,
                                    objects=map_data[1],
                                    characters=map_data[2],
-                                   unique_pixels=map_data[0])
+                                   unique_pixels=map_data[0],
+                                   map_string_buffer=map_data[5])
 
                 points_to_spend = int((game_map.size_x * game_map.size_y)/400)   # TODO change maybe
 
@@ -121,7 +122,7 @@ while True:
                 active_window.harakiri()
 
                 active_window = new_target(points_to_spend=points_to_spend,
-                                           map=game_map,
+                                           game_map=game_map,
                                            net=net_var,
                                            role=role)  # TODO add after balancing dependent on desired_map_size
                                                        # cheapest char but full equipped for all team members

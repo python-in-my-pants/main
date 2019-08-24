@@ -3,7 +3,7 @@
 Gives general classes and functions for rendering on screen
 
 '''
-
+import Item
 import Map
 import pygame as pg
 import os
@@ -122,7 +122,7 @@ class ConnectionSetup:
         self.screen = None
         self.buttons = None
 
-        self.ip_field_text = "88.150.32.237"
+        self.ip_field_text = "88.150.32.237"  #"141.44.161.132"
         self.desi_board_text = "Enter board size"
         self.game_map = None
 
@@ -637,9 +637,9 @@ class CharacterSelection:
         self.selectedChar = None
         self.ready = False
 
-        self.cc_num = ...  # TODO number of character cards
-        self.wc_num = ...  # number of weapon cards
-        self.ic_num = ...  # number of item cards
+        self.cc_num = 6   # TODO number of character cards
+        self.wc_num = 3   # number of weapon cards
+        self.ic_num = 5  # number of item cards
 
         self.render_char_ban = True
         self.render_weap_ban = True
@@ -732,8 +732,8 @@ class CharacterSelection:
         def get_rem_points():
             return self.points_to_spend - self.spent_points
 
-        self.points_btn = Button(img="assets/remaining_points.png", use_dim=True, \
-                                 dim=[int(troop_overview.get_size()[0] * 0.21), int(size[1] * 0.1)], \
+        self.points_btn = Button(img="assets/remaining_points.png", use_dim=True,
+                                 dim=[int(troop_overview.get_size()[0] * 0.21), int(size[1] * 0.1)],
                                  pos=[int(troop_overview.get_size()[0] * 0.305), 0],
                                  action=(lambda: None),
                                  text=get_rem_points())
@@ -769,8 +769,7 @@ class CharacterSelection:
                                   pos=[int(troop_overview.get_size()[0] * 0.05), int(card_h / 4)],
                                   real_pos=[int(troop_overview.get_size()[0] * 0.05),
                                             int(card_h / 4) +
-                                            self.points_btn.dim[1]
-                                            ],
+                                            self.points_btn.dim[1]],
                                   text="Characters", color=(50, 30, 230),
                                   action=char_ban_func)
         self.banners.append(character_banner)
@@ -816,7 +815,7 @@ class CharacterSelection:
             w_pos = gap_size + (i % (line_len - 1)) * (card_w + gap_size)
 
             #               height of point counter + line_len_factor         *  card height plus gap
-            h_pos = self.points_btn.get_size()[1] + 5 + i * int((i + 1) / line_len) * (gap_size + card_h)
+            h_pos = self.points_btn.dim[1] + 5 + i * int((i + 1) / line_len) * (gap_size + card_h)
 
             card_btn = Button(pos=[w_pos, h_pos],
                               real_pos=[w_pos,
@@ -848,15 +847,15 @@ class CharacterSelection:
             w_pos = gap_size + (i % (line_len - 1)) * (card_w + gap_size)
 
             #               height of point counter + line_len_factor         *  card height plus gap
-            h_pos = self.points_btn.get_size()[1] + 5 + i * int((i + 1) / line_len) * (gap_size + card_h)
+            h_pos = self.points_btn.dim[1] + 5 + i * int((i + 1) / line_len) * (gap_size + card_h)
 
             card_btn = Button(pos=[w_pos, h_pos],
                               real_pos=[w_pos,
                                         h_pos +
                                         self.points_btn.dim[1]] +
-                                       character_back.get_size()[1] +
-                                       weapons_banner.dim[1],
-                              img=("assets/wc/wc_" + str(i) + ".png"), dim=[card_w, card_h], \
+                                        character_back.get_size()[1] +
+                                        weapons_banner.dim[1],
+                              img=("assets/wc/wc_" + str(i) + ".png"), dim=[card_w, card_h],
                               use_dim=True, action=weapon_function_binder("wc_btn_function_" + str(i), i))
 
             self.weapon_cards.append(card_btn)
@@ -864,9 +863,9 @@ class CharacterSelection:
         # item cards
         def item_function_binder(name, card_num):
 
-            def butn_fkt(card_num):
+            def butn_fkt(_card_num):
 
-                item = ...  # TODO: add function call to get instance of corresponding class
+                item = Item.make_weapon_by_id(_card_num)  # TODO: add function call to get instance of corresponding class
                 if self.spent_points + item.cost <= self.points_to_spend:
                     self.ownTeam.add_char(item)
                     self.spent_points -= item.cost
@@ -881,16 +880,16 @@ class CharacterSelection:
             w_pos = gap_size + (i % (line_len - 1)) * (card_w + gap_size)
 
             #               height of point counter + line_len_factor         *  card height plus gap
-            h_pos = self.points_btn.get_size()[1] + 5 + i * int((i + 1) / line_len) * (gap_size + card_h)
+            h_pos = self.points_btn.dim[1] + 5 + i * int((i + 1) / line_len) * (gap_size + card_h)
 
             card_btn = Button(pos=[w_pos, h_pos],
                               real_pos=[w_pos,
                                         h_pos +
                                         self.points_btn.dim[1] +
-                                        character_back.dim[1] +
-                                        weapon_back.dim[1] +
+                                        character_back.get_size()[1] +
+                                        weapon_back.get_size()[1] +
                                         item_banner.dim[1]],
-                              img=("assets/ic/ic_" + str(i) + ".png"), dim=[card_w, card_h], \
+                              img=("assets/ic/ic_" + str(i) + ".png"), dim=[card_w, card_h],
                               use_dim=True, action=item_function_binder("ic_btn_function_" + str(i), i))
 
             self.item_cards.append(card_btn)
@@ -936,8 +935,8 @@ class CharacterSelection:
                                    pos_h +
                                    int((selected_units_back.get_size()[1] - selected_units_box.get_size()[1]) / 2) +
                                    minimap_surf.get_size()[1]],
-                         img=("assets/cc/cc_" + str(class_num) + ".png"),
-                         use_dim=True, action=cc_function_binder("assets/cc/cc_small_btn_func" + str(i), \
+                         img=("assets/cc/small/cc_" + str(class_num) + ".png"),
+                         use_dim=True, action=cc_function_binder("assets/cc/cc_small_btn_func" + str(i),
                                                                  self.ownTeam.characters[i].id))
 
             self.team_char_btns.append(btn)
@@ -1062,7 +1061,7 @@ class CharacterSelection:
 
         # TODO: button
         self.ready_btn = Button(dim=[int(minimap_surf.get_size()[0] * 0.8), int(minimap_surf.get_size()[1] * 0.25)],
-                                text=get_text(), \
+                                text=get_text(),
                                 pos=[int(minimap_surf.get_size()[0] * 0.1), minimap_surf.get_size()[1]],
                                 real_pos=[int(minimap_surf.get_size()[0] * 0.1) +
                                           troop_overview.get_size()[0],
