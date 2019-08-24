@@ -391,6 +391,7 @@ class ConnectionSetup:
 
             # handle events
             if event.type == pg.QUIT:
+                self.net.send_control("Close")
                 pg.quit()
                 sys.exit()
 

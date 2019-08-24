@@ -46,7 +46,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
         if not map_string_buffer and not window:
             self.window = window
         else:
-            self.window = pygame.image.fromstring(map_string_buffer)
+            self.window = pygame.image.fromstring(map_string_buffer, (x_size, y_size), "RGBA")
         self.elem_size = elem_size
 
         # just testing stuff 11072019 1511
