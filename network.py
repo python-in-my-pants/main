@@ -42,7 +42,11 @@ class Network:
         pass
 
     def connect(self):
-        self.client.connect(self.addr)
+        try:
+            self.client.connect(self.addr)
+        except TimeoutError:
+            # show that host is not available
+            print("Host unavailable!")
 
     def send_data(self, token, data):
         # Sendformat: Token, Size, Data

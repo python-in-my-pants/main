@@ -34,7 +34,7 @@ class MainWindow:
 
     def update(self):
 
-        main_background_img = pg.image.load("assets/108.gif")  # "assets/main_background.jpg")
+        main_background_img = pg.image.load("assets/rose.png")  # "assets/main_background.jpg")
 
         size = list(main_background_img.get_size())
         size[0] = size[0] * 5  # make depended on screen size
@@ -60,7 +60,7 @@ class MainWindow:
 
         def button_fkt():
             pg.mixer.music.load("assets/ass.mp3")  # TODO replace with omae wa mou and play on window open in loop
-            pg.mixer.music.play(0)
+            #pg.mixer.music.play(0)
             # time.sleep(2.5)
 
             # go to different window and kill this one
@@ -126,7 +126,7 @@ class ConnectionSetup:
         self.desi_board_text = "Enter board size"
         self.game_map = None
 
-        self.main_background_img = pg.image.load("assets/108.gif")  # "main_background.jpg")
+        self.main_background_img = pg.image.load("assets/rose.png")  # "main_background.jpg")
 
         self.size = list(self.main_background_img.get_size())
         self.size[0] = self.size[0] * 5  # change to sth dependent on screen size instead of 5
@@ -222,7 +222,7 @@ class ConnectionSetup:
                     print(self.net.client_status)
                     pass  # Sleep even tighter Aniki!!!
 
-                self.game_map = Map.MapBuilder().build_map(self.field_size, encode_surf=True)
+                self.game_map = Map.MapBuilder().build_map(self.field_size)
 
                 self.team_number = numpy.random.randint(0, 2)
 
@@ -310,13 +310,21 @@ class ConnectionSetup:
                 self.role = "client"
                 self.net.send_control("Client_ready")
                 self.join_stat = "Waiting on the map!"
+
                 while self.net.map == b'':
+                    print("pre: " + str(self.net.map.__len__()))
                     self.net.send_control("Map pls")
-                    time.sleep(0.5)
+                    print("after: " + str(self.net.map.__len__()))
+                    print()
+                    time.sleep(2)
                     pass  # I'm a Performanceartist!
-                self.map = pickle.loads(self.net.map)
-                self.net.send_control("Map recieved!")
-                time.sleep(1)
+
+                print(self.net.map.__len__())
+                print(self.net.map)
+                self.net.map = pickle.loads(bytes(self.net.map[6:]))
+
+                self.net.send_control("Map recieved")
+                time.sleep(2)
                 self.new_window_target = CharacterSelection
 
         def cancel_join_fkt():
@@ -598,6 +606,8 @@ class ConnectionSetup:
 class CharacterSelection:
 
     def __init__(self, points_to_spend, game_map, role="unknown", net=None):
+        # let only those things be here that are not to be reset every frame, so i.e. independent of window size
+        # TODO load all images here into array or dict ON INIT
 
         self.points_to_spend = points_to_spend
         self.game_map = game_map
@@ -632,27 +642,9 @@ class CharacterSelection:
 
     def update(self):
 
-        self.new_window_target = None
-
-        self.spent_points = 0
-
         size = [pg.display.Info().current_w, pg.display.Info().current_h]
 
-        self.screen = pg.display.set_mode(size, flags=pg.FULLSCREEN)
-
-        self.ownTeam = Team()  # holds actual object of own team
-        self.selectedChar = None
-        self.ready = False
-
-        self.cc_num = 6   # TODO number of character cards
-        self.wc_num = 3   # number of weapon cards
-        self.ic_num = 5  # number of item cards
-
-        self.render_char_ban = True
-        self.render_weap_ban = True
-        self.render_item_ban = True
-
-        self.scroll_offset = 0
+        self.screen = pg.display.set_mode(size)
 
         # set up surfaces for screen
         # -------------------------------------------------------------------------------------------------------------
@@ -710,7 +702,8 @@ class CharacterSelection:
         # player_banner_img = pg.image.load("assets/default_player_banner.png")  # TODO: add custom player banners
 
         minimap_surf = pg.Surface([int(0.3 * size[0]), int(0.3 * size[0])])
-        map_surf = copy.deepcopy(self.game_map.window)
+        self.game_map.draw()
+        map_surf = self.game_map.window  #TODO: set content of minimap before blitting to map_surf
 
         selected_units_back = pg.Surface([int(0.3 * size[0]), int(size[1] - minimap_surf.get_height() * 2)])
         selected_units_box = pg.Surface(
@@ -1137,19 +1130,19 @@ class CharacterSelection:
             selected_units_box.blit(sm_char_btn.surf, sm_char_btn.pos)
 
         selected_units_back.blit(selected_units_box, dest=
-        [int((selected_units_back.get_size()[0] - selected_units_box.get_size()[0]) / 2),
-         int((selected_units_back.get_size()[1] - selected_units_box.get_size()[1]) / 2)])
+                                 [int((selected_units_back.get_size()[0] - selected_units_box.get_size()[0]) / 2),
+                                  int((selected_units_back.get_size()[1] - selected_units_box.get_size()[1]) / 2)])
 
         player_overview.blit(selected_units_back, dest=[0, minimap_surf.get_size()[1]])
 
         # selected weapons
 
         selected_weapons_back.blit(selected_weapons_box, dest=
-        [int((selected_weapons_back.get_size()[0] - selected_weapons_box.get_size()[0]) / 2),
-         int((selected_weapons_back.get_size()[0] - selected_weapons_box.get_size()[0]) / 2)])
+                                   [int((selected_weapons_back.get_size()[0] - selected_weapons_box.get_size()[0]) / 2),
+                                    int((selected_weapons_back.get_size()[0] - selected_weapons_box.get_size()[0]) / 2)])
 
         player_overview.blit(selected_weapons_back, dest=
-        [0, minimap_surf.get_size()[1] + selected_weapons_back.get_size()[1]])
+                             [0, minimap_surf.get_size()[1] + selected_weapons_back.get_size()[1]])
 
         ###########################
         # right and left together #
@@ -1219,30 +1212,32 @@ class InGame:
 
         self.own_team = own_team
         self.game_map = game_map
-        self.update()
-
-    def update(self):
 
         self.next_window_target = None  # TODO
-
         self.char_prev_selected = False  # holds whether own team character is already selected
-
         size = [pg.display.Info().current_w(), pg.display.Info().current_h()]
         w = size[0]
         h = size[1]
         self.element_size = int(w * 9 / (16 * 30))  # default is 30 elem width
-
         self.zoom_factor = 1
         self.zoom_center = [0, 0]
         self.zoom_size = [0, 0]
 
-        self.screen = pg.display.set_mode(size, flags=pg.FULLSCREEN)
+        self.screen = pg.display.set_mode(size)
 
         self.selected_own_char = self.own_team[0]  # TODO
         self.selected_item = self.own_team[0].items[0]
         self.selected_weapon = self.own_team[0].weapons[0]
 
         self.selected_char = self.selected_own_char
+
+        self.update()
+
+    def update(self):
+
+        size = [pg.display.Info().current_w, pg.display.Info().current_h]
+        w = size[0]
+        h = size[1]
 
         # set up surfaces
         # -------------------------------------------------------------------------------------------------------------

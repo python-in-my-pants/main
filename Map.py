@@ -28,7 +28,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
     '''
 
     def __init__(self, x_size, y_size, elem_size, window=pg.Surface([1000, 1000]), objects=[], characters=[],
-                 unique_pixels=[], map_string_buffer=None):  # STATUS: working, returns 1 on success, 0 else
+                 unique_pixels=[]):  # STATUS: working, returns 1 on success, 0 else
 
         # size_x holds map size in actual drawable pixels coords, x and y are to be
         # committed in desired size in elements * elem_size
@@ -43,10 +43,8 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
         else:
             self.unique_pixs = unique_pixels[:]
 
-        if not map_string_buffer and not window:
-            self.window = window
-        else:
-            self.window = pygame.image.fromstring(map_string_buffer, (x_size, y_size), "RGBA")
+        self.window = window
+
         self.elem_size = elem_size
 
         # just testing stuff 11072019 1511
@@ -397,8 +395,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
                self.objects,
                self.characters,
                self.size_x,
-               self.size_y,
-               pygame.image.tostring(self.window)]  # encode self.window as string and rebuild surface from this
+               self.size_y]  # encode self.window as string and rebuild surface from this
 
         return lis
 
@@ -411,13 +408,11 @@ class MapBuilder:
     def build_map(self, size=30, encode_surf=False):
 
         # build map without characters
-        surf = pg.Surface([500, 500])
         elem_size = 25
 
         fields_x = fields_y = size
 
-        self.map = Map(x_size=size, y_size=size, elem_size=elem_size,
-                       map_string_buffer=pg.image.tostring(surf, (size, size), "RGBA"))
+        self.map = Map(x_size=size, y_size=size, elem_size=elem_size)
 
         # ------------------------------------------------------------------------------------------------------------
 
@@ -459,13 +454,13 @@ class MapBuilder:
 
         for i in range(bush_limit):
 
-            h = Bush(name=("Simple bush " + str(bush_counter)), obj_type="default", \
+            h = Bush(name=("Simple bush " + str(bush_counter)), obj_type="default",
                      pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
 
             # while there is a house (to add) and it doesn't fit and you didn't try 100 times yet generate a new one
             limit = 0
             while h != 0 and self.map.add_object(h, border_size=1) != 1 and limit < 100:
-                h = Bush(name=("Simple bush " + str(bush_counter)), obj_type="default", \
+                h = Bush(name=("Simple bush " + str(bush_counter)), obj_type="default",
                          pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
                 limit += 1
 
@@ -477,8 +472,6 @@ class MapBuilder:
         # draw everything to surf
 
         self.map.draw_map()
-        return self.map
-
         return self.map
 
     def populate(self, team):
