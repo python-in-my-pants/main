@@ -12,9 +12,9 @@ import numpy
 from _thread import *
 from network import *
 from GUI import *
-from Characters import *
 from Team import *
 from Data import *
+from Characters import *
 import time
 import copy
 
@@ -405,7 +405,8 @@ class ConnectionSetup:
 
             # handle events
             if event.type == pg.QUIT:
-                self.net.send_control("Close")
+                if self.role == "host":
+                    self.net.send_control("Close")
                 pg.quit()
                 sys.exit()
 
@@ -621,7 +622,7 @@ class CharacterSelection:
         self.ready = None
         self.cc_num = 6  # TODO number of character cards
         self.wc_num = 7  # number of weapon cards
-        self.ic_num = 7  # number of item cards
+        self.ic_num = 7  # TODO add banner etc for gear
 
         self.render_char_ban = True
         self.render_weap_ban = True
@@ -632,6 +633,7 @@ class CharacterSelection:
         self.character_cards = []
         self.weapon_cards = []
         self.item_cards = []
+
         self.banners = []
         self.team_char_btns = []
 
@@ -740,26 +742,42 @@ class CharacterSelection:
 
         # banners
         def char_ban_func():
+            nonlocal character_back
             if self.render_char_ban:
-                character_back.get_size()[1] -= character_content.get_size()[1]
+                character_back = pg.Surface([troop_overview.get_size()[0],
+                                             int(2 * gap_size + int(card_h * self.cc_num / line_len) +
+                                             int(card_h * 0.5))])  # add place for banner
             else:
-                character_back.get_size()[1] -= character_content.get_size()[1]
-
+                character_back = pg.Surface([troop_overview.get_size()[0],
+                                             int(2 * gap_size + int(card_h * self.cc_num / line_len) +
+                                                 (int(self.cc_num / line_len) - 1) * gap_size + int(
+                                                 card_h * 0.5))])  # add place for banner
             self.render_char_ban = not self.render_char_ban
 
         def weap_ban_func():
+            nonlocal weapon_back
             if self.render_weap_ban:
-                weapon_back.get_size()[1] -= weapon_content.get_size()[1]
+                weapon_back = pg.Surface([troop_overview.get_size()[0],
+                                          int(2 * gap_size + int(card_h * self.wc_num / line_len) +
+                                          int(card_h * 0.5))])  # add place for banner
             else:
-                weapon_back.get_size()[1] -= weapon_content.get_size()[1]
-
+                weapon_back = pg.Surface([troop_overview.get_size()[0],
+                                          int(2 * gap_size + int(card_h * self.wc_num / line_len) +
+                                              (int(self.wc_num / line_len) - 1) * gap_size + int(
+                                              card_h * 0.5))])  # add place for banner
             self.render_weap_ban = not self.render_weap_ban
 
         def item_ban_func():
+            nonlocal item_back
             if self.render_item_ban:
-                item_back.get_size()[1] -= item_content.get_size()[1]
+                item_back = pg.Surface([troop_overview.get_size()[0],
+                                        int(2 * gap_size + int(card_h * self.ic_num / line_len) +
+                                        int(card_h * 0.5))])
             else:
-                item_back.get_size()[1] -= item_content.get_size()[1]
+                item_back = pg.Surface([troop_overview.get_size()[0],
+                                        int(2 * gap_size + int(card_h * self.ic_num / line_len) +
+                                            (int(self.ic_num / line_len) - 1) * gap_size +
+                                            int(card_h * 0.5))])  # add place for banner
 
             self.render_item_ban = not self.render_item_ban
 
@@ -778,8 +796,8 @@ class CharacterSelection:
                                 pos=[int(troop_overview.get_size()[0] * 0.05), int(card_h / 4)],
                                 real_pos=[int(troop_overview.get_size()[0] * 0.05),
                                           int(card_h / 4) +
-                                         self.points_btn.dim[1] +
-                                         character_back.get_size()[1]],
+                                          self.points_btn.dim[1] +
+                                          character_back.get_size()[1]],
                                 text="Weapons", color=(230, 50, 30),
                                 action=weap_ban_func)
         self.banners.append(weapons_banner)
@@ -800,7 +818,7 @@ class CharacterSelection:
 
             def butn_fkt(card_num):
 
-                char = ...  # TODO: add function call to get instance of corresponding class
+                char = Character.create_character(card_num)  # TODO: add function call to get instance of corresponding class
                 if self.spent_points + char.cost <= self.points_to_spend:
                     self.ownTeam.add_char(char)
                     self.spent_points -= char.cost
@@ -1100,7 +1118,7 @@ class CharacterSelection:
         # TODO: blit background image
         # points btn to left side
         rem_point_back.blit(self.points_btn.surf, dest=self.points_btn.pos)
-        troop_overview.blit(rem_point_back, dest=[int((troop_overview.get_size()[0] - rem_point_back.get_size()[0]) / 2), 0])
+        troop_overview.blit(rem_point_back, dest=[int((troop_overview.get_size()[0]-rem_point_back.get_size()[0])/2),0])
 
         troop_overview.blit(character_back, dest=[0, self.points_btn.dim[1]])
         troop_overview.blit(weapon_back, dest=[0, self.points_btn.dim[1] + character_back.get_size()[1]])
