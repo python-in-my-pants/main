@@ -29,6 +29,7 @@ class Character(GameObject):
         self.unit_class = unit_class
         self.cost = cost
 
+        self.id = id
         self.idi = self.id_counter
         self.id = id
         self.id_counter += 1
