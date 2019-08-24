@@ -94,8 +94,8 @@ while True:
                 # I am host
                 # -> generate map
                 new_target = active_window.new_window_target
+                points_to_spend = int((active_window.game_map.x_size * active_window.game_map.y_size) / 400)  # TODO change maybe
                 game_map = active_window.game_map
-                points_to_spend = int((active_window.game_map.size_x * active_window.game_map.size_y) / 400)  # TODO change maybe
                 active_window.harakiri()
 
                 active_window = new_target(points_to_spend=points_to_spend,
@@ -103,11 +103,11 @@ while True:
                                            net=net_var,
                                            role=role)  # TODO add after balancing dependent on desired_map_size
                                                        # cheapest char but full equipped for all team members
-                # yoink comment for push
+
             elif active_window.role is "client":
 
                 # I am client
-                map_data = pickle.loads(bytes(net_var.map))
+                map_data = net_var.map
                 game_map = Map.Map(x_size=map_data[3],
                                    y_size=map_data[4],
                                    elem_size=elem_size,
@@ -119,6 +119,7 @@ while True:
 
                 new_target = active_window.new_window_target
                 active_window.harakiri()
+
                 game_map.draw_map()
                 active_window = new_target(points_to_spend=points_to_spend,
                                            game_map=game_map,

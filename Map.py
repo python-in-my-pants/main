@@ -44,6 +44,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
             self.unique_pixs = unique_pixels[:]
 
         self.window = window
+
         self.elem_size = elem_size
 
         # just testing stuff 11072019 1511
@@ -407,11 +408,10 @@ class MapBuilder:
     def build_map(self, size=30, encode_surf=False):
 
         # build map without characters
-        surf = pg.Surface([500, 500])
-        surf.fill((0, 0, 0))
         elem_size = 25
 
         fields_x = fields_y = size
+
         self.map = Map(x_size=size, y_size=size, elem_size=elem_size)
 
         # ------------------------------------------------------------------------------------------------------------
@@ -454,13 +454,13 @@ class MapBuilder:
 
         for i in range(bush_limit):
 
-            h = Bush(name=("Simple bush " + str(bush_counter)), obj_type="default", \
+            h = Bush(name=("Simple bush " + str(bush_counter)), obj_type="default",
                      pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
 
             # while there is a house (to add) and it doesn't fit and you didn't try 100 times yet generate a new one
             limit = 0
             while h != 0 and self.map.add_object(h, border_size=1) != 1 and limit < 100:
-                h = Bush(name=("Simple bush " + str(bush_counter)), obj_type="default", \
+                h = Bush(name=("Simple bush " + str(bush_counter)), obj_type="default",
                          pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
                 limit += 1
 
@@ -472,8 +472,6 @@ class MapBuilder:
         # draw everything to surf
 
         self.map.draw_map()
-        return self.map
-
         return self.map
 
     def populate(self, team):
