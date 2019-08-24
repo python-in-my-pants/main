@@ -94,8 +94,8 @@ while True:
                 # I am host
                 # -> generate map
                 new_target = active_window.new_window_target
-                points_to_spend = int((active_window.game_map.x_size * active_window.game_map.y_size) / 400)  # TODO change maybe
                 game_map = active_window.game_map
+                points_to_spend = int((game_map.size_x * game_map.size_y) / 400)  # TODO change maybe
                 active_window.harakiri()
 
                 active_window = new_target(points_to_spend=points_to_spend,

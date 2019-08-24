@@ -12,6 +12,7 @@ import numpy
 from _thread import *
 from network import *
 from GUI import *
+from Characters import *
 from Team import *
 from Data import *
 import time
@@ -613,14 +614,14 @@ class CharacterSelection:
         self.role = role
         self.net = net
         self.new_window_target = None
-        self.spent_points = None
+        self.spent_points = 0
         self.screen = None
-        self.ownTeam = None
+        self.ownTeam = Team()
         self.selectedChar = None
         self.ready = None
-        self.cc_num = ...  # TODO number of character cards
-        self.wc_num = ...  # number of weapon cards
-        self.ic_num = ...  # number of item cards
+        self.cc_num = 6  # TODO number of character cards
+        self.wc_num = 7  # number of weapon cards
+        self.ic_num = 7  # number of item cards
 
         self.render_char_ban = True
         self.render_weap_ban = True
@@ -701,7 +702,7 @@ class CharacterSelection:
         # player_banner_img = pg.image.load("assets/default_player_banner.png")  # TODO: add custom player banners
 
         minimap_surf = pg.Surface([int(0.3 * size[0]), int(0.3 * size[0])])
-        self.game_map.draw()
+        self.game_map.draw_map()
         map_surf = self.game_map.window  #TODO: set content of minimap before blitting to map_surf
 
         selected_units_back = pg.Surface([int(0.3 * size[0]), int(size[1] - minimap_surf.get_height() * 2)])
@@ -729,7 +730,7 @@ class CharacterSelection:
 
         # points to spend
         def get_rem_points():
-            return self.points_to_spend - self.spent_points
+            return str(self.points_to_spend - self.spent_points)
 
         self.points_btn = Button(img="assets/remaining_points.png", use_dim=True,
                                  dim=[int(troop_overview.get_size()[0] * 0.21), int(size[1] * 0.1)],
@@ -776,9 +777,9 @@ class CharacterSelection:
         weapons_banner = Button(dim=[int(troop_overview.get_size()[0] * 0.9), int(card_h / 2)],
                                 pos=[int(troop_overview.get_size()[0] * 0.05), int(card_h / 4)],
                                 real_pos=[int(troop_overview.get_size()[0] * 0.05),
-                                          int(card_h / 4)] +
+                                          int(card_h / 4) +
                                          self.points_btn.dim[1] +
-                                         character_back.get_size()[1],
+                                         character_back.get_size()[1]],
                                 text="Weapons", color=(230, 50, 30),
                                 action=weap_ban_func)
         self.banners.append(weapons_banner)
@@ -851,9 +852,9 @@ class CharacterSelection:
             card_btn = Button(pos=[w_pos, h_pos],
                               real_pos=[w_pos,
                                         h_pos +
-                                        self.points_btn.dim[1]] +
+                                        self.points_btn.dim[1] +
                                         character_back.get_size()[1] +
-                                        weapons_banner.dim[1],
+                                        weapons_banner.dim[1]],
                               img=("assets/wc/wc_" + str(i) + ".png"), dim=[card_w, card_h],
                               use_dim=True, action=weapon_function_binder("wc_btn_function_" + str(i), i))
 
@@ -1078,19 +1079,19 @@ class CharacterSelection:
         # TODO: maybe add big image of selected char and selected weap at left side ... or maybe not 'cause you'd have to rework button positions again
 
         # cards and banners
-        character_back.blit(character_banner, character_banner.pos)
+        character_back.blit(character_banner.surf, character_banner.pos)
         if self.render_char_ban:
             for char_btn in self.character_cards:
                 character_content.blit(char_btn.surf, char_btn.pos)
             character_back.blit(character_content, [0, character_banner.dim[1]])
 
-        weapon_back.blit(weapons_banner, weapons_banner.pos)
+        weapon_back.blit(weapons_banner.surf, weapons_banner.pos)
         if self.render_weap_ban:
             for weapon_btn in self.weapon_cards:
                 weapon_content.blit(weapon_btn.surf, weapon_btn.pos)
             weapon_back.blit(weapon_content, [0, weapons_banner.dim[1]])
 
-        item_back.blit(item_banner, item_banner.pos)
+        item_back.blit(item_banner.surf, item_banner.pos)
         if self.render_item_ban:
             for item_btn in self.item_cards:
                 item_content.blit(item_btn.surf, item_btn.pos)
@@ -1098,8 +1099,8 @@ class CharacterSelection:
 
         # TODO: blit background image
         # points btn to left side
-        rem_point_back.blit(self.points_btn, dest=self.points_btn.pos)
-        troop_overview.blit(rem_point_back, dest=int((troop_overview.get_size()[0] - rem_point_back.get_size()[0]) / 2))
+        rem_point_back.blit(self.points_btn.surf, dest=self.points_btn.pos)
+        troop_overview.blit(rem_point_back, dest=[int((troop_overview.get_size()[0] - rem_point_back.get_size()[0]) / 2), 0])
 
         troop_overview.blit(character_back, dest=[0, self.points_btn.dim[1]])
         troop_overview.blit(weapon_back, dest=[0, self.points_btn.dim[1] + character_back.get_size()[1]])
