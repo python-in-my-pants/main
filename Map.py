@@ -46,7 +46,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
         if not map_string_buffer and not window:
             self.window = window
         else:
-            self.window = pygame.image.fromstring(map_string_buffer)
+            self.window = pygame.image.fromstring(map_string_buffer, (x_size, y_size), "RGBA")
         self.elem_size = elem_size
 
         # just testing stuff 11072019 1511
@@ -408,7 +408,7 @@ class MapBuilder:
     def __init__(self):
         self.map = None
 
-    def build_map(self, size=30):
+    def build_map(self, size=30, encode_surf=False):
 
         # build map without characters
         surf = pg.Surface([500, 500])
@@ -416,7 +416,8 @@ class MapBuilder:
 
         fields_x = fields_y = size
 
-        self.map = Map(x_size=size, y_size=size, window=surf, elem_size=elem_size)
+        self.map = Map(x_size=size, y_size=size, elem_size=elem_size,
+                       map_string_buffer=pg.image.tostring(surf, (size, size), "RGBA"))
 
         # ------------------------------------------------------------------------------------------------------------
 

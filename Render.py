@@ -221,12 +221,18 @@ class ConnectionSetup:
                     time.sleep(0.5)
                     print(self.net.client_status)
                     pass  # Sleep even tighter Aniki!!!
-                builder = Map.MapBuilder()
-                self.game_map = builder.build_map(self.field_size)
+
+                self.game_map = Map.MapBuilder().build_map(self.field_size, encode_surf=True)
+
                 self.team_number = numpy.random.randint(0, 2)
-                if self.team_number == 1: self.net.send_data("Teams", str(0))
-                if self.team_number == 0: self.net.send_data("Teams", str(1))
+
+                if self.team_number == 1:
+                    self.net.send_data("Teams", str(0))
+                if self.team_number == 0:
+                    self.net.send_data("Teams", str(1))
+
                 print(self.game_map.get_map())
+
                 self.net.send_data_pickle("Maps", self.game_map.get_map())
                 self.host_stat = "Waiting on other Player's confirmation for the map!"
                 while self.net.client_got_map != "Yes":
