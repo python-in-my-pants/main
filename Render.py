@@ -223,16 +223,13 @@ class ConnectionSetup:
                     pass  # Sleep even tighter Aniki!!!
 
                 self.game_map = Map.MapBuilder().build_map(self.field_size, encode_surf=True)
-
                 self.team_number = numpy.random.randint(0, 2)
-
                 if self.team_number == 1:
                     self.net.send_data("Teams", str(0))
                 if self.team_number == 0:
                     self.net.send_data("Teams", str(1))
-
-                print(self.game_map.get_map())
-
+                print(pickle.dumps(self.game_map.get_map()).__len__())
+                time.sleep(0.5)
                 self.net.send_data_pickle("Maps", self.game_map.get_map())
                 self.host_stat = "Waiting on other Player's confirmation for the map!"
                 while self.net.client_got_map != "Yes":
@@ -261,7 +258,7 @@ class ConnectionSetup:
                                            real_pos=[int((right_surf.get_size()[0] - (surfs_size[0] / 3)) / 2),
                                                      int(surfs_size[1] * 0.7)],
                                            name="board_size_button", color=(255, 255, 255),
-                                           action=desired_board_size_button_fkt, text=self.desi_board_text)
+                                           action=desired_board_size_button_fkt, text="50")#self.desi_board_text)
 
         # append later to not mess up indices
 
@@ -294,6 +291,32 @@ class ConnectionSetup:
         self.buttons.append(back_btn)
 
         # -------------------------------------------------------------------------------------------------------------
+        '''
+        def join_btn_fkt():
+            if self.join_thread == 0:
+                self.join_thread = start_new_thread(join_btn_fkt, ())
+                return
+            if self.join_thread != 0 and get_ident() == self.join_thread:
+                if ip_to_join_btn.text.count(".") == 3 and ip_to_join_btn.text.__len__() >= 4:
+                    self.net = Network.ip_setup(ip_to_join_btn.text)
+                    start_new_thread(self.net.routine_threaded_listener, ())
+                    self.join_stat = "Connecting..."
+                else:
+                    self.join_stat = "You have to enter an IP!"
+                    return
+                self.role = "client"
+                self.net.send_control("Client_ready")
+                self.join_stat = "Waiting on the map!"
+                while int(self.net.map[0:10].decode()) <= 4000000:
+                    self.net.send_control("Map pls")
+                    time.sleep(1)
+                    pass  # I'm a Performanceartist!
+                print(self.net.map.__len__())
+                self.net.map = pickle.loads(self.net.map)
+                self.net.send_control("Map recieved!")
+                time.sleep(1)
+                self.new_window_target = CharacterSelection
+        '''
 
         def join_btn_fkt():
             if self.join_thread == 0:
@@ -310,12 +333,20 @@ class ConnectionSetup:
                 self.role = "client"
                 self.net.send_control("Client_ready")
                 self.join_stat = "Waiting on the map!"
-                while self.net.map == b'':
+
+                while int(self.net.map.__len__()) <= 4000000:
+                    print("pre: " + str(self.net.map.__len__()))
                     self.net.send_control("Map pls")
-                    time.sleep(0.5)
+                    print("after: " + str(self.net.map.__len__()))
+                    print()
+                    time.sleep(2)
                     pass  # I'm a Performanceartist!
-                self.map = pickle.loads(self.net.map)
-                self.net.send_control("Map recieved!")
+
+                print(self.net.map.__len__())
+                #print(self.net.map)
+                self.net.map = pickle.loads(bytes(self.net.map))
+
+                self.net.send_control("Map recieved")
                 time.sleep(1)
                 self.new_window_target = CharacterSelection
 
@@ -711,7 +742,8 @@ class CharacterSelection:
         # player_banner_img = pg.image.load("assets/default_player_banner.png")  # TODO: add custom player banners
 
         minimap_surf = pg.Surface([int(0.3 * size[0]), int(0.3 * size[0])])
-        map_surf = copy.deepcopy(self.game_map.window)
+        self.game_map.draw()
+        map_surf = self.game_map.window
 
         selected_units_back = pg.Surface([int(0.3 * size[0]), int(size[1] - minimap_surf.get_height() * 2)])
         selected_units_box = pg.Surface(

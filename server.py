@@ -51,9 +51,10 @@ def threaded_client(conn):
                 print("Team Send!")
             # Map
             if data[0:4] == b'Maps':
-                karte = data[10:len(data)]
+                karte = data[4:len(data)]
                 print("Saved Successfully!")
             if data[0:7] == b'Map pls':
+                print(karte.__len__())
                 sender(b'Map', karte, conn)
                 print("Map send!")
             # Host_status
@@ -79,8 +80,9 @@ def threaded_client(conn):
             if data[0:13] == b'Client_status':
                 sender(b'Client_status', client_status.encode(), conn1)
             # Client_got_map
-            if data[0:14] == b'Map recieved!':
+            if data[0:12] == b'Map recieved':
                 client_got_map = "Yes"
+                print("_____________")
                 sender(b'Client_got_map', client_got_map.encode(), conn1)
             # Connection_amount
             if data[0:8] == b'G_amount':

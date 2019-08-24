@@ -107,20 +107,19 @@ while True:
             elif active_window.role is "client":
 
                 # I am client
-                map_data = pickle.loads(net_var.map)
+                map_data = pickle.loads(bytes(net_var.map))
                 game_map = Map.Map(x_size=map_data[3],
                                    y_size=map_data[4],
                                    elem_size=elem_size,
                                    objects=map_data[1],
                                    characters=map_data[2],
-                                   unique_pixels=map_data[0],
-                                   map_string_buffer=map_data[5])
+                                   unique_pixels=map_data[0])
 
                 points_to_spend = int((game_map.size_x * game_map.size_y)/400)   # TODO change maybe
 
                 new_target = active_window.new_window_target
                 active_window.harakiri()
-
+                game_map.draw_map()
                 active_window = new_target(points_to_spend=points_to_spend,
                                            game_map=game_map,
                                            net=net_var,
