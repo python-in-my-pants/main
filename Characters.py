@@ -29,6 +29,7 @@ class Character(GameObject):
         self.unit_class = unit_class
         self.cost = cost
 
+        self.id = id
         self.idi = self.id_counter
         self.id_counter += 1
 
@@ -62,8 +63,8 @@ class Character(GameObject):
         self.carry = carry
 
     @staticmethod
-    def create_character(name, team, id):
-        boi = Character(name=name, team=team, id=id)
+    def create_character(id):
+        boi = Character(id=id)
         boi.class_selector()
         boi.weight_calculator()
         return boi

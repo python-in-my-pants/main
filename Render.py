@@ -636,6 +636,7 @@ class CharacterSelection:
 
         self.banners = []
         self.team_char_btns = []
+        self.sel_item_btns = []
 
         self.points_btn = None
         self.ready_btn = None
@@ -664,6 +665,7 @@ class CharacterSelection:
         self.item_cards = []
         self.banners = []
         self.team_char_btns = []
+        self.sel_item_btns = []
         # room between cards should be 1/8 of their width, 5 cards per line makes 6 spaces, so 5* 8/8 + 6 * 1/8
         # = 46/8, so the width has to be split in 46 equal parts where 1/46 makes the space between 2 cards
         # 46 = line_len * 9 + 1
@@ -816,7 +818,7 @@ class CharacterSelection:
         # character cards
         def function_binder(name, card_num):
 
-            def butn_fkt(card_num):
+            def butn_fkt():
 
                 char = Character.create_character(card_num)  # TODO: add function call to get instance of corresponding class
                 if self.spent_points + char.cost <= self.points_to_spend:
@@ -848,9 +850,9 @@ class CharacterSelection:
         # weapon cards
         def weapon_function_binder(name, card_num):
 
-            def butn_fkt(card_num):
+            def butn_fkt():
 
-                weap = ...  # TODO: add function call to get instance of corresponding class
+                weap = Weapon.make_weapon_by_id(card_num)  # TODO: add function call to get instance of corresponding class
                 if self.spent_points + weap.cost <= self.points_to_spend:
                     self.selectedChar.weapons.append(weap)
                     self.spent_points -= weap.cost
@@ -881,9 +883,9 @@ class CharacterSelection:
         # item cards
         def item_function_binder(name, card_num):
 
-            def butn_fkt(_card_num):
+            def butn_fkt():
 
-                item = Item.make_weapon_by_id(_card_num)  # TODO: add function call to get instance of corresponding class
+                item = Item.make_item_by_id(card_num)  # TODO: add function call to get instance of corresponding class
                 if self.spent_points + item.cost <= self.points_to_spend:
                     self.ownTeam.add_char(item)
                     self.spent_points -= item.cost
@@ -924,7 +926,7 @@ class CharacterSelection:
         # blit to selected_units_box
         def cc_function_binder(name, _char_id):
 
-            def btn_fkt(_char_id, button=1):
+            def btn_fkt(button=1):
                 if button == 1:
                     # show characters items in selected_weapons_box and set him as selected char
                     self.selectedChar = self.ownTeam.get_char_by_id(_char_id)
@@ -944,7 +946,7 @@ class CharacterSelection:
             pos_w = small_gap_size + (i % (small_line_len - 1)) * (w_small_card + small_gap_size)
             pos_h = small_gap_size + i * int((i + 1) / small_line_len) * (small_gap_size + h_small_card)
 
-            class_num = character_classes[self.ownTeam.characters[i].unit_class]
+            class_num = self.ownTeam.characters[i].id
 
             btn = Button(dim=[w_small_card, h_small_card], pos=[pos_w, pos_h],
                          real_pos=[pos_w +
@@ -974,7 +976,7 @@ class CharacterSelection:
 
         def ic_function_binder(name, _category, _id):
 
-            def btn_fkt(_category, _id, button=1):
+            def btn_fkt(button=1):
                 if button == 3:
 
                     # sell this item
@@ -1049,7 +1051,7 @@ class CharacterSelection:
                          img=image_uri, use_dim=True, action=ic_function_binder("ci_small_btn_func" + str(i),
                                                                                 _category=cat, _id=id))
 
-            self.team_char_btns.append(btn)
+        self.sel_item_btns.append(btn)
 
         # to blit to player_banner_back
         # ready button
@@ -1155,6 +1157,9 @@ class CharacterSelection:
 
         # selected weapons
 
+        for sel_item_btn in self.sel_item_btns:
+            selected_weapons_box.blit(sel_item_btn.surf, sel_item_btn.pos)
+
         selected_weapons_back.blit(selected_weapons_box, dest=
                                    [int((selected_weapons_back.get_size()[0] - selected_weapons_box.get_size()[0]) / 2),
                                     int((selected_weapons_back.get_size()[0] - selected_weapons_box.get_size()[0]) / 2)])
@@ -1214,11 +1219,11 @@ class CharacterSelection:
 
                 if event.button == 4:  # scroll up
 
-                    self.scroll_offset -= 10
+                    self.scroll_offset += 100
 
                 if event.button == 5:  # scroll down
 
-                    self.scroll_offset += 10
+                    self.scroll_offset -= 100
 
     def harakiri(self):
         del self
