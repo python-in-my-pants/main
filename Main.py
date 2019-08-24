@@ -112,7 +112,8 @@ while True:
                                    elem_size=elem_size,
                                    objects=map_data[1],
                                    characters=map_data[2],
-                                   unique_pixels=map_data[0])
+                                   unique_pixels=map_data[0],
+                                   map_string_buffer=map_data[5])
 
                 points_to_spend = int((game_map.size_x * game_map.size_y)/400)   # TODO change maybe
 

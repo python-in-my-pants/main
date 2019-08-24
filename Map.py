@@ -27,7 +27,8 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
     # window = -1
     '''
 
-    def __init__(self, x_size, y_size, elem_size, window=pg.Surface([1000, 1000]), objects=[], characters=[], unique_pixels=[]):  # STATUS: working, returns 1 on success, 0 else
+    def __init__(self, x_size, y_size, elem_size, window=pg.Surface([1000, 1000]), objects=[], characters=[],
+                 unique_pixels=[], map_string_buffer=None):  # STATUS: working, returns 1 on success, 0 else
 
         # size_x holds map size in actual drawable pixels coords, x and y are to be
         # committed in desired size in elements * elem_size
@@ -42,7 +43,10 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
         else:
             self.unique_pixs = unique_pixels[:]
 
-        self.window = window
+        if not map_string_buffer and not window:
+            self.window = window
+        else:
+            self.window = pygame.image.fromstring(map_string_buffer)
         self.elem_size = elem_size
 
         # just testing stuff 11072019 1511
@@ -393,7 +397,8 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
                self.objects,
                self.characters,
                self.size_x,
-               self.size_y]
+               self.size_y,
+               pygame.image.tostring(self.window)]  # encode self.window as string and rebuild surface from this
 
         return lis
 

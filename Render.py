@@ -122,7 +122,7 @@ class ConnectionSetup:
         self.screen = None
         self.buttons = None
 
-        self.ip_field_text = "88.150.32.237"
+        self.ip_field_text = "88.150.32.237"  #"141.44.161.132"
         self.desi_board_text = "Enter board size"
         self.game_map = None
 
@@ -639,8 +639,8 @@ class CharacterSelection:
         self.ready = False
 
         self.cc_num = 6   # TODO number of character cards
-        self.wc_num = 7   # number of weapon cards
-        self.ic_num = 13  # number of item cards
+        self.wc_num = 3   # number of weapon cards
+        self.ic_num = 5  # number of item cards
 
         self.render_char_ban = True
         self.render_weap_ban = True
