@@ -63,13 +63,6 @@ class Character(GameObject):
         self.is_selected = False
         self.carry = carry
 
-    @staticmethod
-    def create_character(id):
-        boi = Character(id=id)
-        boi.class_selector()
-        boi.weight_calculator()
-        return boi
-
     def class_selector(self):
         if self.id == 0:  # Pawn
             self.stamina = 50
@@ -340,6 +333,12 @@ class Character(GameObject):
             self.bleed[partind] = False
             print("Bleeding has stopped")
 
+
+def create_character(id):
+    boi = Character(id=id)
+    boi.class_selector()
+    boi.weight_calculator()
+    return boi
 
 if Debug:
     #boi = Character.create_character("Peter", "team 1", "Light Gunner")

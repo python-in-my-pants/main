@@ -137,7 +137,7 @@ while True:
 
     if isinstance(active_window, character_selection):
 
-        print("I got here!")
+        #print("I got here!")
 
         if active_window.new_window_target:
 

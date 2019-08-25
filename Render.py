@@ -820,15 +820,16 @@ class CharacterSelection:
 
             def butn_fkt():
 
-                char = Character.create_character(card_num)  # TODO: add function call to get instance of corresponding class
+                char = create_character(card_num)  # TODO: add function call to get instance of corresponding class
                 if self.spent_points + char.cost <= self.points_to_spend:
                     self.ownTeam.add_char(char)
                     self.spent_points -= char.cost
+                    self.selectedChar = char
                 else:
                     # TODO: take out
                     print("Too expensive, cannot buy")
 
-            butn_fkt.__name__ = name
+            butn_fkt.name = name
             return butn_fkt
 
         for i in range(self.cc_num):
@@ -852,7 +853,7 @@ class CharacterSelection:
 
             def butn_fkt():
 
-                weap = Weapon.make_weapon_by_id(card_num)  # TODO: add function call to get instance of corresponding class
+                weap = make_weapon_by_id(card_num)  # TODO: add function call to get instance of corresponding class
                 if self.spent_points + weap.cost <= self.points_to_spend:
                     self.selectedChar.weapons.append(weap)
                     self.spent_points -= weap.cost
@@ -1051,7 +1052,7 @@ class CharacterSelection:
                          img=image_uri, use_dim=True, action=ic_function_binder("ci_small_btn_func" + str(i),
                                                                                 _category=cat, _id=id))
 
-        self.sel_item_btns.append(btn)
+            self.sel_item_btns.append(btn)
 
         # to blit to player_banner_back
         # ready button
