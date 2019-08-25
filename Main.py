@@ -21,14 +21,9 @@ from Map import *
 from Render import *
 from Characters import Character
 
-char_amount = 0
-elem_size = 25
 debug = True
 
 pg.init()
-mode = "mainscreen"
-changed = True
-redraw = True
 
 # client / server stuff
 # os.startfile("server.py")
@@ -41,19 +36,16 @@ map_data = []  # holds data of map received from server PLUS the team number you
 select = False
 clock = pg.time.Clock()
 
-# get correct screen size
-mon = pg.display.Info()
-screen_h = int(mon.current_h)
-screen_w = int(mon.current_w/2)
-
 #  --------------------------------------------------------------------------------------------
 
-if True:
-    fields_x = 30  # width
-    fields_y = 30  # height
-    elem_size = int(screen_w/fields_x) if int(screen_w/fields_x) < int(screen_h/fields_y) else int(screen_h/fields_y)
-    x = elem_size * fields_x  # mult of 10
-    y = elem_size * fields_y  # mult of 10
+mon = pg.display.Info()
+screen_h = int(mon.current_h)
+screen_w = int(mon.current_w)
+fields_x = 30  # width
+fields_y = 30  # height
+elem_size = int(screen_w/fields_x) if int(screen_w/fields_x) < int(screen_h/fields_y) else int(screen_h/fields_y)
+x = elem_size * fields_x  # mult of 10
+y = elem_size * fields_y  # mult of 10
 
 active_window = None
 
@@ -136,8 +128,6 @@ while True:
             active_window.update()
 
     if isinstance(active_window, character_selection):
-
-        print("I got here!")
 
         if active_window.new_window_target:
 

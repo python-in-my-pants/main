@@ -142,7 +142,7 @@ class ConnectionSetup:
 
         # TODO overthink if this works
         self.new_window_target = None  # update if you want to leave this screen
-        #self.role = "unknown"
+        # self.role = "unknown"
         self.field_size = 0
 
         size = self.size
@@ -156,7 +156,7 @@ class ConnectionSetup:
         # create window
         self.screen = pg.display.set_mode(size, flags=pg.RESIZABLE)'''
         # set title
-        pg.display.set_caption("nAme;Rain - Verbindungskonfiguration ...")
+        pg.display.set_caption("nAme;Rain - Verbindungskonfiguration")
 
         # scale image
         main_background_img = pg.transform.scale(self.main_background_img, (size[0], size[1]))
@@ -203,19 +203,19 @@ class ConnectionSetup:
                 os.startfile("server.py")
                 self.net = Network.ip_setup(get('https://api.ipify.org').text)
                 start_new_thread(self.net.routine_threaded_listener, ())
-                self.host_stat = "Waiting for a Connection!"
+                self.host_stat = "Waiting for a Connection ..."
                 while self.net.g_amount != "2":
                     self.net.send_control("G_amount")
                     time.sleep(0.500)
                     pass  # Sleep tight Aniki!
 
                 while desired_board_size_button.text == "Enter the desired size":
-                    self.host_stat = "Enter the desired map size!"
+                    self.host_stat = "Enter the desired map size"
                     pass  # Sleep tighter Aniki!!
 
                 self.field_size = int(desired_board_size_button.text)
                 self.role = "host"
-                self.host_stat = "Waiting on other Player to get ready!"
+                self.host_stat = "Waiting for other Player to get ready"
 
                 while self.net.client_status != "Ready":
                     self.net.send_control("Client_status")
@@ -230,10 +230,10 @@ class ConnectionSetup:
                     self.net.send_data("Teams", str(0))
                 if self.team_number == 0:
                     self.net.send_data("Teams", str(1))
-                print(pickle.dumps(self.game_map.get_map()).__len__())
+                # print(pickle.dumps(self.game_map.get_map()).__len__())
                 time.sleep(0.5)
                 self.net.send_data_pickle("Maps", self.game_map.get_map())
-                self.host_stat = "Waiting on other Player's confirmation for the map!"
+                self.host_stat = "Waiting for other players confirmation to notice that bulge"
                 while self.net.client_got_map != "Yes":
                     pass  # Sleep the tightest Aniki!!!!
                 self.host_stat = "Let's start!"
@@ -304,11 +304,11 @@ class ConnectionSetup:
                     start_new_thread(self.net.routine_threaded_listener, ())
                     self.join_stat = "Connecting..."
                 else:
-                    self.join_stat = "You have to enter an IP!"
+                    self.join_stat = "You have to enter an IP, Aniki <3"
                     return
                 self.role = "client"
                 self.net.send_control("Client_ready")
-                self.join_stat = "Waiting on the map!"
+                self.join_stat = "Waiting for the map..."
 
                 while self.net.map == b'':
                     print("pre: " + str(self.net.map.__len__()))
@@ -322,14 +322,14 @@ class ConnectionSetup:
                 print(self.net.map)
                 self.net.map = pickle.loads(bytes(self.net.map[6:]))
 
-                self.net.send_control("Map recieved")
+                self.net.send_control("Map recieved! UwU")
                 time.sleep(2)
                 self.new_window_target = CharacterSelection
 
         def cancel_join_fkt():
             self.net = None
             self.role = "unknown"
-            self.join_stat = "Joining Cancelled!"
+            self.join_stat = "Joining cancelled! OwO"
 
         def ip_field_fkt():
             # on first click erase content, else do nothing
@@ -722,7 +722,7 @@ class CharacterSelection:
         small_line_len = 3
         small_gap_size = int(selected_units_box.get_size()[0] / (small_line_len * 9 + 1))
         w_small_card = int(selected_units_box.get_size()[0] * 8 / (small_line_len * 9 + 1))
-        h_small_card = int(w_small_card * 1.457)
+        h_small_card = w_small_card #int(w_small_card * 1.457)
 
         # -------------------------------------------------------------------------------------------------------------
         # set up buttons
@@ -733,14 +733,15 @@ class CharacterSelection:
         ########
 
         # points to spend
+        # TODO unused atm
         def get_rem_points():
             return str(self.points_to_spend - self.spent_points)
 
         self.points_btn = Button(img="assets/remaining_points.png", use_dim=True,
                                  dim=[int(troop_overview.get_size()[0] * 0.21), int(size[1] * 0.1)],
-                                 pos=[int(troop_overview.get_size()[0] * 0.305), 0],
+                                 pos=[int((troop_overview.get_size()[0]-int(troop_overview.get_size()[0] * 0.21))/2),0],
                                  action=(lambda: None),
-                                 text=get_rem_points())
+                                 text=(str(self.spent_points) + "/" + str(self.points_to_spend)))
 
         # banners
         def char_ban_func():
@@ -820,10 +821,11 @@ class CharacterSelection:
 
             def butn_fkt():
 
-                char = Character.create_character(card_num)  # TODO: add function call to get instance of corresponding class
+                char = create_character(card_num)
                 if self.spent_points + char.cost <= self.points_to_spend:
                     self.ownTeam.add_char(char)
-                    self.spent_points -= char.cost
+                    self.spent_points += char.cost
+                    self.selectedChar = char
                 else:
                     # TODO: take out
                     print("Too expensive, cannot buy")
@@ -852,10 +854,10 @@ class CharacterSelection:
 
             def butn_fkt():
 
-                weap = Weapon.make_weapon_by_id(card_num)  # TODO: add function call to get instance of corresponding class
+                weap = make_weapon_by_id(card_num)  # TODO: add function call to get instance of corresponding class
                 if self.spent_points + weap.cost <= self.points_to_spend:
                     self.selectedChar.weapons.append(weap)
-                    self.spent_points -= weap.cost
+                    self.spent_points += weap.cost
                 else:
                     # TODO: take out
                     print("Too expensive, cannot buy")
@@ -888,7 +890,7 @@ class CharacterSelection:
                 item = Item.make_item_by_id(card_num)  # TODO: add function call to get instance of corresponding class
                 if self.spent_points + item.cost <= self.points_to_spend:
                     self.ownTeam.add_char(item)
-                    self.spent_points -= item.cost
+                    self.spent_points += item.cost
                 else:
                     # TODO: take out
                     print("Too expensive, cannot buy")
@@ -934,7 +936,10 @@ class CharacterSelection:
                     # sell this character
                     char = self.ownTeam.get_char_by_id(_char_id)
                     self.ownTeam.remove_char_by_obj(char)
-                    self.selectedChar = self.ownTeam.characters[0]
+                    if self.ownTeam.characters.__len__() > 0:
+                        self.selectedChar = self.ownTeam.characters[0]
+                    else:
+                        self.selectedChar = None
 
                     self.spent_points -= char.cost
                     self.points_to_spend += char.cost
@@ -1051,7 +1056,7 @@ class CharacterSelection:
                          img=image_uri, use_dim=True, action=ic_function_binder("ci_small_btn_func" + str(i),
                                                                                 _category=cat, _id=id))
 
-        self.sel_item_btns.append(btn)
+            self.sel_item_btns.append(btn)
 
         # to blit to player_banner_back
         # ready button
