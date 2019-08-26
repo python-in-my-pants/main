@@ -27,13 +27,18 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
     # window = -1
     '''
 
-    def __init__(self, x_size, y_size, elem_size, window=pg.Surface([1000, 1000]), objects=[], characters=[],
+    def __init__(self, x_size, y_size, elem_size, window=None, objects=[], characters=[],
                  unique_pixels=[]):  # STATUS: working, returns 1 on success, 0 else
 
         # size_x holds map size in actual drawable pixels coords, x and y are to be
         # committed in desired size in elements * elem_size
         self.size_x = x_size
         self.size_y = y_size
+
+        if not window:
+            self.window = pg.Surface([x_size*elem_size, y_size*elem_size])
+        else:
+            self.window = window
 
         self.starting_areas = []  # holds lists [a,b,c,d]
 
@@ -42,8 +47,6 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
             self.unique_pixs = [[0 for _ in range(int(x_size))] for _ in range(int(y_size))]
         else:
             self.unique_pixs = unique_pixels[:]
-
-        self.window = window
 
         self.elem_size = elem_size
 
