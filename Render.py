@@ -222,8 +222,8 @@ class ConnectionSetup:
                 self.net.send_control("Close")
                 self.net = None
                 self.role = "unknown"
+                self.host_thread = 0
             self.host_stat = "Hosting canceled!"
-            # TODO Sollte Funzen
 
         def back_fkt():
             self.new_window_target = MainWindow
@@ -301,6 +301,7 @@ class ConnectionSetup:
         def cancel_join_fkt():
             self.net = None
             self.role = "unknown"
+            self.join_thread = 0
             self.join_stat = "Joining cancelled! OwO"
 
         def ip_field_fkt():
