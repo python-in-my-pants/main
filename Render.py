@@ -37,7 +37,7 @@ class MainWindow:
         print("MainWindow thinks the size is: " + str(size))
 
         self.new_window_target = None
-        self.screen = pg.display.set_mode(true_res, flags=pg.RESIZABLE)
+        self.screen = pg.display.set_mode(true_res, pg.RESIZABLE)
 
         main_background_img = pg.image.load("assets/rose.png")
 
@@ -132,7 +132,7 @@ class ConnectionSetup:
         self.main_background_img = fit_surf(pg.Surface(true_res), self.main_background_img)
 
         # create window
-        self.screen = pg.display.set_mode(true_res, flags=pg.RESIZABLE)
+        self.screen = pg.display.set_mode(true_res, pg.RESIZABLE)
 
         self.screen.blit(self.main_background_img, blit_centered_pos(self.screen, self.main_background_img))
 
@@ -596,7 +596,7 @@ class CharacterSelection:
         self.net = net
         self.new_window_target = None
         self.spent_points = 0
-        self.screen = pg.display.set_mode(true_res, flags=pg.RESIZABLE|pg.FULLSCREEN)
+        self.screen = pg.display.set_mode(true_res, pg.RESIZABLE|pg.FULLSCREEN)
         self.ownTeam = Team()
         self.selectedChar = None
         self.ready = None
