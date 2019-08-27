@@ -20,7 +20,7 @@ class Character(GameObject):
                  unit_class=0, health=[100, 100, 100, 100, 100, 100], gear=[], dexterity=25, strength=15, stamina=1000,\
                  speed=1, height=1, pos=[0, 0], bleed=[False, False, False, False, False, False], cost=1, \
                  bleed_t=[0, 0, 0, 0, 0, 0], burn=False, burn_t=0, poison=False, poison_t=0, blind=False, blind_t=0, \
-                 items=[], weapons=[], orientation=0, carry=0, id=0):
+                 items=[], weapons=[], orientation=0, carry=0, my_id=0):
         super().__init__(name=name, obj_type=object_type, pos=pos, materials=["player"])
         self.name = name
         self.object_type = object_type
@@ -29,15 +29,13 @@ class Character(GameObject):
         self.unit_class = unit_class
         self.cost = cost
 
-        self.id = id
+        self.my_id = my_id
         self.idi = self.id_counter
-        self.id = id
         self.id_counter += 1
 
         self.health = health[:]
         self.dexterity = dexterity
         self.strength = strength
-        self.gear = gear[:]
         self.stamina = stamina
         self.speed = speed
         self.height = height
@@ -53,7 +51,9 @@ class Character(GameObject):
         self.blind_t = blind_t
 
         self.items = items[:]
+        self.gear = gear[:]
         self.weapons = weapons[:]
+        self.active_slot = []
         self.orientation = orientation
 
         self.pixs = pos[:]
@@ -64,40 +64,39 @@ class Character(GameObject):
         self.carry = carry
 
     def class_selector(self):
-        if self.id == 0:  # Pawn
+        if self.my_id == 0:  # Pawn
             self.stamina = 50
             self.speed = 40
             self.dexterity = 35
             self.strength = 35
-        if self.id == 1:  # Leichte Truppe
+        if self.my_id == 1:  # Leichte Truppe
             self.stamina = 55
             self.speed = 70
             self.dexterity = 45
             self.strength = 35
-        if self.id == 2:  # Schwere Truppe
+        if self.my_id == 2:  # Schwere Truppe
             self.stamina = 40
             self.speed = 30
             self.dexterity = 50
             self.strength = 80
-        if self.id == 3:  # Sanitäter
+        if self.my_id == 3:  # Sanitäter
             self.stamina = 70
             self.speed = 50
             self.dexterity = 35
             self.strength = 50
-        if self.id == 4:  # Scharfschütze
+        if self.my_id == 4:  # Scharfschütze
             self.stamina = 70
             self.speed = 40
             self.dexterity = 70
             self.strength = 35
-        if self.id == 5:  # Spezialist
+        if self.my_id == 5:  # Spezialist
             self.stamina = 70
             self.speed = 50
             self.dexterity = 35
             self.strength = 50
 
-
     def weight_calculator(self):
-        self.carry = self.strength *2 * self.dexterity * 0.15
+        self.carry = self.strength * 11
 
     def is_dead(self):  # returns if dead
         return self.health[0] <= 0 or self.health[3] <= 0
@@ -243,15 +242,27 @@ class Character(GameObject):
         else:
             print("You can't exchange any weapons!")
 
-    def range(self, dude):
-        return abs(numpy.sqrt(((self.pos[0]-dude.pos[0])**2)*((self.pos[1]-dude.pos[1])**2)))
+    def change_active_slot(self, args):
+        # args = [type, index]
+        if args[0] == "Weapon":
+            if len(self.active_slot) == 1: self.active_slot.pop(0)
+            self.active_slot.append(self.weapons[args[1]])
+        if args[0] == "Item":
+            if len(self.active_slot) == 1: self.active_slot.pop(0)
+            self.active_slot.append(self.items[args[1]])
 
-    def shoot(self, dude, weapon, partind):
+    def range(self, dude):
+        return abs(numpy.sqrt(((self.pos[0]-dude.pos[0])**2)+((self.pos[1]-dude.pos[1])**2)))
+
+    def shoot(self, dude, partind):
         # ToDo Basechance * (0.3 * Dex) - Range
-        chance = weapon.acc * (0.3 * self.dexterity) - self.range(dude)
-        for s in range(weapon.spt):
+        if self.active_slot[0].idi <= 9001:
+            return
+        chance = int(self.active_slot[0].acc * (0.3 * self.dexterity) - self.range(dude))
+        print(chance)
+        for s in range(self.active_slot[0].spt):
             if numpy.random.randint(0, 101) <= chance:
-                dude.get_damaged(weapon.dmg, partind)
+                dude.get_damaged(self.active_slot[0].dmg, partind)
 
     def get_damaged(self, dmg, partind):
         if partind == 3:
@@ -334,14 +345,20 @@ class Character(GameObject):
             print("Bleeding has stopped")
 
 
-def create_character(id):
-    boi = Character(id=id)
+def create_character(my_id, pos):
+    boi = Character(my_id=my_id, pos=pos)
     boi.class_selector()
     boi.weight_calculator()
     return boi
 
 if Debug:
-    #boi = Character.create_character("Peter", "team 1", "Light Gunner")
+    #boi = create_character(4, [0, 0])
+    #boii = create_character(0, [0, 10])
+    #boi.weapon_add(make_weapon_by_id(2))
+    #boi.change_active_slot(["Weapon", 0])
+    #boi.shoot(boii, 2)
+    #print(boii.health[2])
+
     #boi.add_item(Medkit())
     #boi.get_damaged(15, 2)
     #print(boi.health[2])
