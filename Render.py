@@ -64,10 +64,9 @@ class MainWindow:
             # go to different window and kill this one
             self.new_window_target = ConnectionSetup
 
-        btn = Button([int(0.2 * size[0]), int(0.069 * size[1])],
-                     pos=[size[0] / 2 - int(0.2 * size[0]) / 2,
-                          size[1] / 2 - int(0.069 * size[1]) / 2 + 200],
-                     name="Button 1", img="assets/blue_button_menu.jpg", action=button_fkt, text="Play")
+        btn = Button([int(0.2 * size[0]), int(0.069 * size[1])], pos=[size[0] / 2 - int(0.2 * size[0]) / 2,
+                                                                      size[1] / 2 - int(0.069 * size[1]) / 2 + 200],
+                     img_uri="assets/blue_button_menu.jpg", text="Play", name="Button 1", action=button_fkt)
 
         # render Button to screen
         self.screen.blit(btn.surf, btn.pos)
@@ -236,23 +235,23 @@ class ConnectionSetup:
                                            pos=[int((left_surf.get_width() - int(surfs_size[0] / 3)) / 2),
                                                 int(surfs_size[1] * 0.7)],
                                            real_pos=[int((right_surf.get_width() - (surfs_size[0] / 3)) / 2),
-                                                     int(surfs_size[1] * 0.7)],
-                                           name="board_size_button", color=(255, 255, 255),
-                                           action=desired_board_size_button_fkt, text="50")#self.desi_board_text)
+                                                     int(surfs_size[1] * 0.7)], color=(255, 255, 255), text="50",
+                                           name="board_size_button",
+                                           action=desired_board_size_button_fkt)  #self.desi_board_text)
 
         # append later to not mess up indices
 
         host_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
                           pos=[int((left_surf.get_width() - int(surfs_size[0] / 3)) / 2),
-                               int(surfs_size[1] / 6)],
-                          name="host_btn", color=(135, 206, 235), action=host_btn_fkt, text="Host")
+                               int(surfs_size[1] / 6)], color=(135, 206, 235), text="Host", name="host_btn",
+                          action=host_btn_fkt)
 
         self.buttons.append(host_btn)
 
         host_stat_btn = Button([int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
                                pos=[int((left_surf.get_width() - int(surfs_size[0] / 3)) / 2),
-                                    int(surfs_size[1] * 0.43)],
-                               name="host_stat", color=(135, 206, 235), action=(lambda: None), text=self.host_stat)
+                                    int(surfs_size[1] * 0.43)], color=(135, 206, 235), text=self.host_stat,
+                               name="host_stat", action=(lambda: None))
 
         self.buttons.append(host_stat_btn)
 
@@ -260,14 +259,13 @@ class ConnectionSetup:
                                  pos=[int((left_surf.get_width() - int(surfs_size[0] / 3)) / 2),
                                       int(surfs_size[1] * 0.84)],
                                  real_pos=[int((left_surf.get_width() - int(surfs_size[0] / 3)) / 2),
-                                           int(surfs_size[1] * 0.84)],
-                                 name="cancel_host", color=(250, 128, 114), action=cancel_host_fkt, text="Cancel")
+                                           int(surfs_size[1] * 0.84)], color=(250, 128, 114), text="Cancel",
+                                 name="cancel_host", action=cancel_host_fkt)
 
         self.buttons.append(host_cancel_btn)
 
-        back_btn = Button(pos=[0, 0], use_dim=True, dim=[int(size[0]*0.1), int(size[0]*0.1)],
-                          name="back_btn", img="assets/back_btn.png", real_pos=[0, 0],
-                          action=back_fkt, text="")
+        back_btn = Button(dim=[int(size[0] * 0.1), int(size[0] * 0.1)], pos=[0, 0], real_pos=[0, 0],
+                          img_uri="assets/back_btn.png", text="", name="back_btn", use_dim=True, action=back_fkt)
 
         self.buttons.append(back_btn)
 
@@ -291,7 +289,7 @@ class ConnectionSetup:
 
                 while self.net.map == b'':
                     self.net.send_control("Map pls")
-                    time.sleep(1)
+                    time.sleep(2) # this must be at least 2!
                     pass  # I'm a Performanceartist!
 
                 self.net.map = pickle.loads(bytes(self.net.map[6:]))
@@ -318,18 +316,17 @@ class ConnectionSetup:
                                int(surfs_size[1] / 6)],
                           real_pos=[int((right_surf.get_width() - (surfs_size[0] / 3)) / 2) +
                                     left_surf.get_width(),
-                                    int(surfs_size[1] / 6)],
-                          name="join_btn", color=(135, 206, 235), action=join_btn_fkt, text="Join")
+                                    int(surfs_size[1] / 6)], color=(135, 206, 235), text="Join", name="join_btn",
+                          action=join_btn_fkt)
 
         self.buttons.append(join_btn)
 
         join_stat_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
-                               # TODO Doneso |mach, dass der den status anzeigt
                                pos=[int((right_surf.get_width() - (surfs_size[0] / 3)) / 2),
                                     int(surfs_size[1] * 0.43)],
                                real_pos=[int((right_surf.get_width() - (surfs_size[0] / 3)) / 2) +
-                                         left_surf.get_width(), int(surfs_size[1] * 0.43)],
-                               name="join_stat", color=(135, 206, 235), action=(lambda: None), text=self.join_stat)
+                                         left_surf.get_width(), int(surfs_size[1] * 0.43)], color=(135, 206, 235),
+                               text=self.join_stat, name="join_stat", action=(lambda: None))
 
         self.buttons.append(join_stat_btn)
 
@@ -337,9 +334,8 @@ class ConnectionSetup:
                                 pos=[int((right_surf.get_width() - (surfs_size[0] / 3)) / 2),
                                      int(surfs_size[1] * 0.7)],
                                 real_pos=[int((right_surf.get_width() - (surfs_size[0] / 3)) / 2) +
-                                          left_surf.get_width(), int(surfs_size[1] * 0.7)],
-                                name="ip_to_join_btn", color=(255, 255, 255), action=ip_field_fkt,
-                                text=self.ip_field_text)
+                                          left_surf.get_width(), int(surfs_size[1] * 0.7)], color=(255, 255, 255),
+                                text=self.ip_field_text, name="ip_to_join_btn", action=ip_field_fkt)
 
         self.buttons.append(ip_to_join_btn)
         self.buttons.append(desired_board_size_button)
@@ -349,8 +345,8 @@ class ConnectionSetup:
                                       int(surfs_size[1] * 0.84)],
                                  real_pos=[int((right_surf.get_width() - (surfs_size[0] / 3)) / 2) +
                                            left_surf.get_width(),
-                                           int(surfs_size[1] * 0.84)],
-                                 name="cancel_join", color=(250, 128, 114), action=cancel_join_fkt, text="Cancel")
+                                           int(surfs_size[1] * 0.84)], color=(250, 128, 114), text="Cancel",
+                                 name="cancel_join", action=cancel_join_fkt)
 
         self.buttons.append(join_cancel_btn)
 
@@ -596,9 +592,12 @@ class CharacterSelection:
         self.net = net
         self.new_window_target = None
         self.spent_points = 0
-        self.screen = pg.display.set_mode(true_res, pg.RESIZABLE|pg.FULLSCREEN)
+        self.screen = pg.display.set_mode(true_res, pg.RESIZABLE)
         self.ownTeam = Team()
         self.selectedChar = None
+        self.weapons = []
+        self.gear = []
+        self.items = []
         self.ready = None
         self.cc_num = 6  # number of character cards
         self.gc_num = 4
@@ -693,38 +692,6 @@ class CharacterSelection:
         self.map_surf = fit_surf(pg.Surface([self.minimap_surf.get_width(), int(self.minimap_surf.get_height()*0.8)]),
                                  self.game_map.window)
 
-        def ready_up():
-            if self.role == "host":
-                self.ready = not self.ready
-                if self.ready:
-                    self.net.send_control("Host_ready")
-                else:
-                    self.net.send_control("Host_not_ready")
-                while self.net.client_status != "Ready":
-                    time.sleep(0.500)
-                    self.net.send_control("Client_status")
-            if self.role == "client":
-                self.ready = not self.ready
-                if self.ready:
-                    self.net.send_control("Client_ready")
-                else:
-                    self.net.send_control("Client_not_ready")
-                while self.net.host_status != "Ready":
-                    time.sleep(0.500)
-                    self.net.send_control("Host_status")
-            # TODO: CHRISTIAN <3 when ready, sync wait for other player to be
-
-        def get_text():
-            return "Unready" if self.ready else "Ready!"
-
-        self.ready_btn = Button(dim=[int(self.minimap_surf.get_size()[0] * 0.8), int(self.minimap_surf.get_size()[1] * 0.25)],
-                                text=get_text(),
-                                pos=[int(self.minimap_surf.get_size()[0] * 0.1), self.minimap_surf.get_size()[1]],
-                                real_pos=[int(self.minimap_surf.get_size()[0] * 0.1) +
-                                          self.troop_overview.get_size()[0],
-                                          self.minimap_surf.get_size()[1]],
-                                action=ready_up)
-
         self.selected_units_back = pg.Surface([int(0.3 * size[0]), int((size[1] - self.minimap_surf.get_height())/2)])
         if debug:
             self.selected_units_back.fill((255, 0, 0))
@@ -752,12 +719,15 @@ class CharacterSelection:
         # left #
         ########
 
+        def get_points():
+            return str(self.spent_points) + "/" + str(self.points_to_spend)
+
         # don't have to add scroll offset 'cause it's blitted to background
-        self.points_btn = Button(img="assets/remaining_points.png", use_dim=True,  # TODO blit to background surf, not left
-                                 dim=[int(self.troop_overview.get_width() * 0.21), int(size[1] * 0.05)],
-                                 pos=[int((self.troop_overview.get_width()-int(self.troop_overview.get_width() * 0.21))/2),0],
-                                 action=(lambda: None), font_color=(255, 255, 255),
-                                 text=(str(self.spent_points) + "/" + str(self.points_to_spend)))
+        self.points_btn = Button(dim=[int(self.troop_overview.get_width() * 0.21), int(size[1] * 0.05)], pos=[
+            int((self.troop_overview.get_width() - int(self.troop_overview.get_width() * 0.21)) / 2), 0],
+                                 font_color=(255, 255, 255), img_uri="assets/remaining_points.png",
+                                 text=get_points(), use_dim=True,
+                                 action=(lambda: None))
 
         # #############################################################################################################
         # banners
@@ -778,7 +748,7 @@ class CharacterSelection:
                                        pos=[int(self.troop_overview.get_width() * 0.05), 0],
                                        real_pos=[int(self.troop_overview.get_width() * 0.05),
                                                  self.rem_points_back.get_height() + self.scroll_offset],
-                                       text="Einheiten", color=(50, 30, 230), action=char_ban_func)
+                                       color=(50, 30, 230), text="Einheiten", action=char_ban_func)
         self.banners.append(self.character_banner)
 
         def gear_ban_func():
@@ -797,8 +767,8 @@ class CharacterSelection:
                                   pos=[int(self.troop_overview.get_width() * 0.05), 0],
                                   real_pos=[int(self.troop_overview.get_width() * 0.05),
                                             self.rem_points_back.get_height() + self.character_back.get_height() +
-                                            self.scroll_offset],
-                                  text="Rüstung", color=(50, 80, 230), action=gear_ban_func)
+                                            self.scroll_offset], color=(50, 80, 230), text="Rüstung",
+                                  action=gear_ban_func)
         self.banners.append(self.gear_banner)
 
         def weap_ban_func():
@@ -815,9 +785,8 @@ class CharacterSelection:
                                     pos=[int(self.troop_overview.get_width() * 0.05), 0],
                                     real_pos=[int(self.troop_overview.get_width() * 0.05),
                                               self.rem_points_back.get_height() + self.character_back.get_height() +
-                                              self.gear_back.get_height() + self.scroll_offset],
-                                    text="Waffen",
-                                    color=(230, 50, 30), action=weap_ban_func)
+                                              self.gear_back.get_height() + self.scroll_offset], color=(230, 50, 30),
+                                    text="Waffen", action=weap_ban_func)
         self.banners.append(self.weapon_banner)
 
         def item_ban_func():
@@ -835,8 +804,8 @@ class CharacterSelection:
                                   real_pos=[int(self.troop_overview.get_width() * 0.05),
                                             self.rem_points_back.get_height() + self.character_back.get_height() +
                                             self.gear_back.get_height() + self.weapon_back.get_height() +
-                                            self.scroll_offset],
-                                  text="Gegenstände", color=(30, 230, 50), action=item_ban_func)
+                                            self.scroll_offset], color=(30, 230, 50), text="Gegenstände",
+                                  action=item_ban_func)
         self.banners.append(self.item_banner)
 
         # #############################################################################################################
@@ -856,7 +825,7 @@ class CharacterSelection:
                     # TODO: take out
                     print("Too expensive, cannot buy")
 
-            butn_fkt.name = name
+            butn_fkt.__name__ = name
             return butn_fkt
 
         for i in range(self.cc_num):
@@ -864,14 +833,14 @@ class CharacterSelection:
 
             h_pos = 2*self.gap_size + int(i / self.line_len)*self.card_h + (int(i/self.line_len)-1)*self.gap_size
 
-            card_btn = Button(pos=[w_pos, h_pos],
-                              real_pos=[w_pos,
-                                        h_pos +
-                                        self.rem_points_back.get_height() +
-                                        self.character_banner.dim[1] +
-                                        self.scroll_offset],
-                              img=("assets/cc/cc_" + str(i) + ".png"), dim=[self.card_w, self.card_h],
-                              use_dim=True, action=character_function_binder("cc_btn_function_" + str(i), i))
+            card_btn = Button(dim=[self.card_w, self.card_h], pos=[w_pos, h_pos], real_pos=[w_pos,
+                                                                                            h_pos +
+                                                                                            self.rem_points_back.get_height() +
+                                                                                            self.character_banner.dim[
+                                                                                                1] +
+                                                                                            self.scroll_offset],
+                              img_uri=("assets/cc/cc_" + str(i) + ".png"), use_dim=True, text="",
+                              action=character_function_binder("cc_btn_function_" + str(i), i))
 
             self.character_cards.append(card_btn)
 
@@ -880,10 +849,12 @@ class CharacterSelection:
 
             def butn_fkt():
 
-                gear = make_gear_by_id(card_num)
-                if self.spent_points + gear.cost <= self.points_to_spend and self.selectedChar:
-                    self.selectedChar.gear.append(gear)
-                    self.spent_points += gear.cost
+                print("clicked gear card")
+                btn_gear = make_gear_by_id(card_num)
+                if self.spent_points + btn_gear.cost <= self.points_to_spend and self.selectedChar:
+                    print("bought")
+                    self.selectedChar.gear.append(btn_gear)
+                    self.spent_points += btn_gear.cost
                 else:
                     # TODO: take out
                     print("cannot buy")
@@ -897,14 +868,13 @@ class CharacterSelection:
             h_pos = 2 * self.gap_size + int(i / self.line_len) * self.card_h + (
                         int(i / self.line_len) - 1) * self.gap_size
 
-            card_btn = Button(pos=[w_pos, h_pos],
-                              real_pos=[w_pos,
-                                        h_pos +
-                                        self.rem_points_back.get_height() +
-                                        self.character_back.get_height() +
-                                        self.scroll_offset],
-                              img=("assets/gc/gc_" + str(i) + ".png"), dim=[self.card_w, self.card_h],
-                              use_dim=True, action=gear_function_binder("gc_btn_function_" + str(i), i))
+            card_btn = Button(dim=[self.card_w, self.card_h], pos=[w_pos, h_pos], real_pos=[w_pos,
+                                                                                            h_pos +
+                                                                                            self.rem_points_back.get_height() +
+                                                                                            self.character_back.get_height() +
+                                                                                            self.scroll_offset],
+                              img_uri=("assets/gc/gc_" + str(i) + ".png"), use_dim=True, text="",
+                              action=gear_function_binder("gc_btn_function_" + str(i), i))
 
             self.gear_cards.append(card_btn)
 
@@ -930,16 +900,15 @@ class CharacterSelection:
             h_pos = 2 * self.gap_size + int(i / self.line_len) * self.card_h + (
                         int(i / self.line_len) - 1) * self.gap_size
 
-            card_btn = Button(pos=[w_pos, h_pos],
-                              real_pos=[w_pos,
-                                        h_pos +
-                                        self.rem_points_back.get_height() +
-                                        self.character_back.get_height() +
-                                        self.gear_back.get_height() +
-                                        self.weapon_banner.dim[1] +
-                                        self.scroll_offset],
-                              img=("assets/wc/wc_" + str(i) + ".png"), dim=[self.card_w, self.card_h],
-                              use_dim=True, action=weapon_function_binder("wc_btn_function_" + str(i), i))
+            card_btn = Button(dim=[self.card_w, self.card_h], pos=[w_pos, h_pos], real_pos=[w_pos,
+                                                                                            h_pos +
+                                                                                            self.rem_points_back.get_height() +
+                                                                                            self.character_back.get_height() +
+                                                                                            self.gear_back.get_height() +
+                                                                                            self.weapon_banner.dim[1] +
+                                                                                            self.scroll_offset],
+                              img_uri=("assets/wc/wc_" + str(i) + ".png"), use_dim=True, text="",
+                              action=weapon_function_binder("wc_btn_function_" + str(i), i))
 
             self.weapon_cards.append(card_btn)
 
@@ -966,17 +935,16 @@ class CharacterSelection:
             h_pos = 2 * self.gap_size + int(i / self.line_len) * self.card_h + (
                         int(i / self.line_len) - 1) * self.gap_size
 
-            card_btn = Button(pos=[w_pos, h_pos],
-                              real_pos=[w_pos,
-                                        h_pos +
-                                        self.rem_points_back.get_height() +
-                                        self.character_back.get_height() +
-                                        self.gear_back.get_height() +
-                                        self.weapon_back.get_height() +
-                                        self.item_banner.dim[1] +
-                                        self.scroll_offset],
-                              img=("assets/ic/ic_" + str(i) + ".png"), dim=[self.card_w, self.card_h],
-                              use_dim=True, action=item_function_binder("ic_btn_function_" + str(i), i))
+            card_btn = Button(dim=[self.card_w, self.card_h], pos=[w_pos, h_pos], real_pos=[w_pos,
+                                                                                            h_pos +
+                                                                                            self.rem_points_back.get_height() +
+                                                                                            self.character_back.get_height() +
+                                                                                            self.gear_back.get_height() +
+                                                                                            self.weapon_back.get_height() +
+                                                                                            self.item_banner.dim[1] +
+                                                                                            self.scroll_offset],
+                              img_uri=("assets/ic/ic_" + str(i) + ".png"), use_dim=True, text="",
+                              action=item_function_binder("ic_btn_function_" + str(i), i))
 
             self.item_cards.append(card_btn)
 
@@ -984,152 +952,114 @@ class CharacterSelection:
         # right #
         #########
 
-        # --------------------------------------------------------------------
-        # buttons for own team members
-        # if you click them, the weapons and item of this character are show and bought items are equipped to this char
-        # --------------------------------------------------------------------
+        def ready_up():
+            if self.role == "host":
+                self.ready = not self.ready
+                if self.ready:
+                    self.net.send_control("Host_ready")
+                else:
+                    self.net.send_control("Host_not_ready")
+                while self.net.client_status != "Ready":
+                    time.sleep(0.500)
+                    self.net.send_control("Client_status")
+            if self.role == "client":
+                self.ready = not self.ready
+                if self.ready:
+                    self.net.send_control("Client_ready")
+                else:
+                    self.net.send_control("Client_not_ready")
+                while self.net.host_status != "Ready":
+                    time.sleep(0.500)
+                    self.net.send_control("Host_status")
+            # TODO: CHRISTIAN <3 when ready, sync wait for other player to be
 
-        # selected units (own team)
-        def cc_function_binder(name, _char_id):
+        def get_text():
+            return "Unready" if self.ready else "Ready!"
 
-            def btn_fkt(button=1):
-                if button == 1:
-                    # show characters items in selected_weapons_box and set him as selected char
-                    self.selectedChar = self.ownTeam.get_char_by_id(_char_id)
-                if button == 3:
-                    # sell this character
-                    char = self.ownTeam.get_char_by_id(_char_id)
-                    self.ownTeam.remove_char_by_obj(char)
-                    if self.ownTeam.characters.__len__() > 0:
-                        self.selectedChar = self.ownTeam.characters[0]
-                    else:
-                        self.selectedChar = None
+        self.ready_btn = Button(
+            dim=[int(self.minimap_surf.get_size()[0] * 0.8), int(self.minimap_surf.get_size()[1] * 0.25)],
+            pos=[int(self.minimap_surf.get_size()[0] * 0.1), self.minimap_surf.get_size()[1]],
+            real_pos=[int(self.minimap_surf.get_size()[0] * 0.1) +
+                      self.troop_overview.get_size()[0],
+                      self.minimap_surf.get_size()[1]], img_uri="assets/blue_button_menu.jpg",
+            text=get_text(), action=ready_up)
 
-                    self.spent_points -= char.cost
-                    self.points_to_spend += char.cost
-
-            btn_fkt.__name__ = name
-            return btn_fkt
-
-        for i in range(self.ownTeam.characters.__len__()):
-            pos_w = small_gap_size + ((i % small_line_len) * (w_small_card + small_gap_size))
-            pos_h = 2 * small_gap_size + int(i / small_line_len) * h_small_card + (
-                        int(i / small_line_len) - 1) * small_gap_size
-
-            class_num = self.ownTeam.characters[i].id
-
-            btn = Button(dim=[w_small_card, h_small_card], pos=[pos_w, pos_h],
-                         real_pos=[pos_w +
-                                   int((self.selected_units_back.get_width()-self.selected_units_box.get_width())/2) +
-                                   self.troop_overview.get_width(),
-                                   pos_h +
-                                   int((self.selected_units_back.get_height()-self.selected_units_box.get_height())/2) +
-                                   self.minimap_surf.get_height()],
-                         img=("assets/cc/small/cc_" + str(class_num) + ".png"),
-                         use_dim=True, action=cc_function_binder("assets/cc/cc_small_btn_func" + str(i),
-                                                                 self.ownTeam.characters[i].id))
-
-            self.team_char_btns.append(btn)
-
-        # ----------------------------------------------------------
-        # equipped items and shit
-        # ----------------------------------------------------------
-
-        if self.selectedChar is not None:
-            gear = self.selectedChar.gear
-            weapons = self.selectedChar.weapons
-            items = self.selectedChar.items
-        else:
-            gear = []
-            weapons = []
-            items = []
-
-        def ic_function_binder(name, _category, _id):
-
-            def btn_fkt(button=1):
-                if button == 3:
-
-                    # sell this item
-                    thing_to_sell = None
-
-                    if _category == "gear":
-                        for g in gear:
-                            if g.id == _id:
-                                thing_to_sell = g
-
-                                self.spent_points -= thing_to_sell.cost
-                                self.points_to_spend += thing_to_sell.cost
-
-                                gear.remove(g)
-
-                    if _category == "weapon":
-                        for w in weapons:
-                            if w.id == _id:
-                                thing_to_sell = w
-
-                                self.spent_points -= thing_to_sell.cost
-                                self.points_to_spend += thing_to_sell.cost
-
-                                weapons.remove(w)
-
-                    if _category == "item":
-                        for item in items:
-                            if item.id == _id:
-                                thing_to_sell = item
-
-                                self.spent_points -= thing_to_sell.cost
-                                self.points_to_spend += thing_to_sell.cost
-
-                                item.remove(item)
-
-            btn_fkt.__name__ = name
-            return btn_fkt
-
-        for i in range(gear.__len__() + weapons.__len__() + items.__len__()):
-
-            pos_w = small_gap_size + ((i % small_line_len) * (w_small_card + small_gap_size))
-            pos_h = 2 * small_gap_size + int(i / small_line_len) * h_small_card + (
-                        int(i / small_line_len) - 1) * small_gap_size
-
-            image_uri = ""
-            cat = None
-            my_id = 0
-
-            # TODO check for errors
-            if i < gear.__len__():
-                image_uri = "assets/gc/small/gc_" + str(i) + ".png"
-                cat = "gear"
-                my_id = i
-
-            if gear.__len__() <= i < weapons.__len__() + gear.__len__():
-                image_uri = "assets/wc/small/wc_" + str(i - gear.__len__()) + ".png"
-                cat = "weapon"
-                my_id = i - gear.__len__()
-
-            if i >= gear.__len__() + weapons.__len__():
-                image_uri = "assets/ic/small/ic_" + str(i - gear.__len__() - weapons.__len__()) + ".png"
-                cat = "item"
-                my_id = i - gear.__len__() - weapons.__len__()
-
-            btn = Button(dim=[w_small_card, h_small_card], pos=[pos_w, pos_h],
-                         real_pos=[pos_w +
-                                   self.troop_overview.get_width() +
-                                   int((self.selected_weapons_back.get_width()-self.selected_units_box.get_width())/2),
-                                   pos_h +
-                                   self.minimap_surf.get_height() +
-                                   self.selected_units_box.get_width() +
-                                   int((self.selected_weapons_back.get_height()-self.selected_units_box.get_height())/2)],
-                         img=image_uri, use_dim=True, action=ic_function_binder("ic_small_btn_func" + str(i),
-                                                                                _category=cat, _id=my_id))
-
-            self.sel_item_btns.append(btn)
-
-        # ############################################################################################################
-        # to blit to player_banner_back
-        # ready button
-        # ############################################################################################################
+        # rest has to be handled in update
 
         self.update()
+
+    def cc_function_binder(self, name, unique_char_id):
+
+        def btn_fkt(button):
+            print("Your own team unit with the unique id: " + str(unique_char_id) + " was selected")
+            if button == 1:
+                # show characters items in selected_weapons_box and set him as selected char
+                self.selectedChar = self.ownTeam.get_char_by_unique_id(unique_char_id)
+                print(".... own team unit with the unique id " + str(unique_char_id) + " should be selChar")
+                print("selChar: " + str(self.selectedChar.idi))
+            if button == 3:
+                # sell this character
+                print(".... own team unit with the unique id " + str(unique_char_id) + " should be removed from team")
+                print("your team consists of:")
+                for char in self.ownTeam.characters:
+                    print("     " + str(char.idi))
+
+                char = self.ownTeam.get_char_by_unique_id(unique_char_id)
+                self.ownTeam.remove_char_by_obj(char)
+                if self.ownTeam.characters.__len__() > 0:
+                    self.selectedChar = self.ownTeam.characters[0]
+                else:
+                    self.selectedChar = None
+
+                print("your team now (after removal) consists of:")
+                for char in self.ownTeam.characters:
+                    print("     " + str(char.idi))
+                print("and the currently selected Character is: " + str(self.selectedChar))
+
+                self.spent_points -= char.cost
+                self.points_to_spend += char.cost
+
+        btn_fkt.__name__ = name
+        return btn_fkt
+
+    def ic_function_binder(self, name, _category, _id):
+
+        def btn_fkt(button=1):
+            if button == 3:
+
+                # sell this item
+                if _category == "gear":
+                    for g in self.gear:
+                        if g.my_id == _id:
+                            thing_to_sell = g
+
+                            self.spent_points -= thing_to_sell.cost
+                            self.points_to_spend += thing_to_sell.cost
+
+                            self.gear.remove(g)
+
+                if _category == "weapon":
+                    for w in self.weapons:
+                        if w.my_id == _id:
+                            thing_to_sell = w
+
+                            self.spent_points -= thing_to_sell.cost
+                            self.points_to_spend += thing_to_sell.cost
+
+                            self.weapons.remove(w)
+
+                if _category == "item":
+                    for item in self.items:
+                        if item.my_id == _id:
+                            thing_to_sell = item
+
+                            self.spent_points -= thing_to_sell.cost
+                            self.points_to_spend += thing_to_sell.cost
+
+                            self.items.remove(item)
+
+        btn_fkt.__name__ = name
+        return btn_fkt
 
     def update(self):
 
@@ -1233,52 +1163,29 @@ class CharacterSelection:
 
         # -------------------------------------------------------------------------------------------------------------
         # own team
-        # ---------------------------------------------------
+        # -------------------------------------------------------------------------------------------------------------
 
         # constants
-        small_line_len = 3
+        small_line_len = 5
         small_gap_size = int(self.selected_units_box.get_width() / (small_line_len * 9 + 1))
         w_small_card = int(self.selected_units_box.get_width() * 8 / (small_line_len * 9 + 1))
         h_small_card = w_small_card  # int(w_small_card * 1.457)
-
-        def cc_function_binder(name, _char_id):
-
-            def btn_fkt(button=1):
-                if button == 1:
-                    # show characters items in selected_weapons_box and set him as selected char
-                    self.selectedChar = self.ownTeam.get_char_by_id(_char_id)
-                if button == 3:
-                    # sell this character
-                    char = self.ownTeam.get_char_by_id(_char_id)
-                    self.ownTeam.remove_char_by_obj(char)
-                    if self.ownTeam.characters.__len__() > 0:
-                        self.selectedChar = self.ownTeam.characters[0]
-                    else:
-                        self.selectedChar = None
-
-                    self.spent_points -= char.cost
-                    self.points_to_spend += char.cost
-
-            btn_fkt.__name__ = name
-            return btn_fkt
 
         for i in range(self.ownTeam.characters.__len__()):
             pos_w = small_gap_size + ((i % small_line_len) * (w_small_card + small_gap_size))
             pos_h = 2 * small_gap_size + int(i / small_line_len) * h_small_card + (
                         int(i / small_line_len) - 1) * small_gap_size
 
-            class_num = self.ownTeam.characters[i].id
+            class_num = self.ownTeam.characters[i].my_id
 
-            btn = Button(dim=[w_small_card, h_small_card], pos=[pos_w, pos_h],
-                         real_pos=[pos_w +
-                                   int((self.selected_units_back.get_width()-self.selected_units_box.get_width())/2) +
-                                   self.troop_overview.get_width(),
-                                   pos_h +
-                                   int((self.selected_units_back.get_height()-self.selected_units_box.get_height())/2) +
-                                   self.minimap_surf.get_height()],
-                         img=("assets/cc/small/cc_" + str(class_num) + ".png"),
-                         use_dim=True, action=cc_function_binder("assets/cc/cc_small_btn_func" + str(i),
-                                                                 self.ownTeam.characters[i].id))
+            btn = Button(dim=[w_small_card, h_small_card], pos=[pos_w, pos_h], real_pos=
+                            [pos_w + int((self.selected_units_back.get_width() - self.selected_units_box.get_width())/2)+
+                            self.troop_overview.get_width(),
+                             pos_h + int((self.selected_units_back.get_height()-self.selected_units_box.get_height())/2)+
+                             self.minimap_surf.get_height()],
+                         img_uri=("assets/cc/small/cc_" + str(class_num) + ".png"), use_dim=True, text="",
+                         action=self.cc_function_binder("assets/cc/cc_small_btn_func" + str(i),
+                                                        self.ownTeam.characters[i].idi))
 
             self.team_char_btns.append(btn)
 
@@ -1287,56 +1194,15 @@ class CharacterSelection:
         # ----------------------------------------------------------
 
         if self.selectedChar is not None:
-            gear = self.selectedChar.gear
-            weapons = self.selectedChar.weapons
-            items = self.selectedChar.items
+            self.gear = self.selectedChar.gear
+            self.weapons = self.selectedChar.weapons
+            self.items = self.selectedChar.items
         else:
-            gear = []
-            weapons = []
-            items = []
+            self.gear = []
+            self.weapons = []
+            self.items = []
 
-        def ic_function_binder(name, _category, _id):
-
-            def btn_fkt(button=1):
-                if button == 3:
-
-                    # sell this item
-                    thing_to_sell = None
-
-                    if _category == "gear":
-                        for g in gear:
-                            if g.id == _id:
-                                thing_to_sell = g
-
-                                self.spent_points -= thing_to_sell.cost
-                                self.points_to_spend += thing_to_sell.cost
-
-                                gear.remove(g)
-
-                    if _category == "weapon":
-                        for w in weapons:
-                            if w.id == _id:
-                                thing_to_sell = w
-
-                                self.spent_points -= thing_to_sell.cost
-                                self.points_to_spend += thing_to_sell.cost
-
-                                weapons.remove(w)
-
-                    if _category == "item":
-                        for item in items:
-                            if item.id == _id:
-                                thing_to_sell = item
-
-                                self.spent_points -= thing_to_sell.cost
-                                self.points_to_spend += thing_to_sell.cost
-
-                                item.remove(item)
-
-            btn_fkt.__name__ = name
-            return btn_fkt
-
-        for i in range(gear.__len__() + weapons.__len__() + items.__len__()):
+        for i in range(self.gear.__len__() + self.weapons.__len__() + self.items.__len__()):
 
             pos_w = small_gap_size + ((i % small_line_len) * (w_small_card + small_gap_size))
             pos_h = 2 * small_gap_size + int(i / small_line_len) * h_small_card + (
@@ -1346,31 +1212,32 @@ class CharacterSelection:
             cat = None
             my_id = 0
 
-            if i < gear.__len__():
+            if i < self.gear.__len__():
                 image_uri = "assets/gc/small/gc_" + str(i) + ".png"
                 cat = "gear"
                 my_id = i
 
-            if gear.__len__() <= i < weapons.__len__() + gear.__len__():
-                image_uri = "assets/wc/small/wc_" + str(i - gear.__len__()) + ".png"
+            if self.gear.__len__() <= i < self.weapons.__len__() + self.gear.__len__():
+                image_uri = "assets/wc/small/wc_" + str(i - self.gear.__len__()) + ".png"
                 cat = "weapon"
-                my_id = i - gear.__len__()
+                my_id = i - self.gear.__len__()
 
-            if i >= gear.__len__() + weapons.__len__():
-                image_uri = "assets/ic/small/ic_" + str(i - gear.__len__() - weapons.__len__()) + ".png"
+            if i >= self.gear.__len__() + self.weapons.__len__():
+                image_uri = "assets/ic/small/ic_" + str(i - self.gear.__len__() - self.weapons.__len__()) + ".png"
                 cat = "item"
-                my_id = i - gear.__len__() - weapons.__len__()
+                my_id = i - self.gear.__len__() - self.weapons.__len__()
 
-            btn = Button(dim=[w_small_card, h_small_card], pos=[pos_w, pos_h],
-                         real_pos=[pos_w +
-                                   self.troop_overview.get_width() +
-                                   int((self.selected_weapons_back.get_width()-self.selected_units_box.get_width())/2),
-                                   pos_h +
-                                   self.minimap_surf.get_height() +
-                                   self.selected_units_box.get_width() +
-                                   int((self.selected_weapons_back.get_height()-self.selected_units_box.get_height())/2)],
-                         img=image_uri, use_dim=True, action=ic_function_binder("ic_small_btn_func" + str(i),
-                                                                                _category=cat, _id=my_id))
+            btn = Button(dim=[w_small_card, h_small_card], pos=[pos_w, pos_h], real_pos=[pos_w +
+                                                                                         self.troop_overview.get_width() +
+                                                                                         int((
+                                                                                                         self.selected_weapons_back.get_width() - self.selected_units_box.get_width()) / 2),
+                                                                                         pos_h +
+                                                                                         self.minimap_surf.get_height() +
+                                                                                         self.selected_units_box.get_width() +
+                                                                                         int((
+                                                                                                         self.selected_weapons_back.get_height() - self.selected_units_box.get_height()) / 2)], text="",
+                         img_uri=image_uri, use_dim=True, action=self.ic_function_binder("ic_small_btn_func" + str(i),
+                                                                                         _category=cat, _id=my_id))
 
             self.sel_item_btns.append(btn)
 
@@ -1474,6 +1341,8 @@ class CharacterSelection:
 
         self.screen.blit(self.troop_overview, [0, self.scroll_offset])
 
+        self.points_btn.set_text((str(self.spent_points) + "/" + str(self.points_to_spend)))
+        self.points_btn.update_text()
         self.rem_points_back.blit(self.points_btn.surf, dest=self.points_btn.pos)
         self.screen.blit(self.rem_points_back, dest=[int((self.troop_overview.get_width() -
                                                           self.rem_points_back.get_width())/2), 0])
@@ -1490,11 +1359,21 @@ class CharacterSelection:
                 pg.quit()
                 sys.exit()
 
+            if event.type == pg.KEYDOWN:
+
+                if event.key == ord("q"):
+                    pg.quit()
+                    sys.exit()
+
             if event.type == pg.MOUSEBUTTONDOWN:
                 p = pg.mouse.get_pos()
 
                 if event.button == 1:  # on left click
                     for button in self.character_cards:
+                        if button.is_focused(p):
+                            button.action()
+
+                    for button in self.gear_cards:
                         if button.is_focused(p):
                             button.action()
 
@@ -1507,6 +1386,10 @@ class CharacterSelection:
                             button.action()
 
                     for button in self.team_char_btns:
+                        if button.is_focused(p):
+                            button.action(1)
+
+                    for button in self.sel_item_btns:
                         if button.is_focused(p):
                             button.action()
 
@@ -1521,7 +1404,7 @@ class CharacterSelection:
 
                     for button in self.team_char_btns:
                         if button.is_focused(p):
-                            button.action(button=3)
+                            button.action(3)
 
                 if event.button == 4:  # scroll up
 
@@ -1628,7 +1511,7 @@ class InGame:
         def sel_own_char_binder(name, _id):
 
             def func(_id):
-                self.selected_own_char = self.own_team.get_char_by_id(_id)
+                self.selected_own_char = self.own_team.get_char_by_class_id(_id)
 
             func.__name__ = name
             return func
@@ -1639,7 +1522,7 @@ class InGame:
                 for _index in self.game_map.characters:
                     _char = self.game_map.objects[_index]
                     if _char.idi == _id:
-                        if self.own_team.get_char_by_id(_id):
+                        if self.own_team.get_char_by_class_id(_id):
                             self.selected_own_char = char
                         else:
                             # own sel char wants to attack char
@@ -1674,14 +1557,11 @@ class InGame:
             pos_w = (i + 1) * inventory_gap_size + i * btn_w
             pos_h = inventory_gap_size
 
-            btn = Button(dim=[btn_w, btn_h],
-                         pos=[pos_w, pos_h],
-                         real_pos=[pos_w,
-                                   pos_h +
-                                   self.char_stat_back.get_height()],
-                         img="assets/ic/small/ic_" + str(self.selected_own_char.gear.class_num) + ".png",
-                         text="", name=("gear " + str(self.selected_own_char.gear.class_num) + " button"),
-                         action=(lambda: None))
+            btn = Button(dim=[btn_w, btn_h], pos=[pos_w, pos_h], real_pos=[pos_w,
+                                                                           pos_h +
+                                                                           self.char_stat_back.get_height()],
+                         img_uri="assets/ic/small/ic_" + str(self.selected_own_char.gear.class_num) + ".png", text="",
+                         name=("gear " + str(self.selected_own_char.gear.class_num) + " button"), action=(lambda: None))
 
             self.gear_buttons.append(btn)
 
@@ -1690,12 +1570,10 @@ class InGame:
             pos_w = 2 * btn_w + 4 * inventory_gap_size + i * (inventory_gap_size + btn_w)
             pos_h = inventory_gap_size
 
-            btn = Button(dim=[btn_w, btn_h],
-                         pos=[pos_w, pos_h],
-                         real_pos=[pos_w,
-                                   pos_h +
-                                   self.char_stat_back.get_height()],
-                         img="assets/wc/small/wc_" + str(self.selected_own_char.weapons.class_num) + ".png",
+            btn = Button(dim=[btn_w, btn_h], pos=[pos_w, pos_h], real_pos=[pos_w,
+                                                                           pos_h +
+                                                                           self.char_stat_back.get_height()],
+                         img_uri="assets/wc/small/wc_" + str(self.selected_own_char.weapons.class_num) + ".png",
                          text="", name=("weapon " + str(self.selected_own_char.weapons.class_num) + ".png"),
                          action=weap_func_binder("weapon " + str(self.selected_own_char.weapons.class_num),
                                                  self.selected_own_char.weapons[i].idi, type="weapon"))
@@ -1707,14 +1585,12 @@ class InGame:
             pos_w = inventory_gap_size + (i % 5) * (btn_w + inventory_gap_size)
             pos_h = inventory_gap_size + (i % 5) * (btn_h + inventory_gap_size)
 
-            btn = Button(dim=[btn_w, btn_h],
-                         pos=[pos_w, pos_h],
-                         real_pos=[pos_w,
-                                   pos_h +
-                                   self.char_stat_back.get_height() +
-                                   inventory_gear_weapons.get_height()],
-                         img="assets/ic/small/ic_" + str(self.selected_own_char.items.class_num) + ".png",
-                         text="", name=("item " + str(self.selected_own_char.items.class_num) + ".png"),
+            btn = Button(dim=[btn_w, btn_h], pos=[pos_w, pos_h], real_pos=[pos_w,
+                                                                           pos_h +
+                                                                           self.char_stat_back.get_height() +
+                                                                           inventory_gear_weapons.get_height()],
+                         img_uri="assets/ic/small/ic_" + str(self.selected_own_char.items.class_num) + ".png", text="",
+                         name=("item " + str(self.selected_own_char.items.class_num) + ".png"),
                          action=weap_func_binder("item " + str(self.selected_own_char.items.class_num),
                                                  self.selected_own_char.items[i].idi, type="item"))
 
@@ -1743,13 +1619,11 @@ class InGame:
             pos_w = btn_w + (i % 10) * (btn_w + inventory_gap_size)
             pos_h = inventory_gap_size + int(i / 10) * (btn_h + inventory_gap_size + btn_h * 0.6)
 
-            btn = Button(dim=[btn_w, btn_h],
-                         pos=[pos_w, pos_h],
-                         real_pos=[pos_w +
-                                   self.char_stat_back.get_width() +
-                                   int(self.minimap_surf.get_width() * 0.05),
-                                   pos_h],
-                         img=("assets/cc/small/cc_" + str(self.own_team.characters[i].unit_class) + ".png"),
+            btn = Button(dim=[btn_w, btn_h], pos=[pos_w, pos_h], real_pos=[pos_w +
+                                                                           self.char_stat_back.get_width() +
+                                                                           int(self.minimap_surf.get_width() * 0.05),
+                                                                           pos_h],
+                         img_uri=("assets/cc/small/cc_" + str(self.own_team.characters[i].unit_class) + ".png"),
                          text="", name="char btn " + str(self.own_team.characters[i].unit_class),
                          action=sel_own_char_binder("chat_btn_" + str(self.own_team.characters.idi),
                                                     self.own_team.characters[i].idi))
@@ -1766,20 +1640,17 @@ class InGame:
                                    self.char_stat_back.get_width() +
                                    self.zoom_size[0],
                                    char.get_pos(1) * self.element_size +
-                                   self.zoom_size[1]],
-                         img="assets/char/" + str(char.unit_class) + ".png",
+                                   self.zoom_size[1]], img_uri="assets/char/" + str(char.unit_class) + ".png",
                          action=sel_char_binder("map_char_btn_" + str(char.idi), char.idi))
 
             self.char_map_buttons.append(btn)
 
         # done button
-        self.done_btn = Button(dim=[int(7 * w / 32), int(4 * h / 18)],  # TODO button
-                               pos=[0, 0],
+        self.done_btn = Button(dim=[int(7 * w / 32), int(4 * h / 18)], pos=[0, 0],
                                real_pos=[self.char_stat_back.get_width() +
                                          self.map_surface.get_width(),
                                          player_banners.get_height() +
-                                         self.minimap_surf.get_height()],
-                               img="assets/done_button.png",
+                                         self.minimap_surf.get_height()], img_uri="assets/done_button.png",
                                name="Done Button", action=done_button_action)
 
     def update(self):

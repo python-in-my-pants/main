@@ -7,10 +7,10 @@ class Team:
 
     id_counter = 0
 
-    def __init__(self, id=0, characters=[]):
+    def __init__(self, team_id=0, characters=[]):
 
-        if id:
-            self.id = id
+        if team_id:
+            self.team_id = team_id
         else:
             self.id = self.id_counter
             self.id_counter += 1
@@ -32,11 +32,17 @@ class Team:
             if char is char_obj:
                 self.characters.remove(char)
 
-    def get_char_by_id(self, id):
+    def get_char_by_class_id(self, class_id):
         for char in self.characters:
-            if char.id == id:
+            if char.my_id == class_id:
                 return char
-        return False
+        return None
+
+    def get_char_by_unique_id(self, unique_id):
+        for char in self.characters:
+            if char.idi == unique_id:
+                return char
+        return None
 
     def all_dead(self):
 

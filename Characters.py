@@ -36,6 +36,7 @@ class Character(GameObject):
         self.health = health[:]
         self.dexterity = dexterity
         self.strength = strength
+        self.gear = gear[:]
         self.stamina = stamina
         self.speed = speed
         self.height = height
@@ -345,8 +346,8 @@ class Character(GameObject):
             print("Bleeding has stopped")
 
 
-def create_character(my_id, pos):
-    boi = Character(my_id=my_id, pos=pos)
+def create_character(id):
+    boi = Character(my_id=id)
     boi.class_selector()
     boi.weight_calculator()
     return boi

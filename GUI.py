@@ -4,8 +4,8 @@ import sys
 
 class Button:
 
-    def __init__(self, dim=[0, 0], pos=[0, 0], real_pos=[-1, -1], color=(170, 0, 0), font_color=(0 ,0, 0), img=0, text="Button", name="Button",
-                 use_dim=True, action=(lambda: print("Clicked"))):
+    def __init__(self, dim=[0, 0], pos=[0, 0], real_pos=[-1, -1], color=(170, 0, 0), font_color=(0, 0, 0), img_uri=0,
+                 text="Button", name="Button", use_dim=True, action=(lambda: print("Clicked"))):
 
         if use_dim:
             self.surf = pg.Surface(dim)
@@ -23,13 +23,13 @@ class Button:
             self.real_pos = real_pos[:]
 
         self.dim = dim[:]
-        self.img = img
+        self.img_uri = img_uri
         self.use_dim = use_dim
         self.text = text
         self.color = color
 
-        if img:
-            background_img = pg.image.load(img).convert_alpha()
+        if img_uri:
+            background_img = pg.image.load(img_uri).convert_alpha()
 
             # background_img.set_colorkey((0, 0, 0))
 
@@ -66,8 +66,8 @@ class Button:
 
     def update_text(self):
 
-        if self.img:
-            background_img = pg.image.load(self.img).convert()
+        if self.img_uri:
+            background_img = pg.image.load(self.img_uri).convert()
 
             if self.use_dim:
                 background_img = pg.transform.scale(background_img, self.dim)
@@ -92,9 +92,13 @@ class Button:
             self.surf.blit(font_render, (int(self.dim[0] / 2) - int(font_render.get_width() / 2),
                                          int(self.dim[1] / 2) - int(font_render.get_height() / 2)))
 
+    def set_text(self, text):
+
+        self.text = text
+
     def is_focused(self, mouse_pos):
 
-        if self.real_pos[0] + self.offset + self.dim[0] >= mouse_pos[0] >= self.real_pos[0] + self.offset and \
+        if self.real_pos[0] + self.dim[0] >= mouse_pos[0] >= self.real_pos[0] and \
            self.real_pos[1] + self.offset + self.dim[1] >= mouse_pos[1] >= self.real_pos[1] + self.offset:
             return True
         return False
