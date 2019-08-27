@@ -6,59 +6,59 @@ TODO Add weight to item classes
 
 
 class Item:
-	def __init__(self, my_id=0, name="default", idi=0, cost=1):
+	def __init__(self, my_id=0, name="default", cost=1):
 		self.my_id = my_id
 		self.name = name
-		self.idi = idi
+		self.idi = id(self)
 		self.cost = cost
 
 
 class Bandage(Item):
 
-	def __init__(self, my_id=0, name="Bandage", idi=random.randint(1, 1000), cost=1, value=25):
-		super().__init__(my_id, name, idi, cost)
+	def __init__(self, my_id=0, name="Bandage", cost=1, value=25):
+		super().__init__(my_id, name, cost)
 		self.value = value
 
 
 class Medkit(Item):
-	def __init__(self, my_id=1, name="Medkit", idi=random.randint(1001, 2000), cost=1, value=75):
-		super().__init__(my_id, name, idi, cost)
+	def __init__(self, my_id=1, name="Medkit", cost=1, value=75):
+		super().__init__(my_id, name, cost)
 		self.value = value
 
 
 class Pillen(Item):
 	# TODO Implement heal on more than one bodypart
-	def __init__(self, my_id=2, name="Healstation", idi=random.randint(2001, 3000), cost=1, value=50):
-		super().__init__(my_id, name, idi, cost)
+	def __init__(self, my_id=2, name="Healstation", value=50):
+		super().__init__(my_id, name, cost)
 		self.value = value
 
 
 class Accudope(Item):
 	# TODO Add bool for the dopes if they are active
-	def __init__(self, my_id=3, name="Accuracy-Dope", idi=random.randint(3001, 4000), cost=1, modifier=1.25, timer=5):
-		super().__init__(my_id, name, idi, cost)
+	def __init__(self, my_id=3, name="Accuracy-Dope", cost=1, modifier=1.25, timer=5):
+		super().__init__(my_id, name, cost)
 		self.modifier = modifier
 		self.timer = timer
 
 
 class Stredope(Item):
-	def __init__(self, my_id=4, name="Strength-Dope", idi=random.randint(4001, 5000), cost=1, modifier=1.25, timer=5):
-		super().__init__(my_id, name, idi, cost)
+	def __init__(self, my_id=4, name="Strength-Dope", cost=1, modifier=1.25, timer=5):
+		super().__init__(my_id, name, cost)
 		self.modifier = modifier
 		self.timer = timer
 
 
 class Speeddope(Item):
-	def __init__(self, my_id=5, name="Speed-Dope", idi=random.randint(6001, 7000), cost=1, modifier=1.5, timer=5):
-		super().__init__(my_id, name, idi, cost)
+	def __init__(self, my_id=5, name="Speed-Dope", cost=1, modifier=1.5, timer=5):
+		super().__init__(my_id, name, cost)
 		self.modifier = modifier
 		self.timer = timer
 
 
 class Defdope(Item):
 	# TODO Change get_damage function to implement defdope
-	def __init__(self, my_id=6, name="Defence-Dope", idi=random.randint(8001, 9000), cost=1, timer=5):
-		super().__init__(my_id, name, idi, cost)
+	def __init__(self, my_id=6, name="Defence-Dope", cost=1, timer=5):
+		super().__init__(my_id, name, cost)
 		self.timer = timer
 
 
@@ -74,15 +74,15 @@ def make_item_by_id(my_id):
 
 
 class Gear:
-	def __init__(self, my_id=0, idi=0, cost=1):
+	def __init__(self, my_id=0, cost=1):
 		self.my_id = my_id
-		self.idi = idi
+		self.idi = id(self)
 		self.cost = cost
 
 
 class Helm(Gear):
-	def __init__(self, my_id=0, idi=random.randint(10001, 11000), cost=1, durability=0, reduction=0):
-		super().__init__(my_id, idi, cost)
+	def __init__(self, my_id=0, cost=1, durability=0, reduction=0):
+		super().__init__(my_id, cost)
 		self.durability = durability
 		self.reduction = reduction
 		if self.my_id == 0:
@@ -103,8 +103,8 @@ class Helm(Gear):
 
 
 class Armor(Gear):
-	def __init__(self, my_id=0, name="default_Armor", idi=random.randint(11001, 12000), cost=1, durability=50, reduction=0.3):
-		super().__init__(my_id, idi, cost)
+	def __init__(self, my_id=0, name="default_Armor", cost=1, durability=50, reduction=0.3):
+		super().__init__(my_id, cost)
 		self.durability = durability
 		self.reduction = reduction
 		if self.my_id == 3:

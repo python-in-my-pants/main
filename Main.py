@@ -153,8 +153,8 @@ while True:
     if isinstance(active_window, in_game):
         print("too far")
 
-    clock.tick(60) # controls max fps
-    #print(clock.get_fps())
+    clock.tick(60)  # controls max fps
+    print(clock.get_fps())
     pg.display.flip()
 
     '''

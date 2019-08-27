@@ -10,28 +10,23 @@ import pygame as pg
 
 Debug = True
 
+
 # ToDo active weapon / item
 class Character(GameObject):
 
-    # TODO: make id class variable instead of instance!!! with id_counter like in Team()
-    id_counter = 0
-
-    def __init__(self, created_num=0, name="default_character", object_type="character", team="team_0", unit_class=0,
+    def __init__(self, created_num=0, name="default_character", object_type="character", team="team_0",
                  health=[100, 100, 100, 100, 100, 100], gear=[], dexterity=25, strength=15, stamina=1000, speed=1,
                  height=1, pos=[0, 0], bleed=[False, False, False, False, False, False], cost=1,
                  bleed_t=[0, 0, 0, 0, 0, 0], burn=False, burn_t=0, poison=False, poison_t=0, blind=False, blind_t=0,
-                 items=[], weapons=[], orientation=0, carry=0, my_id=0):
+                 items=[], weapons=[], orientation=0, carry=0, class_id=0):
         super().__init__(name=name, obj_type=object_type, pos=pos, materials=["player"])
         self.name = name
         self.object_type = object_type
-        self.unit_class = unit_class
         self.team = team
-        self.unit_class = unit_class
         self.cost = cost
 
-        self.my_id = my_id
-        self.idi = self.id_counter
-        self.id_counter += 1
+        self.class_id = class_id
+        self.idi = id(self)
 
         self.health = health[:]
         self.dexterity = dexterity
@@ -63,32 +58,32 @@ class Character(GameObject):
         self.carry = carry
 
     def class_selector(self):
-        if self.my_id == 0:  # Pawn
+        if self.class_id == 0:  # Pawn
             self.stamina = 50
             self.speed = 40
             self.dexterity = 35
             self.strength = 35
-        if self.my_id == 1:  # Leichte Truppe
+        if self.class_id == 1:  # Leichte Truppe
             self.stamina = 55
             self.speed = 70
             self.dexterity = 45
             self.strength = 35
-        if self.my_id == 2:  # Schwere Truppe
+        if self.class_id == 2:  # Schwere Truppe
             self.stamina = 40
             self.speed = 30
             self.dexterity = 50
             self.strength = 80
-        if self.my_id == 3:  # Sanitäter
+        if self.class_id == 3:  # Sanitäter
             self.stamina = 70
             self.speed = 50
             self.dexterity = 35
             self.strength = 50
-        if self.my_id == 4:  # Scharfschütze
+        if self.class_id == 4:  # Scharfschütze
             self.stamina = 70
             self.speed = 40
             self.dexterity = 70
             self.strength = 35
-        if self.my_id == 5:  # Spezialist
+        if self.class_id == 5:  # Spezialist
             self.stamina = 70
             self.speed = 50
             self.dexterity = 35
@@ -333,8 +328,8 @@ class Character(GameObject):
             print("Bleeding has stopped")
 
 
-def create_character(id):
-    boi = Character(my_id=id)
+def create_character(_id):
+    boi = Character(class_id=_id)
     boi.class_selector()
     boi.weight_calculator()
     return boi

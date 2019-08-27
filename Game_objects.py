@@ -15,7 +15,7 @@ class GameObject:
     type = "default_type"
     materials = ["default_material"]  # hold list of all materials of the object
     mat_ind = []  # holds list of indices signaling when new material is used in self.pixs
-    my_id = "-1"
+    class_id = "-1"
 
     size_x = 0
     size_y = 0
@@ -26,7 +26,7 @@ class GameObject:
         self.name = name
         self.materials = materials[:]  # make a copy because else python reuses old value for another call
         self.pos = pos[:]
-        self.my_id = str(datetime.now().time())
+        self.class_id = str(datetime.now().time())
         self.mat_ind = mat_ind[:]
         self.render_type = "draw"
         self.orientation = 0  # attribute ONLY for render type "blit", has nothing to do  with "turn" method
@@ -96,7 +96,7 @@ class GameObject:
         print(self.name)
         print("Material: " + self.materials)
         print("Type: " + self.type)
-        print("ID: " + self.my_id)
+        print("ID: " + self.class_id)
         print()
 
 
