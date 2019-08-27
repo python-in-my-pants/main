@@ -587,7 +587,7 @@ class CharacterSelection:
 
         size = true_res
 
-        self.points_to_spend = points_to_spend
+        self.points_to_spend = 100 # TODO
         self.game_map = game_map
         self.role = role
         self.net = net
@@ -850,7 +850,7 @@ class CharacterSelection:
 
             def butn_fkt():
 
-                print("clicked gear card")
+                print("clicked gear card" + str(card_num))
                 btn_gear = make_gear_by_id(card_num)
                 if self.spent_points + btn_gear.cost <= self.points_to_spend and self.selectedChar:
                     print("bought")
@@ -885,7 +885,7 @@ class CharacterSelection:
             def butn_fkt():
 
                 weap = make_weapon_by_id(card_num)  # TODO: add function call to get instance of corresponding class
-                if self.spent_points + weap.cost <= self.points_to_spend and  self.selectedChar:
+                if self.spent_points + weap.cost <= self.points_to_spend and self.selectedChar:
                     self.selectedChar.weapons.append(weap)
                     self.spent_points += weap.cost
                 else:
@@ -1007,6 +1007,11 @@ class CharacterSelection:
 
                 char = self.ownTeam.get_char_by_unique_id(unique_char_id)
                 self.ownTeam.remove_char_by_obj(char)
+
+                print("after removal your team is:")
+                for char in self.ownTeam.characters:
+                    print("     " + str(char.idi))
+
                 if self.ownTeam.characters.__len__() > 0:
                     self.selectedChar = self.ownTeam.characters[0]
                 else:
@@ -1177,7 +1182,7 @@ class CharacterSelection:
             pos_h = 2 * small_gap_size + int(i / small_line_len) * h_small_card + (
                         int(i / small_line_len) - 1) * small_gap_size
 
-            class_num = self.ownTeam.characters[i].my_id
+            class_num = self.ownTeam.characters[i].class_id
 
             btn = Button(dim=[w_small_card, h_small_card], pos=[pos_w, pos_h], real_pos=
                             [pos_w + int((self.selected_units_back.get_width() - self.selected_units_box.get_width())/2)+
@@ -1214,19 +1219,19 @@ class CharacterSelection:
             my_id = 0
 
             if i < self.gear.__len__():
-                image_uri = "assets/gc/small/gc_" + str(i) + ".png"
+                my_id = self.gear[i].my_id
+                image_uri = "assets/gc/small/gc_" + str(my_id) + ".png"
                 cat = "gear"
-                my_id = i
 
             if self.gear.__len__() <= i < self.weapons.__len__() + self.gear.__len__():
-                image_uri = "assets/wc/small/wc_" + str(i - self.gear.__len__()) + ".png"
+                my_id = self.weapons[i - self.gear.__len__()].my_id
+                image_uri = "assets/wc/small/wc_" + str(my_id) + ".png"
                 cat = "weapon"
-                my_id = i - self.gear.__len__()
 
             if i >= self.gear.__len__() + self.weapons.__len__():
-                image_uri = "assets/ic/small/ic_" + str(i - self.gear.__len__() - self.weapons.__len__()) + ".png"
+                my_id = self.items[i - self.gear.__len__() - self.weapons.__len__()].my_id
+                image_uri = "assets/ic/small/ic_" + str(my_id) + ".png"
                 cat = "item"
-                my_id = i - self.gear.__len__() - self.weapons.__len__()
 
             btn = Button(dim=[w_small_card, h_small_card], pos=[pos_w, pos_h], real_pos=[pos_w +
                                                                                          self.troop_overview.get_width() +
