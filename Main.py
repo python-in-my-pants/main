@@ -10,8 +10,9 @@ import pickle
 import time
 import subprocess
 import os
-from _thread import *
+import ctypes
 
+from _thread import *
 from network import *
 from Game_objects import *
 from GUI import *
@@ -23,6 +24,9 @@ from Characters import Character
 
 debug = True
 
+ctypes.windll.user32.SetProcessDPIAware()
+true_res = (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
+os.environ['SDL_VIDEO_CENTERED'] = '1'  # make so that popping windows are centered
 pg.init()
 
 # client / server stuff
@@ -119,13 +123,19 @@ while True:
                                            role=role)  # TODO add after balancing dependent on desired_map_size
                                                        # cheapest char but full equipped for all team members
 
+            elif active_window.role == "unknown":
+
+                new_target = active_window.new_window_target
+                active_window.harakiri()
+                active_window = new_target()
+
             else:
                 print("Something went wrong assigning the role!")
 
         else:
 
-            active_window.event_handling()
-            active_window.update()
+            if active_window.event_handling():
+                active_window.update()
 
     if isinstance(active_window, character_selection):
 
@@ -143,7 +153,8 @@ while True:
     if isinstance(active_window, in_game):
         print("too far")
 
-    clock.tick(60)
+    clock.tick(60) # controls max fps
+    #print(clock.get_fps())
     pg.display.flip()
 
     '''

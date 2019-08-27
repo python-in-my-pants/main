@@ -4,16 +4,19 @@ import sys
 
 class Button:
 
-    def __init__(self, dim=[0, 0], pos=[0, 0], real_pos=[-1, -1], color=(170, 0, 0), img=0, text="Button", name="Button",
+    def __init__(self, dim=[0, 0], pos=[0, 0], real_pos=[-1, -1], color=(170, 0, 0), font_color=(0 ,0, 0), img=0, text="Button", name="Button",
                  use_dim=True, action=(lambda: print("Clicked"))):
 
         if use_dim:
             self.surf = pg.Surface(dim)
+
         self.action = action
         self.name = name
-        self.pos = pos[:]
+        self.offset = 0
+        self.font_color = font_color
+        self.pos = pos[:]  # position relative to surface it is to be blitted on
 
-        self.real_pos = 0
+        self.real_pos = 0  # real position on screen
         if real_pos[0] == -1 and real_pos[1] == -1:
             self.real_pos = self.pos[:]
         else:
@@ -26,7 +29,7 @@ class Button:
         self.color = color
 
         if img:
-            background_img = pg.image.load(img).convert()
+            background_img = pg.image.load(img).convert_alpha()
 
             # background_img.set_colorkey((0, 0, 0))
 
@@ -38,18 +41,28 @@ class Button:
 
             self.surf.blit(background_img, (0, 0))
 
-            font = pg.font.SysFont("comicsansms", 24)
-            font_render = font.render(self.text, True, (255, 255, 255))
+            font_size = int(0.8 * self.dim[1]) if int(0.8*self.dim[1]) < int(0.9*self.dim[0]) else int(0.9*self.dim[0])
+            font = pg.font.SysFont("comicsansms", font_size)
+            font_render = font.render(self.text, True, self.font_color)
             self.surf.blit(font_render, (int(self.dim[0] / 2) - int(font_render.get_width() / 2),
                                          int(self.dim[1] / 2) - int(font_render.get_height() / 2)))
 
         else:
             self.surf.fill(color)
 
-            font = pg.font.SysFont("comicsansms", 24)
-            font_render = font.render(self.text, True, (255-color[0], 255-color[1], 255-color[2]))
+            font_size = int(0.8 * self.dim[1]) if int(0.8*self.dim[1]) < int(0.9*self.dim[0]) else int(0.9*self.dim[0])
+            font = pg.font.SysFont("comicsansms", font_size)
+            font_render = font.render(self.text, True, self.font_color)  #(255-color[0], 255-color[1], 255-color[2]))
             self.surf.blit(font_render, (int(self.dim[0] / 2) - int(font_render.get_width() / 2),
                                          int(self.dim[1] / 2) - int(font_render.get_height() / 2)))
+
+    def set_offsets(self, y_offset=0):
+
+        self.offset = y_offset
+
+    def update_real_position(self, y_diff):
+
+        self.real_pos[1] += y_diff
 
     def update_text(self):
 
@@ -64,23 +77,25 @@ class Button:
 
             self.surf.blit(background_img, (0, 0))
 
-            font = pg.font.SysFont("comicsansms", 24)
-            font_render = font.render(self.text, True, (255, 255, 255))
+            font_size = int(0.8 * self.dim[1]) if int(0.8*self.dim[1]) < int(0.9*self.dim[0]) else int(0.9*self.dim[0])
+            font = pg.font.SysFont("comicsansms", font_size)
+            font_render = font.render(self.text, True, self.font_color)
             self.surf.blit(font_render, (int(self.dim[0] / 2) - int(font_render.get_width() / 2),
                                          int(self.dim[1] / 2) - int(font_render.get_height() / 2)))
 
         else:
             self.surf.fill(self.color)
 
-            font = pg.font.SysFont("comicsansms", 24)
-            font_render = font.render(self.text, True, (255 - self.color[0], 255 - self.color[1], 255 - self.color[2]))
+            font_size = int(0.8 * self.dim[1]) if int(0.8*self.dim[1]) < int(0.9*self.dim[0]) else int(0.9*self.dim[0])
+            font = pg.font.SysFont("comicsansms", font_size)
+            font_render = font.render(self.text, True,  self.font_color)  # (255 - self.color[0], 255 - self.color[1], 255 - self.color[2]))
             self.surf.blit(font_render, (int(self.dim[0] / 2) - int(font_render.get_width() / 2),
                                          int(self.dim[1] / 2) - int(font_render.get_height() / 2)))
 
     def is_focused(self, mouse_pos):
 
-        if self.real_pos[0] + self.dim[0] >= mouse_pos[0] >= self.real_pos[0] and \
-           self.real_pos[1] + self.dim[1] >= mouse_pos[1] >= self.real_pos[1]:
+        if self.real_pos[0] + self.offset + self.dim[0] >= mouse_pos[0] >= self.real_pos[0] + self.offset and \
+           self.real_pos[1] + self.offset + self.dim[1] >= mouse_pos[1] >= self.real_pos[1] + self.offset:
             return True
         return False
 
