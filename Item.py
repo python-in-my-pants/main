@@ -75,7 +75,6 @@ def make_item_by_id(my_id):
 class Gear:
 	def __init__(self, my_id=0, cost=1, weight=0):
 		self.my_id = my_id
-		self.name = name
 		self.idi = id(self)
 		self.cost = cost
 		self.weight = weight
@@ -87,19 +86,16 @@ class Helm(Gear):
 		self.durability = durability
 		self.reduction = reduction
 		if self.my_id == 0:
-			self.name = "Helm Lvl 1"
 			self.durability = 50
 			self.reduction = 0.3
 			self.cost = 1
 			self.weight = 30
 		if self.my_id == 1:
-			self.name = "Helm Lvl 2"
 			self.durability = 75
 			self.reduction = 0.4
 			self.cost = 2
 			self.weight = 40
 		if self.my_id == 2:
-			self.name = "Helm Lvl 3"
 			self.durability = 100
 			self.reduction = 0.5
 			self.cost = 3
