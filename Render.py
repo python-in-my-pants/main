@@ -580,7 +580,7 @@ class ConnectionSetup:
         del self
 
 
-class CharacterSelection:
+class CharacterSelection: # commit comment
 
     def __init__(self, points_to_spend, game_map, role="unknown", net=None):
         # let only those things be here that are not to be reset every frame, so i.e. independent of window size
