@@ -154,7 +154,7 @@ while True:
         print("too far")
 
     clock.tick(60)  # controls max fps
-    print(clock.get_fps())
+    #print(clock.get_fps())
     pg.display.flip()
 
     '''
