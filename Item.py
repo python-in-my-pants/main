@@ -9,14 +9,14 @@ class Item:
 	def __init__(self, my_id=0, name="default", cost=1, weight=0):
 		self.my_id = my_id
 		self.name = name
-		self.idi = id(self)
+		self.idi = "i" + str(id(self))
 		self.cost = cost
 		self.weight = weight
 
 
 class Bandage(Item):
 	def __init__(self, my_id=0, name="Bandage", cost=1, value=25, weight=25):
-		super(Item).__init__(my_id, name, cost, weight)
+		super().__init__(my_id, name, cost, weight)
 		self.value = value
 
 
@@ -29,28 +29,28 @@ class Medkit(Item):
 class Pillen(Item):
 	# TODO Implement heal on more than one bodypart
 	def __init__(self, my_id=2, name="Healstation", cost=2, value=50, weight=15):
-		super(Item).__init__(my_id, name, cost, weight)
+		super().__init__(my_id, name, cost, weight)
 		self.value = value
 
 
 class Accudope(Item):
 	# TODO Add bool for the dopes if they are active
 	def __init__(self, my_id=3, name="Accuracy-Dope", cost=3, modifier=1.25, timer=5, weight=20):
-		super(Item).__init__(my_id, name, cost, weight)
+		super().__init__(my_id, name, cost, weight)
 		self.modifier = modifier
 		self.timer = timer
 
 
 class Stredope(Item):
 	def __init__(self, my_id=4, name="Strength-Dope", cost=3, modifier=1.25, timer=5, weight=20):
-		super(Item).__init__(my_id, name,  cost, weight)
+		super().__init__(my_id, name,  cost, weight)
 		self.modifier = modifier
 		self.timer = timer
 
 
 class Speeddope(Item):
 	def __init__(self, my_id=5, name="Speed-Dope", cost=3, modifier=1.5, timer=5, weight=20):
-		super(Item).__init__(my_id, name, cost, weight)
+		super().__init__(my_id, name, cost, weight)
 		self.modifier = modifier
 		self.timer = timer
 

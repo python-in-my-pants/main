@@ -580,7 +580,7 @@ class ConnectionSetup:
         del self
 
 
-class CharacterSelection: # commit comment
+class CharacterSelection:
 
     def __init__(self, points_to_spend, game_map, role="unknown", net=None):
         # let only those things be here that are not to be reset every frame, so i.e. independent of window size
@@ -707,7 +707,7 @@ class CharacterSelection: # commit comment
         # TODO: show items of selected char here
 
         # constants
-        small_line_len = 3
+        small_line_len = 5
         small_gap_size = int(self.selected_units_box.get_width() / (small_line_len * 9 + 1))
         w_small_card = int(self.selected_units_box.get_width() * 8 / (small_line_len * 9 + 1))
         h_small_card = w_small_card  # int(w_small_card * 1.457)
@@ -834,12 +834,12 @@ class CharacterSelection: # commit comment
 
             h_pos = 2*self.gap_size + int(i / self.line_len)*self.card_h + (int(i/self.line_len)-1)*self.gap_size
 
-            card_btn = Button(dim=[self.card_w, self.card_h], pos=[w_pos, h_pos], real_pos=[w_pos,
-                                                                                            h_pos +
-                                                                                            self.rem_points_back.get_height() +
-                                                                                            self.character_banner.dim[
-                                                                                                1] +
-                                                                                            self.scroll_offset],
+            card_btn = Button(dim=[self.card_w, self.card_h], pos=[w_pos, h_pos],
+                              real_pos=[w_pos,
+                                        h_pos +
+                                        self.rem_points_back.get_height() +
+                                        self.character_banner.dim[1] +
+                                        self.scroll_offset],
                               img_uri=("assets/cc/cc_" + str(i) + ".png"), use_dim=True, text="",
                               action=character_function_binder("cc_btn_function_" + str(i), i))
 
@@ -867,12 +867,12 @@ class CharacterSelection: # commit comment
         for i in range(self.gc_num):
             w_pos = self.gap_size + ((i % self.line_len) * (self.card_w + self.gap_size))
 
-            h_pos = 2 * self.gap_size + int(i / self.line_len) * self.card_h + (
-                        int(i / self.line_len) - 1) * self.gap_size
+            h_pos = 2*self.gap_size + int(i / self.line_len)*self.card_h + (int(i/self.line_len)-1)*self.gap_size
 
             card_btn = Button(dim=[self.card_w, self.card_h], pos=[w_pos, h_pos], real_pos=[w_pos,
                                                                                             h_pos +
                                                                                             self.rem_points_back.get_height() +
+                                                                                            self.gear_banner.dim[1] +
                                                                                             self.character_back.get_height() +
                                                                                             self.scroll_offset],
                               img_uri=("assets/gc/gc_" + str(i) + ".png"), use_dim=True, text="",
@@ -1126,6 +1126,7 @@ class CharacterSelection: # commit comment
             self.char_banner_clicked = False
 
         if self.gear_banner_clicked:
+
             for btn in self.gear_cards:
                 btn.update_real_position(-self.invisible if self.render_gear_ban else self.invisible)
 
@@ -1233,7 +1234,7 @@ class CharacterSelection: # commit comment
                 cat = "gear"
 
             if self.gear.__len__() <= i < self.weapons.__len__() + self.gear.__len__():
-                my_id = self.weapons[i - self.gear.__len__()].my_id
+                my_id = self.weapons[i - self.gear.__len__()].class_id
                 image_uri = "assets/wc/small/wc_" + str(my_id) + ".png"
                 cat = "weapon"
 
@@ -1249,7 +1250,7 @@ class CharacterSelection: # commit comment
                              pos_h +
                              self.minimap_surf.get_height() +
                              self.selected_units_back.get_height() +
-                             int((self.selected_weapons_back.get_height() - self.selected_weapons_box.get_height()) / 2)],
+                             int((self.selected_weapons_back.get_height() - self.selected_weapons_box.get_height())/2)],
                          text="", img_uri=image_uri, use_dim=True,
                          action=self.ic_function_binder("ic_small_btn_func" + str(i), _category=cat, _id=my_id))
 
@@ -1340,6 +1341,8 @@ class CharacterSelection: # commit comment
         self.player_overview.blit(self.selected_units_back, dest=[0, self.minimap_surf.get_height()])
 
         # selected weapons
+        if not self.sel_item_btns:
+            self.selected_weapons_box.fill((0, 0, 0))
         for sel_item_btn in self.sel_item_btns:
             self.selected_weapons_box.blit(sel_item_btn.surf, sel_item_btn.pos)
 
@@ -1402,6 +1405,8 @@ class CharacterSelection: # commit comment
                     for button in self.item_cards:
                         if button.is_focused(p):
                             button.action()
+
+                    # -------------right side----------------------
 
                     for button in self.team_char_btns:
                         if button.is_focused(p):
