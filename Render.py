@@ -580,7 +580,7 @@ class ConnectionSetup:
         del self
 
 
-class CharacterSelection:
+class CharacterSelection: # commit comment
 
     def __init__(self, points_to_spend, game_map, role="unknown", net=None):
         # let only those things be here that are not to be reset every frame, so i.e. independent of window size
@@ -735,7 +735,7 @@ class CharacterSelection:
         # TODO: show items of selected char here
 
         # constants
-        small_line_len = 5
+        small_line_len = 3
         small_gap_size = int(self.selected_units_box.get_width() / (small_line_len * 9 + 1))
         w_small_card = int(self.selected_units_box.get_width() * 8 / (small_line_len * 9 + 1))
         h_small_card = w_small_card  # int(w_small_card * 1.457)
@@ -901,7 +901,7 @@ class CharacterSelection:
                                                                                             h_pos +
                                                                                             self.rem_points_back.get_height() +
                                                                                             self.character_back.get_height() +
-                                                                                            self.gear_banner.dim[1] +
+                                                                                            self.gear_banner.dim[1],
                                                                                             self.scroll_offset],
                               img_uri=("assets/gc/gc_" + str(i) + ".png"), use_dim=True, text="",
                               action=gear_function_binder("gc_btn_function_" + str(i), i))
@@ -1009,7 +1009,7 @@ class CharacterSelection:
                 elif self.role == "client":
                     self.net.send_control("Host_status")
 
-        def get_text(): #pus
+        def get_text():
             return "Unready" if self.ready else "Ready!"
 
         self.ready_btn = Button(
@@ -1088,7 +1088,7 @@ class CharacterSelection:
         btn_fkt.__name__ = name
         return btn_fkt
 
-    def update(self):  # TODO for better performace only blit the elements that might have changed from last frame
+    def update(self):
 
         # update buttons real positions
         if self.scroll:
@@ -1140,7 +1140,6 @@ class CharacterSelection:
             self.char_banner_clicked = False
 
         if self.gear_banner_clicked:
-
             for btn in self.gear_cards:
                 btn.update_real_position(-self.invisible if self.render_gear_ban else self.invisible)
 
@@ -1208,13 +1207,11 @@ class CharacterSelection:
             class_num = self.ownTeam.characters[i].class_id
 
             btn = Button(dim=[w_small_card, h_small_card], pos=[pos_w, pos_h], real_pos=
-                             [pos_w +
-                              int((self.selected_units_back.get_width()-self.selected_units_box.get_width())/2) +
-                              self.troop_overview.get_width(),
-                              pos_h +
-                              int((self.selected_units_back.get_height()-self.selected_units_box.get_height())/2) +
-                              self.minimap_surf.get_height()],
-                         img_source=self.cc_small_images[class_num], use_dim=True, text="",
+                            [pos_w + int((self.selected_units_back.get_width() - self.selected_units_box.get_width())/2)+
+                            self.troop_overview.get_width(),
+                             pos_h + int((self.selected_units_back.get_height()-self.selected_units_box.get_height())/2)+
+                             self.minimap_surf.get_height()],
+                         img_uri=("assets/cc/small/cc_" + str(class_num) + ".png"), use_dim=True, text="",
                          action=self.cc_function_binder("assets/cc/cc_small_btn_func" + str(i),
                                                         self.ownTeam.characters[i].idi))
 
@@ -1366,7 +1363,7 @@ class CharacterSelection:
                                                                                           self.selected_weapons_box))
 
         self.player_overview.blit(self.selected_weapons_back, dest=
-                                  [0, self.minimap_surf.get_height() + self.selected_units_back.get_height()])
+                             [0, self.minimap_surf.get_height() + self.selected_units_back.get_height()])
 
         ###########################
         # right and left together #
@@ -1421,8 +1418,6 @@ class CharacterSelection:
                     for button in self.item_cards:
                         if button.is_focused(p):
                             button.action()
-
-                    # -------------right side----------------------
 
                     for button in self.team_char_btns:
                         if button.is_focused(p):
@@ -1829,4 +1824,4 @@ def fit_surf(back, surf):  # scales second surface to fit in first
 def blit_centered_pos(back, surf):
 
     return [int((back.get_width()-surf.get_width())/2),
-            int((back.get_height()-surf.get_height())/2)]  # ##
+            int((back.get_height()-surf.get_height())/2)]
