@@ -1022,7 +1022,7 @@ class CharacterSelection:
 
         # rest has to be handled in update
 
-        self.update()
+        self.update() # youinkh
 
     def cc_function_binder(self, name, unique_char_id):
 
