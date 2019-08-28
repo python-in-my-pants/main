@@ -984,7 +984,7 @@ class CharacterSelection:
 
         def ready_up():
             if self.ready_thread == 0:
-                start_new_thread(ready_checker(), ())
+                start_new_thread(ready_checker, ())
             if self.role == "host":
                 self.ready = not self.ready
                 if self.ready:
@@ -1345,7 +1345,7 @@ class CharacterSelection:
         # map and ready btn
 
         # just have to blit this once in init
-        #self.player_overview.blit(self.minimap_surf, dest=[0, 0])
+        self.player_overview.blit(self.minimap_surf, dest=[0, 0])
 
         # selected units
         for sm_char_btn in self.team_char_btns:
