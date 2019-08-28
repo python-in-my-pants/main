@@ -26,7 +26,7 @@ class Character(GameObject):
         self.cost = cost
 
         self.class_id = class_id
-        self.idi = id(self)
+        self.idi = "c" + str(id(self))
 
         self.health = health[:]
         self.dexterity = dexterity

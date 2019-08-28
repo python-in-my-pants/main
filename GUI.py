@@ -5,7 +5,7 @@ import sys
 class Button:
 
     def __init__(self, dim=[0, 0], pos=[0, 0], real_pos=[-1, -1], color=(170, 0, 0), font_color=(0, 0, 0), img_uri=0,
-                 text="Button", name="Button", use_dim=True, action=(lambda: print("Clicked"))):
+                 img_source=None, text="Button", name="Button", use_dim=True, action=(lambda: print("Clicked"))):
 
         if use_dim:
             self.surf = pg.Surface(dim)
@@ -28,8 +28,12 @@ class Button:
         self.text = text
         self.color = color
 
-        if img_uri:
-            background_img = pg.image.load(img_uri).convert_alpha()
+        if img_uri or img_source:
+
+            if img_uri and not img_source:
+                background_img = pg.image.load(img_uri).convert_alpha()
+            if img_source:
+                background_img = img_source
 
             # background_img.set_colorkey((0, 0, 0))
 
@@ -41,16 +45,15 @@ class Button:
 
             self.surf.blit(background_img, (0, 0))
 
-            font_size = int(0.8 * self.dim[1]) if int(0.8*self.dim[1]) < int(0.9*self.dim[0]) else int(0.9*self.dim[0])
+            font_size = int(0.8 * self.dim[1]) if int(0.8*self.dim[1]) < int(0.7*self.dim[0]) else int(0.7*self.dim[0])
             font = pg.font.SysFont("comicsansms", font_size)
             font_render = font.render(self.text, True, self.font_color)
             self.surf.blit(font_render, (int(self.dim[0] / 2) - int(font_render.get_width() / 2),
                                          int(self.dim[1] / 2) - int(font_render.get_height() / 2)))
-
         else:
             self.surf.fill(color)
 
-            font_size = int(0.8 * self.dim[1]) if int(0.8*self.dim[1]) < int(0.9*self.dim[0]) else int(0.9*self.dim[0])
+            font_size = int(0.8 * self.dim[1]) if int(0.8*self.dim[1]) < int(0.7*self.dim[0]) else int(0.7*self.dim[0])
             font = pg.font.SysFont("comicsansms", font_size)
             font_render = font.render(self.text, True, self.font_color)  #(255-color[0], 255-color[1], 255-color[2]))
             self.surf.blit(font_render, (int(self.dim[0] / 2) - int(font_render.get_width() / 2),
@@ -77,7 +80,7 @@ class Button:
 
             self.surf.blit(background_img, (0, 0))
 
-            font_size = int(0.8 * self.dim[1]) if int(0.8*self.dim[1]) < int(0.9*self.dim[0]) else int(0.9*self.dim[0])
+            font_size = int(0.8 * self.dim[1]) if int(0.8*self.dim[1]) < int(0.7*self.dim[0]) else int(0.7*self.dim[0])
             font = pg.font.SysFont("comicsansms", font_size)
             font_render = font.render(self.text, True, self.font_color)
             self.surf.blit(font_render, (int(self.dim[0] / 2) - int(font_render.get_width() / 2),
@@ -86,7 +89,7 @@ class Button:
         else:
             self.surf.fill(self.color)
 
-            font_size = int(0.8 * self.dim[1]) if int(0.8*self.dim[1]) < int(0.9*self.dim[0]) else int(0.9*self.dim[0])
+            font_size = int(0.8 * self.dim[1]) if int(0.8*self.dim[1]) < int(0.7*self.dim[0]) else int(0.7*self.dim[0])
             font = pg.font.SysFont("comicsansms", font_size)
             font_render = font.render(self.text, True,  self.font_color)  # (255 - self.color[0], 255 - self.color[1], 255 - self.color[2]))
             self.surf.blit(font_render, (int(self.dim[0] / 2) - int(font_render.get_width() / 2),

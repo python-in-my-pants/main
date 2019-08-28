@@ -94,7 +94,7 @@ class GameObject:
 
     def print_(self):
         print(self.name)
-        print("Material: " + self.materials)
+        print("Material: " + str(self.materials))
         print("Type: " + self.type)
         print("ID: " + self.class_id)
         print()

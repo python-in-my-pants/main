@@ -5,15 +5,12 @@ import numpy as np
 
 class Team:
 
-    id_counter = 0
-
     def __init__(self, team_id=0, characters=[]):
 
         if team_id:
             self.team_id = team_id
         else:
-            self.id = self.id_counter
-            self.id_counter += 1
+            self.id = "t" + str(id(self))
 
         self.characters = characters[:]
         self.value = self.calc_val()
@@ -40,7 +37,6 @@ class Team:
                 return i
             i += 1
         return -1
-
 
     def get_char_by_class_id(self, class_id):
         for char in self.characters:
