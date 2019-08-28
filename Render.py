@@ -1024,7 +1024,8 @@ class CharacterSelection:
 
                 self.spent_points -= char.cost
                 self.points_to_spend += char.cost
-
+            print("LFLLWEFLWELFLKWEFKWELFLKWEF")
+        print("______________")
         btn_fkt.__name__ = name
         return btn_fkt
 
