@@ -149,28 +149,8 @@ while True:
 
         else:
 
-            if counter % 60 == 0:
-                timee = True
-
-            if timee:
-                start = time.time()
-
             active_window.event_handling()
-
-            if timee:
-                mid_t = time.time()
-                mid = mid_t - start
-                print("event handling: " + str(mid))
-
             active_window.update()
-
-            if timee:
-                end_t = time.time()
-                end = end_t - mid_t
-                print("        update: " + str(end))
-                print("         total: " + str(end_t-start))
-                print()
-                timee = False
 
     if isinstance(active_window, in_game):
         print("You little bitch reached the In-Game screen UwU")
