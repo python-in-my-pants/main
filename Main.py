@@ -24,6 +24,7 @@ from Characters import Character
 
 debug = True
 counter = 0
+timee = True
 
 ctypes.windll.user32.SetProcessDPIAware()
 true_res = (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
@@ -148,14 +149,34 @@ while True:
 
         else:
 
+            if counter % 60 == 0:
+                timee = True
+
+            if timee:
+                start = time.time()
+
             active_window.event_handling()
+
+            if timee:
+                mid_t = time.time()
+                mid = mid_t - start
+                print("event handling: " + str(mid))
+
             active_window.update()
 
+            if timee:
+                end_t = time.time()
+                end = end_t - mid_t
+                print("        update: " + str(end))
+                print("         total: " + str(end_t-start))
+                print()
+                timee = False
+
     if isinstance(active_window, in_game):
-        print("too far")
+        print("You little bitch reached the In-Game screen UwU")
 
     clock.tick(60)  # controls max fps
-    print("FPS: " + str(clock.get_fps())) if counter % 60 == 0 else (lambda: None)
+    print("FPS: " + str(clock.get_fps()) + "\n\n") if counter % 60 == 0 else (lambda: None)
     counter += 1
     counter %= 60
     pg.display.flip()

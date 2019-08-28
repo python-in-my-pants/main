@@ -9,7 +9,7 @@ class Weapon:
     # mag = 0             #Magazin der Waffe
     # spt = 0             #Schuss per Tick
 
-    def __init__(self, class_id=0, name="default", class_idi=0, cost=0, weight=0, acc=0, dmg=0, mag=0, spt=0):
+    def __init__(self, class_id=0, name="default", cost=0, weight=0, acc=0, dmg=0, mag=0, spt=0):
         self.class_id = class_id
         self.name = name
         self.class_idi = "w" + str(id(self))

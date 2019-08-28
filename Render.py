@@ -618,6 +618,33 @@ class CharacterSelection:
         self.scroll = False
         self.invisible = -10000
 
+        # -------------------------------------------------------------------------------------------------------------
+        # I'm gonna do what's called a pro gamer move: load assets in init!
+        # -------------------------------------------------------------------------------------------------------------
+
+        self.cc_small_images = []
+        for i in range(self.cc_num):
+            # load small preview pics for buttons
+            img = pg.image.load("assets/cc/small/cc_" + str(i) + ".png").convert()
+            self.cc_small_images.append(img)
+
+        self.gc_small_images = []
+        for i in range(self.gc_num):
+            # load small preview pics for buttons
+            img = pg.image.load("assets/gc/small/gc_" + str(i) + ".png").convert()
+            self.gc_small_images.append(img)
+
+        self.wc_small_images = []
+        for i in range(self.gc_num):
+            img = pg.image.load("assets/wc/small/wc_" + str(i) + ".png").convert()
+            self.wc_small_images.append(img)
+
+        self.ic_small_images = []
+        for i in range(self.ic_num):
+            img = pg.image.load("assets/ic/small/ic_" + str(i) + ".png").convert()
+            self.ic_small_images.append(img)
+
+        # -------------------------------------------------------------------------------------------------------------
         # set up surfaces for screen
         # -------------------------------------------------------------------------------------------------------------
 
@@ -872,9 +899,8 @@ class CharacterSelection:
             card_btn = Button(dim=[self.card_w, self.card_h], pos=[w_pos, h_pos], real_pos=[w_pos,
                                                                                             h_pos +
                                                                                             self.rem_points_back.get_height() +
-                                                                                            self.gear_banner.dim[1] +
                                                                                             self.character_back.get_height() +
-                                                                                            self.gear_banner.dim[1],
+                                                                                            self.gear_banner.dim[1] +
                                                                                             self.scroll_offset],
                               img_uri=("assets/gc/gc_" + str(i) + ".png"), use_dim=True, text="",
                               action=gear_function_binder("gc_btn_function_" + str(i), i))
@@ -984,14 +1010,19 @@ class CharacterSelection:
             return "Unready" if self.ready else "Ready!"
 
         self.ready_btn = Button(
-            dim=[int(self.minimap_surf.get_size()[0] * 0.8), int(self.minimap_surf.get_size()[1] * 0.2)],
-            pos=[int(self.minimap_surf.get_size()[0] * 0.1), int(self.minimap_surf.get_size()[1]*0.8)],
-            real_pos=[int(self.minimap_surf.get_size()[0] * 0.1) +
+            dim=[int(self.minimap_surf.get_size()[0] * 0.9), int(self.minimap_surf.get_size()[1] * 0.2)],
+            pos=[int(self.minimap_surf.get_size()[0] * 0.05), int(self.minimap_surf.get_size()[1]*0.8)],
+            real_pos=[int(self.minimap_surf.get_size()[0] * 0.05) +
                       self.troop_overview.get_size()[0],
                       int(self.minimap_surf.get_size()[1]*0.8)], img_uri="assets/blue_button_menu.jpg",
             text=get_text(), action=ready_up)
 
         # rest has to be handled in update
+
+        self.minimap_surf.blit(self.map_surf, dest=[int((self.minimap_surf.get_width() - self.map_surf.get_width())/2),
+                                                    int((int(self.minimap_surf.get_height()*0.8) -
+                                                         self.map_surf.get_height()) / 2)])
+        self.minimap_surf.blit(self.ready_btn.surf, self.ready_btn.pos)
 
         self.update()
 
@@ -999,40 +1030,23 @@ class CharacterSelection:
 
         def btn_fkt(button):
 
-            print("Your own team unit with the unique id: " + str(unique_char_id) + " was selected")
             if button == 1:
                 # show characters items in selected_weapons_box and set him as selected char
                 self.selectedChar = self.ownTeam.get_char_by_unique_id(unique_char_id)
-                print(".... own team unit with the unique id " + str(unique_char_id) + " should be selChar")
-                print("selChar: " + str(self.selectedChar.idi))
             if button == 3:
                 # sell this character
-                print(".... own team unit with the unique id " + str(unique_char_id) + " should be removed from team")
-                print("your team consists of:")
-                for char in self.ownTeam.characters:
-                    print("     " + str(char.idi))
-
                 char = self.ownTeam.get_char_by_unique_id(unique_char_id)
                 del self.team_char_btns[self.ownTeam.get_index_by_obj(char)]  # TODO if I reset team_char_btns ...
                 self.ownTeam.remove_char_by_obj(char)
-                print("after removal your team is:")
-                for char in self.ownTeam.characters:
-                    print("     " + str(char.idi))
 
                 if self.ownTeam.characters.__len__() > 0:
                     self.selectedChar = self.ownTeam.characters[0]
                 else:
                     self.selectedChar = None
 
-                print("your team now (after removal) consists of:")
-                for char in self.ownTeam.characters:
-                    print("     " + str(char.idi))
-                print("and the currently selected Character is: " + str(self.selectedChar))
-
                 self.spent_points -= char.cost
                 self.points_to_spend += char.cost
-            print("LFLLWEFLWELFLKWEFKWELFLKWEF")
-        print("______________")
+
         btn_fkt.__name__ = name
         return btn_fkt
 
@@ -1076,7 +1090,7 @@ class CharacterSelection:
         btn_fkt.__name__ = name
         return btn_fkt
 
-    def update(self):
+    def update(self):  # TODO for better performace only blit the elements that might have changed from last frame
 
         # update buttons real positions
         if self.scroll:
@@ -1196,11 +1210,13 @@ class CharacterSelection:
             class_num = self.ownTeam.characters[i].class_id
 
             btn = Button(dim=[w_small_card, h_small_card], pos=[pos_w, pos_h], real_pos=
-                            [pos_w + int((self.selected_units_back.get_width() - self.selected_units_box.get_width())/2)+
-                            self.troop_overview.get_width(),
-                             pos_h + int((self.selected_units_back.get_height()-self.selected_units_box.get_height())/2)+
-                             self.minimap_surf.get_height()],
-                         img_uri=("assets/cc/small/cc_" + str(class_num) + ".png"), use_dim=True, text="",
+                             [pos_w +
+                              int((self.selected_units_back.get_width()-self.selected_units_box.get_width())/2) +
+                              self.troop_overview.get_width(),
+                              pos_h +
+                              int((self.selected_units_back.get_height()-self.selected_units_box.get_height())/2) +
+                              self.minimap_surf.get_height()],
+                         img_source=self.cc_small_images[class_num], use_dim=True, text="",
                          action=self.cc_function_binder("assets/cc/cc_small_btn_func" + str(i),
                                                         self.ownTeam.characters[i].idi))
 
@@ -1226,23 +1242,23 @@ class CharacterSelection:
             pos_h = 2 * small_gap_size + int(i / small_line_len) * h_small_card + (
                         int(i / small_line_len) - 1) * small_gap_size
 
-            image_uri = ""
+            img_source = ""
             cat = None
             my_id = 0
 
             if i < self.gear.__len__():
                 my_id = self.gear[i].my_id
-                image_uri = "assets/gc/small/gc_" + str(my_id) + ".png"
+                img_source = self.gc_small_images[my_id]
                 cat = "gear"
 
             if self.gear.__len__() <= i < self.weapons.__len__() + self.gear.__len__():
-                my_id = self.weapons[i - self.gear.__len__()].class_id
-                image_uri = "assets/wc/small/wc_" + str(my_id) + ".png"
+                my_id = self.weapons[i - self.gear.__len__()].class_id  # TODO list index out of range???
+                img_source = self.gc_small_images[my_id]
                 cat = "weapon"
 
             if i >= self.gear.__len__() + self.weapons.__len__():
                 my_id = self.items[i - self.gear.__len__() - self.weapons.__len__()].my_id
-                image_uri = "assets/ic/small/ic_" + str(my_id) + ".png"
+                img_source = self.gc_small_images[my_id]
                 cat = "item"
 
             btn = Button(dim=[w_small_card, h_small_card], pos=[pos_w, pos_h], real_pos=
@@ -1253,10 +1269,12 @@ class CharacterSelection:
                              self.minimap_surf.get_height() +
                              self.selected_units_back.get_height() +
                              int((self.selected_weapons_back.get_height() - self.selected_weapons_box.get_height())/2)],
-                         text="", img_uri=image_uri, use_dim=True,
+                         text="", img_source=img_source, use_dim=True,
                          action=self.ic_function_binder("ic_small_btn_func" + str(i), _category=cat, _id=my_id))
 
             self.sel_item_btns.append(btn)
+
+        start = time.time()
 
         # -------------------------------------------------------------------------------------------------------------
         # now blit everything to the desired position
@@ -1323,12 +1341,8 @@ class CharacterSelection:
 
         # map and ready btn
 
-        self.minimap_surf.blit(self.map_surf, dest=[int((self.minimap_surf.get_width() - self.map_surf.get_width())/2),
-                                                    int((int(self.minimap_surf.get_height()*0.8) -
-                                                         self.map_surf.get_height()) / 2)])
-        self.minimap_surf.blit(self.ready_btn.surf, self.ready_btn.pos)
-
-        self.player_overview.blit(self.minimap_surf, dest=[0, 0])
+        # just have to blit this once in init
+        #self.player_overview.blit(self.minimap_surf, dest=[0, 0])
 
         # selected units
         for sm_char_btn in self.team_char_btns:
@@ -1338,7 +1352,7 @@ class CharacterSelection:
                                       [int((self.selected_units_back.get_width() -
                                        self.selected_units_box.get_width()) / 2),
                                        int((self.selected_units_back.get_height() -
-                                       self.selected_units_box.get_height()) / 2)])
+                                            self.selected_units_box.get_height()) / 2)])
 
         self.player_overview.blit(self.selected_units_back, dest=[0, self.minimap_surf.get_height()])
 
@@ -1352,7 +1366,7 @@ class CharacterSelection:
                                                                                           self.selected_weapons_box))
 
         self.player_overview.blit(self.selected_weapons_back, dest=
-                             [0, self.minimap_surf.get_height() + self.selected_units_back.get_height()])
+                                  [0, self.minimap_surf.get_height() + self.selected_units_back.get_height()])
 
         ###########################
         # right and left together #
@@ -1367,6 +1381,9 @@ class CharacterSelection:
                                                           self.rem_points_back.get_width())/2), 0])
 
         self.screen.blit(self.player_overview, [self.troop_overview.get_width(), 0])
+
+        end = time.time()
+        print("Button building: " + str(end-start))
 
     def event_handling(self):
         # TODO only request char buttons if theirs rect is contained in map_surf
