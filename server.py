@@ -60,25 +60,25 @@ def threaded_client(conn):
             # Host_status
             if data[0:12] == b'Host_ready':
                 host_status = "Ready"
-                sender(b'Host_status', host_status.encode(), conn2)
+                #sender(b'Host_status', host_status.encode(), conn2)
                 print("Host status: Ready!")
             if data[0:14] == b'Host_not_ready':
                 host_status = "Not ready"
-                sender(b'Host_status', host_status.encode(), conn2)
+                #sender(b'Host_status', host_status.encode(), conn2)
                 print("Host status: Not ready!")
             if data[0:13] == b'Host_status':
-                sender(b'Host_status', host_status.encode(), conn2)
+                sender(b'Host_status', host_status.encode(), conn)
             # Client_status
             if data[0:12] == b'Client_ready':
                 client_status = "Ready"
-                sender(b'Client_status', client_status.encode(), conn1)
+                #sender(b'Client_status', client_status.encode(), conn1)
                 print("Client status: Ready!")
             if data[0:16] == b'Client_not_ready':
                 client_status = "Not ready"
-                sender(b'Client_status', client_status.encode(), conn1)
+                #sender(b'Client_status', client_status.encode(), conn1)
                 print("Client status: Not ready!")
             if data[0:13] == b'Client_status':
-                sender(b'Client_status', client_status.encode(), conn1)
+                sender(b'Client_status', client_status.encode(), conn)
             # Client_got_map
             if data[0:12] == b'Map recieved':
                 client_got_map = "Yes"
