@@ -47,7 +47,9 @@ class Character(GameObject):
         self.blind_t = blind_t
 
         self.items = items[:]
+        self.gear = gear[:]
         self.weapons = weapons[:]
+        self.active_slot = []
         self.orientation = orientation
 
         self.pixs = pos[:]
@@ -89,9 +91,8 @@ class Character(GameObject):
             self.dexterity = 35
             self.strength = 50
 
-
     def weight_calculator(self):
-        self.carry = self.strength *2 * self.dexterity * 0.15
+        self.carry = self.strength * 11
 
     def is_dead(self):  # returns if dead
         return self.health[0] <= 0 or self.health[3] <= 0
@@ -237,15 +238,27 @@ class Character(GameObject):
         else:
             print("You can't exchange any weapons!")
 
-    def range(self, dude):
-        return abs(numpy.sqrt(((self.pos[0]-dude.pos[0])**2)*((self.pos[1]-dude.pos[1])**2)))
+    def change_active_slot(self, args):
+        # args = [type, index]
+        if args[0] == "Weapon":
+            if len(self.active_slot) == 1: self.active_slot.pop(0)
+            self.active_slot.append(self.weapons[args[1]])
+        if args[0] == "Item":
+            if len(self.active_slot) == 1: self.active_slot.pop(0)
+            self.active_slot.append(self.items[args[1]])
 
-    def shoot(self, dude, weapon, partind):
+    def range(self, dude):
+        return abs(numpy.sqrt(((self.pos[0]-dude.pos[0])**2)+((self.pos[1]-dude.pos[1])**2)))
+
+    def shoot(self, dude, partind):
         # ToDo Basechance * (0.3 * Dex) - Range
-        chance = weapon.acc * (0.3 * self.dexterity) - self.range(dude)
-        for s in range(weapon.spt):
+        if self.active_slot[0].idi <= 9001:
+            return
+        chance = int(self.active_slot[0].acc * (0.3 * self.dexterity) - self.range(dude))
+        print(chance)
+        for s in range(self.active_slot[0].spt):
             if numpy.random.randint(0, 101) <= chance:
-                dude.get_damaged(weapon.dmg, partind)
+                dude.get_damaged(self.active_slot[0].dmg, partind)
 
     def get_damaged(self, dmg, partind):
         if partind == 3:
@@ -335,7 +348,13 @@ def create_character(_id):
     return boi
 
 if Debug:
-    #boi = Character.create_character("Peter", "team 1", "Light Gunner")
+    #boi = create_character(4, [0, 0])
+    #boii = create_character(0, [0, 10])
+    #boi.weapon_add(make_weapon_by_id(2))
+    #boi.change_active_slot(["Weapon", 0])
+    #boi.shoot(boii, 2)
+    #print(boii.health[2])
+
     #boi.add_item(Medkit())
     #boi.get_damaged(15, 2)
     #print(boi.health[2])

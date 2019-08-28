@@ -131,7 +131,7 @@ class ConnectionSetup:
         self.main_background_img = fit_surf(pg.Surface(true_res), self.main_background_img)
 
         # create window
-        self.screen = pg.display.set_mode(true_res, flags=pg.RESIZABLE)
+        self.screen = pg.display.set_mode(true_res, pg.RESIZABLE)
 
         self.screen.blit(self.main_background_img, blit_centered_pos(self.screen, self.main_background_img))
 
@@ -222,8 +222,8 @@ class ConnectionSetup:
                 self.net.send_control("Close")
                 self.net = None
                 self.role = "unknown"
+                self.host_thread = 0
             self.host_stat = "Hosting canceled!"
-            # TODO Sollte Funzen
 
         def back_fkt():
             self.new_window_target = MainWindow
@@ -301,6 +301,7 @@ class ConnectionSetup:
         def cancel_join_fkt():
             self.net = None
             self.role = "unknown"
+            self.join_thread = 0
             self.join_stat = "Joining cancelled! OwO"
 
         def ip_field_fkt():
