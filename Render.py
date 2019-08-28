@@ -636,7 +636,7 @@ class CharacterSelection: # commit comment
             self.gc_small_images.append(img)
 
         self.wc_small_images = []
-        for i in range(self.gc_num):
+        for i in range(self.wc_num):
             img = pg.image.load("assets/wc/small/wc_" + str(i) + ".png").convert()
             self.wc_small_images.append(img)
 
