@@ -23,6 +23,7 @@ from Render import *
 from Characters import Character
 
 debug = True
+counter = 0
 
 ctypes.windll.user32.SetProcessDPIAware()
 true_res = (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
@@ -154,7 +155,9 @@ while True:
         print("too far")
 
     clock.tick(60)  # controls max fps
-    #print(clock.get_fps())
+    print("FPS: " + str(clock.get_fps())) if counter % 60 == 0 else (lambda: None)
+    counter += 1
+    counter %= 60
     pg.display.flip()
 
     '''

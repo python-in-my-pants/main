@@ -592,7 +592,7 @@ class CharacterSelection:
         self.net = net
         self.new_window_target = None
         self.spent_points = 0
-        self.screen = pg.display.set_mode(true_res, pg.RESIZABLE)
+        self.screen = pg.display.set_mode(true_res, pg.RESIZABLE | pg.FULLSCREEN)
         self.ownTeam = Team()
         self.selectedChar = None
         self.weapons = []
