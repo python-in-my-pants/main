@@ -595,6 +595,7 @@ class CharacterSelection:
         self.spent_points = 0
         self.screen = pg.display.set_mode(true_res, pg.RESIZABLE | pg.FULLSCREEN)
         self.ownTeam = Team()
+        self.ready_thread = 0
         self.selectedChar = None
         self.weapons = []
         self.gear = []
@@ -982,18 +983,14 @@ class CharacterSelection:
         #########
 
         def ready_up():
-
-            print("im a fucking yeeeeter")
-
+            if self.ready_thread == 0:
+                start_new_thread(ready_checker(), ())
             if self.role == "host":
                 self.ready = not self.ready
                 if self.ready:
                     self.net.send_control("Host_ready")
                 else:
                     self.net.send_control("Host_not_ready")
-                while self.net.client_status != "Ready":
-                    time.sleep(0.500)
-                    self.net.send_control("Client_status")
 
             if self.role == "client":
                 self.ready = not self.ready
@@ -1001,10 +998,16 @@ class CharacterSelection:
                     self.net.send_control("Client_ready")
                 else:
                     self.net.send_control("Client_not_ready")
-                while self.net.host_status != "Ready":
-                    time.sleep(0.500)
+
+        def ready_checker():
+            self.ready_thread = get_ident()
+            while self.new_window_target != InGame:
+                if self.net.host_status == "Ready" and self.ready:
+                    self.new_window_target = InGame
+                elif self.role == "host":
+                    self.net.send_control("Client_status")
+                elif self.role == "client":
                     self.net.send_control("Host_status")
-            # TODO: CHRISTIAN <3 when ready, sync wait for other player to be
 
         def get_text():
             return "Unready" if self.ready else "Ready!"
