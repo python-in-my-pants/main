@@ -580,7 +580,7 @@ class ConnectionSetup:
         del self
 
 
-class CharacterSelection:
+class CharacterSelection: # commit comment
 
     def __init__(self, points_to_spend, game_map, role="unknown", net=None):
         # let only those things be here that are not to be reset every frame, so i.e. independent of window size
@@ -593,7 +593,7 @@ class CharacterSelection:
         self.net = net
         self.new_window_target = None
         self.spent_points = 0
-        self.screen = pg.display.set_mode(true_res, pg.RESIZABLE)
+        self.screen = pg.display.set_mode(true_res, pg.RESIZABLE | pg.FULLSCREEN)
         self.ownTeam = Team()
         self.selectedChar = None
         self.weapons = []
@@ -851,6 +851,7 @@ class CharacterSelection:
             def butn_fkt():
 
                 print("clicked gear card" + str(card_num))
+                print(self.gear_cards[0].real_pos[0]+self.gear_cards[0].offset)
                 btn_gear = make_gear_by_id(card_num)
                 if self.spent_points + btn_gear.cost <= self.points_to_spend and self.selectedChar:
                     print("bought")
@@ -954,6 +955,9 @@ class CharacterSelection:
         #########
 
         def ready_up():
+
+            print("im a fucking yeeeeter")
+
             if self.role == "host":
                 self.ready = not self.ready
                 if self.ready:
@@ -963,6 +967,7 @@ class CharacterSelection:
                 while self.net.client_status != "Ready":
                     time.sleep(0.500)
                     self.net.send_control("Client_status")
+
             if self.role == "client":
                 self.ready = not self.ready
                 if self.ready:
@@ -978,11 +983,11 @@ class CharacterSelection:
             return "Unready" if self.ready else "Ready!"
 
         self.ready_btn = Button(
-            dim=[int(self.minimap_surf.get_size()[0] * 0.8), int(self.minimap_surf.get_size()[1] * 0.25)],
-            pos=[int(self.minimap_surf.get_size()[0] * 0.1), self.minimap_surf.get_size()[1]],
+            dim=[int(self.minimap_surf.get_size()[0] * 0.8), int(self.minimap_surf.get_size()[1] * 0.2)],
+            pos=[int(self.minimap_surf.get_size()[0] * 0.1), int(self.minimap_surf.get_size()[1]*0.8)],
             real_pos=[int(self.minimap_surf.get_size()[0] * 0.1) +
                       self.troop_overview.get_size()[0],
-                      self.minimap_surf.get_size()[1]], img_uri="assets/blue_button_menu.jpg",
+                      int(self.minimap_surf.get_size()[1]*0.8)], img_uri="assets/blue_button_menu.jpg",
             text=get_text(), action=ready_up)
 
         # rest has to be handled in update
@@ -992,6 +997,7 @@ class CharacterSelection:
     def cc_function_binder(self, name, unique_char_id):
 
         def btn_fkt(button):
+
             print("Your own team unit with the unique id: " + str(unique_char_id) + " was selected")
             if button == 1:
                 # show characters items in selected_weapons_box and set him as selected char
@@ -1006,8 +1012,8 @@ class CharacterSelection:
                     print("     " + str(char.idi))
 
                 char = self.ownTeam.get_char_by_unique_id(unique_char_id)
+                del self.team_char_btns[self.ownTeam.get_index_by_obj(char)]  # TODO if I reset team_char_btns ...
                 self.ownTeam.remove_char_by_obj(char)
-
                 print("after removal your team is:")
                 for char in self.ownTeam.characters:
                     print("     " + str(char.idi))
@@ -1035,6 +1041,7 @@ class CharacterSelection:
             if button == 3:
 
                 # sell this item
+                # TODO remove sel_item_btn
                 if _category == "gear":
                     for g in self.gear:
                         if g.my_id == _id:
@@ -1178,6 +1185,7 @@ class CharacterSelection:
         w_small_card = int(self.selected_units_box.get_width() * 8 / (small_line_len * 9 + 1))
         h_small_card = w_small_card  # int(w_small_card * 1.457)
 
+        self.team_char_btns = []
         for i in range(self.ownTeam.characters.__len__()):
             pos_w = small_gap_size + ((i % small_line_len) * (w_small_card + small_gap_size))
             pos_h = 2 * small_gap_size + int(i / small_line_len) * h_small_card + (
@@ -1209,6 +1217,7 @@ class CharacterSelection:
             self.weapons = []
             self.items = []
 
+        self.sel_item_btns = []
         for i in range(self.gear.__len__() + self.weapons.__len__() + self.items.__len__()):
 
             pos_w = small_gap_size + ((i % small_line_len) * (w_small_card + small_gap_size))
@@ -1234,17 +1243,16 @@ class CharacterSelection:
                 image_uri = "assets/ic/small/ic_" + str(my_id) + ".png"
                 cat = "item"
 
-            btn = Button(dim=[w_small_card, h_small_card], pos=[pos_w, pos_h], real_pos=[pos_w +
-                                                                                         self.troop_overview.get_width() +
-                                                                                         int((
-                                                                                                         self.selected_weapons_back.get_width() - self.selected_units_box.get_width()) / 2),
-                                                                                         pos_h +
-                                                                                         self.minimap_surf.get_height() +
-                                                                                         self.selected_units_box.get_width() +
-                                                                                         int((
-                                                                                                         self.selected_weapons_back.get_height() - self.selected_units_box.get_height()) / 2)], text="",
-                         img_uri=image_uri, use_dim=True, action=self.ic_function_binder("ic_small_btn_func" + str(i),
-                                                                                         _category=cat, _id=my_id))
+            btn = Button(dim=[w_small_card, h_small_card], pos=[pos_w, pos_h], real_pos=
+                            [pos_w +
+                            self.troop_overview.get_width() +
+                             int((self.selected_weapons_back.get_width() - self.selected_weapons_box.get_width()) / 2),
+                             pos_h +
+                             self.minimap_surf.get_height() +
+                             self.selected_units_back.get_height() +
+                             int((self.selected_weapons_back.get_height() - self.selected_weapons_box.get_height()) / 2)],
+                         text="", img_uri=image_uri, use_dim=True,
+                         action=self.ic_function_binder("ic_small_btn_func" + str(i), _category=cat, _id=my_id))
 
             self.sel_item_btns.append(btn)
 
@@ -1376,6 +1384,10 @@ class CharacterSelection:
                 p = pg.mouse.get_pos()
 
                 if event.button == 1:  # on left click
+                    for banner_btn in self.banners:
+                        if banner_btn.is_focused(p):
+                            banner_btn.action()
+
                     for button in self.character_cards:
                         if button.is_focused(p):
                             button.action()
@@ -1402,10 +1414,6 @@ class CharacterSelection:
 
                     if self.ready_btn.is_focused(p):
                         self.ready_btn.action()
-
-                    for banner_btn in self.banners:
-                        if banner_btn.is_focused(p):
-                            banner_btn.action()
 
                 if event.button == 3:  # on right click
 

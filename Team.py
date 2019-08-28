@@ -32,6 +32,16 @@ class Team:
             if char is char_obj:
                 self.characters.remove(char)
 
+    def get_index_by_obj(self, chari):
+
+        i = 0
+        for char in self.characters:
+            if char is chari:
+                return i
+            i += 1
+        return -1
+
+
     def get_char_by_class_id(self, class_id):
         for char in self.characters:
             if char.my_id == class_id:
