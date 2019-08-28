@@ -1009,7 +1009,7 @@ class CharacterSelection:
                 elif self.role == "client":
                     self.net.send_control("Host_status")
 
-        def get_text():
+        def get_text(): #pus
             return "Unready" if self.ready else "Ready!"
 
         self.ready_btn = Button(
@@ -1022,7 +1022,7 @@ class CharacterSelection:
 
         # rest has to be handled in update
 
-        self.update() # youinkh
+        self.update()
 
     def cc_function_binder(self, name, unique_char_id):
 
