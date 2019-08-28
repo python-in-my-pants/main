@@ -1009,7 +1009,7 @@ class CharacterSelection:
                 elif self.role == "client":
                     self.net.send_control("Host_status")
 
-        def get_text():
+        def get_text(): #pus
             return "Unready" if self.ready else "Ready!"
 
         self.ready_btn = Button(
@@ -1021,11 +1021,6 @@ class CharacterSelection:
             text=get_text(), action=ready_up)
 
         # rest has to be handled in update
-
-        self.minimap_surf.blit(self.map_surf, dest=[int((self.minimap_surf.get_width() - self.map_surf.get_width())/2),
-                                                    int((int(self.minimap_surf.get_height()*0.8) -
-                                                         self.map_surf.get_height()) / 2)])
-        self.minimap_surf.blit(self.ready_btn.surf, self.ready_btn.pos)
 
         self.update()
 
@@ -1277,8 +1272,6 @@ class CharacterSelection:
 
             self.sel_item_btns.append(btn)
 
-        start = time.time()
-
         # -------------------------------------------------------------------------------------------------------------
         # now blit everything to the desired position
         # -------------------------------------------------------------------------------------------------------------
@@ -1344,7 +1337,11 @@ class CharacterSelection:
 
         # map and ready btn
 
-        # just have to blit this once in init
+        self.minimap_surf.blit(self.map_surf, dest=[int((self.minimap_surf.get_width() - self.map_surf.get_width())/2),
+                                                    int((int(self.minimap_surf.get_height()*0.8) -
+                                                         self.map_surf.get_height()) / 2)])
+        self.minimap_surf.blit(self.ready_btn.surf, self.ready_btn.pos)
+
         self.player_overview.blit(self.minimap_surf, dest=[0, 0])
 
         # selected units
@@ -1384,9 +1381,6 @@ class CharacterSelection:
                                                           self.rem_points_back.get_width())/2), 0])
 
         self.screen.blit(self.player_overview, [self.troop_overview.get_width(), 0])
-
-        end = time.time()
-        print("Button building: " + str(end-start))
 
     def event_handling(self):
         # TODO only request char buttons if theirs rect is contained in map_surf
