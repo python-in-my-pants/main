@@ -874,6 +874,7 @@ class CharacterSelection: # commit comment
                                                                                             h_pos +
                                                                                             self.rem_points_back.get_height() +
                                                                                             self.character_back.get_height() +
+                                                                                            self.gear_banner.dim[1],
                                                                                             self.scroll_offset],
                               img_uri=("assets/gc/gc_" + str(i) + ".png"), use_dim=True, text="",
                               action=gear_function_binder("gc_btn_function_" + str(i), i))
@@ -1234,7 +1235,7 @@ class CharacterSelection: # commit comment
                 cat = "gear"
 
             if self.gear.__len__() <= i < self.weapons.__len__() + self.gear.__len__():
-                my_id = self.weapons[i - self.gear.__len__()].my_id
+                my_id = self.weapons[i - self.gear.__len__()].class_id
                 image_uri = "assets/wc/small/wc_" + str(my_id) + ".png"
                 cat = "weapon"
 
