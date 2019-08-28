@@ -874,6 +874,7 @@ class CharacterSelection:
                                                                                             self.rem_points_back.get_height() +
                                                                                             self.gear_banner.dim[1] +
                                                                                             self.character_back.get_height() +
+                                                                                            self.gear_banner.dim[1],
                                                                                             self.scroll_offset],
                               img_uri=("assets/gc/gc_" + str(i) + ".png"), use_dim=True, text="",
                               action=gear_function_binder("gc_btn_function_" + str(i), i))
@@ -1030,7 +1031,8 @@ class CharacterSelection:
 
                 self.spent_points -= char.cost
                 self.points_to_spend += char.cost
-
+            print("LFLLWEFLWELFLKWEFKWELFLKWEF")
+        print("______________")
         btn_fkt.__name__ = name
         return btn_fkt
 
