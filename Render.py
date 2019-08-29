@@ -589,7 +589,7 @@ class CharacterSelection:  # commit comment
 
         size = true_res
 
-        self.points_to_spend = 100  # TODO
+        self.points_to_spend = points_to_spend  # TODO
         self.game_map = game_map
         self.role = role
         self.net = net
@@ -657,6 +657,9 @@ class CharacterSelection:  # commit comment
 
         # character cards go here as buttons
         self.troop_overview = pg.Surface([int(0.7 * size[0]), size[1] * 10])  # make very long for scroll stuff
+        troop_overview_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png"), self.troop_overview.get_size())
+        self.troop_overview.blit(troop_overview_back_img, [0, 0])
+
         self.player_overview = pg.Surface([int(0.3 * size[0]), size[1]])
 
         # some vars and constants
@@ -683,26 +686,37 @@ class CharacterSelection:  # commit comment
 
         self.character_back = pg.Surface([self.troop_overview.get_width(),
                                           int(2 * self.gap_size +
-                                              int(math.ceil(self.ic_num / self.line_len) * self.card_h) +
-                                              int(self.ic_num / self.line_len) * self.gap_size +
+                                              int(math.ceil(self.cc_num / self.line_len) * self.card_h) +
+                                              int(self.cc_num / self.line_len) * self.gap_size +
                                               int(self.card_h * 0.5))])
         self.character_content = pg.Surface(
             [self.character_back.get_width(), self.character_back.get_height() - int(self.card_h / 2)])
+        # NEWWW
+        c_con_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png"), self.character_content.get_size())
+        self.character_content.blit(c_con_back_img, [0, 0])
 
         self.gear_back = pg.Surface([self.troop_overview.get_width(),
                                      int(2 * self.gap_size +
-                                         int(math.ceil(self.ic_num / self.line_len)*self.card_h) +
-                                         int(self.ic_num / self.line_len) * self.gap_size +
+                                         int(math.ceil(self.gc_num / self.line_len)*self.card_h) +
+                                         int(self.gc_num / self.line_len) * self.gap_size +
                                          int(self.card_h * 0.5))])
         self.gear_content = pg.Surface([self.gear_back.get_width(), self.gear_back.get_height() - int(self.card_h / 2)])
 
+        # NEWWW
+        g_con_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png"), self.gear_content.get_size())
+        self.gear_content.blit(g_con_back_img, [0, 0])
+
         self.weapon_back = pg.Surface([self.troop_overview.get_width(),
                                        int(2 * self.gap_size +
-                                           int(math.ceil(self.ic_num / self.line_len) * self.card_h) +
-                                           int(self.ic_num / self.line_len) * self.gap_size +
+                                           int(math.ceil(self.wc_num / self.line_len) * self.card_h) +
+                                           int(self.wc_num / self.line_len) * self.gap_size +
                                            int(self.card_h * 0.5))])
         self.weapon_content = pg.Surface(
             [self.weapon_back.get_width(), self.weapon_back.get_height() - int(self.card_h / 2)])
+
+        # NEWWW
+        w_con_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png"), self.weapon_content.get_size())
+        self.weapon_content.blit(w_con_back_img, [0, 0])
 
         self.item_back = pg.Surface([self.troop_overview.get_width(),
                                      int(2 * self.gap_size +
@@ -710,6 +724,10 @@ class CharacterSelection:  # commit comment
                                          int(self.ic_num / self.line_len) * self.gap_size +
                                          int(self.card_h * 0.5))])
         self.item_content = pg.Surface([self.item_back.get_width(), self.item_back.get_height() - int(self.card_h / 2)])
+
+        # NEWWW
+        i_con_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png"), self.item_content.get_size())
+        self.item_content.blit(i_con_back_img, [0, 0])
 
         ##############
         # right side #
@@ -719,21 +737,53 @@ class CharacterSelection:  # commit comment
         self.minimap_surf = pg.Surface([mini, mini])
         if debug:
             self.minimap_surf.fill((10, 11, 12))
+
+        # NEWWW
+        minimap_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png"), self.minimap_surf.get_size())
+        self.minimap_surf.blit(minimap_back_img, [0, 0])
+
         self.game_map.draw_map()
         self.map_surf = fit_surf(pg.Surface([self.minimap_surf.get_width(), int(self.minimap_surf.get_height()*0.8)]),
                                  self.game_map.window)
 
+        # ---------------
+
         self.selected_units_back = pg.Surface([int(0.3 * size[0]), int((size[1] - self.minimap_surf.get_height())/2)])
         if debug:
             self.selected_units_back.fill((255, 0, 0))
+
+        # NEWWW
+        sel_uni_back_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png"),
+                                                         self.selected_units_back.get_size())
+        self.selected_units_back.blit(sel_uni_back_back_img, [0, 0])
+
         self.selected_units_box = pg.Surface(
                 [self.selected_units_back.get_width() - 10, self.selected_units_back.get_height() - 10])
+
+        # NEWWW
+        sel_uni_box_back_img = pg.transform.smoothscale(pg.image.load("assets/deco_banner.png"),
+                                                        self.selected_units_box.get_size())
+        self.selected_units_box.blit(sel_uni_box_back_img, [0, 0])
+
+        # --------------
 
         self.selected_weapons_back = pg.Surface([int(0.3 * size[0]), int((size[1] - (self.minimap_surf.get_height()/2)))])
         if debug:
             self.selected_weapons_back.fill((0, 255, 0))
+
+        # NEWWW
+        sel_weap_back_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png"),
+                                                          self.selected_weapons_back.get_size())
+        self.selected_weapons_back.blit(sel_weap_back_back_img, [0, 0])
+
         self.selected_weapons_box = pg.Surface([self.selected_weapons_back.get_width() - 10,
                                                 self.selected_weapons_back.get_height() - 10])
+
+        # NEWWW
+        sel_weap_box_back_img = pg.transform.smoothscale(pg.image.load("assets/deco_banner.png"),
+                                                         self.selected_weap_box.get_size())
+        self.selected_weapons_box.blit(sel_weap_box_back_img, [0, 0])
+
         # TODO: show items of selected char here
 
         # constants
@@ -1329,8 +1379,8 @@ class CharacterSelection:  # commit comment
                 self.item_content.blit(item_btn.surf, item_btn.pos)
             self.item_back.blit(self.item_content, [0, self.item_banner.dim[1]])
 
-        if debug:
-            self.troop_overview.fill((20, 150, 70))
+        # TODO fill here with background image
+        self.troop_overview.fill((0, 0, 0))
 
         self.troop_overview.blit(self.character_back, dest=[0, self.rem_points_back.get_height()])
         self.troop_overview.blit(self.gear_back, dest=[0, self.rem_points_back.get_height() +
@@ -1405,11 +1455,12 @@ class CharacterSelection:  # commit comment
                 pg.quit()
                 sys.exit()
 
-            if event.type == pg.KEYDOWN:
+            if debug:
+                if event.type == pg.KEYDOWN:
 
-                if event.key == ord("q"):
-                    pg.quit()
-                    sys.exit()
+                    if event.key == ord("q"):
+                        pg.quit()
+                        sys.exit()
 
             if event.type == pg.MOUSEBUTTONDOWN:
                 p = pg.mouse.get_pos()
@@ -1456,11 +1507,17 @@ class CharacterSelection:  # commit comment
 
                     self.scroll = True
                     self.scroll_offset += 100
+                    # NEWWW
+                    self.scroll_offset = min(self.scroll_offset, self.character_back.get_height() +
+                                                                 self.gear_back.get_height() +
+                                                                 self.weapon_back.get_height() +
+                                                                 self.item_back.get_height())
 
                 if event.button == 5:  # scroll down
 
                     self.scroll = True
                     self.scroll_offset -= 100
+                    self.scroll_offset = max(self.scroll_offset, 0)
 
     def harakiri(self):
         del self

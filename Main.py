@@ -113,7 +113,7 @@ while True:
                                    characters=map_data[2],
                                    unique_pixels=map_data[0])
 
-                points_to_spend = int(((game_map.size_x * game_map.size_y) / 2) * 18)   # TODO change maybe
+                points_to_spend = int(((game_map.size_x * game_map.size_y) / 500) * 18)   # TODO change maybe
 
                 new_target = active_window.new_window_target
                 active_window.harakiri()
