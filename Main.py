@@ -156,7 +156,7 @@ while True:
         print("You little bitch reached the In-Game screen UwU")
 
     clock.tick(60)  # controls max fps
-    print("FPS: " + str(clock.get_fps()) + "\n\n") if counter % 60 == 0 else (lambda: None)
+    #print("FPS: " + str(clock.get_fps()) + "\n\n") if counter % 60 == 0 else (lambda: None)
     counter += 1
     counter %= 60
     pg.display.flip()
