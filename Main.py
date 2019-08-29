@@ -142,7 +142,6 @@ while True:
     if isinstance(active_window, character_selection):
 
         if active_window.new_window_target:
-
             new_target = active_window.new_window_target  # should be in_game
             active_window.harakiri()
             active_window = new_target()

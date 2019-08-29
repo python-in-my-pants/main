@@ -213,6 +213,9 @@ class ConnectionSetup:
                 while self.net.client_got_map != "Yes":
                     pass  # Sleep the tightest Aniki!!!!
                 self.host_stat = "Let's start!"
+                self.net.send_control("Ready_delete")
+                self.net.client_status = ""
+                self.net.host_status = ""
                 self.new_window_target = CharacterSelection
                 # TODO Check obs funzt
                 return
@@ -295,7 +298,8 @@ class ConnectionSetup:
                 self.net.map = pickle.loads(bytes(self.net.map[6:]))
 
                 self.net.send_control("Map recieved!")
-                time.sleep(2)
+                self.net.client_status = ""
+                self.net.host_status = ""
                 self.new_window_target = CharacterSelection
 
         def cancel_join_fkt():
@@ -636,7 +640,7 @@ class CharacterSelection:
             self.gc_small_images.append(img)
 
         self.wc_small_images = []
-        for i in range(self.gc_num):
+        for i in range(self.wc_num):
             img = pg.image.load("assets/wc/small/wc_" + str(i) + ".png").convert()
             self.wc_small_images.append(img)
 
@@ -1002,12 +1006,14 @@ class CharacterSelection:
         def ready_checker():
             self.ready_thread = get_ident()
             while self.new_window_target != InGame:
-                if self.net.host_status == "Ready" and self.ready:
-                    self.new_window_target = InGame
-                elif self.role == "host":
+                if self.role == "host":
                     self.net.send_control("Client_status")
-                elif self.role == "client":
+                    if self.net.client_status == "Ready" and self.ready:
+                        self.new_window_target = InGame
+                if self.role == "client":
                     self.net.send_control("Host_status")
+                    if self.net.host_status == "Ready" and self.ready:
+                        self.new_window_target = InGame
 
         def get_text(): #pus
             return "Unready" if self.ready else "Ready!"
@@ -1251,12 +1257,12 @@ class CharacterSelection:
 
             if self.gear.__len__() <= i < self.weapons.__len__() + self.gear.__len__():
                 my_id = self.weapons[i - self.gear.__len__()].class_id  # TODO list index out of range???
-                img_source = self.gc_small_images[my_id]
+                img_source = self.wc_small_images[my_id]
                 cat = "weapon"
 
             if i >= self.gear.__len__() + self.weapons.__len__():
                 my_id = self.items[i - self.gear.__len__() - self.weapons.__len__()].my_id
-                img_source = self.gc_small_images[my_id]
+                img_source = self.ic_small_images[my_id]
                 cat = "item"
 
             btn = Button(dim=[w_small_card, h_small_card], pos=[pos_w, pos_h], real_pos=

@@ -79,6 +79,10 @@ def threaded_client(conn):
                 print("Client status: Not ready!")
             if data[0:13] == b'Client_status':
                 sender(b'Client_status', client_status.encode(), conn)
+            # Status Delete
+            if data[0:12] == b'Ready_delete':
+                client_status = ""
+                host_status = ""
             # Client_got_map
             if data[0:12] == b'Map recieved':
                 client_got_map = "Yes"
