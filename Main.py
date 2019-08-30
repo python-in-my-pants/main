@@ -93,7 +93,7 @@ while True:
                 # -> generate map
                 new_target = active_window.new_window_target
                 game_map = active_window.game_map
-                points_to_spend = int(((game_map.size_x * game_map.size_y) / 2) * 18)  # TODO change maybe
+                points_to_spend = int(((game_map.size_x * game_map.size_y) / 500) * 16.8)  # TODO change maybe
                 active_window.harakiri()
 
                 active_window = new_target(points_to_spend=points_to_spend,
@@ -136,10 +136,25 @@ while True:
 
         else:
 
-            if active_window.event_handling():
-                active_window.update()
+            active_window.event_handling()
+            active_window.update()
 
     if isinstance(active_window, character_selection):
+
+        if active_window.new_window_target:
+
+            new_target = active_window.new_window_target  # should be in_game
+            team = active_window.ownTeam
+            map = active_window.game_map
+            active_window.harakiri()
+            active_window = new_target(own_team=team, game_map=map)
+
+        else:
+
+            active_window.event_handling()
+            active_window.update()
+
+    if isinstance(active_window, in_game):
 
         if active_window.new_window_target:
 
@@ -152,11 +167,8 @@ while True:
             active_window.event_handling()
             active_window.update()
 
-    if isinstance(active_window, in_game):
-        print("You little bitch reached the In-Game screen UwU")
-
     clock.tick(60)  # controls max fps
-    #print("FPS: " + str(clock.get_fps()) + "\n\n") if counter % 60 == 0 else (lambda: None)
+    print("FPS: " + str(clock.get_fps()) + "\n\n") if counter % 60 == 0 else (lambda: None)
     counter += 1
     counter %= 60
     pg.display.flip()
