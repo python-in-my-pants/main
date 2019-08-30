@@ -55,7 +55,7 @@ class Button:
 
             font_size = int(0.8 * self.dim[1]) if int(0.8*self.dim[1]) < int(0.7*self.dim[0]) else int(0.7*self.dim[0])
             font = pg.font.SysFont("comicsansms", font_size)
-            font_render = font.render(self.text, True, self.font_color)  #(255-color[0], 255-color[1], 255-color[2]))
+            font_render = font.render(self.text, True, self.font_color)
             self.surf.blit(font_render, (int(self.dim[0] / 2) - int(font_render.get_width() / 2),
                                          int(self.dim[1] / 2) - int(font_render.get_height() / 2)))
 
@@ -91,7 +91,7 @@ class Button:
 
             font_size = int(0.8 * self.dim[1]) if int(0.8*self.dim[1]) < int(0.7*self.dim[0]) else int(0.7*self.dim[0])
             font = pg.font.SysFont("comicsansms", font_size)
-            font_render = font.render(self.text, True,  self.font_color)  # (255 - self.color[0], 255 - self.color[1], 255 - self.color[2]))
+            font_render = font.render(self.text, True,  self.font_color)
             self.surf.blit(font_render, (int(self.dim[0] / 2) - int(font_render.get_width() / 2),
                                          int(self.dim[1] / 2) - int(font_render.get_height() / 2)))
 
@@ -134,13 +134,13 @@ class HPBar:
         self.end = end
         self.color = color
 
-        self.surf = pg.Surface(dim. pg.SRCALPHA, 32)
-        self.surf.convert_alpha()
+        self.surf = pg.Surface(dim, pg.SRCALPHA, 32)
+        self.surf.convert_alpha(self.surf)
 
         self.bar_surf = pg.Surface([int(dim[0]*curr / end), dim[1]])
         self.bar_surf.fill(color)
 
-        self.surf.blit(self.bar_surf)
+        self.surf.blit(self.bar_surf, self.pos)
 
     def update(self, val):
 

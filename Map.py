@@ -12,9 +12,6 @@ from Characters import Character
 
 debug = True
 
-# TODO: Nur Map wird gezeichnet und ist ein container für alle anderen drawables, Änderungen an drawables werden \
-#       durchgeführt und diese dann erneut Map hinzugefügt, die alten gelöscht
-
 
 class Map(GameObject):  # TODO add selective renderer that renders only visible characters from own team
                         # TODO maybe dont inherit from GObj
@@ -57,7 +54,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
     def set_elem_size(self, elem_size):
         self.elem_size = elem_size
 
-    def add_object(self, game_object, border_size=0, recursion_depth=0, permutation_lenght=[0, 0]):  # STATUS: partially working, border
+    def add_object(self, game_object, border_size=0, recursion_depth=0):  # STATUS: partially working, border
         # stuff not yet, crashes when too deep recursion occurs
 
         """
@@ -65,7 +62,8 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
         "collision with other object" leads to shifting to object until either no collision is occurring or abortion
 
         :param game_object: the object to add
-        :param border_size: optional border around the object to sustain accessability of buildings etc.
+        :param border_size: optional border around the object to sustain accessibility of buildings etc.
+        :param recursion_depth: limits attempts to fit a certain object in
         :return: 1 on success, 0 else
         """
 
