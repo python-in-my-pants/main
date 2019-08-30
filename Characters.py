@@ -258,13 +258,92 @@ class Character(GameObject):
 
     def shoot(self, dude, partind):
         # ToDo Basechance * (0.3 * Dex) - Range
-        if self.active_slot[0].idi <= 9001:
-            return
-        chance = int(self.active_slot[0].acc * (0.3 * self.dexterity) - self.range(dude))
+        c_range = self.range(dude)
+        dmg = self.calc_dmg(c_range)
+        p_range = self.calc_p_range(c_range)
+        chance = int(self.active_slot[0].acc * (0.3 * self.dexterity) - p_range)
         print(chance)
         for s in range(self.active_slot[0].spt):
             if numpy.random.randint(0, 101) <= chance:
-                dude.get_damaged(self.active_slot[0].dmg, partind)
+                dude.get_damaged(dmg, partind)
+
+    def calc_dmg(self, c_range):
+        if isinstance(self.active_slot[0], Pistole):
+            if c_range >= 20:
+                return self.active_slot[0].dmg - int((0.2*(c_range-20))+0.5)
+            else:
+                return self.active_slot[0].dmg
+        if isinstance(self.active_slot[0], Maschinenpistole):
+            if c_range >= 15:
+                return self.active_slot[0].dmg - int((0.3*(c_range-15))+0.5)
+            else:
+                return self.active_slot[0].dmg
+        if isinstance(self.active_slot[0], Sturmgewehr):
+            if c_range >= 50:
+                return self.active_slot[0].dmg - int((0.2*(c_range-50))+0.5)
+            else:
+                return self.active_slot[0].dmg
+        if isinstance(self.active_slot[0], Shotgun):
+            if c_range >= 10:
+                return self.active_slot[0].dmg - int((1*(c_range-10))+0.5)
+            else:
+                return self.active_slot[0].dmg
+        if isinstance(self.active_slot[0], Maschinengewehr):
+            if c_range >= 40:
+                return self.active_slot[0].dmg - int((0.3*(c_range-40))+0.5)
+            else:
+                return self.active_slot[0].dmg
+        if isinstance(self.active_slot[0], Sniper):
+            if c_range >= 100:
+                return self.active_slot[0].dmg - int((0.2*(c_range-10))+0.5)
+            else:
+                return self.active_slot[0].dmg
+        if isinstance(self.active_slot[0], Raketenwerfer):
+            if c_range >= 20:
+                return self.active_slot[0].dmg - int((0.1*(c_range-20))+0.5)
+            else:
+                return self.active_slot[0].dmg
+
+    def calc_p_range(self, c_range):
+        if isinstance(self.active_slot[0], Pistole):
+            if c_range > 20:
+                return c_range-20
+            else:
+                return 0
+        if isinstance(self.active_slot[0], Maschinenpistole):
+            if c_range > 15:
+                return c_range-15
+            else:
+                return 0
+        if isinstance(self.active_slot[0], Sturmgewehr):
+            if c_range > 50:
+                return c_range-50
+            else:
+                return 0
+        if isinstance(self.active_slot[0], Shotgun):
+            if c_range > 10:
+                return c_range-10
+            else:
+                return 0
+        if isinstance(self.active_slot[0], Maschinengewehr):
+            if c_range < 2:
+                return 10
+            if c_range > 40:
+                return c_range-40
+            else:
+                return 0
+        if isinstance(self.active_slot[0], Sniper):
+            if c_range < 5:
+                return c_range*10
+            if c_range > 100:
+                return c_range-100
+            else:
+                return 0
+        if isinstance(self.active_slot[0], Raketenwerfer):
+            if c_range > 20:
+                return c_range - 20
+            else:
+                return 0
 
     def get_damaged(self, dmg, partind):
         if partind == 3:
@@ -354,12 +433,13 @@ def create_character(_id):
     return boi
 
 if Debug:
-    #boi = create_character(4, [0, 0])
+    #boi = create_character(0, [0, 0])
     #boii = create_character(0, [0, 10])
-    #boi.weapon_add(make_weapon_by_id(2))
+    #boi.weapon_add(make_weapon_by_id(4))
     #boi.change_active_slot(["Weapon", 0])
     #boi.shoot(boii, 2)
     #print(boii.health[2])
+    #print(boi.range(boii))
 
     #boi.add_item(Medkit())
     #boi.get_damaged(15, 2)

@@ -414,8 +414,9 @@ class MapBuilder:
         elem_size = 25
 
         fields_x = fields_y = size
-
-        self.map = Map(x_size=size, y_size=size, elem_size=elem_size)
+        #fields_x = 10
+        #fields_y = 69
+        self.map = Map(x_size=fields_x, y_size=fields_y, elem_size=elem_size)
 
         # ------------------------------------------------------------------------------------------------------------
 
@@ -423,7 +424,7 @@ class MapBuilder:
 
         # add spawns
 
-        areas = Spawnarea.create_areals([size, size])  # TODO
+        areas = Spawnarea.create_areals([fields_x, fields_y])  # TODO
 
         for area in areas:
             self.map.add_object(area)

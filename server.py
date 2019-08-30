@@ -84,7 +84,7 @@ def threaded_client(conn):
                 client_status = ""
                 host_status = ""
             # Client_got_map
-            if data[0:12] == b'Map recieved':
+            if data[0:12] == b'Map received':
                 client_got_map = "Yes"
                 print("_____________")
                 sender(b'Client_got_map', client_got_map.encode(), conn1)

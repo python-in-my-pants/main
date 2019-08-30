@@ -21,7 +21,7 @@ import ctypes
 
 ctypes.windll.user32.SetProcessDPIAware()
 
-debug = False
+debug = True
 
 '''
 elem size,
@@ -123,8 +123,8 @@ class ConnectionSetup:
         self.screen = None
         self.buttons = None
 
-        self.ip_field_text = "88.150.32.237"
-        self.desi_board_text = "Enter board size"
+        self.ip_field_text = "88.150.32.237"  # ToDo Change in Final
+        self.desi_board_text = "50"
         self.game_map = None
 
         self.main_background_img = pg.image.load("assets/rose.png").convert()
@@ -169,7 +169,7 @@ class ConnectionSetup:
 
             if self.board_first_click:
                 self.desi_board_text = ""
-                board_first_click = False
+                self.board_first_click = False
 
         def host_btn_fkt():
             if self.host_thread == 0:
@@ -238,7 +238,7 @@ class ConnectionSetup:
                                            pos=[int((left_surf.get_width() - int(surfs_size[0] / 3)) / 2),
                                                 int(surfs_size[1] * 0.7)],
                                            real_pos=[int((right_surf.get_width() - (surfs_size[0] / 3)) / 2),
-                                                     int(surfs_size[1] * 0.7)], color=(255, 255, 255), text="50",
+                                                     int(surfs_size[1] * 0.7)], color=(255, 255, 255), text=self.desi_board_text,
                                            name="board_size_button",
                                            action=desired_board_size_button_fkt)  #self.desi_board_text)
 
@@ -297,7 +297,7 @@ class ConnectionSetup:
 
                 self.net.map = pickle.loads(bytes(self.net.map[6:]))
 
-                self.net.send_control("Map recieved!")
+                self.net.send_control("Map received")
                 self.net.client_status = ""
                 self.net.host_status = ""
                 self.new_window_target = CharacterSelection
@@ -685,23 +685,23 @@ class CharacterSelection:  # commit comment
 
         self.character_back = pg.Surface([self.troop_overview.get_width(),
                                           int(2 * self.gap_size +
-                                              int(math.ceil(self.ic_num / self.line_len) * self.card_h) +
-                                              int(self.ic_num / self.line_len) * self.gap_size +
+                                              int(math.ceil(self.cc_num / self.line_len) * self.card_h) +
+                                              int(self.cc_num / self.line_len) * self.gap_size +
                                               int(self.card_h * 0.5))])
         self.character_content = pg.Surface(
             [self.character_back.get_width(), self.character_back.get_height() - int(self.card_h / 2)])
 
         self.gear_back = pg.Surface([self.troop_overview.get_width(),
                                      int(2 * self.gap_size +
-                                         int(math.ceil(self.ic_num / self.line_len)*self.card_h) +
-                                         int(self.ic_num / self.line_len) * self.gap_size +
+                                         int(math.ceil(self.gc_num / self.line_len)*self.card_h) +
+                                         int(self.gc_num / self.line_len) * self.gap_size +
                                          int(self.card_h * 0.5))])
         self.gear_content = pg.Surface([self.gear_back.get_width(), self.gear_back.get_height() - int(self.card_h / 2)])
 
         self.weapon_back = pg.Surface([self.troop_overview.get_width(),
                                        int(2 * self.gap_size +
-                                           int(math.ceil(self.ic_num / self.line_len) * self.card_h) +
-                                           int(self.ic_num / self.line_len) * self.gap_size +
+                                           int(math.ceil(self.wc_num / self.line_len) * self.card_h) +
+                                           int(self.wc_num / self.line_len) * self.gap_size +
                                            int(self.card_h * 0.5))])
         self.weapon_content = pg.Surface(
             [self.weapon_back.get_width(), self.weapon_back.get_height() - int(self.card_h / 2)])
@@ -1333,8 +1333,8 @@ class CharacterSelection:  # commit comment
                 self.item_content.blit(item_btn.surf, item_btn.pos)
             self.item_back.blit(self.item_content, [0, self.item_banner.dim[1]])
 
-        if debug:
-            self.troop_overview.fill((20, 150, 70))
+        #self.troop_overview.fill((20, 150, 70))
+        self.troop_overview.fill((0, 0, 0))
 
         self.troop_overview.blit(self.character_back, dest=[0, self.rem_points_back.get_height()])
         self.troop_overview.blit(self.gear_back, dest=[0, self.rem_points_back.get_height() +
