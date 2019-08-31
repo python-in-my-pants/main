@@ -1722,7 +1722,7 @@ class InGame:
 
         def sel_own_char_binder(name, _id):
 
-            def func(_id):
+            def func():
                 self.selected_own_char = self.own_team.get_char_by_unique_id(_id)
 
             func.__name__ = name
@@ -1730,7 +1730,7 @@ class InGame:
 
         def sel_char_binder(name, _id):
 
-            def func(_id):
+            def func():
                 for _index in self.game_map.characters:
 
                     _char = self.game_map.objects[_index]
@@ -1763,9 +1763,10 @@ class InGame:
         self.char_map_buttons = []
 
         # constants, passt
-        self.inventory_gap_size = int((1 / 32) * 7 * w / 32)
         self.btn_w = int((5 / 32) * 7 * w / 32)
         self.btn_h = self.btn_w
+        #self.inventory_gap_size = int((1 / 32) * 7 * w / 32)
+        self.inventory_gap_size = int((self.inventory_gear_weapons_surf.get_height()-self.btn_h)/2)
         self.inventory_line_len = 5
 
         # ----- left -----
@@ -1786,7 +1787,7 @@ class InGame:
 
             for j in range(5):
                 hp_bar = HPBar(dim=[self.btn_w, int(0.1 * self.btn_h)],
-                               pos=[pos_w, pos_h + 0.1 * j * self.btn_h],
+                               pos=[pos_w, int(pos_h + 0.1 * j * self.btn_h)],
                                curr=self.own_team.characters[i].health[j],
                                end=100)
                 bars.append(hp_bar)
@@ -1800,7 +1801,7 @@ class InGame:
 
             btn = Button(dim=[self.btn_w, self.btn_h], pos=[pos_w, pos_h], real_pos=[pos_w +
                                                                                      self.char_detail_back.get_width() +
-                                                                                     int(self.minimap_surf.get_width() * 0.05),
+                                                                                     int(self.map_surface.get_width() * 0.05),
                                                                                      pos_h],
                          img_uri=("assets/cc/small/cc_" + str(self.own_team.characters[i].class_id) + ".png"),
                          text="", name="char btn " + str(self.own_team.characters[i].class_id),
@@ -1834,7 +1835,7 @@ class InGame:
                                real_pos=[self.char_detail_back.get_width() +
                                          self.map_surface.get_width(),
                                          self.player_banners.get_height() +
-                                         self.minimap_surf.get_height()], #img_uri="assets/done_button.png",
+                                         self.minimap_surf.get_height()],
                                img_uri="assets/blue_button_menu.jpg",
                                name="Done Button", action=done_button_action)
 
@@ -1872,6 +1873,7 @@ class InGame:
 
         if self.selected_own_char:
 
+            self.gear_buttons = []
             if self.selected_own_char.gear:
                 # gear buttons
                 for i in range(self.selected_own_char.gear.__len__()):
@@ -1882,12 +1884,14 @@ class InGame:
                                  real_pos=[pos_w,
                                            pos_h +
                                            self.char_detail_back.get_height()],
-                                 img_uri="assets/gc/small/gc_" + str(self.selected_own_char.gear[i].my_id) + ".png",
+                                 #img_uri="assets/gc/small/gc_" + str(self.selected_own_char.gear[i].my_id) + ".png",
+                                 img_source=self.small_gear[i],
                                  text="", name=("gear " + str(self.selected_own_char.gear[i].my_id) + " button"),
                                  action=(lambda: None))
 
                     self.gear_buttons.append(btn)
 
+            self.weapon_buttons = []
             if self.selected_own_char.weapons:
                 # weapon buttons
                 for i in range(self.selected_own_char.weapons.__len__()):
@@ -1898,13 +1902,15 @@ class InGame:
                                  real_pos=[pos_w,
                                            pos_h +
                                            self.char_detail_back.get_height()],
-                                 img_uri="assets/wc/small/wc_" + str(self.selected_own_char.weapons[i].class_id) + ".png",
+                                 #img_uri="assets/wc/small/wc_" + str(self.selected_own_char.weapons[i].class_id) + ".png",
+                                 img_source=self.small_weapon[i],
                                  text="", name=("weapon " + str(self.selected_own_char.weapons[i].class_id) + ".png"),
                                  action=self.inventory_function_binder("weapon " + str(self.selected_own_char.weapons[i].class_idi),
                                                                      self.selected_own_char.weapons[i].class_idi, item_type="weapon"))
 
                     self.weapon_buttons.append(btn)
 
+            self.item_buttons = []
             if self.selected_own_char.items:
                 # item buttons
                 for i in range(self.selected_own_char.items.__len__()):
@@ -1916,7 +1922,9 @@ class InGame:
                                            pos_h +
                                            self.char_detail_back.get_height() +
                                            self.inventory_gear_weapons_surf.get_height()],
-                                 img_uri="assets/ic/small/ic_" + str(self.selected_own_char.items[i].my_id) + ".png", text="",
+                                 #="assets/ic/small/ic_" + str(self.selected_own_char.items[i].my_id) + ".png",
+                                 img_source=self.small_item[i],
+                                 text="",
                                  name=("item " + str(self.selected_own_char.items[i].my_id) + ".png"),
                                  action=self.inventory_function_binder("item " + str(self.selected_own_char.items[i].idi),
                                                                   self.selected_own_char.items[i].idi, item_type="item"))
@@ -1996,6 +2004,8 @@ class InGame:
         # ----- right -----
 
         self.player_banners.blit(self.match_stats, dest=[0, int(0.8 * self.player_banners.get_height())])
+
+        self.minimap_surf.blit(fit_surf(back=self.minimap_surf, surf=self.map_content), dest=[0, 0])
 
         self.done_btn_surf.blit(self.done_btn.surf, self.done_btn.pos)
 
