@@ -1581,10 +1581,12 @@ class InGame:
         self.element_size = int(true_res[0] * 9 / (16 * 30))  # default is 30 elem width
         self.zoom_factor = 1
         self.mouse_pos = pg.mouse.get_pos()
-        self.zoom_size = None
         self.zoomed = False
-        self.cmp = [0, 0]
-        self.amount = [0,0]
+        self.amount = [0, 0]
+
+        self.shifting = False
+        self.shift_start = [0, 0]
+        self.shift_end = [0, 0]
 
         self.screen = pg.display.set_mode(true_res, pg.RESIZABLE | pg.FULLSCREEN)
 
@@ -1953,29 +1955,27 @@ class InGame:
             self.own_team_stats.blit(btn.surf, btn.pos)
 
         if self.zoomed:
-            leng = math.sqrt((self.mouse_pos[0]-(7/32)*w) ** 2 + self.mouse_pos[1] ** 2)
-            degree = min(max(math.degrees(math.acos((self.mouse_pos[0]-(7/32)*w)/leng)), 0), 90)
 
-            print(leng)
-            print(degree)
-            print("-"*30)
+            real_mouse_pos = [(self.mouse_pos[0] - (7 / 32) * w), self.mouse_pos[1]]
 
-            self.amount = [-int((int((self.zoom_factor - 1) * int(self.mouse_pos[0] - (7 / 32) * w)) * (leng/((9/16)*w))) *
-                           (degree/90)),
-                           -int((self.zoom_factor - 1) * self.mouse_pos[1] * (leng/((9/16)*w)))
-                           if degree == 0 else
-                           -int(int((self.zoom_factor - 1) * self.mouse_pos[1] * (leng/((9/16)*w))) * (90/degree))]
+            self.amount = [-int(real_mouse_pos[0] * (self.zoom_factor-1)),
+                           -int(real_mouse_pos[1] * (self.zoom_factor-1))]
 
-            self.cmp = [self.cmp[0]+self.amount[0], self.cmp[1]+self.amount[1]]
             self.zoomed = False
 
-        #print(self.cmp)
+        if self.zoom_factor >= 1:
+            dest = [self.amount[0] + (self.shift_end[0] - self.shift_start[0]),
+                    self.amount[1] + (self.shift_end[1] - self.shift_start[1])]
+        else:
+            dest = blit_centered_pos(self.map_surface, pg.transform.smoothscale(self.map_content,
+                                                      (max(0, int(self.map_content.get_width() * self.zoom_factor)),
+                                                       max(0, int(self.map_content.get_height() * self.zoom_factor)))))
 
         self.map_surface.fill((0, 0, 10))
         self.map_surface.blit(pg.transform.smoothscale(self.map_content,
-                                                       (int(self.map_content.get_width() * self.zoom_factor),
-                                                        int(self.map_content.get_height() * self.zoom_factor))),
-                              dest=[self.amount[0], self.amount[1]])
+                                                       (max(0, int(self.map_content.get_width() * self.zoom_factor)),
+                                                        max(0, int(self.map_content.get_height() * self.zoom_factor)))),
+                              dest=dest)
 
         # TODO beware of 0.05 as constant
         self.map_surface.blit(self.own_team_stats, dest=[int(0.05 * self.map_surface.get_width()), 0])
@@ -2014,6 +2014,14 @@ class InGame:
                     pg.quit()
                     sys.exit()
 
+            if event.type == pg.MOUSEBUTTONUP:
+                p = pg.mouse.get_pos()
+
+                if event.button == 2:  # scroll wheel release
+                    print("mid release")
+                    self.shift_end = p
+                    print(p)
+
             if event.type == pg.MOUSEBUTTONDOWN:
                 p = pg.mouse.get_pos()
 
@@ -2043,6 +2051,12 @@ class InGame:
                             if button.is_focused(p):
                                 button.action()
 
+                if event.button == 2:  # on mid click
+                    print("mid_click")
+                    self.shift_start = p
+                    self.shift_end = p
+                    print(p)
+
                 if event.button == 3:  # on right click
                     pass
 
@@ -2055,6 +2069,9 @@ class InGame:
                 if event.button == 5:  # scroll down
 
                     self.zoom_factor -= 0.1
+                    if self.zoom_factor <= 1:
+                        self.shift_start = 0
+                        self.shift_end = 0
                     self.mouse_pos = p
                     self.zoomed = True
 
