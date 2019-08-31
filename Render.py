@@ -1592,9 +1592,9 @@ class InGame:
         self.screen = pg.display.set_mode(true_res, pg.RESIZABLE | pg.FULLSCREEN)
 
         # holds selected char of own team
-        self.selected_own_char = None
-        self.selected_item = None
-        self.selected_weapon = None
+        self.selected_own_char = self.own_team.characters[0]
+        self.selected_item = None if not self.selected_own_char.items else self.selected_own_char.items[0]
+        self.selected_weapon = None if not self.selected_own_char.weapons else self.selected_own_char.weapons[0]
 
         # holds selected char (maybe from opponent team)
         self.selected_char = self.selected_own_char
@@ -1651,6 +1651,8 @@ class InGame:
             img = pg.image.load("assets/cc/small/cc_" + str(i) + ".png").convert_alpha()  # TODO change to actual right images
             self.map_char_imgs.append(img)
 
+        self.detail_back_metall = pg.image.load("assets/metall.png").convert()
+
         # -------------------------------------------------------------------------------------------------------------
         # set up surfaces
         # -------------------------------------------------------------------------------------------------------------
@@ -1659,8 +1661,8 @@ class InGame:
 
         # surface 1.0 and 1.1
         self.char_detail_back = pg.Surface([int(7 * w / 32), int(7 * h / 18)])
-
-        # TODO self.char_stat_card = self.detail_char[0]
+        #self.char_detail_back.fill((98, 70, 230))
+        self.char_stat_card = self.detail_char[0]  # TODO
 
         # surface 2 and subsurfaces
         self.char_inventory_back = pg.Surface([int(7 * w / 32), int(4 * h / 18)])
@@ -1669,8 +1671,9 @@ class InGame:
 
         # TODO make so that actual stats are shown in character card instead of just standard stats
         self.item_detail_back = pg.Surface([int(7 * w / 32), int(7 * h / 18)])
-
-        # TODO self.item_stat_card = self.detail_item[0]
+        #self.item_detail_back.fill((77, 98, 219))
+        #self.item_detail_back.fill((255, 0, 0))
+        self.item_stat_card = self.detail_item[0]   # TODO
 
         # -------------- mid ----------------------------------
 
@@ -1879,8 +1882,8 @@ class InGame:
                                  real_pos=[pos_w,
                                            pos_h +
                                            self.char_detail_back.get_height()],
-                                 img_uri="assets/gc/small/gc_" + str(self.selected_own_char.gear.my_id) + ".png",
-                                 text="", name=("gear " + str(self.selected_own_char.gear.class_num) + " button"),
+                                 img_uri="assets/gc/small/gc_" + str(self.selected_own_char.gear[i].my_id) + ".png",
+                                 text="", name=("gear " + str(self.selected_own_char.gear[i].my_id) + " button"),
                                  action=(lambda: None))
 
                     self.gear_buttons.append(btn)
@@ -1895,9 +1898,9 @@ class InGame:
                                  real_pos=[pos_w,
                                            pos_h +
                                            self.char_detail_back.get_height()],
-                                 img_uri="assets/wc/small/wc_" + str(self.selected_own_char.weapons.my_id) + ".png",
-                                 text="", name=("weapon " + str(self.selected_own_char.weapons.my_id) + ".png"),
-                                 action=self.inventory_function_binder("weapon " + str(self.selected_own_char.weapons.idi),
+                                 img_uri="assets/wc/small/wc_" + str(self.selected_own_char.weapons[i].my_id) + ".png",
+                                 text="", name=("weapon " + str(self.selected_own_char.weapons[i].my_id) + ".png"),
+                                 action=self.inventory_function_binder("weapon " + str(self.selected_own_char.weapons[i].idi),
                                                                      self.selected_own_char.weapons[i].idi, item_type="weapon"))
 
                     self.weapon_buttons.append(btn)
@@ -1913,9 +1916,9 @@ class InGame:
                                            pos_h +
                                            self.char_detail_back.get_height() +
                                            self.inventory_gear_weapons_surf.get_height()],
-                                 img_uri="assets/ic/small/ic_" + str(self.selected_own_char.items.my_id) + ".png", text="",
-                                 name=("item " + str(self.selected_own_char.items.my_id) + ".png"),
-                                 action=self.inventory_function_binder("item " + str(self.selected_own_char.items.idi),
+                                 img_uri="assets/ic/small/ic_" + str(self.selected_own_char.items[i].my_id) + ".png", text="",
+                                 name=("item " + str(self.selected_own_char.items[i].my_id) + ".png"),
+                                 action=self.inventory_function_binder("item " + str(self.selected_own_char.items[i].idi),
                                                                   self.selected_own_char.items[i].idi, item_type="item"))
 
                     self.item_buttons.append(btn)
@@ -1926,8 +1929,12 @@ class InGame:
 
         # ----- left -----
 
-        self.char_detail_back.blit(self.char_detail_back, dest=[int(self.char_detail_back.get_width() * 0.05),
-                                                                int(self.char_detail_back.get_width() * 0.05)])
+        self.char_detail_back.blit(fit_surf(back=self.char_detail_back, surf=self.detail_back_metall), dest=[0, 0])
+        self.char_detail_back.blit(self.char_stat_card, dest=blit_centered_pos(self.char_detail_back,
+                                                                               self.char_stat_card))
+
+        self.inventory_items_surf.fill((255, 0, 0))
+        self.inventory_gear_weapons_surf.fill((0, 34, 98))
 
         for btn in self.gear_buttons:
             self.inventory_gear_weapons_surf.blit(btn.surf, btn.pos)
@@ -1939,10 +1946,12 @@ class InGame:
             self.inventory_items_surf.blit(btn.surf, btn.pos)
 
         self.char_inventory_back.blit(self.inventory_gear_weapons_surf, dest=[0, 0])
-        self.char_inventory_back.blit(self.inventory_items_surf, dest=[0, self.inventory_gear_weapons_surf.get_height()])
+        self.char_inventory_back.blit(self.inventory_items_surf, dest=[0,
+                                                                       self.inventory_gear_weapons_surf.get_height()])
 
-        self.item_detail_back.blit(self.item_detail_back, dest=[int(self.item_detail_back.get_width() * 0.05),
-                                                                int(self.item_detail_back.get_width() * 0.05)])
+        self.item_detail_back.blit(fit_surf(back=self.item_detail_back, surf=self.detail_back_metall), dest=[0, 0])
+        self.item_detail_back.blit(self.item_stat_card, dest=blit_centered_pos(self.item_detail_back,
+                                                                               self.item_stat_card))
 
         # ----- mid -----
 
@@ -1979,7 +1988,7 @@ class InGame:
                                        (max(0, int(self.map_surface.get_width() * self.zoom_factor)),
                                         max(0, int(self.map_surface.get_height() * self.zoom_factor))))
 
-        self.map_surface.blit(var, dest=dest)
+        self.map_surface.blit(var, dest=dest)  # TODO blit only area that is actually visible for better fps
 
         # TODO beware of 0.05 as constant
         self.map_surface.blit(self.own_team_stats, dest=[int(0.05 * self.map_surface.get_width()), 0])
@@ -1990,9 +1999,12 @@ class InGame:
 
         self.done_btn_surf.blit(self.done_btn.surf, self.done_btn.pos)
 
+        # ----- all together -----
+
         self.screen.blit(self.char_detail_back, dest=[0, 0])
         self.screen.blit(self.char_inventory_back, dest=[0, self.char_detail_back.get_height()])
-        self.screen.blit(self.item_detail_back, dest=[0, self.char_detail_back.get_height() + self.char_inventory_back.get_height()])
+        self.screen.blit(self.item_detail_back, dest=[0, self.char_detail_back.get_height() +
+                                                      self.char_inventory_back.get_height()])
 
         self.screen.blit(self.map_surface, dest=[self.char_detail_back.get_height(), 0])
 
@@ -2082,6 +2094,7 @@ class InGame:
 
                     if self.zoom_factor <= 1:
                         self.shift_start = p
+                        self.con_shift_offset = [0, 0]
 
                     self.zoomed = True
 
