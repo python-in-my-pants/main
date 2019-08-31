@@ -2076,8 +2076,8 @@ class InGame:
 
                     self.zoom_factor -= 0.1
                     if self.zoom_factor <= 1:
-                        self.shift_start = 0
-                        self.shift_end = 0
+                        self.shift_start = [0, 0]
+                        self.shift_end = [0, 0]
                     self.mouse_pos = p
                     self.zoomed = True
 
