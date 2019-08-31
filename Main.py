@@ -168,7 +168,7 @@ while True:
             active_window.update()
 
     clock.tick(60)  # controls max fps
-    print("FPS: " + str(clock.get_fps()) + "\n\n") if counter % 60 == 0 else (lambda: None)
+    #print("FPS: " + str(clock.get_fps()) + "\n\n") if counter % 60 == 0 else (lambda: None)
     counter += 1
     counter %= 60
     pg.display.flip()

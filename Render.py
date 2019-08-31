@@ -173,7 +173,7 @@ class ConnectionSetup:
                 os.startfile("server.py")
                 self.net = Network.ip_setup(get('https://api.ipify.org').text)
                 start_new_thread(self.net.routine_threaded_listener, ())
-                self.host_stat = "Waiting for a Connection ..."
+                self.host_stat = "Waiting for connection..."
                 while self.net.g_amount != "2":
                     self.net.send_control("G_amount")
                     time.sleep(0.500)
@@ -185,7 +185,7 @@ class ConnectionSetup:
 
                 self.field_size = int(desired_board_size_button.text)
                 self.role = "host"
-                self.host_stat = "Waiting for other Player to get ready"
+                self.host_stat = "Waiting for opponent"
 
                 while self.net.client_status != "Ready":
                     self.net.send_control("Client_status")
@@ -297,7 +297,7 @@ class ConnectionSetup:
             self.net = None
             self.role = "unknown"
             self.join_thread = 0
-            self.join_stat = "Joining cancelled! OwO"
+            self.join_stat = "Cancelled"
 
         def ip_field_fkt():
             # on first click erase content, else do nothing
@@ -1958,23 +1958,28 @@ class InGame:
         if self.zoomed:
 
             real_mouse_pos = [(self.mouse_pos[0] - (7 / 32) * w), self.mouse_pos[1]]
-            self.amount = [-int((real_mouse_pos[0]/w) * (self.zoom_factor-1) * (self.old_factor * self.map_content.get_width())),
-                           -int((real_mouse_pos[1]/h) * (self.zoom_factor-1) * (self.old_factor * self.map_content.get_height()))]
+
+            self.amount = [int(real_mouse_pos[0] - (self.zoom_factor * real_mouse_pos[0])),
+                           int(real_mouse_pos[1] - (self.zoom_factor * real_mouse_pos[1]))]
+
             self.zoomed = False
 
         if self.zoom_factor >= 1:
             dest = [self.amount[0] + self.con_shift_offset[0] + shift_offset[0],
                     self.amount[1] + self.con_shift_offset[1] + shift_offset[1]]
+
         else:
             dest = blit_centered_pos(self.map_surface, pg.transform.smoothscale(self.map_content,
                                                       (max(0, int(self.map_content.get_width() * self.zoom_factor)),
                                                        max(0, int(self.map_content.get_height() * self.zoom_factor)))))
 
         self.map_surface.fill((0, 0, 10))
-        self.map_surface.blit(pg.transform.smoothscale(self.map_content,
-                                                       (max(0, int(self.map_content.get_width() * self.zoom_factor)),
-                                                        max(0, int(self.map_content.get_height() * self.zoom_factor)))),
-                              dest=dest)
+
+        var = pg.transform.smoothscale(self.map_content,
+                                       (max(0, int(self.map_surface.get_width() * self.zoom_factor)),
+                                        max(0, int(self.map_surface.get_height() * self.zoom_factor))))
+
+        self.map_surface.blit(var, dest=dest)
 
         # TODO beware of 0.05 as constant
         self.map_surface.blit(self.own_team_stats, dest=[int(0.05 * self.map_surface.get_width()), 0])
@@ -2078,7 +2083,6 @@ class InGame:
                     if self.zoom_factor <= 1:
                         self.shift_start = p
 
-                    self.mouse_pos = p
                     self.zoomed = True
 
     def harakiri(self):
