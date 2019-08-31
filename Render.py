@@ -1064,7 +1064,7 @@ class CharacterSelection:  # commit comment
                 else:
                     self.net.send_control("Client_not_ready")
 
-        def ready_checker():
+        '''def ready_checker():
             self.ready_thread = get_ident()
             while self.new_window_target != InGame:
                 if self.net.host_status == "Ready" and self.ready:
@@ -1072,7 +1072,19 @@ class CharacterSelection:  # commit comment
                 elif self.role == "host":
                     self.net.send_control("Client_status")
                 elif self.role == "client":
+                    self.net.send_control("Host_status")'''
+
+        def ready_checker():
+            self.ready_thread = get_ident()
+            while self.new_window_target != InGame:
+                if self.role == "host":
+                    self.net.send_control("Client_status")
+                    if self.net.client_status == "Ready" and self.ready:
+                        self.new_window_target = InGame
+                if self.role == "client":
                     self.net.send_control("Host_status")
+                    if self.net.host_status == "Ready" and self.ready:
+                        self.new_window_target = InGame
 
         def get_text():
             return "Unready" if self.ready else "Ready!"
@@ -1568,8 +1580,11 @@ class InGame:
 
         self.element_size = int(true_res[0] * 9 / (16 * 30))  # default is 30 elem width
         self.zoom_factor = 1
-        self.zoom_center = [1, 1]
+        self.mouse_pos = pg.mouse.get_pos()
         self.zoom_size = None
+        self.zoomed = False
+        self.cmp = [0, 0]
+        self.amount = [0,0]
 
         self.screen = pg.display.set_mode(true_res, pg.RESIZABLE | pg.FULLSCREEN)
 
@@ -1662,9 +1677,9 @@ class InGame:
         self.map_content = fit_surf(surf=self.game_map.window, size=self.map_surface.get_size())
 
         own_team_height = 2 * int((1 / 32) * 7 * w / 32) + \
-                          int((self.own_team.characters.__len__() / 10) + 0.5) *\
+                          int((self.own_team.characters.__len__() / 10) + 1) *\
                           ((int((1 / 32) * 7 * w / 32) +  # number of lines * gap size
-                           int(1.6 * (5 / 32) * 7 * w / 32)))  # button + hp bar
+                           int(1.3 * (5 / 32) * 7 * w / 32)))  # button + hp bar
 
         self.own_team_stats = pg.Surface([int(self.map_surface.get_width() * 0.9), own_team_height])
 
@@ -1687,10 +1702,10 @@ class InGame:
         # -------------------------------------------------------------------------------------------------------------
 
         # TODO check if this makes sense, coded when sick
-        self.zoom_size = [int(((9 * w / 16) / (self.zoom_center[0] - self.char_detail_back.get_width())) *
+        self.zoom_size = [int(((9 * w / 16) / (self.mouse_pos[0] - self.char_detail_back.get_width())) *
                               # TODO maybe not map surface but content
                               ((1.4142 / 2) * np.abs((self.zoom_factor - 1) * self.map_surface.get_width()))),
-                          int((h / self.zoom_center[1]) *
+                          int((h / self.mouse_pos[1]) *
                               ((1.4142 / 2) * np.abs((self.zoom_factor - 1) * self.map_surface.get_height())))]
 
         # set up buttons
@@ -1759,7 +1774,7 @@ class InGame:
 
             pos_w = self.btn_w + (i % 10) * (self.btn_w + self.inventory_gap_size)
             pos_h = self.inventory_gap_size + self.btn_h + int(i / 10) * \
-                    (self.btn_h + self.inventory_gap_size + self.btn_h * 0.6)
+                    (self.btn_h + self.inventory_gap_size + self.btn_h * 0.3)
 
             bars = []
 
@@ -1775,7 +1790,7 @@ class InGame:
         # team buttons in overview
         for i in range(self.own_team.characters.__len__()):
             pos_w = self.btn_w + (i % 10) * (self.btn_w + self.inventory_gap_size)
-            pos_h = self.inventory_gap_size + int(i / 10) * (self.btn_h + self.inventory_gap_size + self.btn_h * 0.6)
+            pos_h = self.inventory_gap_size + int(i / 10) * (self.btn_h + self.inventory_gap_size + self.btn_h * 0.3)
 
             btn = Button(dim=[self.btn_w, self.btn_h], pos=[pos_w, pos_h], real_pos=[pos_w +
                                                                                      self.char_detail_back.get_width() +
@@ -1838,6 +1853,9 @@ class InGame:
 
     def update(self):
 
+        w = true_res[0]
+        h = true_res[1]
+
         # inventory buttons
 
         if self.selected_own_char:
@@ -1893,6 +1911,12 @@ class InGame:
 
                     self.item_buttons.append(btn)
 
+        '''self.zoom_size = [int(((9 * w / 16) / (self.zoom_center[0] - self.char_detail_back.get_width())) *
+                              # TODO maybe not map surface but content
+                              ((1.4142 / 2) * np.abs((self.zoom_factor - 1) * self.map_surface.get_width()))),
+                          int((h / self.zoom_center[1]) *
+                              ((1.4142 / 2) * np.abs((self.zoom_factor - 1) * self.map_surface.get_height())))]'''
+
         ##############################################################################################################
         # blit everything to positions
         ##############################################################################################################
@@ -1928,10 +1952,31 @@ class InGame:
         for btn in self.own_team_stat_buttons:
             self.own_team_stats.blit(btn.surf, btn.pos)
 
+        if self.zoomed:
+            leng = math.sqrt((self.mouse_pos[0]-(7/32)*w) ** 2 + self.mouse_pos[1] ** 2)
+            degree = min(max(math.degrees(math.acos((self.mouse_pos[0]-(7/32)*w)/leng)), 0), 90)
+
+            print(leng)
+            print(degree)
+            print("-"*30)
+
+            self.amount = [-int((int((self.zoom_factor - 1) * int(self.mouse_pos[0] - (7 / 32) * w)) * (leng/((9/16)*w))) *
+                           (degree/90)),
+                           -int((self.zoom_factor - 1) * self.mouse_pos[1] * (leng/((9/16)*w)))
+                           if degree == 0 else
+                           -int(int((self.zoom_factor - 1) * self.mouse_pos[1] * (leng/((9/16)*w))) * (90/degree))]
+
+            self.cmp = [self.cmp[0]+self.amount[0], self.cmp[1]+self.amount[1]]
+            self.zoomed = False
+
+        #print(self.cmp)
+
+        self.map_surface.fill((0, 0, 10))
         self.map_surface.blit(pg.transform.smoothscale(self.map_content,
-                                                       (self.map_content.get_width() * self.zoom_factor,
-                                                        self.map_content.get_height() * self.zoom_factor)),
-                              dest=self.zoom_size)
+                                                       (int(self.map_content.get_width() * self.zoom_factor),
+                                                        int(self.map_content.get_height() * self.zoom_factor))),
+                              dest=[self.amount[0], self.amount[1]])
+
         # TODO beware of 0.05 as constant
         self.map_surface.blit(self.own_team_stats, dest=[int(0.05 * self.map_surface.get_width()), 0])
 
@@ -1962,6 +2007,12 @@ class InGame:
             if event.type == pg.QUIT:
                 pg.quit()
                 sys.exit()
+
+            if event.type == pg.KEYDOWN:
+
+                if event.key == ord("q"):
+                    pg.quit()
+                    sys.exit()
 
             if event.type == pg.MOUSEBUTTONDOWN:
                 p = pg.mouse.get_pos()
@@ -1997,12 +2048,15 @@ class InGame:
 
                 if event.button == 4:  # scroll up
 
-                    self.zoom_factor -= 0.1
-                    self.zoom_center = p
+                    self.zoom_factor += 0.1
+                    self.mouse_pos = p
+                    self.zoomed = True
 
                 if event.button == 5:  # scroll down
 
-                    self.zoom_factor += 0.1
+                    self.zoom_factor -= 0.1
+                    self.mouse_pos = p
+                    self.zoomed = True
 
     def harakiri(self):
         del self
