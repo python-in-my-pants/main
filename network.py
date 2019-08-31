@@ -19,6 +19,8 @@ class Network:
         self.host_status = ""
         self.client_status = ""
         self.client_got_map = ""
+        self.other_team = None
+        self.my_turn = True
         #self.client.setblocking(False)
 
     def routine_threaded_listener(self):
@@ -37,6 +39,10 @@ class Network:
                     self.host_status = data[11:len(data)].decode()
                 if data[0:14] == b'Client_got_map':
                     self.client_got_map = data[14:len(data)].decode()
+                if data[0:10] == b'Other_team':
+                    self.other_team = data[10:]
+                if data[0:9] == b'Your_turn':
+                    self.my_turn = data[9:].decode()
             except:
                 pass
         pass

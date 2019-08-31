@@ -207,11 +207,7 @@ class ConnectionSetup:
                 while self.net.client_got_map != "Yes":
                     pass  # Sleep the tightest Aniki!!!!
                 self.host_stat = "Let's start!"
-                self.net.send_control("Ready_delete")
-                self.net.client_status = ""
-                self.net.host_status = ""
                 self.new_window_target = CharacterSelection
-                # TODO Check obs funzt
                 return
 
         def cancel_host_fkt():
@@ -294,6 +290,7 @@ class ConnectionSetup:
                 self.net.send_control("Map received")
                 self.net.client_status = ""
                 self.net.host_status = ""
+                #time.sleep(2)
                 self.new_window_target = CharacterSelection
 
         def cancel_join_fkt():
@@ -1666,9 +1663,9 @@ class InGame:
         self.map_content = fit_surf(surf=self.game_map.window, size=self.map_surface.get_size())
 
         own_team_height = 2 * int((1 / 32) * 7 * w / 32) + \
-                          int((self.own_team.characters.__len__() / 10) + 0.5) *\
+                          int((self.own_team.characters.__len__() / 10) + 1) *\
                           ((int((1 / 32) * 7 * w / 32) +  # number of lines * gap size
-                           int(1.6 * (5 / 32) * 7 * w / 32)))  # button + hp bar
+                           int(1.3 * (5 / 32) * 7 * w / 32)))  # button + hp bar
 
         self.own_team_stats = pg.Surface([int(self.map_surface.get_width() * 0.9), own_team_height])
 
@@ -1763,7 +1760,7 @@ class InGame:
 
             pos_w = self.btn_w + (i % 10) * (self.btn_w + self.inventory_gap_size)
             pos_h = self.inventory_gap_size + self.btn_h + int(i / 10) * \
-                    (self.btn_h + self.inventory_gap_size + self.btn_h * 0.6)
+                    (self.btn_h + self.inventory_gap_size + self.btn_h * 0.3)
 
             bars = []
 
@@ -1779,7 +1776,7 @@ class InGame:
         # team buttons in overview
         for i in range(self.own_team.characters.__len__()):
             pos_w = self.btn_w + (i % 10) * (self.btn_w + self.inventory_gap_size)
-            pos_h = self.inventory_gap_size + int(i / 10) * (self.btn_h + self.inventory_gap_size + self.btn_h * 0.6)
+            pos_h = self.inventory_gap_size + int(i / 10) * (self.btn_h + self.inventory_gap_size + self.btn_h * 0.3)
 
             btn = Button(dim=[self.btn_w, self.btn_h], pos=[pos_w, pos_h], real_pos=[pos_w +
                                                                                      self.char_detail_back.get_width() +
@@ -1932,10 +1929,11 @@ class InGame:
         for btn in self.own_team_stat_buttons:
             self.own_team_stats.blit(btn.surf, btn.pos)
 
-        self.map_surface.blit(pg.transform.smoothscale(self.map_content,
-                                                       (self.map_content.get_width() * self.zoom_factor,
-                                                        self.map_content.get_height() * self.zoom_factor)),
-                              dest=self.zoom_size)
+        self.map_content = pg.transform.smoothscale(self.map_content,
+                                 (int(self.map_content.get_width() * self.zoom_factor),
+                                  int(self.map_content.get_height() * self.zoom_factor)))
+        self.map_content = fit_surf(surf=self.map_content, back=self.map_surface)
+        self.map_surface.blit(self.map_content, dest=self.zoom_size)
         # TODO beware of 0.05 as constant
         self.map_surface.blit(self.own_team_stats, dest=[int(0.05 * self.map_surface.get_width()), 0])
 
@@ -1966,6 +1964,12 @@ class InGame:
             if event.type == pg.QUIT:
                 pg.quit()
                 sys.exit()
+
+            if event.type == pg.KEYDOWN:
+
+                if event.key == ord("q"):
+                    pg.quit()
+                    sys.exit()
 
             if event.type == pg.MOUSEBUTTONDOWN:
                 p = pg.mouse.get_pos()
@@ -2001,12 +2005,13 @@ class InGame:
 
                 if event.button == 4:  # scroll up
 
-                    self.zoom_factor -= 0.1
+                    self.zoom_factor += 0.1
                     self.zoom_center = p
 
                 if event.button == 5:  # scroll down
 
-                    self.zoom_factor += 0.1
+                    self.zoom_factor -= 0.1
+                    self.zoom_center = p
 
     def harakiri(self):
         del self
