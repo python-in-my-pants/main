@@ -140,7 +140,7 @@ class HPBar:
         self.bar_surf = pg.Surface([int(dim[0]*curr / end), dim[1]])
         self.bar_surf.fill(color)
 
-        self.surf.blit(self.bar_surf, self.pos)
+        self.surf.blit(self.bar_surf, [0, 0])
 
     def update(self, val):
 
