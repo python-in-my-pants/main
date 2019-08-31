@@ -1685,7 +1685,7 @@ class InGame:
         own_team_height = 2 * int((1 / 32) * 7 * w / 32) + \
                           int((self.own_team.characters.__len__() / 10) + 1) *\
                           ((int((1 / 32) * 7 * w / 32) +  # number of lines * gap size
-                           int(1.3 * (5 / 32) * 7 * w / 32)))  # button + hp bar
+                           int(1.6 * (5 / 32) * 7 * w / 32)))  # button + hp bar
 
         self.own_team_stats = pg.Surface([int(self.map_surface.get_width() * 0.9), own_team_height])
 
@@ -1780,14 +1780,15 @@ class InGame:
         for i in range(self.own_team.characters.__len__()):
 
             pos_w = self.btn_w + (i % 10) * (self.btn_w + self.inventory_gap_size)
-            pos_h = self.inventory_gap_size + self.btn_h + int(i / 10) * \
-                    (self.btn_h + self.inventory_gap_size + self.btn_h * 0.3)
+            #pos_h = self.inventory_gap_size + \
+            pos_h = int((1 / 32) * 7 * w / 32) + self.btn_h + int(i / 10) * \
+                    (self.btn_h + int((1 / 32) * 7 * w / 32) + self.btn_h * 0.6)
 
             bars = []
 
-            for j in range(5):
+            for j in range(6):
                 hp_bar = HPBar(dim=[self.btn_w, int(0.1 * self.btn_h)],
-                               pos=[pos_w, int(pos_h + 0.1 * j * self.btn_h)],
+                               pos=[pos_w, int(pos_h + 0.105 * j * self.btn_h)],
                                curr=self.own_team.characters[i].health[j],
                                end=100)
                 bars.append(hp_bar)
@@ -1797,7 +1798,7 @@ class InGame:
         # team buttons in overview
         for i in range(self.own_team.characters.__len__()):
             pos_w = self.btn_w + (i % 10) * (self.btn_w + self.inventory_gap_size)
-            pos_h = self.inventory_gap_size + int(i / 10) * (self.btn_h + self.inventory_gap_size + self.btn_h * 0.3)
+            pos_h = self.inventory_gap_size + int(i / 10) * (self.btn_h + self.inventory_gap_size + self.btn_h * 0.6)
 
             btn = Button(dim=[self.btn_w, self.btn_h], pos=[pos_w, pos_h], real_pos=[pos_w +
                                                                                      self.char_detail_back.get_width() +
@@ -1941,8 +1942,8 @@ class InGame:
         self.char_detail_back.blit(self.char_stat_card, dest=blit_centered_pos(self.char_detail_back,
                                                                                self.char_stat_card))
 
-        self.inventory_items_surf.fill((255, 0, 0))
-        self.inventory_gear_weapons_surf.fill((0, 34, 98))
+        #self.inventory_items_surf.fill((255, 0, 0))
+        #self.inventory_gear_weapons_surf.fill((0, 34, 98))
 
         for btn in self.gear_buttons:
             self.inventory_gear_weapons_surf.blit(btn.surf, btn.pos)
@@ -1965,12 +1966,12 @@ class InGame:
 
         self.own_team_stats.blit(self.own_team_stats_back_img, dest=[0, 0])
 
+        for btn in self.own_team_stat_buttons:
+            self.own_team_stats.blit(btn.surf, btn.pos)
+
         for bar in self.hp_bars:
             for b in bar:
                 self.own_team_stats.blit(b.surf, b.pos)
-
-        for btn in self.own_team_stat_buttons:
-            self.own_team_stats.blit(btn.surf, btn.pos)
 
         if self.zoomed:
 

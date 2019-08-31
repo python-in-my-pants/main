@@ -106,16 +106,6 @@ class Button:
             return True
         return False
 
-    @staticmethod
-    def blit_alpha(target, source, location, opacity):
-        x = location[0]
-        y = location[1]
-        temp = pg.Surface((source.get_width(), source.get_height())).convert()
-        temp.blit(target, (-x, -y))
-        temp.blit(source, (0, 0))
-        temp.set_alpha(opacity)
-        target.blit(temp, location)
-
 
 class HPBar:
 
@@ -134,13 +124,15 @@ class HPBar:
         self.end = end
         self.color = color
 
-        self.surf = pg.Surface(dim, pg.SRCALPHA, 32)
-        self.surf.convert_alpha(self.surf)
+        self.surf = pg.Surface(dim)
+        #self.surf.convert_alpha(self.surf)
+        self.surf.fill((12, 12, 12))
+        self.surf.set_colorkey((12, 12, 12))
 
         self.bar_surf = pg.Surface([int(dim[0]*curr / end), dim[1]])
         self.bar_surf.fill(color)
 
-        self.surf.blit(self.bar_surf, self.pos)
+        self.surf.blit(self.bar_surf, [0, 0])
 
     def update(self, val):
 
