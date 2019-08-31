@@ -31,6 +31,7 @@ class Character(GameObject):
         self.health = health[:]
         self.dexterity = dexterity
         self.strength = strength
+        self.weight = 0
         self.gear = gear[:]
         self.stamina = stamina
         self.speed = speed
@@ -65,40 +66,46 @@ class Character(GameObject):
             self.speed = 40
             self.dexterity = 35
             self.strength = 35
-            self.cost = 1
+            self.weight = 70
+            self.cost = 14
         if self.class_id == 1:  # Leichte Truppe
             self.stamina = 55
             self.speed = 70
             self.dexterity = 45
             self.strength = 35
-            self.cost = 3
+            self.weight = 80
+            self.cost = 21
         if self.class_id == 2:  # Schwere Truppe
             self.stamina = 40
             self.speed = 30
             self.dexterity = 50
             self.strength = 80
-            self.cost = 4
+            self.weight = 100
+            self.cost = 33
         if self.class_id == 3:  # Sanitäter
             self.stamina = 70
             self.speed = 50
             self.dexterity = 35
             self.strength = 50
-            self.cost = 3
+            self.weight = 60
+            self.cost = 28
         if self.class_id == 4:  # Scharfschütze
             self.stamina = 70
             self.speed = 40
             self.dexterity = 70
             self.strength = 35
-            self.cost = 5
+            self.weight = 75
+            self.cost = 39
         if self.class_id == 5:  # Spezialist
             self.stamina = 70
             self.speed = 50
             self.dexterity = 35
             self.strength = 50
-            self.cost = 3
+            self.weight = 75
+            self.cost = 25
 
     def weight_calculator(self):
-        self.carry = self.strength * 11
+        return self.strength * 11
 
     def is_dead(self):  # returns if dead
         return self.health[0] <= 0 or self.health[3] <= 0
@@ -257,14 +264,105 @@ class Character(GameObject):
         return abs(numpy.sqrt(((self.pos[0]-dude.pos[0])**2)+((self.pos[1]-dude.pos[1])**2)))
 
     def shoot(self, dude, partind):
-        # ToDo Basechance * (0.3 * Dex) - Range
-        if self.active_slot[0].idi <= 9001:
-            return
-        chance = int(self.active_slot[0].acc * (0.3 * self.dexterity) - self.range(dude))
+        # Basechance * (0.3 * Dex) - Range + Recoil control
+        c_range = self.range(dude)
+        dmg = self.calc_dmg(c_range)
+        p_range = self.calc_p_range(c_range)
+        if isinstance(self.active_slot[0], (Maschinenpistole, Sturmgewehr, Maschinengewehr)):
+            recoil_acc = self.calc_recoil_acc()
+            chance = int(self.active_slot[0].acc * (0.3 * self.dexterity) - p_range + recoil_acc)
+        else:
+            chance = int(self.active_slot[0].acc * (0.3 * self.dexterity) - p_range)
         print(chance)
         for s in range(self.active_slot[0].spt):
             if numpy.random.randint(0, 101) <= chance:
-                dude.get_damaged(self.active_slot[0].dmg, partind)
+                dude.get_damaged(dmg, partind)
+
+    def calc_recoil_acc(self):
+        if isinstance(self.active_slot[0], Maschinenpistole):
+            return int(self.strength / 5)
+        if isinstance(self.active_slot[0], Sturmgewehr):
+            return int(self.strength / 10)
+        if isinstance(self.active_slot[0], Maschinengewehr):
+            return int(self.strength / 4)
+
+    def calc_dmg(self, c_range):
+        if isinstance(self.active_slot[0], Pistole):
+            if c_range >= 20:
+                return self.active_slot[0].dmg - int((0.2*(c_range-20))+0.5)
+            else:
+                return self.active_slot[0].dmg
+        if isinstance(self.active_slot[0], Maschinenpistole):
+            if c_range >= 15:
+                return self.active_slot[0].dmg - int((0.3*(c_range-15))+0.5)
+            else:
+                return self.active_slot[0].dmg
+        if isinstance(self.active_slot[0], Sturmgewehr):
+            if c_range >= 50:
+                return self.active_slot[0].dmg - int((0.2*(c_range-50))+0.5)
+            else:
+                return self.active_slot[0].dmg
+        if isinstance(self.active_slot[0], Shotgun):
+            if c_range >= 10:
+                return self.active_slot[0].dmg - int((1*(c_range-10))+0.5)
+            else:
+                return self.active_slot[0].dmg
+        if isinstance(self.active_slot[0], Maschinengewehr):
+            if c_range >= 40:
+                return self.active_slot[0].dmg - int((0.3*(c_range-40))+0.5)
+            else:
+                return self.active_slot[0].dmg
+        if isinstance(self.active_slot[0], Sniper):
+            if c_range >= 100:
+                return self.active_slot[0].dmg - int((0.2*(c_range-10))+0.5)
+            else:
+                return self.active_slot[0].dmg
+        if isinstance(self.active_slot[0], Raketenwerfer):
+            if c_range >= 20:
+                return self.active_slot[0].dmg - int((0.1*(c_range-20))+0.5)
+            else:
+                return self.active_slot[0].dmg
+
+    def calc_p_range(self, c_range):
+        if isinstance(self.active_slot[0], Pistole):
+            if c_range > 20:
+                return c_range-20
+            else:
+                return 0
+        if isinstance(self.active_slot[0], Maschinenpistole):
+            if c_range > 15:
+                return c_range-15
+            else:
+                return 0
+        if isinstance(self.active_slot[0], Sturmgewehr):
+            if c_range > 50:
+                return c_range-50
+            else:
+                return 0
+        if isinstance(self.active_slot[0], Shotgun):
+            if c_range > 10:
+                return c_range-10
+            else:
+                return 0
+        if isinstance(self.active_slot[0], Maschinengewehr):
+            if c_range < 2:
+                return 10
+            if c_range > 40:
+                return c_range-40
+            else:
+                return 0
+        if isinstance(self.active_slot[0], Sniper):
+            if c_range < 5:
+                return c_range*10
+            if c_range > 100:
+                return c_range-100
+            else:
+                return 0
+        if isinstance(self.active_slot[0], Raketenwerfer):
+            if c_range > 20:
+                return c_range - 20
+            else:
+                return 0
 
     def get_damaged(self, dmg, partind):
         if partind == 3:
@@ -350,16 +448,16 @@ class Character(GameObject):
 def create_character(_id):
     boi = Character(class_id=_id)
     boi.class_selector()
-    boi.weight_calculator()
     return boi
 
 if Debug:
-    #boi = create_character(4, [0, 0])
+    #boi = create_character(0, [0, 0])
     #boii = create_character(0, [0, 10])
-    #boi.weapon_add(make_weapon_by_id(2))
+    #boi.weapon_add(make_weapon_by_id(4))
     #boi.change_active_slot(["Weapon", 0])
     #boi.shoot(boii, 2)
     #print(boii.health[2])
+    #print(boi.range(boii))
 
     #boi.add_item(Medkit())
     #boi.get_damaged(15, 2)

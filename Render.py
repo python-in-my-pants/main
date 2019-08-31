@@ -208,7 +208,6 @@ class ConnectionSetup:
                     pass  # Sleep the tightest Aniki!!!!
                 self.host_stat = "Let's start!"
                 self.new_window_target = CharacterSelection
-                # TODO Check obs funzt
                 return
 
         def cancel_host_fkt():
@@ -1067,10 +1066,11 @@ class CharacterSelection:  # commit comment
         '''def ready_checker():
             self.ready_thread = get_ident()
             while self.new_window_target != InGame:
-                if self.net.host_status == "Ready" and self.ready:
-                    self.new_window_target = InGame
-                elif self.role == "host":
+                if self.role == "host":
                     self.net.send_control("Client_status")
+                    if self.net.client_status == "Ready" and self.ready:
+                        self.new_window_target = InGame
+                if self.role == "client":
                 elif self.role == "client":
                     self.net.send_control("Host_status")'''
 
@@ -2034,6 +2034,12 @@ class InGame:
             if event.type == pg.QUIT:
                 pg.quit()
                 sys.exit()
+
+            if event.type == pg.KEYDOWN:
+
+                if event.key == ord("q"):
+                    pg.quit()
+                    sys.exit()
 
             if event.type == pg.KEYDOWN:
 
