@@ -1722,7 +1722,7 @@ class InGame:
 
         def sel_own_char_binder(name, _id):
 
-            def func(_id):
+            def func():
                 self.selected_own_char = self.own_team.get_char_by_unique_id(_id)
 
             func.__name__ = name
@@ -1730,7 +1730,7 @@ class InGame:
 
         def sel_char_binder(name, _id):
 
-            def func(_id):
+            def func():
                 for _index in self.game_map.characters:
 
                     _char = self.game_map.objects[_index]
@@ -1801,7 +1801,7 @@ class InGame:
 
             btn = Button(dim=[self.btn_w, self.btn_h], pos=[pos_w, pos_h], real_pos=[pos_w +
                                                                                      self.char_detail_back.get_width() +
-                                                                                     int(self.minimap_surf.get_width() * 0.05),
+                                                                                     int(self.map_surface.get_width() * 0.05),
                                                                                      pos_h],
                          img_uri=("assets/cc/small/cc_" + str(self.own_team.characters[i].class_id) + ".png"),
                          text="", name="char btn " + str(self.own_team.characters[i].class_id),
@@ -1873,6 +1873,7 @@ class InGame:
 
         if self.selected_own_char:
 
+            self.gear_buttons = []
             if self.selected_own_char.gear:
                 # gear buttons
                 for i in range(self.selected_own_char.gear.__len__()):
@@ -1890,6 +1891,7 @@ class InGame:
 
                     self.gear_buttons.append(btn)
 
+            self.weapon_buttons = []
             if self.selected_own_char.weapons:
                 # weapon buttons
                 for i in range(self.selected_own_char.weapons.__len__()):
@@ -1908,6 +1910,7 @@ class InGame:
 
                     self.weapon_buttons.append(btn)
 
+            self.item_buttons = []
             if self.selected_own_char.items:
                 # item buttons
                 for i in range(self.selected_own_char.items.__len__()):
