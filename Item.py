@@ -15,41 +15,41 @@ class Item:
 
 
 class Bandage(Item):
-	def __init__(self, my_id=0, name="Bandage", cost=1, value=25, weight=25):
+	def __init__(self, my_id=0, name="Bandage", cost=1, value=25, weight=0.5):
 		super().__init__(my_id, name, cost, weight)
 		self.value = value
 
 
 class Medkit(Item):
-	def __init__(self, my_id=1, name="Medkit", cost=2, value=75, weight=50):
+	def __init__(self, my_id=1, name="Medkit", cost=2, value=75, weight=1):
 		super().__init__(my_id, name, cost, weight)
 		self.value = value
 
 
 class Pillen(Item):
 	# TODO Implement heal on more than one bodypart
-	def __init__(self, my_id=2, name="Healstation", cost=2, value=50, weight=15):
+	def __init__(self, my_id=2, name="Healstation", cost=2, value=50, weight=0.1):
 		super().__init__(my_id, name, cost, weight)
 		self.value = value
 
 
 class Accudope(Item):
 	# TODO Add bool for the dopes if they are active
-	def __init__(self, my_id=3, name="Accuracy-Dope", cost=3, modifier=1.25, timer=5, weight=20):
+	def __init__(self, my_id=3, name="Accuracy-Dope", cost=3, modifier=1.25, timer=5, weight=0.1):
 		super().__init__(my_id, name, cost, weight)
 		self.modifier = modifier
 		self.timer = timer
 
 
 class Stredope(Item):
-	def __init__(self, my_id=4, name="Strength-Dope", cost=3, modifier=1.25, timer=5, weight=20):
+	def __init__(self, my_id=4, name="Strength-Dope", cost=3, modifier=1.25, timer=5, weight=0.1):
 		super().__init__(my_id, name,  cost, weight)
 		self.modifier = modifier
 		self.timer = timer
 
 
 class Speeddope(Item):
-	def __init__(self, my_id=5, name="Speed-Dope", cost=3, modifier=1.5, timer=5, weight=20):
+	def __init__(self, my_id=5, name="Speed-Dope", cost=3, modifier=1.5, timer=5, weight=0.1):
 		super().__init__(my_id, name, cost, weight)
 		self.modifier = modifier
 		self.timer = timer
@@ -57,7 +57,7 @@ class Speeddope(Item):
 
 class Defdope(Item):
 	# TODO Change get_damage function to implement defdope
-	def __init__(self, my_id=6, name="Defence-Dope", cost=3, timer=5, weight=20):
+	def __init__(self, my_id=6, name="Defence-Dope", cost=3, timer=5, weight=0.1):
 		super(Item).__init__(my_id, name, cost, weight)
 		self.timer = timer
 
@@ -89,17 +89,17 @@ class Helm(Gear):
 			self.durability = 50
 			self.reduction = 0.3
 			self.cost = 1
-			self.weight = 30
+			self.weight = 1
 		if self.my_id == 1:
 			self.durability = 75
 			self.reduction = 0.4
 			self.cost = 2
-			self.weight = 40
+			self.weight = 1.5
 		if self.my_id == 2:
 			self.durability = 100
 			self.reduction = 0.5
 			self.cost = 3
-			self.weight = 50
+			self.weight = 2
 
 
 class Armor(Gear):
@@ -112,19 +112,19 @@ class Armor(Gear):
 			self.durability = 100
 			self.reduction = 0.8
 			self.cost = 1
-			self.weight = 40
+			self.weight = 5
 		if self.my_id == 4:
 			self.name = "Armor Lvl 2"
 			self.durability = 125
 			self.reduction = 0.75
 			self.cost = 2
-			self.weight = 50
+			self.weight = 10
 		if self.my_id == 5:
 			self.name = "Armor Lvl 3"
 			self.durability = 150
 			self.reduction = 0.7
 			self.cost = 3
-			self.weight = 60
+			self.weight = 15
 
 
 def make_gear_by_id(my_id):

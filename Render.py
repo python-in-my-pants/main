@@ -1953,21 +1953,23 @@ class InGame:
             self.own_team_stats.blit(btn.surf, btn.pos)
 
         if self.zoomed:
-            leng = math.sqrt((self.mouse_pos[0]-(7/32)*w) ** 2 + self.mouse_pos[1] ** 2)
-            degree = min(max(math.degrees(math.acos((self.mouse_pos[0]-(7/32)*w)/leng)), 0), 90)
+            real_mouse_pos = [(self.mouse_pos[0] - (7 / 32) * w), self.mouse_pos[1]]
 
-            print(leng)
-            print(degree)
-            print("-"*30)
+            self.amount = [-int(real_mouse_pos[0] * (self.zoom_factor - 1)),
+                           -int(real_mouse_pos[1] * (self.zoom_factor - 1))]
 
-            self.amount = [-int((int((self.zoom_factor - 1) * int(self.mouse_pos[0] - (7 / 32) * w)) * (leng/((9/16)*w))) *
-                           (degree/90)),
-                           -int((self.zoom_factor - 1) * self.mouse_pos[1] * (leng/((9/16)*w)))
-                           if degree == 0 else
-                           -int(int((self.zoom_factor - 1) * self.mouse_pos[1] * (leng/((9/16)*w))) * (90/degree))]
-
-            self.cmp = [self.cmp[0]+self.amount[0], self.cmp[1]+self.amount[1]]
             self.zoomed = False
+
+        self.map_surface.fill((0, 0, 10))
+        self.map_surface.blit(pg.transform.smoothscale(self.map_content,
+                                                       (int(self.map_content.get_width() * self.zoom_factor),
+                                                        int(self.map_content.get_height() * self.zoom_factor))),
+                              dest=[self.amount[0], self.amount[1]] if self.zoom_factor >= 1 else
+                              blit_centered_pos(self.map_surface, pg.transform.smoothscale(self.map_content,
+                                                                                           (int(
+                                                                                               self.map_content.get_width() * self.zoom_factor),
+                                                                                            int(
+                                                                                                self.map_content.get_height() * self.zoom_factor)))))
 
         #print(self.cmp)
 
