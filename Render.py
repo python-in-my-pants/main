@@ -1898,10 +1898,10 @@ class InGame:
                                  real_pos=[pos_w,
                                            pos_h +
                                            self.char_detail_back.get_height()],
-                                 img_uri="assets/wc/small/wc_" + str(self.selected_own_char.weapons[i].my_id) + ".png",
-                                 text="", name=("weapon " + str(self.selected_own_char.weapons[i].my_id) + ".png"),
-                                 action=self.inventory_function_binder("weapon " + str(self.selected_own_char.weapons[i].idi),
-                                                                     self.selected_own_char.weapons[i].idi, item_type="weapon"))
+                                 img_uri="assets/wc/small/wc_" + str(self.selected_own_char.weapons[i].class_id) + ".png",
+                                 text="", name=("weapon " + str(self.selected_own_char.weapons[i].class_id) + ".png"),
+                                 action=self.inventory_function_binder("weapon " + str(self.selected_own_char.weapons[i].class_idi),
+                                                                     self.selected_own_char.weapons[i].class_idi, item_type="weapon"))
 
                     self.weapon_buttons.append(btn)
 

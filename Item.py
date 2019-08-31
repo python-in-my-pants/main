@@ -58,7 +58,7 @@ class Speeddope(Item):
 class Defdope(Item):
 	# TODO Change get_damage function to implement defdope
 	def __init__(self, my_id=6, name="Defence-Dope", cost=3, timer=5, weight=0.1):
-		super(Item).__init__(my_id, name, cost, weight)
+		super().__init__(my_id, name, cost, weight)
 		self.timer = timer
 
 
