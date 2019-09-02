@@ -14,6 +14,7 @@ from GUI import *
 from Team import *
 from Data import *
 from Characters import *
+from TTimer import *
 import time
 import copy
 import ctypes
@@ -600,6 +601,7 @@ class CharacterSelection:  # commit comment
         self.gc_num = 4
         self.wc_num = 7
         self.ic_num = 7
+        self.timer_list = TTimer(3)  # too expensive, already ready, point limit reached
 
         self.render_char_ban = True
         self.char_banner_clicked = False
@@ -920,6 +922,7 @@ class CharacterSelection:  # commit comment
                 else:
                     # TODO: take out
                     print("Too expensive, cannot buy")
+                    self.timer_list.set_timer(0, 2.1)
 
             butn_fkt.__name__ = name
             return butn_fkt
@@ -952,6 +955,7 @@ class CharacterSelection:  # commit comment
                 else:
                     # TODO: take out
                     print("cannot buy")
+                    self.timer_list.set_timer(0, 2.1)
 
             butn_fkt.__name__ = name
             return butn_fkt
@@ -984,6 +988,7 @@ class CharacterSelection:  # commit comment
                 else:
                     # TODO: take out
                     print("cannot buy")
+                    self.timer_list.set_timer(0, 2.1)
 
             butn_fkt.__name__ = name
             return butn_fkt
@@ -1018,6 +1023,7 @@ class CharacterSelection:  # commit comment
                 else:
                     # TODO: take out
                     print("Too expensive, cannot buy")
+                    self.timer_list.set_timer(0, 2.1)
 
             butn_fkt.__name__ = name
             return butn_fkt
@@ -1033,7 +1039,7 @@ class CharacterSelection:  # commit comment
                                                                                             h_pos +
                                                                                             self.rem_points_back.get_height() +
                                                                                             self.character_back.get_height() +
-                                                                                            self.gear_back.get_height() +
+                                                                                            self.gear_back.get_height()+
                                                                                             self.weapon_back.get_height() +
                                                                                             self.item_banner.dim[1] +
                                                                                             self.scroll_offset],
@@ -1084,6 +1090,39 @@ class CharacterSelection:  # commit comment
                 if self.role == "client":
                     self.net.send_control("Host_status")
                     if self.net.host_status == "Ready" and self.ready:
+
+                        self.net.send_data_pickle("Team", self.ownTeam.characters)
+
+                        spawn_area_index = None
+                        if self.role == "client":
+                            spawn_area_index = 0
+                        if self.role == "host":
+                            spawn_area_index = 1
+
+                        # TODO add own chars to map
+                        for char in self.ownTeam.characters:
+                            # first game objs should always be spawning areas
+                            self.game_map.objects[spawn_area_index].place_character(char)
+                            # assuming exactly 2 players
+                            self.game_map.objects.append(char)
+                            self.game_map.characters.append(self.game_map.objects.__len__()-1)
+
+                        # get other team
+                        while not self.net.other_team:
+                            self.net.send_control("Team_pls")
+                            time.sleep(0.5)
+
+                        if spawn_area_index == 0:
+                            spawn_area_index = 1
+                        if spawn_area_index == 1:
+                            spawn_area_index = 0
+
+                        # wait for other team positions and put them in their spawn as well
+                        for opp_char in self.net.other_team:
+                            self.game_map.objects[spawn_area_index].place_character(opp_char)
+                            self.game_map.objects.append(opp_char)
+                            self.game_map.characters.append(self.game_map.objects.__len__()-1)
+
                         self.new_window_target = InGame
 
         def get_text():
@@ -1409,6 +1448,19 @@ class CharacterSelection:  # commit comment
                                  dest=[0, self.rem_points_back.get_height() + self.character_back.get_height() +
                                        self.gear_back.get_height() + self.weapon_back.get_height()])
 
+        if any(self.timer_list.timers):
+            font_size = int(0.18 * true_res[1])
+            font = pg.font.SysFont("comicsansms", font_size)
+
+            text = "Error"
+            if self.timer_list[0]:
+                text = "Punktelimit erreicht! (That will never fit, senpai >///<)"
+            if self.timer_list[1]:
+                text = "Du bist schon bereit! Klicke \"Unready\" um deine Armee zu ändern"
+
+            font_surf = font.render(text, True, (255, 0, 0))
+            self.screen.blit(font_surf, blit_centered_pos(back=self.troop_overview, surf=font_surf))
+
         #########
         # right #
         #########
@@ -1474,7 +1526,8 @@ class CharacterSelection:  # commit comment
         self.screen.blit(self.rem_points_back, dest=[int((self.troop_overview.get_width() -
                                                           self.rem_points_back.get_width())/2), 0])
 
-        self.screen.blit(self.player_overview, [self.troop_overview.get_width(), 0]) # make
+        self.screen.blit(self.player_overview, [self.troop_overview.get_width(), 0])  # make
+
 
     def event_handling(self):
         # TODO only request char buttons if theirs rect is contained in map_surf
@@ -1677,15 +1730,15 @@ class InGame:
 
         # -------------- mid ----------------------------------
 
-        self.map_surface = pg.Surface([int(9 * w / 16), h])
-        # TODO place characters on map first
-        self.game_map.draw_map()
-        self.map_content = fit_surf(surf=self.game_map.window, size=self.map_surface.get_size())
-
         own_team_height = 2 * int((1 / 32) * 7 * w / 32) + \
                           int((self.own_team.characters.__len__() / 10) + 1) *\
                           ((int((1 / 32) * 7 * w / 32) +  # number of lines * gap size
                            int(1.6 * (5 / 32) * 7 * w / 32)))  # button + hp bar
+
+        self.map_surface = pg.Surface([int(9 * w / 16), h])
+        # TODO place characters on map first
+        self.game_map.draw_map()
+        self.map_content = fit_surf(surf=self.game_map.window, size=self.map_surface.get_size())
 
         self.own_team_stats = pg.Surface([int(self.map_surface.get_width() * 0.9), own_team_height])
 
@@ -1782,13 +1835,13 @@ class InGame:
             pos_w = self.btn_w + (i % 10) * (self.btn_w + self.inventory_gap_size)
             #pos_h = self.inventory_gap_size + \
             pos_h = int((1 / 32) * 7 * w / 32) + self.btn_h + int(i / 10) * \
-                    (self.btn_h + int((1 / 32) * 7 * w / 32) + self.btn_h * 0.6)
+                    (self.btn_h + int((1 / 32) * 7 * w / 32) + self.btn_h * 0.8)
 
             bars = []
 
             for j in range(6):
                 hp_bar = HPBar(dim=[self.btn_w, int(0.1 * self.btn_h)],
-                               pos=[pos_w, int(pos_h + 0.108 * j * self.btn_h)],  # 0.108
+                               pos=[pos_w, int(pos_h + j * 0.108 * self.btn_h)],  # TODO maybe better number?
                                curr=self.own_team.characters[i].health[j],
                                end=100)
                 bars.append(hp_bar)
@@ -1903,7 +1956,6 @@ class InGame:
                                  real_pos=[pos_w,
                                            pos_h +
                                            self.char_detail_back.get_height()],
-                                 #img_uri="assets/wc/small/wc_" + str(self.selected_own_char.weapons[i].class_id) + ".png",
                                  img_source=self.small_weapon[i],
                                  text="", name=("weapon " + str(self.selected_own_char.weapons[i].class_id) + ".png"),
                                  action=self.inventory_function_binder("weapon " + str(self.selected_own_char.weapons[i].class_idi),
@@ -1942,6 +1994,7 @@ class InGame:
         self.char_detail_back.blit(self.char_stat_card, dest=blit_centered_pos(self.char_detail_back,
                                                                                self.char_stat_card))
 
+        # TODO blit back again here
         self.inventory_items_surf.fill((255, 0, 0))
         self.inventory_gear_weapons_surf.fill((0, 34, 98))
 
@@ -1954,7 +2007,7 @@ class InGame:
         for btn in self.item_buttons:
             self.inventory_items_surf.blit(btn.surf, btn.pos)
 
-        self.char_inventory_back.blit(self.inventory_gear_weapons_surf, dest=[0, 0])
+        self.char_inventory_back.blit(fit_surf(back=self.char_inventory_back, surf=self.detail_back_metall), dest=[0, 0])
         self.char_inventory_back.blit(self.inventory_items_surf, dest=[0,
                                                                        self.inventory_gear_weapons_surf.get_height()])
 
@@ -2184,6 +2237,7 @@ def blit_centered_pos(back, surf):
 
     return [int((back.get_width()-surf.get_width())/2),
             int((back.get_height()-surf.get_height())/2)]
+
 
 def threaded_timer(period):
     time.sleep(period)

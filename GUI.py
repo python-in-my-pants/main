@@ -144,8 +144,10 @@ class HPBar:
         r = 255 if (x <= 50) else int(255 - 255*(x-50)/50)
         g = int(255 - 255*(50-x)/50) if x <= 50 else 255
 
+        self.surf.fill((12, 12, 12))
+        self.surf.set_colorkey((12, 12, 12))
         self.bar_surf.fill((r, g, 0))
-        self.surf.blit(self.bar_surf)
+        self.surf.blit(self.bar_surf, [0, 0])
 
 
 '''class Textfield:
