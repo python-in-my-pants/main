@@ -383,7 +383,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
                                  (pix[0] * self.elem_size, pix[1] * self.elem_size, self.elem_size, self.elem_size))
         self.__draw_grid()
 
-    def
+    # TODO selective map draw
 
     def __draw_grid(self):  # maybe static? (but who cares tbh)
 

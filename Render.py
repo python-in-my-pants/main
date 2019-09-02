@@ -14,6 +14,7 @@ from GUI import *
 from Team import *
 from Data import *
 from Characters import *
+from TTimer import *
 import time
 import copy
 import ctypes
@@ -600,6 +601,7 @@ class CharacterSelection:  # commit comment
         self.gc_num = 4
         self.wc_num = 7
         self.ic_num = 7
+        self.timer_list = TTimer(3)  # too expensive, already ready, point limit reached
 
         self.render_char_ban = True
         self.char_banner_clicked = False
@@ -920,6 +922,7 @@ class CharacterSelection:  # commit comment
                 else:
                     # TODO: take out
                     print("Too expensive, cannot buy")
+                    self.timer_list.set_timer(0, 2.1)
 
             butn_fkt.__name__ = name
             return butn_fkt
@@ -952,6 +955,7 @@ class CharacterSelection:  # commit comment
                 else:
                     # TODO: take out
                     print("cannot buy")
+                    self.timer_list.set_timer(0, 2.1)
 
             butn_fkt.__name__ = name
             return butn_fkt
@@ -984,6 +988,7 @@ class CharacterSelection:  # commit comment
                 else:
                     # TODO: take out
                     print("cannot buy")
+                    self.timer_list.set_timer(0, 2.1)
 
             butn_fkt.__name__ = name
             return butn_fkt
@@ -1018,6 +1023,7 @@ class CharacterSelection:  # commit comment
                 else:
                     # TODO: take out
                     print("Too expensive, cannot buy")
+                    self.timer_list.set_timer(0, 2.1)
 
             butn_fkt.__name__ = name
             return butn_fkt
@@ -1033,7 +1039,7 @@ class CharacterSelection:  # commit comment
                                                                                             h_pos +
                                                                                             self.rem_points_back.get_height() +
                                                                                             self.character_back.get_height() +
-                                                                                            self.gear_back.get_height() +
+                                                                                            self.gear_back.get_height()+
                                                                                             self.weapon_back.get_height() +
                                                                                             self.item_banner.dim[1] +
                                                                                             self.scroll_offset],
@@ -1085,7 +1091,7 @@ class CharacterSelection:  # commit comment
                     self.net.send_control("Host_status")
                     if self.net.host_status == "Ready" and self.ready:
 
-                        self.net.send_data_pickle("Team", self.ownTeam)
+                        self.net.send_data_pickle("Team", self.ownTeam.characters)
 
                         spawn_area_index = None
                         if self.role == "client":
@@ -1096,26 +1102,26 @@ class CharacterSelection:  # commit comment
                         # TODO add own chars to map
                         for char in self.ownTeam.characters:
                             # first game objs should always be spawning areas
-                            self.game_map.game_objects[spawn_area_index].place_character(char)
+                            self.game_map.objects[spawn_area_index].place_character(char)
                             # assuming exactly 2 players
-                            self.game_map.game_objects.append(char)
-                            self.game_map.characters.append(self.game_map.game_objects.__len__()-1)
+                            self.game_map.objects.append(char)
+                            self.game_map.characters.append(self.game_map.objects.__len__()-1)
 
                         # get other team
                         while not self.net.other_team:
                             self.net.send_control("Team_pls")
                             time.sleep(0.5)
 
-                        if self.role == "client":
+                        if spawn_area_index == 0:
                             spawn_area_index = 1
-                        if self.role == "host":
+                        if spawn_area_index == 1:
                             spawn_area_index = 0
 
                         # wait for other team positions and put them in their spawn as well
                         for opp_char in self.net.other_team:
-                            self.game_map.game_objects[spawn_area_index].place_character(opp_char)
-                            self.game_map.game_objects.append(opp_char)
-                            self.game_map.characters.append(self.game_map.game_objects.__len__()-1)
+                            self.game_map.objects[spawn_area_index].place_character(opp_char)
+                            self.game_map.objects.append(opp_char)
+                            self.game_map.characters.append(self.game_map.objects.__len__()-1)
 
                         self.new_window_target = InGame
 
@@ -1442,6 +1448,19 @@ class CharacterSelection:  # commit comment
                                  dest=[0, self.rem_points_back.get_height() + self.character_back.get_height() +
                                        self.gear_back.get_height() + self.weapon_back.get_height()])
 
+        if any(self.timer_list.timers):
+            font_size = int(0.18 * true_res[1])
+            font = pg.font.SysFont("comicsansms", font_size)
+
+            text = "Error"
+            if self.timer_list[0]:
+                text = "Punktelimit erreicht! (That will never fit, senpai >///<)"
+            if self.timer_list[1]:
+                text = "Du bist schon bereit! Klicke \"Unready\" um deine Armee zu ändern"
+
+            font_surf = font.render(text, True, (255, 0, 0))
+            self.screen.blit(font_surf, blit_centered_pos(back=self.troop_overview, surf=font_surf))
+
         #########
         # right #
         #########
@@ -1507,7 +1526,8 @@ class CharacterSelection:  # commit comment
         self.screen.blit(self.rem_points_back, dest=[int((self.troop_overview.get_width() -
                                                           self.rem_points_back.get_width())/2), 0])
 
-        self.screen.blit(self.player_overview, [self.troop_overview.get_width(), 0]) # make
+        self.screen.blit(self.player_overview, [self.troop_overview.get_width(), 0])  # make
+
 
     def event_handling(self):
         # TODO only request char buttons if theirs rect is contained in map_surf
@@ -2217,6 +2237,7 @@ def blit_centered_pos(back, surf):
 
     return [int((back.get_width()-surf.get_width())/2),
             int((back.get_height()-surf.get_height())/2)]
+
 
 def threaded_timer(period):
     time.sleep(period)
