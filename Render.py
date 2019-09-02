@@ -208,6 +208,8 @@ class ConnectionSetup:
                 while self.net.client_got_map != "Yes":
                     pass  # Sleep the tightest Aniki!!!!
                 self.host_stat = "Let's start!"
+                self.net.client_status = ""
+                self.net.host_status = ""
                 self.new_window_target = CharacterSelection
                 return
 
@@ -1091,7 +1093,7 @@ class CharacterSelection:  # commit comment
                     self.net.send_control("Host_status")
                     if self.net.host_status == "Ready" and self.ready:
 
-                        self.net.send_data_pickle("Team", self.ownTeam.characters)
+                        #self.net.send_data_pickle("Team", self.ownTeam.characters)
 
                         spawn_area_index = None
                         if self.role == "client":
@@ -1100,29 +1102,32 @@ class CharacterSelection:  # commit comment
                             spawn_area_index = 1
 
                         # TODO add own chars to map
-                        for char in self.ownTeam.characters:
+                        print(self.ownTeam.characters)
+                        for i in range(self.ownTeam.characters.__len__()):
                             # first game objs should always be spawning areas
-                            self.game_map.objects[spawn_area_index].place_character(char)
+                            self.game_map.objects[spawn_area_index].place_character(self.ownTeam.characters[i])
                             # assuming exactly 2 players
-                            self.game_map.objects.append(char)
+                            self.game_map.objects.append(self.ownTeam.characters[i])
                             self.game_map.characters.append(self.game_map.objects.__len__()-1)
 
                         # get other team
+                        """
                         while not self.net.other_team:
                             self.net.send_control("Team_pls")
                             time.sleep(0.5)
-
+                        """
                         if spawn_area_index == 0:
                             spawn_area_index = 1
                         if spawn_area_index == 1:
                             spawn_area_index = 0
 
                         # wait for other team positions and put them in their spawn as well
+                        """
                         for opp_char in self.net.other_team:
                             self.game_map.objects[spawn_area_index].place_character(opp_char)
                             self.game_map.objects.append(opp_char)
                             self.game_map.characters.append(self.game_map.objects.__len__()-1)
-
+                        """
                         self.new_window_target = InGame
 
         def get_text():

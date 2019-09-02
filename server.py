@@ -123,6 +123,7 @@ def threaded_client(conn):
             if data[0:12] == b'Ready_delete':
                 client_status = ""
                 host_status = ""
+                print("Deleted Status!")
             # Client_got_map
             if data[0:12] == b'Map received':
                 client_got_map = "Yes"
