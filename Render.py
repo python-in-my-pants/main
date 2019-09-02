@@ -1091,8 +1091,6 @@ class CharacterSelection:  # commit comment
                     self.net.send_control("Host_status")
                     if self.net.host_status == "Ready" and self.ready:
 
-                        self.net.send_data_pickle("Team", self.ownTeam.characters)
-
                         spawn_area_index = None
                         if self.role == "client":
                             spawn_area_index = 0
@@ -1106,6 +1104,8 @@ class CharacterSelection:  # commit comment
                             # assuming exactly 2 players
                             self.game_map.objects.append(char)
                             self.game_map.characters.append(self.game_map.objects.__len__()-1)
+
+                        self.net.send_data_pickle("Team", self.ownTeam.characters)
 
                         # get other team
                         while not self.net.other_team:
