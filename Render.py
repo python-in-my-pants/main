@@ -1110,7 +1110,7 @@ class CharacterSelection:  # commit comment
                             self.game_map.objects.append(self.ownTeam.characters[i])
                             self.game_map.characters.append(self.game_map.objects.__len__()-1)
 
-                        # get other team
+                        # get other team.
                         """
                         while not self.net.other_team:
                             self.net.send_control("Team_pls")
