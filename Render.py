@@ -2217,3 +2217,7 @@ def blit_centered_pos(back, surf):
 
     return [int((back.get_width()-surf.get_width())/2),
             int((back.get_height()-surf.get_height())/2)]
+
+def threaded_timer(period):
+    time.sleep(period)
+    pass
