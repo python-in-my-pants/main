@@ -45,7 +45,7 @@ class Button:
 
             self.surf.blit(background_img, (0, 0))
 
-            font_size = int(0.8 * self.dim[1]) if int(0.8*self.dim[1]) < int(0.7*self.dim[0]) else int(0.7*self.dim[0])
+            font_size = int(0.7 * self.dim[1]) if int(0.7*self.dim[1]) < int(0.6*self.dim[0]) else int(0.6*self.dim[0])
             font = pg.font.SysFont("comicsansms", font_size)
             font_render = font.render(self.text, True, self.font_color)
             self.surf.blit(font_render, (int(self.dim[0] / 2) - int(font_render.get_width() / 2),
@@ -53,7 +53,7 @@ class Button:
         else:
             self.surf.fill(color)
 
-            font_size = int(0.8 * self.dim[1]) if int(0.8*self.dim[1]) < int(0.7*self.dim[0]) else int(0.7*self.dim[0])
+            font_size = int(0.7 * self.dim[1]) if int(0.7*self.dim[1]) < int(0.6*self.dim[0]) else int(0.6*self.dim[0])
             font = pg.font.SysFont("comicsansms", font_size)
             font_render = font.render(self.text, True, self.font_color)
             self.surf.blit(font_render, (int(self.dim[0] / 2) - int(font_render.get_width() / 2),
@@ -80,7 +80,7 @@ class Button:
 
             self.surf.blit(background_img, (0, 0))
 
-            font_size = int(0.8 * self.dim[1]) if int(0.8*self.dim[1]) < int(0.7*self.dim[0]) else int(0.7*self.dim[0])
+            font_size = int(0.7 * self.dim[1]) if int(0.7*self.dim[1]) < int(0.6*self.dim[0]) else int(0.6*self.dim[0])
             font = pg.font.SysFont("comicsansms", font_size)
             font_render = font.render(self.text, True, self.font_color)
             self.surf.blit(font_render, (int(self.dim[0] / 2) - int(font_render.get_width() / 2),
@@ -89,7 +89,7 @@ class Button:
         else:
             self.surf.fill(self.color)
 
-            font_size = int(0.8 * self.dim[1]) if int(0.8*self.dim[1]) < int(0.7*self.dim[0]) else int(0.7*self.dim[0])
+            font_size = int(0.7 * self.dim[1]) if int(0.7*self.dim[1]) < int(0.6*self.dim[0]) else int(0.6*self.dim[0])
             font = pg.font.SysFont("comicsansms", font_size)
             font_render = font.render(self.text, True,  self.font_color)
             self.surf.blit(font_render, (int(self.dim[0] / 2) - int(font_render.get_width() / 2),

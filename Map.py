@@ -310,6 +310,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
         self.unique_pixs = [[0 for _ in range(int(self.size_x))] for _ in range(int(self.size_y))]
 
     def get_vmat(self):  # TODO: character height, laying characters hitbox etc
+
         '''
         :param self:
         :return: matrix of [a, b]s as the entries where a indicates that char1 can see char2 and b that he can shoot him
@@ -384,6 +385,53 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
         self.__draw_grid()
 
     # TODO selective map draw
+    def selective_map_draw(self, team_num):
+
+        matrix = self.get_vmat()
+
+        own_chars = []  # holds indices of own team in objects
+        visible_chars = []  # holds indices of visible chars
+
+        for i in self.characters:
+            if self.objects[i].team == team_num:
+                own_chars.append(i)
+
+        for own_char_index in own_chars:
+            for other_char_index in range(self.characters.__len__()):
+                if matrix[own_char_index][other_char_index][0] == 1 and not own_chars.__contains__(other_char_index)\
+                        and not visible_chars.__contains__(other_char_index):
+                    visible_chars.append(other_char_index)
+
+        for c in own_chars:
+            visible_chars.append(c)
+
+        for index, go in enumerate(self.objects):
+            if go.render_type == "blit":  # character
+                if visible_chars.__contains__(index):
+                    if go.is_selected is True:
+                        go.orientation = go.orientation  # TODO: look at mouse OR at char to attack
+                    go_surf = go.get_drawable_surf()
+                    if go.orientation > 0:
+                        go_surf = pg.transform.rotate(go_surf, go.orientation)
+                    factor = ((numpy.sqrt(2) - 1) / 2) * numpy.sin(3.5 * numpy.pi + 4 * numpy.deg2rad(go.orientation)) + \
+                             ((numpy.sqrt(2) - 1) / 2) + 1
+                    factor = 1
+                    self.window.blit(
+                        pg.transform.smoothscale(go_surf, (int(self.elem_size * factor), int(self.elem_size * factor))),
+                        (int(go.pos[0] * self.elem_size), int(go.pos[1] * self.elem_size)))
+                    # shit = pg.transform.smoothscale(go_surf, (int(self.elem_size * factor),
+                    # int(self.elem_size * factor)))
+
+            else:  # game object
+                mat_counter = 0
+                for indidex, pix in enumerate(go.get_drawable()):
+                    if go.mat_ind:
+                        if mat_counter < go.mat_ind.__len__() and indidex > go.mat_ind[mat_counter]:
+                            mat_counter += 1
+                    pg.draw.rect(self.window, mat_colour[go.materials[mat_counter]],
+                                 (pix[0] * self.elem_size, pix[1] * self.elem_size, self.elem_size, self.elem_size))
+
+        self.__draw_grid()
 
     def __draw_grid(self):  # maybe static? (but who cares tbh)
 

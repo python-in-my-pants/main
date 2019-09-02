@@ -445,8 +445,8 @@ class Character(GameObject):
             print("Bleeding has stopped")
 
 
-def create_character(_id):
-    boi = Character(class_id=_id)
+def create_character(_id, team):  # team holds only name/number of team
+    boi = Character(class_id=_id, team=team)
     boi.class_selector()
     return boi
 
