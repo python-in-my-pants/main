@@ -65,7 +65,10 @@ class Network:
     def send_data_pickle(self, token, data):
         # Sendformat: Token, Size, Data
         pickletaube = token.encode()
+        #try:
         size = self.size_wrapper(str(len(data)))  # 6 für die Größe der Size in Bytes
+        #except:
+        #    size = self.size_wrapper(str(data.__len__))
         pickletaube += size.encode()
         pickletaube += pickle.dumps(data)
         print(pickletaube.__len__())

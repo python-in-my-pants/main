@@ -340,7 +340,7 @@ class Spawnarea(GameObject):
             if self.characters[i][2] == 0:
                 boi.pos = [self.characters[i][0], self.characters[i][1]]
                 self.characters[i][2] = 1
-                break
+                return
         print("Spawnareal Voll Boi :D")
 
     @staticmethod

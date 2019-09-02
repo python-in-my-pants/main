@@ -208,6 +208,8 @@ class ConnectionSetup:
                 while self.net.client_got_map != "Yes":
                     pass  # Sleep the tightest Aniki!!!!
                 self.host_stat = "Let's start!"
+                self.net.client_status = ""
+                self.net.host_status = ""
                 self.new_window_target = CharacterSelection
                 return
 
@@ -1059,6 +1061,7 @@ class CharacterSelection:  # commit comment
                 self.ready = not self.ready
                 if self.ready:
                     self.net.send_control("Host_ready")
+                    self.timer_list.set_timer(1, 2.1)
                 else:
                     self.net.send_control("Host_not_ready")
 
@@ -1066,19 +1069,9 @@ class CharacterSelection:  # commit comment
                 self.ready = not self.ready
                 if self.ready:
                     self.net.send_control("Client_ready")
+                    self.timer_list.set_timer(1, 2.1)
                 else:
                     self.net.send_control("Client_not_ready")
-
-        '''def ready_checker():
-            self.ready_thread = get_ident()
-            while self.new_window_target != InGame:
-                if self.role == "host":
-                    self.net.send_control("Client_status")
-                    if self.net.client_status == "Ready" and self.ready:
-                        self.new_window_target = InGame
-                if self.role == "client":
-                elif self.role == "client":
-                    self.net.send_control("Host_status")'''
 
         def ready_checker():
             self.ready_thread = get_ident()
@@ -1086,21 +1079,39 @@ class CharacterSelection:  # commit comment
                 if self.role == "host":
                     self.net.send_control("Client_status")
                     if self.net.client_status == "Ready" and self.ready:
+
+                        # TODO add own chars to map
+                        for char in range(self.ownTeam.characters):
+                            # first game objs should always be spawning areas
+                            self.game_map.objects[1].place_character(char)
+                            # assuming exactly 2 players
+                            self.game_map.objects.append(char)
+                            self.game_map.characters.append(self.game_map.objects.__len__() - 1)
+
+                        self.net.send_data_pickle("Team", self.ownTeam.characters)
+
+                        # get other team
+                        while not self.net.other_team:
+                            print()
+                            self.net.send_control("Team_pls")
+                            time.sleep(0.5)
+
+                        # wait for other team positions and put them in their spawn as well
+                        for opp_char in self.net.other_team.characters:
+                            self.game_map.objects[0].place_character(opp_char)
+                            self.game_map.objects.append(opp_char)
+                            self.game_map.characters.append(self.game_map.objects.__len__() - 1)
+
                         self.new_window_target = InGame
+
                 if self.role == "client":
                     self.net.send_control("Host_status")
                     if self.net.host_status == "Ready" and self.ready:
 
-                        spawn_area_index = None
-                        if self.role == "client":
-                            spawn_area_index = 0
-                        if self.role == "host":
-                            spawn_area_index = 1
-
                         # TODO add own chars to map
-                        for char in self.ownTeam.characters:
+                        for char in range(self.ownTeam.characters):
                             # first game objs should always be spawning areas
-                            self.game_map.objects[spawn_area_index].place_character(char)
+                            self.game_map.objects[0].place_character(char)
                             # assuming exactly 2 players
                             self.game_map.objects.append(char)
                             self.game_map.characters.append(self.game_map.objects.__len__()-1)
@@ -1109,17 +1120,13 @@ class CharacterSelection:  # commit comment
 
                         # get other team
                         while not self.net.other_team:
+                            print()
                             self.net.send_control("Team_pls")
                             time.sleep(0.5)
 
-                        if spawn_area_index == 0:
-                            spawn_area_index = 1
-                        if spawn_area_index == 1:
-                            spawn_area_index = 0
-
                         # wait for other team positions and put them in their spawn as well
-                        for opp_char in self.net.other_team:
-                            self.game_map.objects[spawn_area_index].place_character(opp_char)
+                        for opp_char in self.net.other_team.characters:
+                            self.game_map.objects[1].place_character(opp_char)
                             self.game_map.objects.append(opp_char)
                             self.game_map.characters.append(self.game_map.objects.__len__()-1)
 
@@ -1453,9 +1460,9 @@ class CharacterSelection:  # commit comment
             font = pg.font.SysFont("comicsansms", font_size)
 
             text = "Error"
-            if self.timer_list[0]:
+            if self.timer_list.timers[0]:
                 text = "Punktelimit erreicht! (That will never fit, senpai >///<)"
-            if self.timer_list[1]:
+            if self.timer_list.timers[1]:
                 text = "Du bist schon bereit! Klicke \"Unready\" um deine Armee zu ändern"
 
             font_surf = font.render(text, True, (255, 0, 0))
