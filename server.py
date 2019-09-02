@@ -1,5 +1,6 @@
 import socket
 from _thread import *
+from numpy import *
 import sys
 import os
 
@@ -30,6 +31,11 @@ host_team = None
 client_team = None
 host_turn = False
 client_turn = False
+rando = random.randint(0, 2)
+if rando == 0:
+    host_turn = True
+else:
+    client_turn = True
 
 
 def threaded_client(conn):

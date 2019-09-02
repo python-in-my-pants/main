@@ -1788,7 +1788,7 @@ class InGame:
 
             for j in range(6):
                 hp_bar = HPBar(dim=[self.btn_w, int(0.1 * self.btn_h)],
-                               pos=[pos_w, int(pos_h + 0.105 * j * self.btn_h)],
+                               pos=[pos_w, int(pos_h + 0.108 * j * self.btn_h)],  # 0.108
                                curr=self.own_team.characters[i].health[j],
                                end=100)
                 bars.append(hp_bar)
@@ -1842,18 +1842,18 @@ class InGame:
 
     def inventory_function_binder(self, name, _id, item_type):
 
-        def func(_id):
+        def func():
 
-            if item_type == "weap":
+            if item_type == "weapon":
                 for i, weap in enumerate(self.selected_own_char.weapons):
-                    if weap.idi == _id:
-                        self.selected_own_char.change_active_slot("Weapon", i)
+                    if weap.class_idi == _id:
+                        self.selected_own_char.change_active_slot(["Weapon", i])
                         return
 
             if item_type == "item":
                 for i, item in enumerate(self.selected_own_char.items):
                     if item.idi == _id:
-                        self.selected_own_char.change_active_slot("Item", i)
+                        self.selected_own_char.change_active_slot(["Item", i])
                         return
 
         func.__name__ = name
@@ -1942,8 +1942,8 @@ class InGame:
         self.char_detail_back.blit(self.char_stat_card, dest=blit_centered_pos(self.char_detail_back,
                                                                                self.char_stat_card))
 
-        #self.inventory_items_surf.fill((255, 0, 0))
-        #self.inventory_gear_weapons_surf.fill((0, 34, 98))
+        self.inventory_items_surf.fill((255, 0, 0))
+        self.inventory_gear_weapons_surf.fill((0, 34, 98))
 
         for btn in self.gear_buttons:
             self.inventory_gear_weapons_surf.blit(btn.surf, btn.pos)
@@ -2184,3 +2184,7 @@ def blit_centered_pos(back, surf):
 
     return [int((back.get_width()-surf.get_width())/2),
             int((back.get_height()-surf.get_height())/2)]
+
+def threaded_timer(period):
+    time.sleep(period)
+    pass
