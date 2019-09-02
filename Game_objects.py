@@ -308,6 +308,7 @@ class SimpleHouse(GameObject):
 
 
 class Spawnarea(GameObject):
+
     seitenlaenge = 0
 
     def __init__(self, obj_type, name="Spawnareal_def", materials_=["border"], pos=[0, 0]):
@@ -365,7 +366,7 @@ class Spawnarea(GameObject):
             area = Spawnarea(name="Spawnareal "+str(team), obj_type="default", pos=[0, 0])
         if position == "R":
             area = Spawnarea(name="Spawnareal "+str(team), obj_type="default", pos=[map_size[0]-Spawnarea.seitenlaenge,
-                                                                                   map_size[1]-Spawnarea.seitenlaenge])
+                                                                                    map_size[1]-Spawnarea.seitenlaenge])
         return area
 
     def get_drawable(self):  # STATUS: tested

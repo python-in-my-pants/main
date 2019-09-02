@@ -1084,6 +1084,39 @@ class CharacterSelection:  # commit comment
                 if self.role == "client":
                     self.net.send_control("Host_status")
                     if self.net.host_status == "Ready" and self.ready:
+
+                        self.net.send_data_pickle("Team", self.ownTeam)
+
+                        spawn_area_index = None
+                        if self.role == "client":
+                            spawn_area_index = 0
+                        if self.role == "host":
+                            spawn_area_index = 1
+
+                        # TODO add own chars to map
+                        for char in self.ownTeam.characters:
+                            # first game objs should always be spawning areas
+                            self.game_map.game_objects[spawn_area_index].place_character(char)
+                            # assuming exactly 2 players
+                            self.game_map.game_objects.append(char)
+                            self.game_map.characters.append(self.game_map.game_objects.__len__()-1)
+
+                        # get other team
+                        while not self.net.other_team:
+                            self.net.send_control("Team_pls")
+                            time.sleep(0.5)
+
+                        if self.role == "client":
+                            spawn_area_index = 1
+                        if self.role == "host":
+                            spawn_area_index = 0
+
+                        # wait for other team positions and put them in their spawn as well
+                        for opp_char in self.net.other_team:
+                            self.game_map.game_objects[spawn_area_index].place_character(opp_char)
+                            self.game_map.game_objects.append(opp_char)
+                            self.game_map.characters.append(self.game_map.game_objects.__len__()-1)
+
                         self.new_window_target = InGame
 
         def get_text():
@@ -1677,15 +1710,15 @@ class InGame:
 
         # -------------- mid ----------------------------------
 
-        self.map_surface = pg.Surface([int(9 * w / 16), h])
-        # TODO place characters on map first
-        self.game_map.draw_map()
-        self.map_content = fit_surf(surf=self.game_map.window, size=self.map_surface.get_size())
-
         own_team_height = 2 * int((1 / 32) * 7 * w / 32) + \
                           int((self.own_team.characters.__len__() / 10) + 1) *\
                           ((int((1 / 32) * 7 * w / 32) +  # number of lines * gap size
                            int(1.6 * (5 / 32) * 7 * w / 32)))  # button + hp bar
+
+        self.map_surface = pg.Surface([int(9 * w / 16), h])
+        # TODO place characters on map first
+        self.game_map.draw_map()
+        self.map_content = fit_surf(surf=self.game_map.window, size=self.map_surface.get_size())
 
         self.own_team_stats = pg.Surface([int(self.map_surface.get_width() * 0.9), own_team_height])
 
@@ -1782,13 +1815,13 @@ class InGame:
             pos_w = self.btn_w + (i % 10) * (self.btn_w + self.inventory_gap_size)
             #pos_h = self.inventory_gap_size + \
             pos_h = int((1 / 32) * 7 * w / 32) + self.btn_h + int(i / 10) * \
-                    (self.btn_h + int((1 / 32) * 7 * w / 32) + self.btn_h * 0.6)
+                    (self.btn_h + int((1 / 32) * 7 * w / 32) + self.btn_h * 0.8)
 
             bars = []
 
             for j in range(6):
                 hp_bar = HPBar(dim=[self.btn_w, int(0.1 * self.btn_h)],
-                               pos=[pos_w, int(pos_h + 0.105 * j * self.btn_h)],
+                               pos=[pos_w, int(pos_h + j * 0.108 * self.btn_h)],  # TODO maybe better number?
                                curr=self.own_team.characters[i].health[j],
                                end=100)
                 bars.append(hp_bar)
@@ -1842,18 +1875,18 @@ class InGame:
 
     def inventory_function_binder(self, name, _id, item_type):
 
-        def func(_id):
+        def func():
 
-            if item_type == "weap":
+            if item_type == "weapon":
                 for i, weap in enumerate(self.selected_own_char.weapons):
-                    if weap.idi == _id:
-                        self.selected_own_char.change_active_slot("Weapon", i)
+                    if weap.class_idi == _id:
+                        self.selected_own_char.change_active_slot(["Weapon", i])
                         return
 
             if item_type == "item":
                 for i, item in enumerate(self.selected_own_char.items):
                     if item.idi == _id:
-                        self.selected_own_char.change_active_slot("Item", i)
+                        self.selected_own_char.change_active_slot(["Item", i])
                         return
 
         func.__name__ = name
@@ -1903,7 +1936,6 @@ class InGame:
                                  real_pos=[pos_w,
                                            pos_h +
                                            self.char_detail_back.get_height()],
-                                 #img_uri="assets/wc/small/wc_" + str(self.selected_own_char.weapons[i].class_id) + ".png",
                                  img_source=self.small_weapon[i],
                                  text="", name=("weapon " + str(self.selected_own_char.weapons[i].class_id) + ".png"),
                                  action=self.inventory_function_binder("weapon " + str(self.selected_own_char.weapons[i].class_idi),
@@ -1942,8 +1974,9 @@ class InGame:
         self.char_detail_back.blit(self.char_stat_card, dest=blit_centered_pos(self.char_detail_back,
                                                                                self.char_stat_card))
 
-        #self.inventory_items_surf.fill((255, 0, 0))
-        #self.inventory_gear_weapons_surf.fill((0, 34, 98))
+        # TODO blit back again here
+        self.inventory_items_surf.fill((255, 0, 0))
+        self.inventory_gear_weapons_surf.fill((0, 34, 98))
 
         for btn in self.gear_buttons:
             self.inventory_gear_weapons_surf.blit(btn.surf, btn.pos)
@@ -1954,7 +1987,7 @@ class InGame:
         for btn in self.item_buttons:
             self.inventory_items_surf.blit(btn.surf, btn.pos)
 
-        self.char_inventory_back.blit(self.inventory_gear_weapons_surf, dest=[0, 0])
+        self.char_inventory_back.blit(fit_surf(back=self.char_inventory_back, surf=self.detail_back_metall), dest=[0, 0])
         self.char_inventory_back.blit(self.inventory_items_surf, dest=[0,
                                                                        self.inventory_gear_weapons_surf.get_height()])
 

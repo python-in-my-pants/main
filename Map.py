@@ -268,6 +268,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
 
         return 1
 
+    # TODO can I skip throught walls?
     def movement_possible(self, char, new_pos):  # returns true or false
 
         if new_pos[0] < 0 or new_pos[0] > self.size_x-1 or new_pos[1] < 0 or new_pos[1] > self.size_y-1:
@@ -308,10 +309,12 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
         self.objects = []
         self.unique_pixs = [[0 for _ in range(int(self.size_x))] for _ in range(int(self.size_y))]
 
-    @staticmethod
     def get_vmat(self):  # TODO: character height, laying characters hitbox etc
+        '''
+        :param self:
+        :return: matrix of [a, b]s as the entries where a indicates that char1 can see char2 and b that he can shoot him
+        '''
 
-        # TODO return visibility matrix containing visibility for every char on the map
         chars = []
         for ind, obj in enumerate(self.objects):
             if self.characters.__contains__(ind):
@@ -327,17 +330,17 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
 
                     # TODO maybe try switching x,y
                     #  AND try line()
-                    y_coord, x_coord, _ = line_aa(char1.pos[1], char1.pos[0], char2.pos[1],
-                                                  char2.pos[0])  # y1, x1, y2, x2
+                    y_coord, x_coord, _ = line_aa(char1.pos[1], char1.pos[0], char2.pos[1], char2.pos[0])  # y1, x1, y2, x2
 
                     for index in range(y_coord.__len__()):
                         CollAtom([x_coord[index], y_coord[index]], name="line").add(line_gr)
 
-                    mat[ind1][ind2] = self.get_mat_x_y(line_gr, char1, char2)
+                    mat[ind1][ind2] = self.__get_mat_x_y(line_gr, char1, char2)
 
         return mat
 
-    def get_mat_x_y(self, line_gr, char1, char2):
+    # this func is private
+    def __get_mat_x_y(self, line_gr, char1, char2):  # line group
 
         for obj in self.objects:
 
@@ -379,6 +382,8 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
                     pg.draw.rect(self.window, mat_colour[go.materials[mat_counter]],
                                  (pix[0] * self.elem_size, pix[1] * self.elem_size, self.elem_size, self.elem_size))
         self.__draw_grid()
+
+    def
 
     def __draw_grid(self):  # maybe static? (but who cares tbh)
 
@@ -424,6 +429,7 @@ class MapBuilder:
 
         areas = Spawnarea.create_areals([fields_x, fields_y])  # TODO
 
+        # areas are the first game_objects
         for area in areas:
             self.map.add_object(area)
 
