@@ -341,6 +341,7 @@ class Spawnarea(GameObject):
                 self.characters[i][2] = 1
                 break
         print("Spawnareal Voll Boi :D")
+        #
 
     @staticmethod
     def create_areals(map_size):
