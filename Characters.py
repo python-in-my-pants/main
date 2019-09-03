@@ -132,6 +132,9 @@ class Character(GameObject):
         character_surf = pg.Surface((200, 200))
         character_surf.fill((0, 0, 0))
 
+        print("-"*30)
+        print(self.team)
+
         # left arm
         pg.draw.circle(character_surf, mat_colour[self.team],
                        [int(character_surf.get_width() * 0.15), int(character_surf.get_height() * 0.5)],
@@ -445,8 +448,8 @@ class Character(GameObject):
             print("Bleeding has stopped")
 
 
-def create_character(_id):
-    boi = Character(class_id=_id)
+def create_character(_id, team):  # team holds only name/number of team
+    boi = Character(class_id=_id, team=team)
     boi.class_selector()
     return boi
 

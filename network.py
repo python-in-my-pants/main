@@ -14,6 +14,7 @@ class Network:
         self.addr = (self.host, self.port)
         self.id = self.connect()
         self.team = 0
+        self.failsafe = False
         self.map = b''
         self.g_amount = ""
         self.failsafe = False
@@ -67,6 +68,7 @@ class Network:
 
     def send_data_pickle(self, token, data):
         # Sendformat: Token, Size, Data
+        print(pickle.dumps(data))
         pickletaube = token.encode()
         size = self.size_wrapper(str(len(data)))  # 6 für die Größe der Size in Bytes
         pickletaube += size.encode()

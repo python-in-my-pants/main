@@ -5,12 +5,9 @@ import numpy as np
 
 class Team:
 
-    def __init__(self, team_id=0, characters=[]):
+    def __init__(self, characters=[], team_number=0):
 
-        if team_id:
-            self.team_id = team_id
-        else:
-            self.id = "t" + str(id(self))
+        self.team_num = team_number
 
         self.characters = characters[:]
         self.value = self.calc_val()
@@ -57,4 +54,13 @@ class Team:
                 return False
 
     def calc_val(self):  # TODO: calculate value by adding cost of all units
-        return 1
+        val = 0
+        for char in self.characters:
+            for weap in char.weapons:
+                val += weap.cost
+            for gear in char.gear:
+                val += gear.cost
+            for item in char.items:
+                val += item.cost
+
+        return val

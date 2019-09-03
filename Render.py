@@ -160,7 +160,7 @@ class ConnectionSetup:
 
             self.size_focus = True
             self.ip_focus = False
-            print(self.desi_board_text)
+            #print(self.desi_board_text)
 
             if self.board_first_click:
                 self.desi_board_text = ""
@@ -235,8 +235,8 @@ class ConnectionSetup:
                                            pos=[int((left_surf.get_width() - int(surfs_size[0] / 3)) / 2),
                                                 int(surfs_size[1] * 0.7)],
                                            real_pos=[int((right_surf.get_width() - (surfs_size[0] / 3)) / 2),
-                                                     int(surfs_size[1] * 0.7)], color=(255, 255, 255), text=self.desi_board_text,
-                                           name="board_size_button",
+                                                     int(surfs_size[1] * 0.7)], color=(255, 255, 255),
+                                           text=self.desi_board_text, name="board_size_button",
                                            action=desired_board_size_button_fkt)
 
         # append later to not mess up indices
@@ -264,7 +264,7 @@ class ConnectionSetup:
 
         self.buttons.append(host_cancel_btn)
 
-        back_btn = Button(dim=[int(size[0] * 0.1), int(size[0] * 0.1)], pos=[0, 0], real_pos=[0, 0],
+        back_btn = Button(dim=[int(size[0] * 0.03), int(size[0] * 0.03)], pos=[0, 0], real_pos=[0, 0],
                           img_uri="assets/back_btn.png", text="", name="back_btn", use_dim=True, action=back_fkt)
 
         self.buttons.append(back_btn)
@@ -602,7 +602,7 @@ class CharacterSelection:  # commit comment
         self.new_window_target = None
         self.spent_points = 0
         self.screen = pg.display.set_mode(true_res, pg.RESIZABLE | pg.FULLSCREEN)
-        self.ownTeam = Team()
+        self.ownTeam = Team(team_number=self.net.team)
         self.ready_thread = 0
         self.selectedChar = None
         self.weapons = []
@@ -614,7 +614,7 @@ class CharacterSelection:  # commit comment
         self.wc_num = 7
         self.ic_num = 7
         self.timer_list = TTimer(3)  # too expensive, already ready, point limit reached
-        self.opp_team = None
+        self.font_surf = None
 
         self.render_char_ban = True
         self.char_banner_clicked = False
@@ -927,15 +927,18 @@ class CharacterSelection:  # commit comment
 
             def butn_fkt():
 
-                char = create_character(card_num)
-                if self.spent_points + char.cost <= self.points_to_spend:
-                    self.ownTeam.add_char(char)
-                    self.spent_points += char.cost
-                    self.selectedChar = char
+                if not self.ready:
+                    char = create_character(card_num, self.net.team)
+                    if self.spent_points + char.cost <= self.points_to_spend:
+                        self.ownTeam.add_char(char)
+                        self.spent_points += char.cost
+                        self.selectedChar = char
+                    else:
+                        # TODO: take out
+                        print("Too expensive, cannot buy")
+                        self.timer_list.set_timer(0, 2.1)
                 else:
-                    # TODO: take out
-                    print("Too expensive, cannot buy")
-                    self.timer_list.set_timer(0, 2.1)
+                    self.timer_list.set_timer(1, 2.1)
 
             butn_fkt.__name__ = name
             return butn_fkt
@@ -961,14 +964,17 @@ class CharacterSelection:  # commit comment
 
             def butn_fkt():
 
-                btn_gear = make_gear_by_id(card_num)
-                if self.spent_points + btn_gear.cost <= self.points_to_spend and self.selectedChar:
-                    self.selectedChar.gear.append(btn_gear)
-                    self.spent_points += btn_gear.cost
+                if not self.ready:
+                    btn_gear = make_gear_by_id(card_num)
+                    if self.spent_points + btn_gear.cost <= self.points_to_spend and self.selectedChar:
+                        self.selectedChar.gear.append(btn_gear)
+                        self.spent_points += btn_gear.cost
+                    else:
+                        # TODO: take out
+                        print("cannot buy")
+                        self.timer_list.set_timer(0, 2.1)
                 else:
-                    # TODO: take out
-                    print("cannot buy")
-                    self.timer_list.set_timer(0, 2.1)
+                    self.timer_list.set_timer(1, 2.1)
 
             butn_fkt.__name__ = name
             return butn_fkt
@@ -994,14 +1000,17 @@ class CharacterSelection:  # commit comment
 
             def butn_fkt():
 
-                weap = make_weapon_by_id(card_num)  # TODO: add function call to get instance of corresponding class
-                if self.spent_points + weap.cost <= self.points_to_spend and self.selectedChar:
-                    self.selectedChar.weapons.append(weap)
-                    self.spent_points += weap.cost
+                if not self.ready:
+                    weap = make_weapon_by_id(card_num)  # TODO: add function call to get instance of corresponding class
+                    if self.spent_points + weap.cost <= self.points_to_spend and self.selectedChar:
+                        self.selectedChar.weapons.append(weap)
+                        self.spent_points += weap.cost
+                    else:
+                        # TODO: take out
+                        print("cannot buy")
+                        self.timer_list.set_timer(0, 2.1)
                 else:
-                    # TODO: take out
-                    print("cannot buy")
-                    self.timer_list.set_timer(0, 2.1)
+                    self.timer_list.set_timer(1, 2.1)
 
             butn_fkt.__name__ = name
             return butn_fkt
@@ -1029,14 +1038,17 @@ class CharacterSelection:  # commit comment
 
             def butn_fkt():
 
-                item = make_item_by_id(card_num)  # TODO: add function call to get instance of corresponding class
-                if self.spent_points + item.cost <= self.points_to_spend and self.selectedChar:
-                    self.selectedChar.items.append(item)
-                    self.spent_points += item.cost
+                if not self.ready:
+                    item = make_item_by_id(card_num)  # TODO: add function call to get instance of corresponding class
+                    if self.spent_points + item.cost <= self.points_to_spend and self.selectedChar:
+                        self.selectedChar.items.append(item)
+                        self.spent_points += item.cost
+                    else:
+                        # TODO: take out
+                        print("Too expensive, cannot buy")
+                        self.timer_list.set_timer(0, 2.1)
                 else:
-                    # TODO: take out
-                    print("Too expensive, cannot buy")
-                    self.timer_list.set_timer(0, 2.1)
+                    self.timer_list.set_timer(1, 2.1)
 
             butn_fkt.__name__ = name
             return butn_fkt
@@ -1072,7 +1084,6 @@ class CharacterSelection:  # commit comment
                 self.ready = not self.ready
                 if self.ready:
                     self.net.send_control("Host_ready")
-                    self.timer_list.set_timer(1, 2.1)
                 else:
                     self.net.send_control("Host_not_ready")
 
@@ -1080,7 +1091,6 @@ class CharacterSelection:  # commit comment
                 self.ready = not self.ready
                 if self.ready:
                     self.net.send_control("Client_ready")
-                    self.timer_list.set_timer(1, 2.1)
                 else:
                     self.net.send_control("Client_not_ready")
 
@@ -1141,23 +1151,27 @@ class CharacterSelection:  # commit comment
 
                 if self.role == "client":
                     self.net.send_control("Host_status")
+                    print("!"*30)
+                    print(self.net.host_status)
+                    print(self.ready)
                     if self.net.host_status == "Ready" and self.ready:
 
+                        print("braunching")
                         # TODO add own chars to map
                         for char in self.ownTeam.characters:
                             # first game objs should always be spawning areas
                             self.game_map.objects[0].place_character(char)
                             # assuming exactly 2 players
                             self.game_map.objects.append(char)
-                            self.game_map.characters.append(self.game_map.objects.__len__()-1)
+                            self.game_map.characters.append(self.game_map.objects.__len__() - 1)
 
                         self.net.send_data_pickle("Teeam", self.ownTeam.characters)
 
                         # get other team
                         while not self.net.other_team:
-                            print()
+                            print(self.net.other_team)
                             self.net.send_control("Team_pls")
-                            time.sleep(0.5)
+                            time.sleep(2)
 
                         # wait for other team positions and put them in their spawn as well
                         while not isinstance(self.net.other_team, list):
@@ -1371,20 +1385,20 @@ class CharacterSelection:  # commit comment
         # -------------------------------------------------------------------------------------------------------------
 
         # constants
-        small_line_len = 5
-        small_gap_size = int(self.selected_units_box.get_width() / (small_line_len * 9 + 1))
-        w_small_card = int(self.selected_units_box.get_width() * 8 / (small_line_len * 9 + 1))
-        h_small_card = w_small_card  # int(w_small_card * 1.457)
+        char_small_line_len = 5 if self.ownTeam.characters.__len__() <= 10 else int(self.ownTeam.characters.__len__()/2+0.5)
+        char_small_gap_size = int(self.selected_units_box.get_width() / (char_small_line_len * 9 + 1))
+        char_w_small_card = int(self.selected_units_box.get_width() * 8 / (char_small_line_len * 9 + 1))
+        char_h_small_card = char_w_small_card  # int(w_small_card * 1.457)
 
         self.team_char_btns = []
         for i in range(self.ownTeam.characters.__len__()):
-            pos_w = small_gap_size + ((i % small_line_len) * (w_small_card + small_gap_size))
-            pos_h = 2 * small_gap_size + int(i / small_line_len) * h_small_card + (
-                        int(i / small_line_len) - 1) * small_gap_size
+            pos_w = char_small_gap_size + ((i % char_small_line_len) * (char_w_small_card + char_small_gap_size))
+            pos_h = 2 * char_small_gap_size + int(i / char_small_line_len) * char_h_small_card + (
+                        int(i / char_small_line_len) - 1) * char_small_gap_size
 
             class_num = self.ownTeam.characters[i].class_id
 
-            btn = Button(dim=[w_small_card, h_small_card], pos=[pos_w, pos_h], real_pos=
+            btn = Button(dim=[char_w_small_card, char_h_small_card], pos=[pos_w, pos_h], real_pos=
                             [pos_w + int((self.selected_units_back.get_width() - self.selected_units_box.get_width())/2)+
                             self.troop_overview.get_width(),
                              pos_h + int((self.selected_units_back.get_height()-self.selected_units_box.get_height())/2)+
@@ -1408,12 +1422,18 @@ class CharacterSelection:  # commit comment
             self.weapons = []
             self.items = []
 
+        gear_small_line_len = 5 if self.gear.__len__() + self.weapons.__len__() + self.items.__len__() <= 10 else \
+            int(self.gear.__len__() / 2 + 0.5)
+        gear_small_gap_size = int(self.selected_units_box.get_width() / (gear_small_line_len * 9 + 1))
+        gear_w_small_card = int(self.selected_units_box.get_width() * 8 / (gear_small_line_len * 9 + 1))
+        gear_h_small_card = gear_w_small_card  # int(w_small_card * 1.457)
+
         self.sel_item_btns = []
         for i in range(self.gear.__len__() + self.weapons.__len__() + self.items.__len__()):
 
-            pos_w = small_gap_size + ((i % small_line_len) * (w_small_card + small_gap_size))
-            pos_h = 2 * small_gap_size + int(i / small_line_len) * h_small_card + (
-                        int(i / small_line_len) - 1) * small_gap_size
+            pos_w = gear_small_gap_size + ((i % gear_small_line_len) * (gear_w_small_card + gear_small_gap_size))
+            pos_h = 2 * gear_small_gap_size + int(i / gear_small_line_len) * gear_h_small_card + (
+                        int(i / gear_small_line_len) - 1) * gear_small_gap_size
 
             img_source = ""
             cat = None
@@ -1434,7 +1454,7 @@ class CharacterSelection:  # commit comment
                 img_source = self.ic_small_images[my_id]
                 cat = "item"
 
-            btn = Button(dim=[w_small_card, h_small_card], pos=[pos_w, pos_h], real_pos=
+            btn = Button(dim=[gear_w_small_card, gear_h_small_card], pos=[pos_w, pos_h], real_pos=
                              [pos_w +
                               self.troop_overview.get_width() +
                               int((self.selected_weapons_back.get_width()-self.selected_weapons_box.get_width())/2),
@@ -1513,8 +1533,6 @@ class CharacterSelection:  # commit comment
                                        self.gear_back.get_height() + self.weapon_back.get_height()])
 
         if any(self.timer_list.timers):
-            font_size = int(0.18 * true_res[1])
-            font = pg.font.SysFont("comicsansms", font_size)
 
             text = "Error"
             if self.timer_list.timers[0]:
@@ -1522,8 +1540,11 @@ class CharacterSelection:  # commit comment
             if self.timer_list.timers[1]:
                 text = "Du bist schon bereit! Klicke \"Unready\" um deine Armee zu ändern"
 
-            font_surf = font.render(text, True, (255, 0, 0))
-            self.troop_overview.blit(font_surf, blit_centered_pos(back=self.troop_overview, surf=font_surf))
+            font_size = int(0.025 * true_res[0])
+            font = pg.font.SysFont("comicsansms", font_size)
+
+            self.font_surf = font.render(text, True, (255, 0, 0))
+            self.screen.blit(self.font_surf, blit_centered_pos(back=self.screen, surf=self.font_surf))
 
         #########
         # right #
@@ -1534,14 +1555,17 @@ class CharacterSelection:  # commit comment
         self.minimap_surf.blit(self.map_surf, dest=[int((self.minimap_surf.get_width() - self.map_surf.get_width())/2),
                                                     int((int(self.minimap_surf.get_height()*0.8) -
                                                          self.map_surf.get_height()) / 2)])
+        self.ready_btn.set_text("Ready!" if not self.ready else "Unready")
+        self.ready_btn.update_text()
+
         self.minimap_surf.blit(self.ready_btn.surf, self.ready_btn.pos)
 
         self.player_overview.blit(self.minimap_surf, dest=[0, 0])
 
         # selected units
-        #if not self.team_char_btns:  # was sel item btns
+        # if not self.team_char_btns:  # was sel item btns
 
-        #self.selected_units_box.fill((0, 0, 0))
+        # self.selected_units_box.fill((0, 0, 0))
         # NEWWW
         sel_uni_box_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert(),
                                                         self.selected_units_box.get_size())
@@ -1560,7 +1584,7 @@ class CharacterSelection:  # commit comment
 
         # selected weapons
 
-        #self.selected_weapons_box.fill((0, 0, 0))
+        # self.selected_weapons_box.fill((0, 0, 0))
 
         # NEWWW
         sel_weap_box_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert(),
@@ -1582,6 +1606,7 @@ class CharacterSelection:  # commit comment
 
         self.screen.blit(self.troop_overview, [0, self.scroll_offset])
 
+        # points button
         self.points_btn.set_text((str(self.spent_points) + "/" + str(self.points_to_spend)))
         self.points_btn.update_text()
         '''self.rem_points_back.fill((1, 1, 1))
@@ -1592,6 +1617,8 @@ class CharacterSelection:  # commit comment
 
         self.screen.blit(self.player_overview, [self.troop_overview.get_width(), 0])  # make
 
+        if any(self.timer_list.timers):
+            self.screen.blit(self.font_surf, blit_centered_pos(back=self.screen, surf=self.font_surf))
 
     def event_handling(self):
         # TODO only request char buttons if theirs rect is contained in map_surf
@@ -1801,7 +1828,7 @@ class InGame:
 
         self.map_surface = pg.Surface([int(9 * w / 16), h])
         # TODO place characters on map first
-        self.game_map.draw_map()
+        self.game_map.selective_draw_map(team_num=self.own_team.team_num)
         self.map_content = fit_surf(surf=self.game_map.window, size=self.map_surface.get_size())
 
         self.own_team_stats = pg.Surface([int(self.map_surface.get_width() * 0.9), own_team_height])
@@ -1930,7 +1957,7 @@ class InGame:
 
         # chars on map
         for index in self.game_map.characters:
-            char = self.game_map.objects[index]
+            char = self.game_map.objects[index]  # TODO change real pos (scroll and zoom and so on)
 
             btn = Button(dim=[self.element_size * self.zoom_factor, self.element_size * self.zoom_factor],
                          pos=[char.get_pos(0) * self.element_size + self.zoom_size[0],
@@ -2098,6 +2125,9 @@ class InGame:
                            int(real_mouse_pos[1] - (self.zoom_factor * real_mouse_pos[1]))]
 
             self.zoomed = False
+
+        self.game_map.selective_draw_map(team_num=self.own_team.team_num)
+        self.map_content = fit_surf(surf=self.game_map.window, size=self.map_surface.get_size())
 
         if self.zoom_factor >= 1:
             dest = [self.amount[0] + self.con_shift_offset[0] + shift_offset[0],
