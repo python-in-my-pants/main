@@ -16,10 +16,11 @@ class Network:
         self.team = 0
         self.map = b''
         self.g_amount = ""
+        self.failsafe = False
         self.host_status = ""
         self.client_status = ""
         self.client_got_map = ""
-        self.other_team = None
+        self.other_team = b''
         self.my_turn = True
         #self.client.setblocking(False)
 
@@ -33,6 +34,8 @@ class Network:
                     self.team = int(data[4:len(data)].decode())
                 if data[0:8] == b'G_amount':
                     self.g_amount = data[8:len(data)].decode()
+                if data[0:4] == b'Fail':
+                    self.failsafe = True
                 if data[0:13] == b'Client_status':
                     self.client_status = data[13:len(data)].decode()
                 if data[0:11] == b'Host_status':
@@ -40,7 +43,7 @@ class Network:
                 if data[0:14] == b'Client_got_map':
                     self.client_got_map = data[14:len(data)].decode()
                 if data[0:10] == b'Other_team':
-                    self.other_team = data[10:]
+                    self.other_team = data[10:len(data)]
                 if data[0:9] == b'Your_turn':
                     self.my_turn = data[9:].decode()
             except:
@@ -65,12 +68,10 @@ class Network:
     def send_data_pickle(self, token, data):
         # Sendformat: Token, Size, Data
         pickletaube = token.encode()
-        #try:
         size = self.size_wrapper(str(len(data)))  # 6 für die Größe der Size in Bytes
-        #except:
-        #    size = self.size_wrapper(str(data.__len__))
         pickletaube += size.encode()
         pickletaube += pickle.dumps(data)
+        print(pickle.dumps(data))
         print(pickletaube.__len__())
         self.client.send(pickletaube)
 

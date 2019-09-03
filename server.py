@@ -23,12 +23,14 @@ conn1 = None
 conn2 = None
 
 karte = b''
-client_team_num = 0
+client_team_num = b''
+host_failsafe = False
+client_failsafe = False
 host_status = ""
 client_status = ""
 client_got_map = ""
-host_team = None
-client_team = None
+host_team = b''
+client_team = b''
 host_turn = False
 client_turn = False
 rando = random.randint(0, 2)
@@ -51,6 +53,8 @@ def threaded_client(conn):
     global client_turn
     global conn1
     global conn2
+    global client_failsafe
+    global host_failsafe
 
     reply = ''
     while True:
@@ -58,10 +62,10 @@ def threaded_client(conn):
             data = conn.recv(104857645)
             # Team
             if data[0:5] == b'Teams':
-                client_team = data[11:len(data)]
+                client_team_num = data[11:len(data)]
                 print("Saved Successfully!")
             if data[0:8] == b'Team pls':
-                sender(b'Team', str(client_team).encode(), conn)
+                sender(b'Team', client_team_num, conn)
                 print("Team Send!")
             # Map
             if data[0:4] == b'Maps':
@@ -94,15 +98,20 @@ def threaded_client(conn):
             if data[0:13] == b'Client_status':
                 sender(b'Client_status', client_status.encode(), conn)
             # Teams
-            if data[0:4] == b'Team':
+            if data[0:5] == b'Teeam':
                 if conn == conn1:
-                    host_team = data[10:]
+                    host_team = data[11:len(data)]
                 if conn == conn2:
-                    client_team = data[10:]
+                    print(conn)
+                    print(conn2)
+                    client_team = data[11:len(data)]
             if data[0:8] == b'Team_pls':
                 if conn == conn1:
+                    print(client_team)
                     sender(b'Other_team', client_team, conn)
                 if conn == conn2:
+                    sender(b'Other_team', host_team, conn)
+                else:
                     sender(b'Other_team', host_team, conn)
             # Turns # ToDo on Client Side delete anordern
             if data[0:9] == b'Their_turn':
@@ -115,6 +124,17 @@ def threaded_client(conn):
                     sender(b'Your_turn', host_turn, conn)
                 if conn == conn2:
                     sender(b'Your_turn', client_turn, conn)
+            # Failsafe
+            if data[0:4] == b'Fail':
+                if conn == conn1:
+                    host_failsafe = True
+                if conn == conn2:
+                    client_failsafe = True
+            if data[0:5] == b'Fail?':
+                if conn == conn1 and client_failsafe:
+                    sender(b'Fail', b'', conn)
+                if conn == conn2 and host_failsafe:
+                    sender(b'Fail', b'', conn)
             # Delete_Turns
             if data[0:11] == b'Turn_delete':
                 client_turn = False

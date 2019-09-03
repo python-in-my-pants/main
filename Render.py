@@ -206,7 +206,11 @@ class ConnectionSetup:
                 self.net.send_data_pickle("Maps", self.game_map.get_map())
                 self.host_stat = "Waiting for other players confirmation to notice that bulge"
                 while self.net.client_got_map != "Yes":
-                    pass  # Sleep the tightest Aniki!!!!
+                    self.net.send_control("Fail?")
+                    if self.net.failsafe:
+                        self.net.send_data_pickle("Maps", self.game_map.get_map())
+                        self.net.failsafe = False
+                    # Sleep the tightest Aniki!!!!
                 self.host_stat = "Let's start!"
                 self.net.client_status = ""
                 self.net.host_status = ""
@@ -282,13 +286,19 @@ class ConnectionSetup:
                 self.role = "client"
                 self.join_stat = "Awaiting map..."
                 self.net.send_control("Client_ready")
-
+                self.net.send_control("Team pls")
                 while self.net.map == b'':
                     self.net.send_control("Map pls")
                     time.sleep(2)  # this must be at least 2!
                     pass  # I'm a Performanceartist!
-
-                self.net.map = pickle.loads(bytes(self.net.map[6:]))
+                while not isinstance(self.net.map, LIST):
+                    try:
+                        self.net.map = pickle.loads(bytes(self.net.map[6:]))
+                    except (pickle.UnpicklingError, EOFError):
+                        self.net.send_control("Fail")
+                        time.sleep(0.3)
+                        self.net.send_control("Map pls")
+                        time.sleep(0.3)
 
                 self.net.send_control("Map received")
                 self.net.client_status = ""
@@ -604,6 +614,7 @@ class CharacterSelection:  # commit comment
         self.wc_num = 7
         self.ic_num = 7
         self.timer_list = TTimer(3)  # too expensive, already ready, point limit reached
+        self.opp_team = None
 
         self.render_char_ban = True
         self.char_banner_clicked = False
@@ -1075,32 +1086,56 @@ class CharacterSelection:  # commit comment
 
         def ready_checker():
             self.ready_thread = get_ident()
+            counter = 0
             while self.new_window_target != InGame:
                 if self.role == "host":
                     self.net.send_control("Client_status")
                     if self.net.client_status == "Ready" and self.ready:
 
                         # TODO add own chars to map
-                        for char in range(self.ownTeam.characters):
+                        for char in self.ownTeam.characters:
                             # first game objs should always be spawning areas
                             self.game_map.objects[1].place_character(char)
                             # assuming exactly 2 players
                             self.game_map.objects.append(char)
                             self.game_map.characters.append(self.game_map.objects.__len__() - 1)
-
-                        self.net.send_data_pickle("Team", self.ownTeam.characters)
+                        self.net.send_data_pickle("Teeam", self.ownTeam.characters)
 
                         # get other team
-                        while not self.net.other_team:
-                            print()
-                            self.net.send_control("Team_pls")
-                            time.sleep(0.5)
+                        self.net.send_control("Team_pls")
+                        time.sleep(2)
 
                         # wait for other team positions and put them in their spawn as well
-                        for opp_char in self.net.other_team.characters:
+                        while not isinstance(self.net.other_team, list):
+                            if self.net.failsafe:
+                                self.net.send_data_pickle("Teeam", self.ownTeam.characters)
+                            try:
+                                print("_________")
+                                print(self.net.other_team)
+                                self.net.other_team = pickle.loads(self.net.other_team)
+                            except EOFError:
+                                self.net.send_control("Team_pls")
+                                time.sleep(1)
+                                if counter == 5:
+                                    self.net.send_control("Fail")
+                                    counter = 0
+                                counter += 1
+                                print("PENIS")
+                            except pickle.UnpicklingError:
+                                print("ASDASDASDASD")
+                                self.net.send_control("Team_pls")
+                                time.sleep(1)
+                                self.net.send_control("Fail")
+                                time.sleep(1)
+
+                        print("LELELEL")
+                        for opp_char in self.net.other_team:
                             self.game_map.objects[0].place_character(opp_char)
                             self.game_map.objects.append(opp_char)
                             self.game_map.characters.append(self.game_map.objects.__len__() - 1)
+
+                        if self.net.failsafe:
+                            self.net.send_data_pickle("Teeam", self.ownTeam.characters)
 
                         self.new_window_target = InGame
 
@@ -1109,14 +1144,14 @@ class CharacterSelection:  # commit comment
                     if self.net.host_status == "Ready" and self.ready:
 
                         # TODO add own chars to map
-                        for char in range(self.ownTeam.characters):
+                        for char in self.ownTeam.characters:
                             # first game objs should always be spawning areas
                             self.game_map.objects[0].place_character(char)
                             # assuming exactly 2 players
                             self.game_map.objects.append(char)
                             self.game_map.characters.append(self.game_map.objects.__len__()-1)
 
-                        self.net.send_data_pickle("Team", self.ownTeam.characters)
+                        self.net.send_data_pickle("Teeam", self.ownTeam.characters)
 
                         # get other team
                         while not self.net.other_team:
@@ -1125,11 +1160,33 @@ class CharacterSelection:  # commit comment
                             time.sleep(0.5)
 
                         # wait for other team positions and put them in their spawn as well
-                        for opp_char in self.net.other_team.characters:
-                            self.game_map.objects[1].place_character(opp_char)
-                            self.game_map.objects.append(opp_char)
-                            self.game_map.characters.append(self.game_map.objects.__len__()-1)
+                        while not isinstance(self.net.other_team, list):
+                            if self.net.failsafe:
+                                self.net.send_data_pickle("Teeam", self.ownTeam.characters)
+                            try:
+                                print("_________")
+                                self.net.other_team = pickle.loads(self.net.other_team)
+                                print(self.net.other_team)
+                            except EOFError:
+                                self.net.send_control("Team_pls")
+                                time.sleep(0.8)
+                                if counter == 5:
+                                    self.net.send_control("Fail")
+                                    counter = 0
+                                counter += 1
+                                print("PENIS")
+                            except pickle.UnpicklingError:
+                                self.net.send_control("Fail")
+                                time.sleep(0.8)
 
+                        print("LELELEL")
+                        for opp_char in self.net.other_team:
+                            self.game_map.objects[0].place_character(opp_char)
+                            self.game_map.objects.append(opp_char)
+                            self.game_map.characters.append(self.game_map.objects.__len__() - 1)
+
+                        if self.net.failsafe:
+                            self.net.send_data_pickle("Teeam", self.ownTeam.characters)
                         self.new_window_target = InGame
 
         def get_text():
@@ -1466,7 +1523,7 @@ class CharacterSelection:  # commit comment
                 text = "Du bist schon bereit! Klicke \"Unready\" um deine Armee zu ändern"
 
             font_surf = font.render(text, True, (255, 0, 0))
-            self.screen.blit(font_surf, blit_centered_pos(back=self.troop_overview, surf=font_surf))
+            self.troop_overview.blit(font_surf, blit_centered_pos(back=self.troop_overview, surf=font_surf))
 
         #########
         # right #
