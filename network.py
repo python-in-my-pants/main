@@ -14,6 +14,7 @@ class Network:
         self.addr = (self.host, self.port)
         self.id = self.connect()
         self.team = 0
+        self.failsafe = False
         self.map = b''
         self.g_amount = ""
         self.host_status = ""
@@ -33,6 +34,8 @@ class Network:
                     self.team = int(data[4:len(data)].decode())
                 if data[0:8] == b'G_amount':
                     self.g_amount = data[8:len(data)].decode()
+                if data[0:4] == b'Fail':
+                    self.failsafe = True
                 if data[0:13] == b'Client_status':
                     self.client_status = data[13:len(data)].decode()
                 if data[0:11] == b'Host_status':
@@ -64,11 +67,9 @@ class Network:
 
     def send_data_pickle(self, token, data):
         # Sendformat: Token, Size, Data
+        print(pickle.dumps(data))
         pickletaube = token.encode()
-        #try:
         size = self.size_wrapper(str(len(data)))  # 6 für die Größe der Size in Bytes
-        #except:
-        #    size = self.size_wrapper(str(data.__len__))
         pickletaube += size.encode()
         pickletaube += pickle.dumps(data)
         print(pickletaube.__len__())

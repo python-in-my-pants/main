@@ -231,8 +231,8 @@ class ConnectionSetup:
                                            pos=[int((left_surf.get_width() - int(surfs_size[0] / 3)) / 2),
                                                 int(surfs_size[1] * 0.7)],
                                            real_pos=[int((right_surf.get_width() - (surfs_size[0] / 3)) / 2),
-                                                     int(surfs_size[1] * 0.7)], color=(255, 255, 255), text=self.desi_board_text,
-                                           name="board_size_button",
+                                                     int(surfs_size[1] * 0.7)], color=(255, 255, 255),
+                                           text=self.desi_board_text, name="board_size_button",
                                            action=desired_board_size_button_fkt)
 
         # append later to not mess up indices
@@ -260,7 +260,7 @@ class ConnectionSetup:
 
         self.buttons.append(host_cancel_btn)
 
-        back_btn = Button(dim=[int(size[0] * 0.1), int(size[0] * 0.1)], pos=[0, 0], real_pos=[0, 0],
+        back_btn = Button(dim=[int(size[0] * 0.03), int(size[0] * 0.03)], pos=[0, 0], real_pos=[0, 0],
                           img_uri="assets/back_btn.png", text="", name="back_btn", use_dim=True, action=back_fkt)
 
         self.buttons.append(back_btn)
@@ -592,7 +592,7 @@ class CharacterSelection:  # commit comment
         self.new_window_target = None
         self.spent_points = 0
         self.screen = pg.display.set_mode(true_res, pg.RESIZABLE | pg.FULLSCREEN)
-        self.ownTeam = Team(team_number=(0 if role == "host" else 1))
+        self.ownTeam = Team(team_number=self.net.team)
         self.ready_thread = 0
         self.selectedChar = None
         self.weapons = []
@@ -1086,6 +1086,7 @@ class CharacterSelection:  # commit comment
 
         def ready_checker():
             self.ready_thread = get_ident()
+            counter = 0
             while self.new_window_target != InGame:
                 if self.role == "host":
                     self.net.send_control("Client_status")
@@ -1098,8 +1099,7 @@ class CharacterSelection:  # commit comment
                             # assuming exactly 2 players
                             self.game_map.objects.append(char)
                             self.game_map.characters.append(self.game_map.objects.__len__() - 1)
-
-                        self.net.send_data_pickle("Team", self.ownTeam.characters)
+                        self.net.send_data_pickle("Teeam", self.ownTeam.characters)
 
                         # get other team
                         while not self.net.other_team:
@@ -1107,38 +1107,92 @@ class CharacterSelection:  # commit comment
                             time.sleep(0.5)
 
                         # wait for other team positions and put them in their spawn as well
-                        for opp_char in self.net.other_team.characters:
+                        while not isinstance(self.net.other_team, list):
+                            if self.net.failsafe:
+                                self.net.send_data_pickle("Teeam", self.ownTeam.characters)
+                            try:
+                                print("_________")
+                                print(self.net.other_team)
+                                self.net.other_team = pickle.loads(self.net.other_team)
+                            except EOFError:
+                                self.net.send_control("Team_pls")
+                                time.sleep(0.3)
+                                if counter == 5:
+                                    self.net.send_control("Fail")
+                                    counter = 0
+                                counter += 1
+                                print("PENIS")
+                            # except pickle.UnpicklingError:
+                            #    print("ASDASDASDASD")
+                            #    self.net.send_control("Fail")
+                            #    time.sleep(0.3)
+
+                        print("LELELEL")
+                        for opp_char in self.net.other_team:
                             self.game_map.objects[0].place_character(opp_char)
                             self.game_map.objects.append(opp_char)
                             self.game_map.characters.append(self.game_map.objects.__len__() - 1)
+
+                        if self.net.failsafe:
+                            self.net.send_data_pickle("Team", self.ownTeam.characters)
 
                         self.new_window_target = InGame
 
                 if self.role == "client":
                     self.net.send_control("Host_status")
+                    print("!"*30)
+                    print(self.net.host_status)
+                    print(self.ready)
                     if self.net.host_status == "Ready" and self.ready:
 
+                        print("braunching")
                         # TODO add own chars to map
                         for char in self.ownTeam.characters:
                             # first game objs should always be spawning areas
                             self.game_map.objects[0].place_character(char)
                             # assuming exactly 2 players
                             self.game_map.objects.append(char)
-                            self.game_map.characters.append(self.game_map.objects.__len__()-1)
+                            self.game_map.characters.append(self.game_map.objects.__len__() - 1)
 
-                        self.net.send_data_pickle("Team", self.ownTeam.characters)
+                        self.net.send_data_pickle("Teeam", self.ownTeam.characters)
 
                         # get other team
                         while not self.net.other_team:
+                            print(self.net.other_team)
                             self.net.send_control("Team_pls")
-                            time.sleep(0.5)
+                            time.sleep(2)
 
                         # wait for other team positions and put them in their spawn as well
-                        for opp_char in self.net.other_team.characters:
-                            self.game_map.objects[1].place_character(opp_char)
-                            self.game_map.objects.append(opp_char)
-                            self.game_map.characters.append(self.game_map.objects.__len__()-1)
+                        while not isinstance(self.net.other_team, list):
+                            if self.net.failsafe:
+                                self.net.send_data_pickle("Teeam", self.ownTeam.characters)
+                            try:
+                                print("_________")
+                                self.net.other_team = pickle.loads(self.net.other_team)
+                                print(self.net.other_team)
+                            except EOFError:
+                                self.net.send_control("Team_pls")
+                                time.sleep(2)
+                                if counter == 5:
+                                    self.net.send_control("Fail")
+                                    counter = 0
+                                counter += 1
+                                print("PENIS")
+                            except pickle.UnpicklingError:
+                                print("ASDASDASDASD")
+                                self.net.send_control("Team_pls")
+                                time.sleep(2)
+                                self.net.send_control("Fail")
+                                time.sleep(2)
 
+                        print("LELELEL")
+                        for opp_char in self.net.other_team:
+                            self.game_map.objects[0].place_character(opp_char)
+                            self.game_map.objects.append(opp_char)
+                            self.game_map.characters.append(self.game_map.objects.__len__() - 1)
+
+                        if self.net.failsafe:
+                            self.net.send_data_pickle("Team", self.ownTeam.characters)
                         self.new_window_target = InGame
 
         def get_text():
@@ -1360,7 +1414,8 @@ class CharacterSelection:  # commit comment
             self.weapons = []
             self.items = []
 
-        gear_small_line_len = 5 if self.ownTeam.characters.__len__() <= 10 else int(self.gear.__len__() / 2 + 0.5)
+        gear_small_line_len = 5 if self.gear.__len__() + self.weapons.__len__() + self.items.__len__() <= 10 else \
+            int(self.gear.__len__() / 2 + 0.5)
         gear_small_gap_size = int(self.selected_units_box.get_width() / (gear_small_line_len * 9 + 1))
         gear_w_small_card = int(self.selected_units_box.get_width() * 8 / (gear_small_line_len * 9 + 1))
         gear_h_small_card = gear_w_small_card  # int(w_small_card * 1.457)
@@ -1500,9 +1555,9 @@ class CharacterSelection:  # commit comment
         self.player_overview.blit(self.minimap_surf, dest=[0, 0])
 
         # selected units
-        #if not self.team_char_btns:  # was sel item btns
+        # if not self.team_char_btns:  # was sel item btns
 
-        #self.selected_units_box.fill((0, 0, 0))
+        # self.selected_units_box.fill((0, 0, 0))
         # NEWWW
         sel_uni_box_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert(),
                                                         self.selected_units_box.get_size())
@@ -1521,7 +1576,7 @@ class CharacterSelection:  # commit comment
 
         # selected weapons
 
-        #self.selected_weapons_box.fill((0, 0, 0))
+        # self.selected_weapons_box.fill((0, 0, 0))
 
         # NEWWW
         sel_weap_box_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert(),
@@ -1765,7 +1820,7 @@ class InGame:
 
         self.map_surface = pg.Surface([int(9 * w / 16), h])
         # TODO place characters on map first
-        self.game_map.selective_draw_map(self.own_team.team_num)
+        self.game_map.selective_draw_map(team_num=self.own_team.team_num)
         self.map_content = fit_surf(surf=self.game_map.window, size=self.map_surface.get_size())
 
         self.own_team_stats = pg.Surface([int(self.map_surface.get_width() * 0.9), own_team_height])
@@ -1894,7 +1949,7 @@ class InGame:
 
         # chars on map
         for index in self.game_map.characters:
-            char = self.game_map.objects[index]
+            char = self.game_map.objects[index]  # TODO change real pos (scroll and zoom and so on)
 
             btn = Button(dim=[self.element_size * self.zoom_factor, self.element_size * self.zoom_factor],
                          pos=[char.get_pos(0) * self.element_size + self.zoom_size[0],
@@ -2063,7 +2118,8 @@ class InGame:
 
             self.zoomed = False
 
-        self.map_content = self.game_map.selective_draw_map(team=self.own_team.team_num)
+        self.game_map.selective_draw_map(team_num=self.own_team.team_num)
+        self.map_content = fit_surf(surf=self.game_map.window, size=self.map_surface.get_size())
 
         if self.zoom_factor >= 1:
             dest = [self.amount[0] + self.con_shift_offset[0] + shift_offset[0],

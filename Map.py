@@ -385,7 +385,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
         self.__draw_grid()
 
     # TODO selective map draw
-    def selective_map_draw(self, team_num):
+    def selective_draw_map(self, team_num):
 
         matrix = self.get_vmat()
 
@@ -396,7 +396,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
             if self.objects[i].team == team_num:
                 own_chars.append(i)
 
-        for own_char_index in own_chars:
+        for own_char_index in range(own_chars.__len__()):
             for other_char_index in range(self.characters.__len__()):
                 if matrix[own_char_index][other_char_index][0] == 1 and not own_chars.__contains__(other_char_index)\
                         and not visible_chars.__contains__(other_char_index):
