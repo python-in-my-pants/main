@@ -14,6 +14,7 @@ class Network:
         self.addr = (self.host, self.port)
         self.id = self.connect()
         self.team = 0
+        self.o_team = 0
         self.failsafe = False
         self.map = b''
         self.g_amount = ""

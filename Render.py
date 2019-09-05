@@ -200,9 +200,11 @@ class ConnectionSetup:
                 if self.team_number == 1:
                     self.net.send_data("Teams", str(0))
                     self.net.team = 1
+                    self.net.o_team = 0
                 if self.team_number == 0:
                     self.net.send_data("Teams", str(1))
                     self.net.team = 0
+                    self.net.o_team = 1
                 # print(pickle.dumps(self.game_map.get_map()).__len__())
                 time.sleep(0.5)
                 self.net.send_data_pickle("Maps", self.game_map.get_map())
@@ -288,7 +290,13 @@ class ConnectionSetup:
                 self.role = "client"
                 self.join_stat = "Awaiting map..."
                 self.net.send_control("Client_ready")
+                time.sleep(0.5)
                 self.net.send_control("Team pls")
+                time.sleep(0.5)
+                if self.net.team == 0:
+                    self.net.o_team = 1
+                if self.net.team == 1:
+                    self.net.o_team = 0
                 while self.net.map == b'':
                     self.net.send_control("Map pls")
                     time.sleep(2)  # this must be at least 2!
@@ -1141,7 +1149,7 @@ class CharacterSelection:  # commit comment
                         print("LELELEL")
                         # wait for other team positions and put them in their spawn as well
                         for opp_char in self.net.other_team:
-                            self.game_map.objects[self.net.team].place_character(opp_char)
+                            self.game_map.objects[self.net.o_team].place_character(opp_char)
                             self.game_map.objects.append(opp_char)
                             self.game_map.characters.append(self.game_map.objects.__len__() - 1)
 
@@ -1195,7 +1203,7 @@ class CharacterSelection:  # commit comment
 
                         # wait for other team positions and put them in their spawn as well
                         for opp_char in self.net.other_team:
-                            self.game_map.objects[self.net.team].place_character(opp_char)
+                            self.game_map.objects[self.net.o_team].place_character(opp_char)
                             self.game_map.objects.append(opp_char)
                             self.game_map.characters.append(self.game_map.objects.__len__() - 1)
 
@@ -1703,13 +1711,14 @@ class CharacterSelection:  # commit comment
 
 class InGame:
 
-    def __init__(self, own_team, game_map):
+    def __init__(self, own_team, game_map, net=None):
 
         # things to do here:
         # - put chars on spawning area
 
         self.own_team = own_team
         self.game_map = game_map
+        self.net = net
 
         self.cc_num = 6
         self.gc_num = 4
@@ -1828,7 +1837,7 @@ class InGame:
 
         self.map_surface = pg.Surface([int(9 * w / 16), h])
         # TODO place characters on map first
-        self.game_map.selective_draw_map(team_num=self.own_team.team_num)
+        self.game_map.selective_draw_map(team_num=self.net.team)# own_team.team_num)
         self.map_content = fit_surf(surf=self.game_map.window, size=self.map_surface.get_size())
 
         self.own_team_stats = pg.Surface([int(self.map_surface.get_width() * 0.9), own_team_height])

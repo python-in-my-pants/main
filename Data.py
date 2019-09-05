@@ -16,6 +16,7 @@ mat_colour = {
     "team_4": (255, 255, 255),
     "bush": (0, 87, 0),
     "boulder": (149, 148, 139),
+    "ruined_wood": (92, 64, 51),
     "default": (255, 20, 147)
 }
 
@@ -27,6 +28,7 @@ material_codes = {
     "bush": 5,
     "player": 6,
     "boulder": 7,
+    "ruined_wood": 8,
     "default": -1
 }
 

@@ -204,7 +204,7 @@ class Tree(GameObject):
         super().__init__(obj_type=obj_type, name=name, materials=materials_, pos=pos)
 
         self.pixs = []
-        rando = numpy.random.randint(0, 2)
+        rando = numpy.random.randint(0, 3)
 
         if rando == 0:
             self.pixs.append([0, 0])
@@ -212,7 +212,31 @@ class Tree(GameObject):
             self.size_x = 1             #
             self.size_y = 1
         if rando == 1:
-            self.pixs.append([0, 0])
+            randor = numpy.random.randint(0, 4)
+            if randor == 0:
+                self.pixs.append([0, 0])    ##
+                self.pixs.append([1, 0])    #
+                self.pixs.append([0, 1])
+                self.size_x = 2
+                self.size_y = 2
+            if randor == 1:
+                self.pixs.append([0, 0])    ##
+                self.pixs.append([0, 1])     #
+                self.pixs.append([1, 1])
+                self.size_x = 2
+                self.size_y = 2
+            if randor == 2:
+                self.pixs.append([0, 0])    #
+                self.pixs.append([0, 1])    ##
+                self.pixs.append([1, 1])
+                self.size_x = 2
+                self.size_y = 2
+            if randor == 3:
+                self.pixs.append([1, 0])     #
+                self.pixs.append([0, 1])    ##
+                self.pixs.append([1, 1])
+                self.size_x = 2
+                self.size_y = 2
         if rando == 2:
             self.pixs.append([0, 0])
             self.pixs.append([0, 1])
@@ -366,6 +390,118 @@ class SimpleHouse(GameObject):
 
         self.add_elem("dirt", floor)
 
+        #  -------------------------------------------------------------------------------------------------------------
+
+        # adjust pixels to desired position on map
+        for point in self.pixs:
+            point[0] += self.pos[0]
+            point[1] += self.pos[1]
+
+    def confirm(self):  # is called, when object is put in at final pos on map
+
+        # create collider
+        wall = []
+        for i in range(self.size_x):
+            wall.append([i, 0])
+            wall.append([i, self.size_y-1])
+        for i in range(self.size_y):
+            wall.append([0, i])
+            wall.append([self.size_x-1, i])
+
+        wall.append([self.size_x-1, self.size_y-1])
+
+        # TODO: this removes door from collider - comment out to make it wall again
+        door = [self.special_pixs[0][0]-self.pos[0], self.special_pixs[0][1]-self.pos[1]]
+        wall.remove(door)
+
+        for point in wall:
+            point[0] += self.pos[0]
+            point[1] += self.pos[1]
+
+        collAtoms = [CollAtom(p, name=("door" if self.special_pixs.__contains__(p) else "wall")) for p in wall]
+
+        self.collider = pygame.sprite.Group()
+
+        for atom in collAtoms:
+            atom.add(self.collider)
+
+    def add_elem(self, material, elem_pixs):  # adds new element to pixs and adjusts mat_ind and materials
+
+        self.mat_ind.append(self.pixs.__len__() - 1)
+        self.materials.append(material)
+        for elem_pix in elem_pixs:
+            self.pixs.append(elem_pix)
+
+    def get_drawable(self):  # STATUS: tested
+
+        # returns element positions in map coordinates
+        return self.pixs
+
+
+class Ruins(GameObject):
+
+    def __init__(self, obj_type, name="Ruins_def", materials_=["ruined_wood"], pos=[0, 0]):
+        super().__init__(obj_type=obj_type, name=name, materials=materials_, pos=pos)
+
+        # set rdm size for the house
+        if self.size_x is 0:
+            size_x = numpy.random.randint(5, 10)
+        if self.size_y is 0:
+            size_y = numpy.random.randint(5, 10)
+
+        self.size_x = size_x
+        self.size_y = size_y
+
+        self.pixs = []
+
+        # select pixels for walls
+        for i in range(size_x):
+            self.pixs.append([i, 0])
+            self.pixs.append([i, size_y-1])
+        for i in range(size_y):
+            self.pixs.append([0, i])
+            self.pixs.append([size_x-1, i])
+
+        self.pixs.append([size_x-1, size_y-1])
+
+        # remove doubles
+        for pix in self.pixs:
+            clone = copy.deepcopy(self.pixs)
+            clone.remove(pix)
+            while clone.__contains__(pix):
+                clone.remove(pix)
+                self.pixs.remove(pix)
+
+        # remove door
+        door_pos = numpy.random.randint(0, self.pixs.__len__())
+
+        while self.pixs[door_pos] == [0, 0] or self.pixs[door_pos] == [0, self.size_y-1] or \
+                self.pixs[door_pos] == [self.size_x-1, 0] or self.pixs[door_pos] == [self.size_x-1, self.size_y-1]:
+            door_pos = numpy.random.randint(0, self.pixs.__len__())
+
+        door = self.pixs[door_pos]
+
+        self.pixs.remove(self.pixs[door_pos])
+
+        self.special_pixs.append(door)  # holds stuff like doors and windows
+
+        # remove random  wall pieces
+        rem_counter = numpy.random.randint(5, 7)
+        for _ in range(rem_counter):
+            self.pixs.pop(numpy.random.randint(0, len(self.pixs) + 1))
+        #  -------------------------------------------------------------------------------------------------------------
+
+        # assign material for door and update mat_ind
+        self.add_elem("oak wood", [door])
+
+        # assign material for floor and update mat_ind
+        floor = []
+
+        for i in range(size_x-2):
+            for j in range(size_y-2):
+                floor.append([i+1, j+1])
+
+        self.add_elem("dirt", floor)
         #  -------------------------------------------------------------------------------------------------------------
 
         # adjust pixels to desired position on map

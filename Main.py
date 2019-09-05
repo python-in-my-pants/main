@@ -143,11 +143,13 @@ while True:
 
         if active_window.new_window_target:
 
+            net_var = active_window.net
+
             new_target = active_window.new_window_target  # should be in_game
             team = active_window.ownTeam
             map = active_window.game_map
             active_window.harakiri()
-            active_window = new_target(own_team=team, game_map=map)
+            active_window = new_target(own_team=team, game_map=map, net=net_var)
 
         else:
 

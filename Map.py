@@ -483,7 +483,7 @@ class MapBuilder:
 
         # add houses
 
-        house_limit = 5 #int((size*size) / 25)
+        house_limit = 4 #int((size*size) / 25)
         house_counter = 0
 
         for i in range(house_limit):
@@ -503,9 +503,30 @@ class MapBuilder:
             else:
                 house_counter += 1
 
+        # add ruins
+        ruins_limit = 3  # int((size*size) / 25)
+        ruins_counter = 0
+
+        for i in range(ruins_limit):
+
+            h = Ruins(name=("Ruins " + str(ruins_counter)), obj_type="default",
+                      pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
+
+            # while there is a house (to add) and it does not fit and you did not try 100 times yet generate a new one
+            limit = 0
+            while h != 0 and self.map.add_object(h, border_size=1) != 1 and limit < 100:
+                h = Ruins(name=("Ruins " + str(ruins_counter)), obj_type="default", \
+                          pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
+                limit += 1
+
+            if limit >= 100:
+                print("Could not place another object")
+            else:
+                ruins_counter += 1
+
         # add bushes
 
-        bush_limit = 5 #int((size*size)/15)
+        bush_limit = 5  # int((size*size)/15)
         bush_counter = 0
 
         for i in range(bush_limit):
@@ -524,6 +545,51 @@ class MapBuilder:
                 print("Could not place another object")
             else:
                 bush_counter += 1
+
+        # add boulder
+
+        boulder_limit = 5  # int((size*size)/15)
+        boulder_counter = 0
+
+        for i in range(boulder_limit):
+
+            h = Boulder(name=("Simple boulder " + str(boulder_counter)), obj_type="default",
+                        pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
+
+            # while there is a house (to add) and it doesn't fit and you didn't try 100 times yet generate a new one
+            limit = 0
+            while h != 0 and self.map.add_object(h, border_size=1) != 1 and limit < 100:
+                h = Boulder(name=("Simple boulder " + str(boulder_counter)), obj_type="default",
+                            pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
+                limit += 1
+
+            if limit >= 100:
+                print("Could not place another object")
+            else:
+                boulder_counter += 1
+
+        # add tree
+
+        tree_limit = 3  # int((size*size)/15)
+        tree_counter = 0
+
+        for i in range(tree_limit):
+
+            h = Tree(name=("Simple tree " + str(tree_counter)), obj_type="default",
+                     pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
+
+            # while there is a house (to add) and it doesn't fit and you didn't try 100 times yet generate a new one
+            limit = 0
+            while h != 0 and self.map.add_object(h, border_size=1) != 1 and limit < 100:
+                h = Tree(name=("Simple tree " + str(tree_counter)), obj_type="default",
+                         pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
+                limit += 1
+
+            if limit >= 100:
+                print("Could not place another object")
+            else:
+                tree_counter += 1
+
 
         # draw everything to surf
 
