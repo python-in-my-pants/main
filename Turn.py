@@ -29,6 +29,6 @@ class Action:
         self.player_a = player_a  # action player
         self.player_b = player_b  # has value if target for fight was selected
         self.destination = destination  # has value if moved
-        self.dmg2b = dmg2b  # has value if damage >0 was inflicted
+        self.dmg2b = dmg2b  # has value if damage >0 was inflicted, holds LIST for bodyparts
         self.dmg2a = dmg2a  # has value if player a damaged himself (eg rocket launcher) OR he healed himself, in
-                            # this case the dmg is <0
+                            # this case the dmg is <0, holds LIST for bodyparts

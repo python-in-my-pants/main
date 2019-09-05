@@ -1,6 +1,7 @@
 import socket
 import pickle
 import sys
+import time
 
 from requests import get
 
@@ -61,6 +62,12 @@ class Network:
         except TimeoutError:
             # show that host is not available
             print("Host unavailable!")
+            time.sleep(2)
+            self.connect()
+        except OSError:
+            print("OSError, Host is nich da")
+            time.sleep(2)
+            self.connect()
 
     def send_data(self, token, data):
         # Sendformat: Token, Size, Data
@@ -85,7 +92,12 @@ class Network:
     def send_control(self, token):
         # Sende Token um Aktionen zu triggern
         strgtaube = token.encode()
-        self.client.send(strgtaube)
+        try:
+            self.client.send(strgtaube)
+        except ConnectionResetError:
+            print("Host closed the connection")
+            time.sleep(2)
+            self.send_control(token.encode())
 
     def receive_data(self, token):
         self.client.send(token.encode())

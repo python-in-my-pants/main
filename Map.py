@@ -358,6 +358,48 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
 
         return [1, 1]  # can see & shoot
 
+    def get_reachable_fields(self, pos_w, pos_h, mov_range):  # TODO gruesome performace, overthink when not sick
+
+        reachable = [[pos_w, pos_h]]
+
+        counter = 0
+
+        while counter < mov_range:
+            for r in list(set(reachable)):
+                neigh = self.get_neighbours(r[0], r[1])
+                for n in neigh:
+                    if self.unique_pixs[n[0]][n[1]] is 0:  # TODO switch indices?, ADD other mats
+                        reachable.append(n)
+            counter += 1
+
+        return list(set(reachable))
+
+    def get_neighbours(self, x, y):
+
+        neigh = [[x, y-1],
+                 [x, y+1],
+                 [x-1, y],
+                 [x+1, y]]
+
+        to_ret = []
+
+        for n in neigh:
+            if self.check_valid_list(n):
+                to_ret.append(n)
+
+        return to_ret
+
+    def check_valid(self, x, y):
+
+        if 0 <= x <= self.size_x-1 and 0 <= y <= self.size_y-1:
+           return True
+        else:
+            return False
+
+    def check_valid_list(self, pos):
+
+        return self.check_valid(pos[0], pos[1])
+
     def draw_map(self):  # STATUS: new
 
         for go in self.objects:
