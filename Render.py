@@ -2345,4 +2345,3 @@ def blit_centered_pos(back, surf):
 
 def threaded_timer(period):
     time.sleep(period)
-    pass
