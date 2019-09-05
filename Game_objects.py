@@ -373,3 +373,15 @@ class Spawnarea(GameObject):
 
         # returns element positions in map coordinates
         return self.pixs
+
+
+class FieldIndicator(GameObject):  # untested
+
+    def __init__(self, lis):
+        super().__init__(obj_type="default_type", name="Field Indicator", materials=["border"], pos=[0, 0])
+
+        self.pixs = lis  # position is 0,0 and pixels are given in rel to origin
+
+    def get_drawable(self):
+
+        return self.pixs  # u
