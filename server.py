@@ -100,19 +100,18 @@ def threaded_client(conn):
             # Teams
             if data[0:5] == b'Teeam':
                 if conn == conn1:
-                    host_team = data[11:len(data)]
+                    host_team = data[5:len(data)]
                 if conn == conn2:
-                    print(conn)
-                    print(conn2)
-                    client_team = data[11:len(data)]
+                    client_team = data[5:len(data)]
             if data[0:8] == b'Team_pls':
                 if conn == conn1:
                     print(client_team)
                     sender(b'Other_team', client_team, conn)
                 if conn == conn2:
+                    print(host_team)
                     sender(b'Other_team', host_team, conn)
-                else:
-                    sender(b'Other_team', host_team, conn)
+                #else:
+                #    sender(b'Other_team', host_team, conn)
             # Turns # ToDo on Client Side delete anordern
             if data[0:9] == b'Their_turn':
                 if conn == conn1:
@@ -135,6 +134,14 @@ def threaded_client(conn):
                     sender(b'Fail', b'', conn)
                 if conn == conn2 and host_failsafe:
                     sender(b'Fail', b'', conn)
+            # Confirm
+            if data[0:7] == b'Confirm':
+                if conn == conn1:
+                    print("Sending_Confirm to 1")
+                    sender(b'Confirm', b'', conn2)
+                if conn == conn2:
+                    print("Sending_Confirm to 2")
+                    sender(b'Confirm', b'', conn1)
             # Delete_Turns
             if data[0:11] == b'Turn_delete':
                 client_turn = False
@@ -155,8 +162,8 @@ def threaded_client(conn):
             # Close
             if data[0:5] == b'Close':
                 os._exit(1)
-        except:
-            pass
+        except socket.error:
+            break
 
     print("Connection Closed")
     counter -= 1
@@ -171,6 +178,7 @@ def sender(token, data, concon):
 
 
 while True:
+    print(counter)
     conn, addr = s.accept()
     counter += 1
     if counter == 1: conn1 = conn

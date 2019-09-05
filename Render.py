@@ -199,8 +199,10 @@ class ConnectionSetup:
                 self.team_number = numpy.random.randint(0, 2)
                 if self.team_number == 1:
                     self.net.send_data("Teams", str(0))
+                    self.net.team = 1
                 if self.team_number == 0:
                     self.net.send_data("Teams", str(1))
+                    self.net.team = 0
                 # print(pickle.dumps(self.game_map.get_map()).__len__())
                 time.sleep(0.5)
                 self.net.send_data_pickle("Maps", self.game_map.get_map())
@@ -291,12 +293,12 @@ class ConnectionSetup:
                     self.net.send_control("Map pls")
                     time.sleep(2)  # this must be at least 2!
                     pass  # I'm a Performanceartist!
-                while not isinstance(self.net.map, LIST):
+                while not isinstance(self.net.map, list):
                     try:
                         self.net.map = pickle.loads(bytes(self.net.map[6:]))
                     except (pickle.UnpicklingError, EOFError):
                         self.net.send_control("Fail")
-                        time.sleep(0.3)
+                        time.sleep(0.5)
                         self.net.send_control("Map pls")
                         time.sleep(0.3)
 
@@ -1105,42 +1107,41 @@ class CharacterSelection:  # commit comment
                         # TODO add own chars to map
                         for char in self.ownTeam.characters:
                             # first game objs should always be spawning areas
-                            self.game_map.objects[1].place_character(char)
+                            self.game_map.objects[self.net.team].place_character(char)
                             # assuming exactly 2 players
                             self.game_map.objects.append(char)
                             self.game_map.characters.append(self.game_map.objects.__len__() - 1)
+
                         self.net.send_data_pickle("Teeam", self.ownTeam.characters)
 
-                        # get other team
-                        self.net.send_control("Team_pls")
-                        time.sleep(2)
-
-                        # wait for other team positions and put them in their spawn as well
-                        while not isinstance(self.net.other_team, list):
+                        while not self.net.confirmation:
+                            self.net.send_control("Fail?")
+                            time.sleep(1)
                             if self.net.failsafe:
                                 self.net.send_data_pickle("Teeam", self.ownTeam.characters)
+                                self.net.failsafe = False
+                        time.sleep(0.5)
+                        self.net.confirmation = False
+
+                        # get other team
+                        while self.net.other_team.__len__ == 0:
+                            self.net.send_control("Team_pls")
+                            time.sleep(2)  # this must be at least 2!
+                            pass  # I'm a Performanceartist!
+
+                        while not isinstance(self.net.other_team, list):
                             try:
-                                print("_________")
-                                print(self.net.other_team)
-                                self.net.other_team = pickle.loads(self.net.other_team)
-                            except EOFError:
-                                self.net.send_control("Team_pls")
-                                time.sleep(1)
-                                if counter == 5:
-                                    self.net.send_control("Fail")
-                                    counter = 0
-                                counter += 1
-                                print("PENIS")
-                            except pickle.UnpicklingError:
-                                print("ASDASDASDASD")
-                                self.net.send_control("Team_pls")
-                                time.sleep(1)
+                                self.net.other_team = pickle.loads(self.net.other_team[6:])
+                            except (pickle.UnpicklingError, EOFError):
                                 self.net.send_control("Fail")
                                 time.sleep(1)
-
+                                self.net.send_control("Team_pls")
+                                time.sleep(1)
+                        self.net.send_control("Confirm")
                         print("LELELEL")
+                        # wait for other team positions and put them in their spawn as well
                         for opp_char in self.net.other_team:
-                            self.game_map.objects[0].place_character(opp_char)
+                            self.game_map.objects[self.net.team].place_character(opp_char)
                             self.game_map.objects.append(opp_char)
                             self.game_map.characters.append(self.game_map.objects.__len__() - 1)
 
@@ -1151,51 +1152,50 @@ class CharacterSelection:  # commit comment
 
                 if self.role == "client":
                     self.net.send_control("Host_status")
-                    print("!"*30)
-                    print(self.net.host_status)
-                    print(self.ready)
+                    #print("!"*30)
+                    #print(self.net.host_status)
+                    #print(self.ready)
                     if self.net.host_status == "Ready" and self.ready:
 
                         print("braunching")
                         # TODO add own chars to map
                         for char in self.ownTeam.characters:
                             # first game objs should always be spawning areas
-                            self.game_map.objects[0].place_character(char)
+                            self.game_map.objects[self.net.team].place_character(char)
                             # assuming exactly 2 players
                             self.game_map.objects.append(char)
                             self.game_map.characters.append(self.game_map.objects.__len__() - 1)
 
-                        self.net.send_data_pickle("Teeam", self.ownTeam.characters)
-
                         # get other team
-                        while not self.net.other_team:
-                            print(self.net.other_team)
-                            self.net.send_control("Team_pls")
-                            time.sleep(2)
-
-                        # wait for other team positions and put them in their spawn as well
+                        print("GETTING TEAM")
                         while not isinstance(self.net.other_team, list):
+                            try:
+                                print(self.net.other_team)
+                                print(len(self.net.other_team))
+                                self.net.other_team = pickle.loads(self.net.other_team[6:])
+                            except (pickle.UnpicklingError, EOFError):
+                                self.net.send_control("Fail")
+                                time.sleep(1)
+                                self.net.send_control("Team_pls")
+                                time.sleep(2)
+                                print("LOL ERROR")
+                        time.sleep(0.5)
+                        self.net.send_control("Confirm")
+                        time.sleep(0.5)
+                        self.net.send_data_pickle("Teeam", self.ownTeam.characters)
+                        print("Sending own Team")
+                        while not self.net.confirmation:
+                            self.net.send_control("Fail?")
+                            time.sleep(1)
                             if self.net.failsafe:
                                 self.net.send_data_pickle("Teeam", self.ownTeam.characters)
-                            try:
-                                print("_________")
-                                self.net.other_team = pickle.loads(self.net.other_team)
-                                print(self.net.other_team)
-                            except EOFError:
-                                self.net.send_control("Team_pls")
-                                time.sleep(0.8)
-                                if counter == 5:
-                                    self.net.send_control("Fail")
-                                    counter = 0
-                                counter += 1
-                                print("PENIS")
-                            except pickle.UnpicklingError:
-                                self.net.send_control("Fail")
-                                time.sleep(0.8)
+                                self.net.failsafe = False
+                        time.sleep(0.5)
+                        self.net.confirmation = False
 
-                        print("LELELEL")
+                        # wait for other team positions and put them in their spawn as well
                         for opp_char in self.net.other_team:
-                            self.game_map.objects[0].place_character(opp_char)
+                            self.game_map.objects[self.net.team].place_character(opp_char)
                             self.game_map.objects.append(opp_char)
                             self.game_map.characters.append(self.game_map.objects.__len__() - 1)
 
@@ -2099,6 +2099,7 @@ class InGame:
             self.inventory_items_surf.blit(btn.surf, btn.pos)
 
         self.char_inventory_back.blit(fit_surf(back=self.char_inventory_back, surf=self.detail_back_metall), dest=[0, 0])
+        self.char_inventory_back.blit(self.inventory_gear_weapons_surf, dest=[0, 0])
         self.char_inventory_back.blit(self.inventory_items_surf, dest=[0,
                                                                        self.inventory_gear_weapons_surf.get_height()])
 

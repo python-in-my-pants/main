@@ -15,6 +15,7 @@ mat_colour = {
     "team_3": (0, 7, 0),
     "team_4": (255, 255, 255),
     "bush": (0, 87, 0),
+    "boulder": (149, 148, 139),
     "default": (255, 20, 147)
 }
 
@@ -25,15 +26,16 @@ material_codes = {
     "oak wood": 4,
     "bush": 5,
     "player": 6,
+    "boulder": 7,
     "default": -1
 }
 
 character_classes = {
-    0: "Rook",       # basic stats
-    1: "Light Troop",          # lower than basic stats but with less cost to buy
-    2: "Heavy Troop",        # high acc
-    3: "Medic",         # fast and lightly armed
-    4: "Sniper",         # slow and strong, heavily armed
-    5: "Special Troop",     # idk
-    6: "Commander"      # higher stats than normal but more expensive
+    0: "Rook",           # basic stats
+    1: "Light Troop",    # fast and nimble
+    2: "Heavy Troop",    # slow and strong, heavily armed
+    3: "Medic",          # fast and lightly armed
+    4: "Sniper",         # high acc
+    5: "Special Troop",  # idk
+    6: "Commander"       # higher stats than normal but more expensive
 }

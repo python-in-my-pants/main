@@ -198,6 +198,113 @@ class Bush(GameObject):
         return self.pixs
 
 
+class Tree(GameObject):
+
+    def __init__(self, obj_type, name="Tree_def", materials_=["oak wood"], pos=[0, 0]):
+        super().__init__(obj_type=obj_type, name=name, materials=materials_, pos=pos)
+
+        self.pixs = []
+        rando = numpy.random.randint(0, 2)
+
+        if rando == 0:
+            self.pixs.append([0, 0])
+
+            self.size_x = 1             #
+            self.size_y = 1
+        if rando == 1:
+            self.pixs.append([0, 0])
+        if rando == 2:
+            self.pixs.append([0, 0])
+            self.pixs.append([0, 1])
+            self.pixs.append([1, 0])
+            self.pixs.append([1, 1])
+
+            self.size_x = 2  ##
+            self.size_y = 2  ##
+
+        for point in self.pixs:
+            point[0] += self.pos[0]
+            point[1] += self.pos[1]
+
+        collAtoms = [CollAtom(p, name="tree") for p in self.pixs]
+
+        self.collider = pygame.sprite.Group()
+
+        for atom in collAtoms:
+            atom.add(self.collider)
+
+    def get_drawable(self):
+        return self.pixs
+
+
+class Boulder(GameObject):
+
+    def __init__(self, obj_type, name="Boulder_def", materials_=["boulder"], pos=[0, 0]):
+        super().__init__(obj_type=obj_type, name=name, materials=materials_, pos=pos)
+
+        self.pixs = []
+        rando = numpy.random.randint(0, 6)
+        if rando == 0:
+            self.pixs.append([0, 0])
+
+            self.size_x = 1             #
+            self.size_y = 1
+        if rando == 1:
+            self.pixs.append([0, 0])
+            self.pixs.append([1, 0])
+
+            self.size_x = 2             ##
+            self.size_y = 1
+        if rando == 2:
+            self.pixs.append([0, 0])
+            self.pixs.append([0, 1])
+
+            self.size_x = 1             #
+            self.size_y = 2             #
+        if rando == 3:
+            self.pixs.append([0, 0])
+            self.pixs.append([0, 1])
+            self.pixs.append([1, 0])
+            self.pixs.append([1, 1])
+
+            self.size_x = 2             ##
+            self.size_y = 2             ##
+        if rando == 4:
+            self.pixs.append([0, 0])
+            self.pixs.append([0, 1])
+            self.pixs.append([1, 0])
+            self.pixs.append([1, 1])
+            self.pixs.append([2, 0])
+            self.pixs.append([2, 1])
+
+            self.size_x = 3             ###
+            self.size_y = 2             ###
+        if rando == 5:
+            self.pixs.append([0, 0])
+            self.pixs.append([0, 1])
+            self.pixs.append([1, 0])
+            self.pixs.append([1, 1])
+            self.pixs.append([0, 2])
+            self.pixs.append([1, 2])
+
+            self.size_x = 2             ##
+            self.size_y = 3             ##
+                                        ##
+        for point in self.pixs:
+            point[0] += self.pos[0]
+            point[1] += self.pos[1]
+
+        collAtoms = [CollAtom(p, name="boulder") for p in self.pixs]
+
+        self.collider = pygame.sprite.Group()
+
+        for atom in collAtoms:
+            atom.add(self.collider)
+
+    def get_drawable(self):
+        return self.pixs
+
+
 class SimpleHouse(GameObject):
 
     def __init__(self, obj_type, name="SimpleHouse_def", materials_=["sandstone"], pos=[0, 0]):

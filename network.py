@@ -22,6 +22,7 @@ class Network:
         self.client_status = ""
         self.client_got_map = ""
         self.other_team = b''
+        self.confirmation = False
         self.my_turn = True
         #self.client.setblocking(False)
 
@@ -47,6 +48,8 @@ class Network:
                     self.other_team = data[10:len(data)]
                 if data[0:9] == b'Your_turn':
                     self.my_turn = data[9:].decode()
+                if data[0:7] == b'Confirm':
+                    self.confirmation = True
             except:
                 pass
         pass
@@ -68,12 +71,13 @@ class Network:
 
     def send_data_pickle(self, token, data):
         # Sendformat: Token, Size, Data
-        print(pickle.dumps(data))
         pickletaube = token.encode()
         size = self.size_wrapper(str(len(data)))  # 6 für die Größe der Size in Bytes
         pickletaube += size.encode()
-        pickletaube += pickle.dumps(data)
-        print(pickle.dumps(data))
+        pickletaube += pickle.dumps(data, 1)
+        temp = pickle.dumps(data, 1)
+        print(pickle.loads(temp))
+        print("____")
         print(pickletaube.__len__())
         self.client.send(pickletaube)
 
