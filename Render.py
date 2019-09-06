@@ -1106,7 +1106,6 @@ class CharacterSelection:  # commit comment
 
         def ready_checker():
             self.ready_thread = get_ident()
-            counter = 0
             while self.new_window_target != InGame:
                 if self.role == "host":
                     self.net.send_control("Client_status")

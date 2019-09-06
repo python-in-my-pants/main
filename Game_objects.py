@@ -486,7 +486,8 @@ class Ruins(GameObject):
         self.special_pixs.append(door)  # holds stuff like doors and windows
 
         # remove random  wall pieces
-        rem_counter = numpy.random.randint(5, 7)
+        rem_counter = numpy.random.randint(1, 3)
+        print(self.pixs)
         for _ in range(rem_counter):
             self.pixs.pop(numpy.random.randint(0, len(self.pixs) + 1))
         #  -------------------------------------------------------------------------------------------------------------
