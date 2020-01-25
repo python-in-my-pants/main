@@ -268,6 +268,8 @@ class Character(GameObject):
 
     def shoot(self, dude, partind):
         # Basechance * (0.3 * Dex) - Range + Recoil control
+        if not isinstance(self.active_slot[0], Weapon):
+            return
         c_range = self.range(dude)
         dmg = self.calc_dmg(c_range)
         p_range = self.calc_p_range(c_range)
