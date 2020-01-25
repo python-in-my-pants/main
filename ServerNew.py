@@ -29,7 +29,7 @@ class Server:
         self.connections = []
 
         self.hosting_list = []
-#ooooo
+#oooooppp
     def start_listening(self):
         c_sock, addr = self.serversocket.accept()
         self.connections.append(Connection(c_sock,
