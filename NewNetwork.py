@@ -1,6 +1,22 @@
 import _thread as th
 import time
 import pickle
+import copy
+import Data
+
+'''
+Important note:
+
+The server holds a serversocket only to accept incoming connections from clients. Once the connection is established,
+he moves on to communicate with the client over the clients socket returned by accept().
+
+The client however uses his own socket for communication and not just for connection establishment. So the name
+"taget_socket" does not quiet hold for the client, because the socket over which the communication is made is actually
+his own socket and NOT the serversocket of the server object.
+
+'''
+
+# TODO reformulate the debug messages with above note in mind
 
 
 class ConnectionData:
@@ -10,6 +26,8 @@ class ConnectionData:
         if send_buffer is None:
             send_buffer = []
         self.rec_buffer = rec_buffer            # holds list of things that were received over this connection
+                                                # is emptied every server iteration
+        self.rec_log = []
         self.send_buffer = send_buffer
         self.confirmation_search_index = 0
 
@@ -20,19 +38,23 @@ class Connection:
     # https://docs.python.org/3/library/pickle.html
     # https://docs.python.org/3/library/hmac.html#module-hmac
 
-    def __init__(self, sock, target_addr, ident, data):
+    def __init__(self, sock, target_addr, ident, data, role):
         self.target_socket = sock
         self.target_addr = target_addr
-        self.ident = ident
+        self.ident = ident              # hash from (socket, addr)
         self.data = data
+        self.role = role
 
         try:
             th.start_new_thread(self.receive_bytes(), ())
-            print("Connection from {} to server established successfully!".format(target_addr))
+            if self.role == "Server":
+                print("Connection from {} to {} established successfully!".format(target_addr, self.role))
+            else:
+                print("Connection from {} to server at {} established successfully!".format(self.role, target_addr))
         except Exception as e:
-            print("Starting new thread to receive bytes failed by server, error:\n".format(e))
+            print("Starting new thread to receive bytes failed by {}, error:\n".format(e, self.role))
 
-    def receive_bytes(self, size=2048):
+    def receive_bytes(self, size=2048):  # first 5 bytes of the msg are control bytes defined in Data.py
         try:
             buf = ""
             while True:
@@ -40,35 +62,50 @@ class Connection:
 
                 if len(last_rec) == 0:
                     self.data.rec_buffer.append(buf)
-                    if len(buf) > 48:  # this is the len of "Received message with hash: ..." with 20 digits hash as ...
-                        self.send_rec_confirmation(buf)  # TODO super small objects do not get confirmed
+                    self.data.rec_log.append(buf)
+                    if len(buf) > 53:  # len of 5 control bytes and "Received message with hash: ..." with 20 digits hash as ...
+                        self._send_rec_confirmation(buf)
                     return buf
                 else:
                     buf += last_rec
         except Exception as e:
-            print("Receiving bytes by the server failed with exception:\n{}".format(e))
+            print("Receiving bytes by the {} failed with exception:\n{}".format(e, self.role))
 
-    def send_rec_confirmation(self, rec_msg):
-        self.send_bytes("Received message with hash: {}".format(rec_msg.__hash__()).encode("UTF-8"))
+    @staticmethod
+    def get_control_type(msg):
+        return Data.iscc[msg[0:4]]
+
+    def get_last_control_type_and_msg(self):
+        return Connection.get_control_type(self.get_last_rec()), self.get_last_rec()[5:]
+
+    def get_last_rec(self):
+        return self.data.rec_buffer[-1]
+
+    def get_rec_log(self):
+        return copy.deepcopy(self.data.rec_log)
+
+    def _send_rec_confirmation(self, rec_msg):
+        self._send_bytes("Received message with hash: {}".format(rec_msg.__hash__()).encode("UTF-8"))
 
     # go for this if you want to send something
-    def send(self, msg):
+    def send(self, ctype, msg):  # control type and message to send, msg can be bytes or object
+        _msg = Data.scc[ctype] + msg
         _msg = Connection.prep(msg)
-        self.send_bytes_conf(_msg)
+        self._send_bytes_conf(_msg)
 
-    def send_bytes(self, msg_bytes):
+    def _send_bytes(self, msg_bytes):
         try:
             self.target_socket.send(msg_bytes)
             self.data.send_buffer.append(msg_bytes)
         except Exception as e:
-            print("Sending bytes to {} by server failed. Data to send: {}\n Error:\n{}".
-                  format(self.target_addr, msg_bytes, e))
+            print("Sending bytes to {} by {} failed. Data to send: {}\n Error:\n{}".
+                  format(self.target_addr, self.role, msg_bytes, e))
 
-    def send_bytes_conf(self, msg):
+    def _send_bytes_conf(self, msg):
 
-        # super short objects do not get confirmed just as small pps do not get puss
-        if len(msg) <= 48:
-            self.send_bytes(msg_bytes=msg)
+        if len(msg) <= 53:  # should not come to use
+            self._send_bytes(msg_bytes=msg)
+            print("WARNING: message len small 53")
             return
 
         confirmation_received = False
@@ -76,17 +113,17 @@ class Connection:
         try:
             msg_hash = msg.__hash__()  # TODO see above
         except TypeError:
-            print("Message is not hashable, failed to send")
+            print("Message is not hashable, failed to send by {}".format(self.role))
 
         # listen for confirm
-        def check_for_confirm():
+        def _check_for_confirm():
             nonlocal confirmation_received
-            if self.data.rec_buffer[self.data.confirmation_search_index:].\
+            if self.data.rec_log[self.data.confirmation_search_index:].\
                     contains("Received message with hash: {}".format(msg_hash)):
                 confirmation_received = True
-                self.data.confirmation_search_index = self.data.rec_buffer.index("Received msg with hash {}".
-                                                                                 format(msg_hash)) + 1
-        th.start_new_thread(check_for_confirm(), ())
+                self.data.confirmation_search_index = self.data.rec_log.index("Received msg with hash {}".
+                                                                              format(msg_hash)) + 1
+        th.start_new_thread(_check_for_confirm(), ())
 
         # send until receiving was confirmed
         while not confirmation_received:
@@ -113,3 +150,7 @@ class Connection:
     @staticmethod
     def bytes_to_object(_bytes):
         return pickle.loads(_bytes)
+
+    @staticmethod
+    def bytes_to_string(_bytes):
+        return _bytes.decode("UTF-8")

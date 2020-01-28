@@ -1,6 +1,7 @@
 import ctypes
 
 true_res = (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
+serverIP = "127.0.0.1"
 
 mat_colour = {
     "sandstone": (255, 140, 0),
@@ -41,3 +42,18 @@ character_classes = {
     5: "Special Troop",  # idk
     6: "Commander"       # higher stats than normal but more expensive
 }
+
+scc = {  # server control codes
+    "Host":                 b'host ',
+    "cancel hosting":       b'cHost',
+    "Join":                 b'join ',
+    "Turn":                 b'turn ',
+    "get host list":        b'getHL',
+    "control":              b'con  ',
+    "char select ready":    b'csRdy',
+    "hosting list":         b'hostl',
+    "end game":             b'endg ',
+    "game begins":          b'gbegi',
+}
+
+iscc = {v: k for k, v in scc.items()}  # inverted server control codes

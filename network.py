@@ -11,7 +11,7 @@ class Network:
     def __init__(self, host=0):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.host = host   # What's my Ip is gr8 for this get('https://api.ipify.org').text
-        self.port = 5555
+        self.port = 5556
         self.addr = (self.host, self.port)
         self.id = self.connect()
         self.team = 0
@@ -61,11 +61,11 @@ class Network:
             self.client.connect(self.addr)
         except TimeoutError:
             # show that host is not available
-            print("Host unavailable!")
+            print("Timeout Error, Host unavailable!")
             time.sleep(2)
             self.connect()
         except OSError:
-            print("OSError, Host is nich da")
+            print("OSError, Host is nicht da")
             time.sleep(2)
             self.connect()
 

@@ -10,14 +10,29 @@ from NewNetwork import *
 '''
 
 
-class MatchData:
+class MatchData:  # for hosting games
 
-    def __init__(self, hosting_player, board_size, game_map, points):
+    def __init__(self, name, hosting_player, game_map, points):
+        self.name = name
         self.hosting_player = hosting_player
-        self.board_size = board_size
         self.game_map = game_map
         self.points = points
-        
+
+
+class Game:  # for actual games
+
+    def __init__(self, host, guest):
+        self.host = host
+        self.guest = guest
+        self.last_host_turn = None
+        self.last_guest_turn = None
+        self.over = False
+        self.host_ready = False
+        self.guest_ready = False
+        self.host_team = None
+        self.guest_team = None
+        self.game_map = None
+
 
 class Server:
 
@@ -28,18 +43,35 @@ class Server:
         self.serversocket.listen(max_connections)
         self.connections = []
 
-        self.hosting_list = []
-#oooooppp
+        self.hosting_list = dict()
+        self.games = []
+
+        self.ctype_dict = {
+            Data.scc["host"]:              self._hhost,
+            Data.scc["cancel hosting"]:    self._hchost,
+            Data.scc["get host list"]:     self._hgetHL,
+            Data.scc["join"]:              self._hjoin,
+            Data.scc["char select ready"]: self._hcsrdy,
+            Data.scc["turn"]:              self._hturn,
+            Data.scc["control"]:           self._hcon,
+            Data.scc["end game"]:          self._hendg,
+            Data.scc["game begins"]:       self._hgbegi
+        }
+        self.game_players = dict()
+
+    # connection handling
+
     def start_listening(self):
         c_sock, addr = self.serversocket.accept()
         self.connections.append(Connection(c_sock,
                                            addr,
-                                           (c_sock, addr).__hash__(),
-                                           ConnectionData()))
+                                           c_sock.getsockname(),
+                                           ConnectionData(),
+                                           "Server"))
 
-    def kill_connection(self, sock, addr):
+    def kill_connection(self, sock):
         for con in self.connections:
-            if con.identifier == (sock, addr).__hash__():
+            if con.identifier == sock.getsockname():
                 del con
 
     def kill_all_connections(self):
@@ -51,8 +83,118 @@ class Server:
         """
         Convert an IP string to long
         """
-        packedip = socket.inet_aton(ip)
-        return struct.unpack("!L", packedip)[0]
+        packed_ip = socket.inet_aton(ip)
+        return struct.unpack("!L", packed_ip)[0]
+
+    ###############
+    # matchmaking #
+    ###############
+
+    # handle hosting
+    def _hhost(self, msg, con):
+        name, game_map, points = Connection.bytes_to_object(msg)
+        match_data = MatchData(name, con, game_map, points)
+        if not self.hosting_list.values().__contains__(match_data) and not self.hosting_list.keys().__contains__(name):
+            self.hosting_list[name] = match_data
+
+    # handle cancel hosting
+    def _hchost(self, msg, con):  # TODO unclean, untested
+        for host_elem in self.hosting_list.values():
+            if host_elem.hosting_player is con:
+                del host_elem
+
+    # handle join
+    def _hjoin(self, msg, con):
+        host = Connection.bytes_to_string(msg)
+        # remove host from hosting list (2 player szenario)
+        match_data = self.hosting_list[host][:]
+        del self.hosting_list[host]
+
+        game = Game(host, con)
+        game.game_map = match_data.game_map
+        self.games.append(game)
+        self.game_players[host.getsockname()] = game
+        self.game_players[con.getsockname()] = game
+
+    # handle get hosting list
+    def _hgetHL(self, msg, con):
+        con.send(ctype="hosting list", msg=self.hosting_list)
+
+    # game
+
+    # handle char select ready
+    def _hcsrdy(self, msg, con):
+        ready, team = Connection.bytes_to_object(msg)
+        try:
+            game = self.game_players[con.getsockname()]
+        except KeyError:
+            print("Player is not in a game, sending 'ready' failed!")
+            return
+        if game.host.getsockname() == con.getsockname():
+            # msg comes from game host
+            game.host_ready = ready
+            game.host_team = team
+        elif game.guest.getsocketname() == con.getsockname():
+            # msg comes from game guest
+            game.guest_ready = ready
+            game.guest_team = team
+
+        if game.host_ready and game.guest_ready:
+            # send game begins to both? put all chars on map??
+            final_map = self.combine_map(game.game_map, game.host_team, game.guest_team)
+            # send final map to both players
+            game.host.send(ctype=Data.scc["game begin"], msg=final_map)
+
+    # handle game begin
+    # TODO both players wait for the game begin msg of the server when they are ready
+    # msg contains the final map for game start
+    def _hgbegi(self, msg, con):
+        pass
+
+    # handle sending turn
+    def _hturn(self, msg, con):
+        try:
+            game = self.game_players[con.getsockname()]
+        except KeyError:
+            print("Player is not in a game, sending turn failed!")
+            return
+        if con.getsockname() == game.host.getsockname():
+            # send to client
+            game.guest.send(ctype=Data.scc["turn"], msg=msg)
+        else:
+            # send to host
+            game.host.send(ctype=Data.scc["turn"], msg=msg)
+
+    # handle game end
+    def _hendg(self, msg, con):
+        ...  # TODO
+
+    # misc
+
+    # handle sending text
+    @staticmethod
+    def _hcon(msg, con):
+        print("{} says: {}".format(con.target_addr, Connection.bytes_to_string(msg)))
+
+    @staticmethod
+    def combine_map(_map, team1, team2):
+        for char in team1:
+            _map.objects[0].add_char(char)
+        for char in team2:
+            _map.objects[1].add_char(char)
+        return _map
 
 
+def main_routine():
 
+    server = Server()
+    server.start_listening()
+
+    while True:
+
+        # check rec buffer of all connections and handle accordingly
+        for con in server.connections:
+            ctype, msg = con.get_last_control_type_and_msg()
+            server.ctype_dict[ctype](msg, con.target_socket)
+
+        time.sleep(1)

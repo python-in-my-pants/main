@@ -1430,7 +1430,7 @@ class CharacterSelection:  # commit comment
             self.team_char_btns.append(btn)
 
         # ----------------------------------------------------------
-        # equipped items and shit
+        # equipped items and stuff
         # ----------------------------------------------------------
 
         if self.selectedChar is not None:

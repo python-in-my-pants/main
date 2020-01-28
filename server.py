@@ -6,14 +6,15 @@ import os
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-server = ''
-port = 5555
+server = socket.INADDR_ANY  # same as ''
+port = 5556
 server_ip = socket.gethostbyname(server)
 
 try:
     s.bind((server, port))
 
 except socket.error as e:
+    print("Failed to bind socket to port " + str(port))
     print(str(e))
 
 s.listen(2)
