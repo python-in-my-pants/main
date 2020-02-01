@@ -1,0 +1,156 @@
+import _thread as th
+import time
+import pickle
+import copy
+import Data
+
+'''
+Important note:
+
+The server holds a serversocket only to accept incoming connections from clients. Once the connection is established,
+he moves on to communicate with the client over the clients socket returned by accept().
+
+The client however uses his own socket for communication and not just for connection establishment. So the name
+"taget_socket" does not quiet hold for the client, because the socket over which the communication is made is actually
+his own socket and NOT the serversocket of the server object.
+
+'''
+
+# TODO reformulate the debug messages with above note in mind
+
+
+class ConnectionData:
+
+    def __init__(self, rec_buffer=[], send_buffer=[]):
+
+        if send_buffer is None:
+            send_buffer = []
+        self.rec_buffer = rec_buffer            # holds list of things that were received over this connection
+                                                # is emptied every server iteration
+        self.rec_log = []
+        self.send_buffer = send_buffer
+        self.confirmation_search_index = 0
+
+
+class Connection:
+
+    # TODO: add security by replacing __hash__ with HMAC
+    # https://docs.python.org/3/library/pickle.html
+    # https://docs.python.org/3/library/hmac.html#module-hmac
+
+    def __init__(self, sock, target_addr, ident, data, role):
+        self.target_socket = sock
+        self.target_addr = target_addr
+        self.ident = ident              # hash from (socket, addr)
+        self.data = data
+        self.role = role
+
+        try:
+            th.start_new_thread(self.receive_bytes(), ())
+            if self.role == "Server":
+                print("Connection from {} to {} established successfully!".format(target_addr, self.role))
+            else:
+                print("Connection from {} to server at {} established successfully!".format(self.role, target_addr))
+        except Exception as e:
+            print("Starting new thread to receive bytes failed by {}, error:\n".format(e, self.role))
+
+    def receive_bytes(self, size=2048):  # first 5 bytes of the msg are control bytes defined in Data.py
+        try:
+            buf = ""
+            while True:
+                last_rec = self.target_socket.recv(size)
+
+                if len(last_rec) == 0:
+                    self.data.rec_buffer.append(buf)
+                    self.data.rec_log.append(buf)
+                    if len(buf) > 53:  # len of 5 control bytes and "Received message with hash: ..." with 20 digits hash as ...
+                        self._send_rec_confirmation(buf)
+                    return buf
+                else:
+                    buf += last_rec
+        except Exception as e:
+            print("Receiving bytes by the {} failed with exception:\n{}".format(e, self.role))
+
+    @staticmethod
+    def get_control_type(msg):
+        return Data.iscc[msg[0:4]]
+
+    def get_last_control_type_and_msg(self):
+        return Connection.get_control_type(self.get_last_rec()), self.get_last_rec()[5:]
+
+    def get_last_rec(self):
+        return self.data.rec_buffer[-1]
+
+    def get_rec_log(self):
+        return copy.deepcopy(self.data.rec_log)
+
+    def _send_rec_confirmation(self, rec_msg):
+        self._send_bytes("Received message with hash: {}".format(rec_msg.__hash__()).encode("UTF-8"))
+
+    # go for this if you want to send something
+    def send(self, ctype, msg):  # control type and message to send, msg can be bytes or object
+        _msg = Data.scc[ctype] + msg
+        _msg = Connection.prep(msg)
+        self._send_bytes_conf(_msg)
+
+    def _send_bytes(self, msg_bytes):
+        try:
+            self.target_socket.send(msg_bytes)
+            self.data.send_buffer.append(msg_bytes)
+        except Exception as e:
+            print("Sending bytes to {} by {} failed. Data to send: {}\n Error:\n{}".
+                  format(self.target_addr, self.role, msg_bytes, e))
+
+    def _send_bytes_conf(self, msg):
+
+        if len(msg) <= 53:  # should not come to use
+            self._send_bytes(msg_bytes=msg)
+            print("WARNING: message len small 53")
+            return
+
+        confirmation_received = False
+        msg_hash = -1
+        try:
+            msg_hash = msg.__hash__()  # TODO see above
+        except TypeError:
+            print("Message is not hashable, failed to send by {}".format(self.role))
+
+        # listen for confirm
+        def _check_for_confirm():
+            nonlocal confirmation_received
+            if self.data.rec_log[self.data.confirmation_search_index:].\
+                    contains("Received message with hash: {}".format(msg_hash)):
+                confirmation_received = True
+                self.data.confirmation_search_index = self.data.rec_log.index("Received msg with hash {}".
+                                                                              format(msg_hash)) + 1
+        th.start_new_thread(_check_for_confirm(), ())
+
+        # send until receiving was confirmed
+        while not confirmation_received:
+            self.target_socket.send(msg)
+            time.sleep(3)
+
+    @staticmethod
+    def prep(to_send):
+        try:
+            if isinstance(to_send, type("a")):
+                return to_send.encode("UTF-8")
+            else:
+                return Connection.object_to_bytes(to_send)
+        except Exception as e:
+            print("Could not convert the message '{}' to bytes, error:\n{}".format(to_send, e))
+
+    @staticmethod
+    def object_to_bytes(obj):
+        if len(pickle.dumps(obj)) > 48:
+            return pickle.dumps(obj)
+        else:
+            return pickle.dumps(obj) + (48-len(pickle.dumps(obj)))*b'\x00'
+
+    @staticmethod
+    def bytes_to_object(_bytes):
+        return pickle.loads(_bytes)
+
+    @staticmethod
+    def bytes_to_string(_bytes):
+        return _bytes.decode("UTF-8")

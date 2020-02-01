@@ -212,7 +212,7 @@ class Tree(GameObject):
             self.size_x = 1             #
             self.size_y = 1
         if rando == 1:
-            randor = numpy.random.randint(0, 4)
+            randor = numpy.random.randint(0, 4)  # ToDo border einfügen
             if randor == 0:
                 self.pixs.append([0, 0])    ##
                 self.pixs.append([1, 0])    #
@@ -486,10 +486,13 @@ class Ruins(GameObject):
         self.special_pixs.append(door)  # holds stuff like doors and windows
 
         # remove random  wall pieces
-        rem_counter = numpy.random.randint(1, 3)
-        print(self.pixs)
+        rem_counter = numpy.random.randint(1, 2)
+        print(self.pixs.__len__())
+        print(len(self.pixs))
+        """
         for _ in range(rem_counter):
             self.pixs.pop(numpy.random.randint(0, len(self.pixs) + 1))
+            """
         #  -------------------------------------------------------------------------------------------------------------
 
         # assign material for door and update mat_ind

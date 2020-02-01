@@ -132,9 +132,6 @@ class Character(GameObject):
         character_surf = pg.Surface((200, 200))
         character_surf.fill((0, 0, 0))
 
-        print("-"*30)
-        print(self.team)
-
         # left arm
         pg.draw.circle(character_surf, mat_colour[self.team],
                        [int(character_surf.get_width() * 0.15), int(character_surf.get_height() * 0.5)],
@@ -268,18 +265,19 @@ class Character(GameObject):
 
     def shoot(self, dude, partind):
         # Basechance * (0.3 * Dex) - Range + Recoil control
-        c_range = self.range(dude)
-        dmg = self.calc_dmg(c_range)
-        p_range = self.calc_p_range(c_range)
-        if isinstance(self.active_slot[0], (Maschinenpistole, Sturmgewehr, Maschinengewehr)):
-            recoil_acc = self.calc_recoil_acc()
-            chance = int(self.active_slot[0].acc * (0.3 * self.dexterity) - p_range + recoil_acc)
-        else:
-            chance = int(self.active_slot[0].acc * (0.3 * self.dexterity) - p_range)
-        print(chance)
-        for s in range(self.active_slot[0].spt):
-            if numpy.random.randint(0, 101) <= chance:
-                dude.get_damaged(dmg, partind)
+        if isinstance(self.active_slot[0], Weapon):
+            c_range = self.range(dude)
+            dmg = self.calc_dmg(c_range)
+            p_range = self.calc_p_range(c_range)
+            if isinstance(self.active_slot[0], (Maschinenpistole, Sturmgewehr, Maschinengewehr)):
+                recoil_acc = self.calc_recoil_acc()
+                chance = int(self.active_slot[0].acc * (0.3 * self.dexterity) - p_range + recoil_acc)
+            else:
+                chance = int(self.active_slot[0].acc * (0.3 * self.dexterity) - p_range)
+            print(chance)
+            for s in range(self.active_slot[0].spt):
+                if numpy.random.randint(0, 101) <= chance:
+                    dude.get_damaged(dmg, partind)
 
     def calc_recoil_acc(self):
         if isinstance(self.active_slot[0], Maschinenpistole):

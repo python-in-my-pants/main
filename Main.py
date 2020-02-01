@@ -56,7 +56,7 @@ y = elem_size * fields_y  # mult of 10
 active_window = None
 
 main_window = MainWindow
-connection_setup = ConnectionSetup
+connection_setup = ConnectionSetup  # ToDo Network
 character_selection = CharacterSelection
 in_game = InGame
 
@@ -143,13 +143,13 @@ while True:
 
         if active_window.new_window_target:
 
-            net_var = active_window.net
+            net_var = active_window.net  # ToDo Network
 
             new_target = active_window.new_window_target  # should be in_game
             team = active_window.ownTeam
             map = active_window.game_map
             active_window.harakiri()
-            active_window = new_target(own_team=team, game_map=map, net=net_var)
+            active_window = new_target(own_team=team, game_map=map, net=net_var)   # ToDo Network
 
         else:
 

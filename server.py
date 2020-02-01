@@ -38,6 +38,7 @@ if rando == 0:
     host_turn = True
 else:
     client_turn = True
+future_conn = False
 
 
 def threaded_client(conn):
@@ -55,6 +56,7 @@ def threaded_client(conn):
     global conn2
     global client_failsafe
     global host_failsafe
+    global future_conn
 
     reply = ''
     while True:
@@ -110,8 +112,6 @@ def threaded_client(conn):
                 if conn == conn2:
                     print(host_team)
                     sender(b'Other_team', host_team, conn)
-                #else:
-                #    sender(b'Other_team', host_team, conn)
             # Turns # ToDo on Client Side delete anordern
             if data[0:9] == b'Their_turn':
                 if conn == conn1:
@@ -139,9 +139,13 @@ def threaded_client(conn):
                 if conn == conn1:
                     print("Sending_Confirm to 1")
                     sender(b'Confirm', b'', conn2)
+                    future_conn = True
                 if conn == conn2:
                     print("Sending_Confirm to 2")
                     sender(b'Confirm', b'', conn1)
+            if data[0:11] == b'Future_Conn':
+                if future_conn:
+                    sender(b'Confirm', b'', conn)
             # Delete_Turns
             if data[0:11] == b'Turn_delete':
                 client_turn = False

@@ -9,7 +9,7 @@ import os
 from pickle import *
 import numpy
 from _thread import *
-from network import *
+from network import *    # ToDo Network
 from GUI import *
 from Team import *
 from Data import *
@@ -100,7 +100,7 @@ class ConnectionSetup:
         self.new_window_target = None
         self.role = "unknown"
         self.field_size = 0
-        self.net = None
+        self.net = None    # ToDo Network
 
         self.join_stat = "Join Status"
         self.host_stat = "Host Status"
@@ -166,7 +166,7 @@ class ConnectionSetup:
                 self.desi_board_text = ""
                 self.board_first_click = False
 
-        def host_btn_fkt():
+        def host_btn_fkt():   # ToDo Network
             if self.host_thread == 0:
                 self.host_thread = start_new_thread(host_btn_fkt, ())
                 return
@@ -212,6 +212,7 @@ class ConnectionSetup:
                 while self.net.client_got_map != "Yes":
                     self.net.send_control("Fail?")
                     if self.net.failsafe:
+                        time.sleep(0.5)
                         self.net.send_data_pickle("Maps", self.game_map.get_map())
                         self.net.failsafe = False
                     # Sleep the tightest Aniki!!!!
@@ -221,7 +222,7 @@ class ConnectionSetup:
                 self.new_window_target = CharacterSelection
                 return
 
-        def cancel_host_fkt():
+        def cancel_host_fkt():   # ToDo Network
             if self.net is not None:
                 self.net.send_control("Close")
                 self.net = None
@@ -275,7 +276,7 @@ class ConnectionSetup:
 
         # -------------------------------------------------------------------------------------------------------------
 
-        def join_btn_fkt():
+        def join_btn_fkt():  # ToDo Network
             if self.join_thread == 0:
                 self.join_thread = start_new_thread(join_btn_fkt, ())
                 return
@@ -291,16 +292,10 @@ class ConnectionSetup:
                 self.join_stat = "Awaiting map..."
                 self.net.send_control("Client_ready")
                 time.sleep(0.5)
-                self.net.send_control("Team pls")
-                time.sleep(0.5)
-                if self.net.team == 0:
-                    self.net.o_team = 1
-                if self.net.team == 1:
-                    self.net.o_team = 0
-                while self.net.map == b'':
-                    self.net.send_control("Map pls")
-                    time.sleep(2)  # this must be at least 2!
-                    pass  # I'm a Performanceartist!
+                #while self.net.map == b'':
+                #    self.net.send_control("Map pls")
+                #    time.sleep(2)  # this must be at least 2!
+                #   pass  # I'm a Performanceartist!
                 while not isinstance(self.net.map, list):
                     try:
                         self.net.map = pickle.loads(bytes(self.net.map[6:]))
@@ -309,14 +304,20 @@ class ConnectionSetup:
                         time.sleep(0.5)
                         self.net.send_control("Map pls")
                         time.sleep(0.3)
-
+                time.sleep(0.5)
+                self.net.send_control("Team pls")
+                time.sleep(0.5)
+                if self.net.team == 0:
+                    self.net.o_team = 1
+                if self.net.team == 1:
+                    self.net.o_team = 0
                 self.net.send_control("Map received")
                 self.net.client_status = ""
                 self.net.host_status = ""
                 #time.sleep(2)
                 self.new_window_target = CharacterSelection
 
-        def cancel_join_fkt():
+        def cancel_join_fkt():  # ToDo Network
             self.net = None
             self.role = "unknown"
             self.join_thread = 0
@@ -394,7 +395,7 @@ class ConnectionSetup:
         for event in pg.event.get():
 
             # handle events
-            if event.type == pg.QUIT:
+            if event.type == pg.QUIT:   # ToDo Network
                 if self.role == "host":
                     self.net.send_control("Close")
                 pg.quit()
@@ -608,11 +609,11 @@ class CharacterSelection:  # commit comment
         self.points_to_spend = points_to_spend  # TODO
         self.game_map = game_map
         self.role = role
-        self.net = net
+        self.net = net   # ToDo Network
         self.new_window_target = None
         self.spent_points = 0
         self.screen = pg.display.set_mode(true_res, pg.RESIZABLE | pg.FULLSCREEN)
-        self.ownTeam = Team(team_number=self.net.team)
+        self.ownTeam = Team(team_number=self.net.team)    # ToDo Network
         self.ready_thread = 0
         self.selectedChar = None
         self.weapons = []
@@ -938,7 +939,7 @@ class CharacterSelection:  # commit comment
             def butn_fkt():
 
                 if not self.ready:
-                    char = create_character(card_num, self.net.team)
+                    char = create_character(card_num, self.net.team)    # ToDo Network
                     if self.spent_points + char.cost <= self.points_to_spend:
                         self.ownTeam.add_char(char)
                         self.spent_points += char.cost
@@ -1086,7 +1087,7 @@ class CharacterSelection:  # commit comment
         #########
         # right #
         #########
-
+        # ToDo BIG Network
         def ready_up():
             if self.ready_thread == 0:
                 start_new_thread(ready_checker, ())
@@ -1104,7 +1105,7 @@ class CharacterSelection:  # commit comment
                 else:
                     self.net.send_control("Client_not_ready")
 
-        def ready_checker():
+        def ready_checker():    # ToDo Network
             self.ready_thread = get_ident()
             while self.new_window_target != InGame:
                 if self.role == "host":
@@ -1133,7 +1134,7 @@ class CharacterSelection:  # commit comment
                         # get other team
                         while self.net.other_team.__len__ == 0:
                             self.net.send_control("Team_pls")
-                            time.sleep(2)  # this must be at least 2!
+                            time.sleep(1)  # this must be at least 2!
                             pass  # I'm a Performanceartist!
 
                         while not isinstance(self.net.other_team, list):
@@ -1146,6 +1147,8 @@ class CharacterSelection:  # commit comment
                                 time.sleep(1)
                         self.net.send_control("Confirm")
                         print("LELELEL")
+                        print(self.net.team)
+                        print(self.net.o_team)
                         # wait for other team positions and put them in their spawn as well
                         for opp_char in self.net.other_team:
                             self.game_map.objects[self.net.o_team].place_character(opp_char)
@@ -1165,6 +1168,7 @@ class CharacterSelection:  # commit comment
                     if self.net.host_status == "Ready" and self.ready:
 
                         print("braunching")
+                        self.net.send_control("Future_Conn")
                         # TODO add own chars to map
                         for char in self.ownTeam.characters:
                             # first game objs should always be spawning areas
@@ -1184,7 +1188,7 @@ class CharacterSelection:  # commit comment
                                 self.net.send_control("Fail")
                                 time.sleep(1)
                                 self.net.send_control("Team_pls")
-                                time.sleep(2)
+                                time.sleep(1)
                                 print("LOL ERROR")
                         time.sleep(0.5)
                         self.net.send_control("Confirm")
@@ -1710,14 +1714,14 @@ class CharacterSelection:  # commit comment
 
 class InGame:
 
-    def __init__(self, own_team, game_map, net=None):
+    def __init__(self, own_team, game_map, net=None):   # ToDo Network
 
         # things to do here:
         # - put chars on spawning area
 
         self.own_team = own_team
         self.game_map = game_map
-        self.net = net
+        self.net = net   # ToDo Network
 
         self.cc_num = 6
         self.gc_num = 4
@@ -1836,7 +1840,7 @@ class InGame:
 
         self.map_surface = pg.Surface([int(9 * w / 16), h])
         # TODO place characters on map first
-        self.game_map.selective_draw_map(team_num=self.net.team)# own_team.team_num)
+        self.game_map.selective_draw_map(team_num=self.net.team)# own_team.team_num)    # ToDo Network
         self.map_content = fit_surf(surf=self.game_map.window, size=self.map_surface.get_size())
 
         self.own_team_stats = pg.Surface([int(self.map_surface.get_width() * 0.9), own_team_height])
