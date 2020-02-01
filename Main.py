@@ -84,7 +84,7 @@ while True:
 
         if active_window.new_window_target:  # should be character selection
 
-            net_var = active_window.net
+            net_var = active_window.net  # ToDo Network
             role = active_window.role
 
             if active_window.role is "host":
@@ -98,14 +98,14 @@ while True:
 
                 active_window = new_target(points_to_spend=points_to_spend,
                                            game_map=game_map,
-                                           net=net_var,
+                                           net=net_var,  # ToDo Network
                                            role=role)  # TODO add after balancing dependent on desired_map_size
                                                        # cheapest char but full equipped for all team members
 
             elif active_window.role is "client":
 
                 # I am client
-                map_data = net_var.map
+                map_data = net_var.map  # ToDo Network
                 game_map = Map.Map(x_size=map_data[3],
                                    y_size=map_data[4],
                                    elem_size=elem_size,
@@ -121,7 +121,7 @@ while True:
                 game_map.draw_map()
                 active_window = new_target(points_to_spend=points_to_spend,
                                            game_map=game_map,
-                                           net=net_var,
+                                           net=net_var,   # ToDo Network
                                            role=role)  # TODO add after balancing dependent on desired_map_size
                                                        # cheapest char but full equipped for all team members
 
