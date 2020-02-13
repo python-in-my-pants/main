@@ -106,8 +106,8 @@ class Server:
     # handle join
     def _hjoin(self, msg, con):
         host = Connection.bytes_to_string(msg)
-        # remove host from hosting list (2 player szenario)
-        match_data = self.hosting_list[host][:]
+        # remove host from hosting list (2 player scenario)
+        match_data = copy.deepcopy(self.hosting_list[host])
         del self.hosting_list[host]
 
         game = Game(host, con)
@@ -126,6 +126,7 @@ class Server:
     def _hcsrdy(self, msg, con):
         ready, team = Connection.bytes_to_object(msg)
         try:
+            # check if player is in a game already (should be the case)
             game = self.game_players[con.getsockname()]
         except KeyError:
             print("Player is not in a game, sending 'ready' failed!")
@@ -151,8 +152,10 @@ class Server:
     def _hgbegi(self, msg, con):
         pass
 
+    # DEPRECATED
+    '''
     # handle sending turn
-    def _hturn(self, msg, con):
+    def _hturn_old(self, msg, con):
         try:
             game = self.game_players[con.getsockname()]
         except KeyError:
@@ -164,6 +167,37 @@ class Server:
         else:
             # send to host
             game.host.send(ctype=Data.scc["turn"], msg=msg)
+    '''
+
+    def _hturn(self, msg, con):
+
+        try:
+            game = self.game_players[con.getsockname()]
+        except KeyError:
+            print("Player is not in a game, receiving turn by server failed!")
+            return
+        if con.getsockname() == game.host.getsockname():
+            # set last turn and keep it until requested
+            game.last_host_turn = msg
+        elif con.getsockname() == game.guest.getsockname():
+            # set last turn and keep it until requested
+            game.last_guest_turn = msg
+        else:
+            print("Error in handling 'Turn' message from client by server")
+
+    def _hgturn(self, con):
+        try:
+            game = self.game_players[con.getsockname()]
+        except KeyError:
+            print("Player is not in a game, receiving turn by server failed!")
+            return
+        if con.getsockname() == game.host.getsockname():
+            # send last opponent turn
+            game.host.send(ctype=Data.scc["turn"], msg=game.last_guest_turn)
+        elif con.getsockname() == game.guest.getsockname():
+            game.host.send(ctype=Data.scc["turn"], msg=game.last_host_turn)
+        else:
+            print("Error in handling 'Get turn' request by server")
 
     # handle game end
     def _hendg(self, msg, con):

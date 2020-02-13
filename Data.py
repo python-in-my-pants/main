@@ -43,17 +43,18 @@ character_classes = {
     6: "Commander"       # higher stats than normal but more expensive
 }
 
-scc = {  # server control codes
-    "Host":                 b'host ',
-    "cancel hosting":       b'cHost',
-    "Join":                 b'join ',
-    "Turn":                 b'turn ',
-    "get host list":        b'getHL',
-    "control":              b'con  ',
-    "char select ready":    b'csRdy',
-    "hosting list":         b'hostl',
-    "end game":             b'endg ',
-    "game begins":          b'gbegi',
+scc = {  # server control codes             message holds the following:
+    "Host":                 b'host ',       # (name, game_map, points)
+    "cancel hosting":       b'cHost',       # ""
+    "Join":                 b'join ',       # name of the game to join
+    "Turn":                 b'turn ',       # turn data object
+    "get host list":        b'getHL',       # ""
+    "control":              b'con  ',       # control message
+    "char select ready":    b'csRdy',       # (ready, team)
+    "hosting list":         b'hostl',       # hosting list object
+    "end game":             b'endg ',       #
+    "game begins":          b'gbegi',       # final map
+    "get turn":             b'gturn'        # ""
 }
 
 iscc = {v: k for k, v in scc.items()}  # inverted server control codes
