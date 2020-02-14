@@ -99,9 +99,8 @@ class NetworkClient:
     def join(self, name):
         self.connection.send(ctype=Data.scc["join"], msg=name)
 
-    def cancel_hosting(self):
+    def cancel_hosting(self):  # TODO this has to be called from game logic if you are not ready any more
         self.connection.send(ctype=Data.scc["cancel hosting"], msg="")
-        # TODO stop waiting for begin msg from server
 
     def send_char_select_ready(self, ready, team):
         # this will send until server confirms that he has received it
@@ -109,16 +108,18 @@ class NetworkClient:
         # afterwards you we can check for game begin in our inbox
         self._check_for_game_begin()
 
-    def _check_for_game_begin(self):
+    def _check_for_game_begin(self):  # TODO this has to be called each frame from game logic while client char select is ready
         ctype, msg = self.connection.get_last_control_type_and_msg()
         if ctype == "game begin":
-            return msg  # TODO
+            return self.connection.unwrap(msg)  # TODO do I have to unwrap msg?
+        else:
+            return None
 
-    def send_turn(self, turn):
+    def send_turn(self, turn):  # TODO
         pass
 
     def send_control(self, msg):
-        pass
+        self.connection.send(ctype=Data.scc["control"], msg=msg)
 
-    def get_turn(self):
+    def get_turn(self):  # TODO
         pass

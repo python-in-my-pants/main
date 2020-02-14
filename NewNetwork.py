@@ -47,7 +47,9 @@ class Connection:
 
         self.needs_unwrapping = [Data.scc["turn"],
                                  Data.scc["hosting list"],
-                                 Data.scc["turn"],]
+                                 Data.scc["char select ready"],
+                                 Data.scc["Host"],
+                                 Data.scc["game begins"]]
 
         try:
             th.start_new_thread(self.receive_bytes(), ())
@@ -69,23 +71,22 @@ class Connection:
                     self.data.rec_log.append(buf)
                     if len(buf) > 53:  # len of 5 control bytes and "Received message with hash: ..." with 20 digits hash as ...
                         self._send_rec_confirmation(buf)
-                    return self.unwrap(buf)
+                    buf = ""
                 else:
                     buf += last_rec
         except Exception as e:
             print("Receiving bytes by the {} failed with exception:\n{}".format(e, self.role))
 
     def unwrap(self, buf):
-        ctype, msg = self.get_last_control_type_and_msg()
-
-
+        return self.bytes_to_object(buf[5:]) if buf[:5] in self.needs_unwrapping else buf
 
     @staticmethod
     def get_control_type(msg):
         return Data.iscc[msg[0:4]]
 
     def get_last_control_type_and_msg(self):
-        return Connection.get_control_type(self.get_last_rec()), self.get_last_rec()[5:]
+        return Connection.get_control_type(self.get_last_rec()), \
+               self.get_last_rec()[5:]
 
     def get_last_rec(self):
         return self.data.rec_buffer[-1]
@@ -99,8 +100,7 @@ class Connection:
 
     # go for this if you want to send something
     def send(self, ctype, msg):  # control type and message to send, msg can be bytes or object
-        _msg = Data.scc[ctype] + msg
-        _msg = Connection.prep(msg)
+        _msg = Data.scc[ctype] + Connection.prep(msg)
         self._send_bytes_conf(_msg)  # should this run in a separated thread as it blocks while waiting for confirm?
                                      # no, as only the "send" part of the connection blocks
 
@@ -143,7 +143,7 @@ class Connection:
 
     @staticmethod
     def prep(to_send):
-        # TODO check if actual string get pickled (they should not)
+        # TODO check if actual strings get pickled (they should not)
 
         # TODO make sure things do not get pickled twice!!!
         try:

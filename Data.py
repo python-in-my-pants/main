@@ -52,7 +52,7 @@ scc = {  # server control codes             message holds the following:
     "control":              b'con  ',       # control message
     "char select ready":    b'csRdy',       # (ready, team)
     "hosting list":         b'hostl',       # hosting list object
-    "end game":             b'endg ',       #
+    "end game":             b'endg ',       # TODO surely sth
     "game begins":          b'gbegi',       # final map
     "get turn":             b'gturn'        # ""
 }
