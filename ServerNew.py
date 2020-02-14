@@ -47,12 +47,12 @@ class Server:
         self.games = []
 
         self.ctype_dict = {
-            Data.scc["host"]:              self._hhost,
+            Data.scc["Host"]:              self._hhost,
             Data.scc["cancel hosting"]:    self._hchost,
             Data.scc["get host list"]:     self._hgetHL,
-            Data.scc["join"]:              self._hjoin,
+            Data.scc["Join"]:              self._hjoin,
             Data.scc["char select ready"]: self._hcsrdy,
-            Data.scc["turn"]:              self._hturn,
+            Data.scc["Turn"]:              self._hturn,
             Data.scc["control"]:           self._hcon,
             Data.scc["end game"]:          self._hendg,
             Data.scc["game begins"]:       self._hgbegi
@@ -185,7 +185,7 @@ class Server:
         else:
             print("Error in handling 'Turn' message from client by server")
 
-    def _hgturn(self, con):
+    def _hgturn(self, msg, con):
         try:
             game = self.game_players[con.getsockname()]
         except KeyError:
@@ -232,3 +232,8 @@ def main_routine():
             server.ctype_dict[ctype](msg, con.target_socket)
 
         time.sleep(1)
+        print("Server is active")
+
+
+if __name__ == "__main__":
+    main_routine()
