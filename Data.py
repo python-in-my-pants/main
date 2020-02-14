@@ -1,7 +1,7 @@
 import ctypes
 
 true_res = (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
-serverIP = "127.0.0.1"
+serverIP = "88.150.32.237"
 
 mat_colour = {
     "sandstone": (255, 140, 0),
@@ -54,7 +54,8 @@ scc = {  # server control codes             message holds the following:
     "hosting list":         b'hostl',       # hosting list object
     "end game":             b'endg ',       # TODO surely sth
     "game begins":          b'gbegi',       # final map
-    "get turn":             b'gturn'        # ""
+    "get turn":             b'gturn',       # ""
+    "undefined":            b'undef'        # N/A
 }
 
 iscc = {v: k for k, v in scc.items()}  # inverted server control codes

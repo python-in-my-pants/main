@@ -89,7 +89,7 @@ class Connection:
                self.unwrap(self.get_last_rec()[5:])
 
     def get_last_rec(self):
-        return self.data.rec_buffer[-1] if len(self.data.rec_buffer) > 0 else b''
+        return self.data.rec_buffer[-1] if len(self.data.rec_buffer) > 0 else b'undef'
 
     # use with caution as this could get long
     def get_rec_log(self):

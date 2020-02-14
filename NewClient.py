@@ -43,15 +43,6 @@ class NetworkClient:
     def kill_connection(self):
         self.connection.kill_connection()
 
-    ''' DEPRECATED
-    def client_receive_loop(self):   # TODO
-
-        while self.connection:  # as long as the connection exists
-            last_control_type, last_msg = self.connection.get_last_control_type_and_msg()
-            self.ctype_dict[last_control_type](last_msg)
-            time.sleep(1)
-    '''
-
     # ----------------------------------------------------------------------------------------
 
     # TODO Do we actually need this if we have no receive loop???

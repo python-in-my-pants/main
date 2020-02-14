@@ -55,7 +55,8 @@ class Server:
             Data.scc["Turn"]:              self._hturn,
             Data.scc["control"]:           self._hcon,
             Data.scc["end game"]:          self._hendg,
-            Data.scc["game begins"]:       self._hgbegi
+            Data.scc["game begins"]:       self._hgbegi,
+            Data.scc["undef"]:             self._hundef,
         }
         self.game_players = dict()
 
@@ -201,9 +202,13 @@ class Server:
 
     # handle game end
     def _hendg(self, msg, con):
+        print("Error! Not implemented yet!")
         ...  # TODO
 
     # misc
+
+    def _hundef(self, msg, con):
+        pass
 
     # handle sending text
     @staticmethod
@@ -229,6 +234,7 @@ def main_routine():
         # check rec buffer of all connections and handle accordingly
         for con in server.connections:
             ctype, msg = con.get_last_control_type_and_msg()
+            # handle incoming messages
             server.ctype_dict[ctype](msg, con.target_socket)
 
         time.sleep(1)
