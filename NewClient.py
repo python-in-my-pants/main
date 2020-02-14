@@ -28,26 +28,20 @@ class NetworkClient:
                                      "Client")
         self.last_opp_turn_time = -1
         self.ctype_dict = {
-            Data.scc["host"]:              self._hhost,
+            Data.scc["Host"]:              self._hhost,
             Data.scc["cancel hosting"]:    self._hchost,
             Data.scc["get host list"]:     self._hgetHL,
             Data.scc["hosting list"]:      self._hhlist,
-            Data.scc["join"]:              self._hjoin,
+            Data.scc["Join"]:              self._hjoin,
             Data.scc["char select ready"]: self._hcsrdy,
-            Data.scc["turn"]:              self._hturn,
+            Data.scc["Turn"]:              self._hturn,
             Data.scc["control"]:           self._hcon,
             Data.scc["end game"]:          self._hendg,
             Data.scc["game begins"]:       self._hgbegi
         }
 
-    ''' DEPRECATED
-    def client_receive_loop(self):   # TODO
-
-        while self.connection:  # as long as the connection exists
-            last_control_type, last_msg = self.connection.get_last_control_type_and_msg()
-            self.ctype_dict[last_control_type](last_msg)
-            time.sleep(1)
-    '''
+    def kill_connection(self):
+        self.connection.kill_connection()
 
     # ----------------------------------------------------------------------------------------
 

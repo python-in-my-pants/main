@@ -45,7 +45,7 @@ class Connection:
         self.data = data
         self.role = role
 
-        self.needs_unwrapping = [Data.scc["turn"],
+        self.needs_unwrapping = [Data.scc["Turn"],
                                  Data.scc["hosting list"],
                                  Data.scc["char select ready"],
                                  Data.scc["Host"],
@@ -89,7 +89,7 @@ class Connection:
                self.unwrap(self.get_last_rec()[5:])
 
     def get_last_rec(self):
-        return self.data.rec_buffer[-1]
+        return self.data.rec_buffer[-1] if len(self.data.rec_buffer) > 0 else b'undef'
 
     # use with caution as this could get long
     def get_rec_log(self):
@@ -140,6 +140,9 @@ class Connection:
         while not confirmation_received:
             self.target_socket.send(msg)
             time.sleep(3)
+
+    def kill_connection(self):
+        self.target_socket.close()
 
     @staticmethod
     def prep(to_send):

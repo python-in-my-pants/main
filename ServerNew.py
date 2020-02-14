@@ -47,15 +47,16 @@ class Server:
         self.games = []
 
         self.ctype_dict = {
-            Data.scc["host"]:              self._hhost,
+            Data.scc["Host"]:              self._hhost,
             Data.scc["cancel hosting"]:    self._hchost,
             Data.scc["get host list"]:     self._hgetHL,
-            Data.scc["join"]:              self._hjoin,
+            Data.scc["Join"]:              self._hjoin,
             Data.scc["char select ready"]: self._hcsrdy,
-            Data.scc["turn"]:              self._hturn,
+            Data.scc["Turn"]:              self._hturn,
             Data.scc["control"]:           self._hcon,
             Data.scc["end game"]:          self._hendg,
-            Data.scc["game begins"]:       self._hgbegi
+            Data.scc["game begins"]:       self._hgbegi,
+            Data.scc["undef"]:             self._hundef,
         }
         self.game_players = dict()
 
@@ -185,7 +186,7 @@ class Server:
         else:
             print("Error in handling 'Turn' message from client by server")
 
-    def _hgturn(self, con):
+    def _hgturn(self, msg, con):
         try:
             game = self.game_players[con.getsockname()]
         except KeyError:
@@ -201,9 +202,13 @@ class Server:
 
     # handle game end
     def _hendg(self, msg, con):
+        print("Error! Not implemented yet!")
         ...  # TODO
 
     # misc
+
+    def _hundef(self, msg, con):
+        pass
 
     # handle sending text
     @staticmethod
@@ -229,6 +234,12 @@ def main_routine():
         # check rec buffer of all connections and handle accordingly
         for con in server.connections:
             ctype, msg = con.get_last_control_type_and_msg()
+            # handle incoming messages
             server.ctype_dict[ctype](msg, con.target_socket)
 
         time.sleep(1)
+        print("Server is active")
+
+
+if __name__ == "__main__":
+    main_routine()
