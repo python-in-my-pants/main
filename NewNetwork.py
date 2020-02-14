@@ -86,7 +86,7 @@ class Connection:
 
     def get_last_control_type_and_msg(self):
         return Connection.get_control_type(self.get_last_rec()), \
-               self.get_last_rec()[5:]
+               self.unwrap(self.get_last_rec()[5:])
 
     def get_last_rec(self):
         return self.data.rec_buffer[-1]

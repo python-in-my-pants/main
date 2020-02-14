@@ -1,10 +1,15 @@
 import socket
 import Data
+import time
 from NewNetwork import *
 
 # THE SERVER ONLY ANSWERS; IF THE CLIENT DOES NOT ASK HE WILL GET NOTHING
 
 # ALWAYS ONLY ASK FOR 1 THING AT A TIME
+
+
+def current_milli_time():
+    return int(round(time.time() * 1000))
 
 
 class NetworkClient:
@@ -111,15 +116,19 @@ class NetworkClient:
     def _check_for_game_begin(self):  # TODO this has to be called each frame from game logic while client char select is ready
         ctype, msg = self.connection.get_last_control_type_and_msg()
         if ctype == "game begin":
-            return self.connection.unwrap(msg)  # TODO do I have to unwrap msg?
+            return msg
         else:
             return None
 
-    def send_turn(self, turn):  # TODO
-        pass
+    def send_turn(self, turn):
+        self.connection.send(ctype=Data.scc["turn"], msg=(turn, current_milli_time()))
 
     def send_control(self, msg):
         self.connection.send(ctype=Data.scc["control"], msg=msg)
 
     def get_turn(self):  # TODO
-        pass
+        self.connection.send(ctype=Data.scc["send turn"], msg="")
+        # now wait for turn msg in inbox
+        # problems: make sure that the turn is actually the NEW turn and not the old one that is still in buffer
+        ctype, msg = self.connection.get_last_control_type_and_msg()
+
