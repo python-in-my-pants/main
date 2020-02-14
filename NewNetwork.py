@@ -11,7 +11,7 @@ The server holds a serversocket only to accept incoming connections from clients
 he moves on to communicate with the client over the clients socket returned by accept().
 
 The client however uses his own socket for communication and not just for connection establishment. So the name
-"taget_socket" does not quiet hold for the client, because the socket over which the communication is made is actually
+"target_socket" does not quiet hold for the client, because the socket over which the communication is made is actually
 his own socket and NOT the serversocket of the server object.
 
 '''
@@ -45,6 +45,12 @@ class Connection:
         self.data = data
         self.role = role
 
+        self.needs_unwrapping = [Data.scc["turn"],
+                                 Data.scc["hosting list"],
+                                 Data.scc["char select ready"],
+                                 Data.scc["Host"],
+                                 Data.scc["game begins"]]
+
         try:
             th.start_new_thread(self.receive_bytes(), ())
             if self.role == "Server":
@@ -65,22 +71,27 @@ class Connection:
                     self.data.rec_log.append(buf)
                     if len(buf) > 53:  # len of 5 control bytes and "Received message with hash: ..." with 20 digits hash as ...
                         self._send_rec_confirmation(buf)
-                    return buf
+                    buf = ""
                 else:
                     buf += last_rec
         except Exception as e:
             print("Receiving bytes by the {} failed with exception:\n{}".format(e, self.role))
+
+    def unwrap(self, buf):
+        return self.bytes_to_object(buf[5:]) if buf[:5] in self.needs_unwrapping else buf
 
     @staticmethod
     def get_control_type(msg):
         return Data.iscc[msg[0:4]]
 
     def get_last_control_type_and_msg(self):
-        return Connection.get_control_type(self.get_last_rec()), self.get_last_rec()[5:]
+        return Connection.get_control_type(self.get_last_rec()), \
+               self.get_last_rec()[5:]
 
     def get_last_rec(self):
         return self.data.rec_buffer[-1]
 
+    # use with caution as this could get long
     def get_rec_log(self):
         return copy.deepcopy(self.data.rec_log)
 
@@ -89,9 +100,9 @@ class Connection:
 
     # go for this if you want to send something
     def send(self, ctype, msg):  # control type and message to send, msg can be bytes or object
-        _msg = Data.scc[ctype] + msg
-        _msg = Connection.prep(msg)
-        self._send_bytes_conf(_msg)
+        _msg = Data.scc[ctype] + Connection.prep(msg)
+        self._send_bytes_conf(_msg)  # should this run in a separated thread as it blocks while waiting for confirm?
+                                     # no, as only the "send" part of the connection blocks
 
     def _send_bytes(self, msg_bytes):
         try:
@@ -105,7 +116,7 @@ class Connection:
 
         if len(msg) <= 53:  # should not come to use
             self._send_bytes(msg_bytes=msg)
-            print("WARNING: message len small 53")
+            print("WARNING: message len smaller than 53")
             return
 
         confirmation_received = False
@@ -132,6 +143,9 @@ class Connection:
 
     @staticmethod
     def prep(to_send):
+        # TODO check if actual strings get pickled (they should not)
+
+        # TODO make sure things do not get pickled twice!!!
         try:
             if isinstance(to_send, type("a")):
                 return to_send.encode("UTF-8")

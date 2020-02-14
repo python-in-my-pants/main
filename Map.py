@@ -426,8 +426,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
                                  (pix[0] * self.elem_size, pix[1] * self.elem_size, self.elem_size, self.elem_size))
         self.__draw_grid()
 
-    # TODO selective map draw
-    def selective_draw_map(self, team_num):
+    def get_visible_chars_ind(self, team_num):
 
         matrix = self.get_vmat()
 
@@ -440,12 +439,19 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
 
         for own_char_index in range(own_chars.__len__()):
             for other_char_index in range(self.characters.__len__()):
-                if matrix[own_char_index][other_char_index][0] == 1 and not own_chars.__contains__(other_char_index)\
+                if matrix[own_char_index][other_char_index][0] == 1 and not own_chars.__contains__(other_char_index) \
                         and not visible_chars.__contains__(other_char_index):
                     visible_chars.append(other_char_index)
 
         for c in own_chars:
             visible_chars.append(c)
+
+        return visible_chars
+
+    # TODO selective map draw
+    def selective_draw_map(self, team_num):
+
+        visible_chars = self.get_visible_chars_ind(team_num=team_num)
 
         for index, go in enumerate(self.objects):
             if go.render_type == "blit":  # character

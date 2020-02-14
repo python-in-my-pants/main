@@ -171,6 +171,7 @@ class ConnectionSetup:
                 self.host_thread = start_new_thread(host_btn_fkt, ())
                 return
             if self.host_thread != 0 and get_ident() == self.host_thread:
+                print("Starting server.py")
                 os.startfile("server.py")
                 self.net = Network.ip_setup(get('https://api.ipify.org').text)
                 start_new_thread(self.net.routine_threaded_listener, ())
@@ -292,10 +293,14 @@ class ConnectionSetup:
                 self.join_stat = "Awaiting map..."
                 self.net.send_control("Client_ready")
                 time.sleep(0.5)
-                #while self.net.map == b'':
-                #    self.net.send_control("Map pls")
-                #    time.sleep(2)  # this must be at least 2!
-                #   pass  # I'm a Performanceartist!
+                self.net.send_control("Team pls")
+                time.sleep(0.5)
+                '''
+                while self.net.map == b'':
+                    self.net.send_control("Map pls")
+                    time.sleep(2)  # this must be at least 2!
+                    pass  # I'm a Performanceartist!'''
+                print("jo boiIIII")
                 while not isinstance(self.net.map, list):
                     try:
                         self.net.map = pickle.loads(bytes(self.net.map[6:]))
@@ -303,7 +308,8 @@ class ConnectionSetup:
                         self.net.send_control("Fail")
                         time.sleep(0.5)
                         self.net.send_control("Map pls")
-                        time.sleep(0.3)
+                        time.sleep(2)
+
                 time.sleep(0.5)
                 self.net.send_control("Team pls")
                 time.sleep(0.5)
@@ -311,6 +317,7 @@ class ConnectionSetup:
                     self.net.o_team = 1
                 if self.net.team == 1:
                     self.net.o_team = 0
+
                 self.net.send_control("Map received")
                 self.net.client_status = ""
                 self.net.host_status = ""
@@ -397,7 +404,7 @@ class ConnectionSetup:
             # handle events
             if event.type == pg.QUIT:   # ToDo Network
                 if self.role == "host":
-                    self.net.send_control("Close")
+                    self.net.send_control("Close")  # TODO NETWORK
                 pg.quit()
                 sys.exit()
 
@@ -1108,6 +1115,7 @@ class CharacterSelection:  # commit comment
         def ready_checker():    # ToDo Network
             self.ready_thread = get_ident()
             while self.new_window_target != InGame:
+
                 if self.role == "host":
                     self.net.send_control("Client_status")
                     if self.net.client_status == "Ready" and self.ready:
@@ -1161,14 +1169,16 @@ class CharacterSelection:  # commit comment
                         self.new_window_target = InGame
 
                 if self.role == "client":
+
                     self.net.send_control("Host_status")
-                    #print("!"*30)
-                    #print(self.net.host_status)
-                    #print(self.ready)
+
+                    print("!"*30)
+                    print(self.net.host_status)
+                    print(self.ready)
+
                     if self.net.host_status == "Ready" and self.ready:
 
-                        print("braunching")
-                        self.net.send_control("Future_Conn")
+                        print("branching")
                         # TODO add own chars to map
                         for char in self.ownTeam.characters:
                             # first game objs should always be spawning areas
@@ -1183,6 +1193,7 @@ class CharacterSelection:  # commit comment
                             try:
                                 print(self.net.other_team)
                                 print(len(self.net.other_team))
+
                                 self.net.other_team = pickle.loads(self.net.other_team[6:])
                             except (pickle.UnpicklingError, EOFError):
                                 self.net.send_control("Fail")
@@ -1421,7 +1432,7 @@ class CharacterSelection:  # commit comment
             self.team_char_btns.append(btn)
 
         # ----------------------------------------------------------
-        # equipped items and shit
+        # equipped items and stuff
         # ----------------------------------------------------------
 
         if self.selectedChar is not None:
@@ -1884,24 +1895,6 @@ class InGame:
             func.__name__ = name
             return func
 
-        def sel_char_binder(name, _id):
-
-            def func():
-                for _index in self.game_map.characters:
-
-                    _char = self.game_map.objects[_index]
-
-                    if _char.idi == _id:
-                        if self.own_team.get_char_by_unique_id(_id):
-                            self.selected_own_char = char
-                        else:
-                            # own_sel_char wants to attack _char
-                            print("attack routine")  # TODO attack routine
-                        return
-
-            func.__name__ = name
-            return func
-
         def done_button_action():  # TODO
 
             pass
@@ -1981,7 +1974,7 @@ class InGame:
                                    self.zoom_size[1]],
                                     # TODO img_uri="assets/char/" + str(char.unit_class) + ".png",
                                     img_source=self.map_char_imgs[char.class_id],
-                         action=sel_char_binder("map_char_btn_" + str(char.idi), char.idi))
+                         action=self.sel_char_binder("map_char_btn_" + str(char.idi), char.idi))
 
             self.char_map_buttons.append(btn)
 
@@ -1995,6 +1988,20 @@ class InGame:
                                          self.minimap_surf.get_height()],
                                img_uri="assets/blue_button_menu.jpg",
                                name="Done Button", action=done_button_action)
+
+    def sel_char_binder(self, name, char):
+
+        def func():
+
+            print("char button clicked")
+            if char.team == self.net.team:  # own char
+                self.selected_own_char = char
+            if char.team == self.net.other_team and self.selected_own_char:  # opp. char
+                # attack routine
+                self.selected_own_char.shoot(char, 3)
+
+        func.__name__ = name
+        return func
 
     def inventory_function_binder(self, name, _id, item_type):
 
@@ -2025,6 +2032,39 @@ class InGame:
                             pg.mouse.get_pos()[1] - self.shift_start[1]]
         else:
             shift_offset = [0, 0]
+
+        # chars on map
+
+        v_chars = self.game_map.get_visible_chars_ind(self.net.team)
+
+        for index in v_chars:
+
+            if self.game_map.objects[index].render_type is not "blit":
+                continue
+
+            char = self.game_map.objects[index]  # TODO change real pos (scroll and zoom and so on)
+
+            p = [char.get_pos(0) * self.element_size + self.zoom_size[0],
+                 char.get_pos(1) * self.element_size + self.zoom_size[1]]
+
+            rp = [char.get_pos(0) * self.element_size +
+                                    self.char_detail_back.get_width() +
+                                    self.zoom_size[0],
+                  char.get_pos(1) * self.element_size +
+                                    self.zoom_size[1]]
+
+            btn = Button(dim=[self.element_size * self.zoom_factor, self.element_size * self.zoom_factor],
+                         pos=[char.get_pos(0) * self.element_size + self.zoom_size[0],
+                              char.get_pos(1) * self.element_size + self.zoom_size[1]],
+                         real_pos=[char.get_pos(0) * self.element_size +
+                                   self.char_detail_back.get_width() +
+                                   self.zoom_size[0],
+                                   char.get_pos(1) * self.element_size +
+                                   self.zoom_size[1]],
+                         img_source=self.map_char_imgs[char.class_id],
+                         action=self.sel_char_binder("map_char_btn_" + str(char.idi), char))
+
+            self.char_map_buttons.append(btn)
 
         # inventory buttons
 
@@ -2062,7 +2102,7 @@ class InGame:
                                  img_source=self.small_weapon[i],
                                  text="", name=("weapon " + str(self.selected_own_char.weapons[i].class_id) + ".png"),
                                  action=self.inventory_function_binder("weapon " + str(self.selected_own_char.weapons[i].class_idi),
-                                                                     self.selected_own_char.weapons[i].class_idi, item_type="weapon"))
+                                                                       self.selected_own_char.weapons[i].class_idi, item_type="weapon"))
 
                     self.weapon_buttons.append(btn)
 
@@ -2348,4 +2388,3 @@ def blit_centered_pos(back, surf):
 
 def threaded_timer(period):
     time.sleep(period)
-    pass

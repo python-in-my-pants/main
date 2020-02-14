@@ -11,7 +11,7 @@ class Network:
     def __init__(self, host=0):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.host = host   # What's my Ip is gr8 for this get('https://api.ipify.org').text
-        self.port = 5555
+        self.port = 5556
         self.addr = (self.host, self.port)
         self.id = self.connect()
         self.team = 0
@@ -19,6 +19,7 @@ class Network:
         self.failsafe = False
         self.map = b''
         self.g_amount = ""
+        self.failsafe = False
         self.host_status = ""
         self.client_status = ""
         self.client_got_map = ""
@@ -40,9 +41,9 @@ class Network:
                 if data[0:4] == b'Fail':
                     self.failsafe = True
                 if data[0:13] == b'Client_status':
-                    self.client_status = "Ready"
+                    self.client_status = "Ready"#data[13:len(data)].decode()
                 if data[0:11] == b'Host_status':
-                    self.host_status = "Ready"
+                    self.host_status = "Ready"#data[11:len(data)].decode()
                 if data[0:14] == b'Client_got_map':
                     self.client_got_map = data[14:len(data)].decode()
                 if data[0:10] == b'Other_team':
@@ -60,11 +61,11 @@ class Network:
             self.client.connect(self.addr)
         except TimeoutError:
             # show that host is not available
-            print("Host unavailable!")
+            print("Timeout Error, Host unavailable!")
             time.sleep(2)
             self.connect()
         except OSError:
-            print("OSError, Host is nich da")
+            print("OSError, Host is nicht da")
             time.sleep(2)
             self.connect()
 
