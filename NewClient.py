@@ -26,6 +26,7 @@ class NetworkClient:
                                      (self.clientsocket, Data.serverIP).__hash__(),
                                      ConnectionData(),
                                      "Client")
+        self.last_opp_turn_time = -1
         self.ctype_dict = {
             Data.scc["host"]:              self._hhost,
             Data.scc["cancel hosting"]:    self._hchost,
@@ -126,9 +127,18 @@ class NetworkClient:
     def send_control(self, msg):
         self.connection.send(ctype=Data.scc["control"], msg=msg)
 
-    def get_turn(self):  # TODO
+    def get_turn(self):  # TODO this has to be called from main loop each frame while you are awaiting an opponent turn
         self.connection.send(ctype=Data.scc["send turn"], msg="")
         # now wait for turn msg in inbox
-        # problems: make sure that the turn is actually the NEW turn and not the old one that is still in buffer
         ctype, msg = self.connection.get_last_control_type_and_msg()
+        if ctype == Data.scc["turn"]:
+            turn, turn_time = msg
+            if self.last_opp_turn_time != turn_time:  # turn is new
+                self.last_opp_turn_time = turn_time
+                return turn
+            else:
+                return None
+        else:
+            return None
+
 
