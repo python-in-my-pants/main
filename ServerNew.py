@@ -96,14 +96,14 @@ class Server:
     # handle hosting
     def _hhost(self, msg, con):
         name, game_map, points = Connection.bytes_to_object(msg)
-        match_data = MatchData(name, con, game_map, points)
+        match_data = MatchData(name, con.target_socket, game_map, points)
         if not self.hosting_list.values().__contains__(match_data) and not self.hosting_list.keys().__contains__(name):
             self.hosting_list[name] = match_data
 
     # handle cancel hosting
     def _hchost(self, msg, con):  # TODO unclean, untested
         for host_elem in self.hosting_list.values():
-            if host_elem.hosting_player is con:
+            if host_elem.hosting_player is con.target_socket:
                 del host_elem
 
     # handle join
@@ -113,7 +113,7 @@ class Server:
         match_data = copy.deepcopy(self.hosting_list[host])
         del self.hosting_list[host]
 
-        game = Game(host, con)
+        game = Game(host, con.target_socket)
         game.game_map = match_data.game_map
         self.games.append(game)
         self.game_players[host.getsockname()] = game
@@ -121,7 +121,7 @@ class Server:
 
     # handle get hosting list
     def _hgetHL(self, msg, con):
-        con.send(ctype="hosting list", msg=self.hosting_list)
+        con.target_socket.send(ctype="hosting list", msg=self.hosting_list)
 
     # game
 
@@ -130,15 +130,15 @@ class Server:
         ready, team = Connection.bytes_to_object(msg)
         try:
             # check if player is in a game already (should be the case)
-            game = self.game_players[con.getsockname()]
+            game = self.game_players[con.target_socket.getsockname()]
         except KeyError:
             print("Player is not in a game, sending 'ready' failed!")
             return
-        if game.host.getsockname() == con.getsockname():
+        if game.host.getsockname() == con.target_socket.getsockname():
             # msg comes from game host
             game.host_ready = ready
             game.host_team = team
-        elif game.guest.getsocketname() == con.getsockname():
+        elif game.guest.getsocketname() == con.target_socket.getsockname():
             # msg comes from game guest
             game.guest_ready = ready
             game.guest_team = team
@@ -175,14 +175,14 @@ class Server:
     def _hturn(self, msg, con):
 
         try:
-            game = self.game_players[con.getsockname()]
+            game = self.game_players[con.target_socket.getsockname()]
         except KeyError:
             print("Player is not in a game, receiving turn by server failed!")
             return
-        if con.getsockname() == game.host.getsockname():
+        if con.target_socket.getsockname() == game.host.getsockname():
             # set last turn and keep it until requested
             game.last_host_turn = msg
-        elif con.getsockname() == game.guest.getsockname():
+        elif con.target_socket.getsockname() == game.guest.getsockname():
             # set last turn and keep it until requested
             game.last_guest_turn = msg
         else:
@@ -190,14 +190,14 @@ class Server:
 
     def _hgturn(self, msg, con):
         try:
-            game = self.game_players[con.getsockname()]
+            game = self.game_players[con.target_socket.getsockname()]
         except KeyError:
             print("Player is not in a game, receiving turn by server failed!")
             return
-        if con.getsockname() == game.host.getsockname():
+        if con.target_socket.getsockname() == game.host.getsockname():
             # send last opponent turn
             game.host.send(ctype=Data.scc["turn"], msg=game.last_guest_turn)
-        elif con.getsockname() == game.guest.getsockname():
+        elif con.target_socket.getsockname() == game.guest.getsockname():
             game.host.send(ctype=Data.scc["turn"], msg=game.last_host_turn)
         else:
             print("Error in handling 'Get turn' request by server")
@@ -215,8 +215,10 @@ class Server:
     # handle sending text
     def _hcon(self, msg, con):
         if msg == "Close connection":
+            print("Server is closing connection ...")
             self.connections.remove(con)
-        print("{} says: {}".format("Some random client", Connection.bytes_to_string(msg)))
+            return
+        print("{} says: {}".format("Some random client", msg))
 
     @staticmethod
     def combine_map(_map, team1, team2):
@@ -231,18 +233,22 @@ def main_routine():
 
     server = Server()
     th.start_new_thread(server.start_listening, ())
+    old_ctype = old_msg = None
 
     while True:
 
         # check rec buffer of all connections and handle accordingly
         for con in server.connections:
+            # TODO prevent server from handling the last msg over and over again
+            # TODO so check if new msg was received on this connection after last loop
             ctype, msg = con.get_last_control_type_and_msg()
             # handle incoming messages
-            function_name = server.ctype_dict[ctype]
-            function_name(msg, con.target_socket)
+            if not (old_ctype == ctype and old_msg == msg):
+                server.ctype_dict[ctype](msg, con)  # was con.target_socket
+                old_ctype, old_msg = ctype, msg
 
         time.sleep(1)
-        print("Server is active")
+        print(len(server.connections))
 
 
 if __name__ == "__main__":

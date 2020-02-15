@@ -52,6 +52,7 @@ class Connection:
                                  Data.scc["char select ready"],
                                  Data.scc["Host"],
                                  Data.scc["game begins"]]
+        self.unwrap_as_str = [Data.scc["control"]]
 
         try:
             th.start_new_thread(self.receive_bytes, ())
@@ -74,24 +75,38 @@ class Connection:
             while True:
                 if self.connection_alive:
                     last_rec = self.target_socket.recv(size)
-
-                    if last_rec[-5:] == b'XXXXX':
+                    if len(last_rec) < size:  # last piece of msg
+                        buf += last_rec
                         self.data.rec_buffer.append(buf)
                         self.data.rec_log.append(buf)
                         if len(buf) > 53:  # len of 5 control bytes and "Received message with hash: ..." with 20 digits hash as ...
                             self._send_rec_confirmation(buf)
                         buf = b''
-                    else:
+                    elif len(last_rec) == size and last_rec[-5:] == b'XXXXX':
+                        # msg is exactly size long
+                        self.data.rec_buffer.append(buf)
+                        self.data.rec_log.append(buf)
+                        if len(
+                                buf) > 53:  # len of 5 control bytes and "Received message with hash: ..." with 20 digits hash as ...
+                            self._send_rec_confirmation(buf)
+                        buf = b''
+                    elif len(last_rec) == size:  # kleben
+                        # if len == 2048 and not end in XXXXX
                         buf += last_rec
-
+                    else:
+                        print("Something in receive went wrong")
                 else:
                     th.exit_thread()
         except Exception as e:
-            print("Receiving bytes by the {} failed with exception:".format(self.role))
-            print(e)
+            print("Receiving bytes by the {} failed with exception:\n{}".format(self.role, e))
 
-    def unwrap(self, buf):
-        return self.bytes_to_object(buf[5:]) if buf[:5] in self.needs_unwrapping else buf
+    def unwrap(self, buf):  # gets input buffer without scc but with XXXXX
+        if buf[:5] in self.needs_unwrapping:
+            return self.bytes_to_object(buf[5:-5])
+        elif buf[:5] in self.unwrap_as_str:
+            return self.bytes_to_string(buf[5:-5])
+        else:
+            return buf
 
     @staticmethod
     def get_control_type(msg):
@@ -99,7 +114,7 @@ class Connection:
 
     def get_last_control_type_and_msg(self):
         return Connection.get_control_type(self.get_last_rec()), \
-               self.unwrap(self.get_last_rec()[5:])
+               self.unwrap(self.get_last_rec())
 
     def get_last_rec(self):
         return self.data.rec_buffer[-1] if len(self.data.rec_buffer) > 0 else b'undef'
