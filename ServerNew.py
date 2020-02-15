@@ -56,19 +56,21 @@ class Server:
             Data.scc["control"]:           self._hcon,
             Data.scc["end game"]:          self._hendg,
             Data.scc["game begins"]:       self._hgbegi,
-            Data.scc["undef"]:             self._hundef,
+            Data.scc["undefined"]:         self._hundef,
         }
+
         self.game_players = dict()
 
     # connection handling
 
     def start_listening(self):
-        c_sock, addr = self.serversocket.accept()
-        self.connections.append(Connection(c_sock,
-                                           addr,
-                                           c_sock.getsockname(),
-                                           ConnectionData(),
-                                           "Server"))
+        while True:
+            c_sock, addr = self.serversocket.accept()
+            self.connections.append(Connection(c_sock,
+                                               addr,
+                                               c_sock.getsockname(),
+                                               ConnectionData(),
+                                               "Server"))
 
     def kill_connection(self, sock):
         for con in self.connections:
@@ -211,8 +213,9 @@ class Server:
         pass
 
     # handle sending text
-    @staticmethod
-    def _hcon(msg, con):
+    def _hcon(self, msg, con):
+        if msg == "Close connection":
+            self.connections.remove(con)
         print("{} says: {}".format(con.target_addr, Connection.bytes_to_string(msg)))
 
     @staticmethod
@@ -227,7 +230,7 @@ class Server:
 def main_routine():
 
     server = Server()
-    server.start_listening()
+    th.start_new_thread(server.start_listening, ())
 
     while True:
 

@@ -1,5 +1,6 @@
 from NewClient import *
 
 client = NetworkClient()
-client.send_control("ERSCHIEß DICH")
-client.kill_connection()
+client.send_control("UwU Onii-san :3")
+while True:
+    pass
