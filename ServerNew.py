@@ -45,30 +45,30 @@ class Server:
 
         self.hosting_list = dict()
         self.games = []
-
         self.ctype_dict = {
-            Data.scc["Host"]:              self._hhost,
-            Data.scc["cancel hosting"]:    self._hchost,
-            Data.scc["get host list"]:     self._hgetHL,
-            Data.scc["Join"]:              self._hjoin,
+            Data.scc["Host"]: self._hhost,
+            Data.scc["cancel hosting"]: self._hchost,
+            Data.scc["get host list"]: self._hgetHL,
+            Data.scc["Join"]: self._hjoin,
             Data.scc["char select ready"]: self._hcsrdy,
-            Data.scc["Turn"]:              self._hturn,
-            Data.scc["control"]:           self._hcon,
-            Data.scc["end game"]:          self._hendg,
-            Data.scc["game begins"]:       self._hgbegi,
-            Data.scc["undef"]:             self._hundef,
+            Data.scc["Turn"]: self._hturn,
+            Data.scc["control"]: self._hcon,
+            Data.scc["end game"]: self._hendg,
+            Data.scc["game begins"]: self._hgbegi,
+            Data.scc["undefined"]: self._hundef,
         }
         self.game_players = dict()
 
     # connection handling
 
     def start_listening(self):
-        c_sock, addr = self.serversocket.accept()
-        self.connections.append(Connection(c_sock,
-                                           addr,
-                                           c_sock.getsockname(),
-                                           ConnectionData(),
-                                           "Server"))
+        while True:
+            c_sock, addr = self.serversocket.accept()
+            self.connections.append(Connection(c_sock,
+                                            addr,
+                                            c_sock.getsockname(),
+                                            ConnectionData(),
+                                            "Server"))
 
     def kill_connection(self, sock):
         for con in self.connections:
@@ -211,8 +211,8 @@ class Server:
         pass
 
     # handle sending text
-    @staticmethod
-    def _hcon(msg, con):
+
+    def _hcon(self, msg, con):
         print("{} says: {}".format(con.target_addr, Connection.bytes_to_string(msg)))
 
     @staticmethod
@@ -227,10 +227,10 @@ class Server:
 def main_routine():
 
     server = Server()
-    server.start_listening()
-
+    th.start_new_thread(server.start_listening, ())
     while True:
-
+        print(len(server.connections))
+        print(server.connections)
         # check rec buffer of all connections and handle accordingly
         for con in server.connections:
             ctype, msg = con.get_last_control_type_and_msg()
@@ -238,7 +238,6 @@ def main_routine():
             server.ctype_dict[ctype](msg, con.target_socket)
 
         time.sleep(1)
-        print("Server is active")
 
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@ import time
 import pickle
 import copy
 import Data
+import socket
 
 '''
 Important note:
@@ -44,6 +45,7 @@ class Connection:
         self.ident = ident              # hash from (socket, addr)
         self.data = data
         self.role = role
+        self.connection_alive = True
 
         self.needs_unwrapping = [Data.scc["Turn"],
                                  Data.scc["hosting list"],
@@ -52,37 +54,49 @@ class Connection:
                                  Data.scc["game begins"]]
 
         try:
-            th.start_new_thread(self.receive_bytes(), ())
+            th.start_new_thread(self.receive_bytes, ())
             if self.role == "Server":
                 print("Connection from {} to {} established successfully!".format(target_addr, self.role))
             else:
                 print("Connection from {} to server at {} established successfully!".format(self.role, target_addr))
         except Exception as e:
-            print("Starting new thread to receive bytes failed by {}, error:\n".format(e, self.role))
+            print("Starting new thread to receive bytes failed by {}, error:\n{]{}".format(self.role, e))
+
+    def kill_connection(self):
+        self.connection_alive = False
+        self.target_socket.close()
 
     def receive_bytes(self, size=2048):  # first 5 bytes of the msg are control bytes defined in Data.py
         try:
-            buf = ""
+            buf = b''
             while True:
-                last_rec = self.target_socket.recv(size)
+                    if self.connection_alive:
+                        last_rec = self.target_socket.recv(size)
+                        print(last_rec)
+                        if len(last_rec) == 0:
+                            print("lel")
+                            self.data.rec_buffer.append(buf)
+                            self.data.rec_log.append(buf)
+                            if len(buf) > 53:  # len of 5 control bytes and "Received message with hash: ..." with 20 digits hash as ...
+                                self._send_rec_confirmation(buf)
+                            buf = b''
+                        else:
+                            if len(last_rec) > 0:
+                                buf += last_rec
+                    else:
+                        th.exit_thread()
 
-                if len(last_rec) == 0:
-                    self.data.rec_buffer.append(buf)
-                    self.data.rec_log.append(buf)
-                    if len(buf) > 53:  # len of 5 control bytes and "Received message with hash: ..." with 20 digits hash as ...
-                        self._send_rec_confirmation(buf)
-                    buf = ""
-                else:
-                    buf += last_rec
         except Exception as e:
-            print("Receiving bytes by the {} failed with exception:\n{}".format(e, self.role))
+            print("Receiving bytes by the {} failed with exception:".format(self.role))
+            print(e)
+            self.target_socket.close()
 
     def unwrap(self, buf):
         return self.bytes_to_object(buf[5:]) if buf[:5] in self.needs_unwrapping else buf
 
     @staticmethod
     def get_control_type(msg):
-        return Data.iscc[msg[0:4]]
+        return msg[0:5]
 
     def get_last_control_type_and_msg(self):
         return Connection.get_control_type(self.get_last_rec()), \
@@ -100,7 +114,7 @@ class Connection:
 
     # go for this if you want to send something
     def send(self, ctype, msg):  # control type and message to send, msg can be bytes or object
-        _msg = Data.scc[ctype] + Connection.prep(msg)
+        _msg = ctype + Connection.prep(msg)
         self._send_bytes_conf(_msg)  # should this run in a separated thread as it blocks while waiting for confirm?
                                      # no, as only the "send" part of the connection blocks
 
@@ -130,19 +144,16 @@ class Connection:
         def _check_for_confirm():
             nonlocal confirmation_received
             if self.data.rec_log[self.data.confirmation_search_index:].\
-                    contains("Received message with hash: {}".format(msg_hash)):
+                    __contains__("Received message with hash: {}".format(msg_hash)):
                 confirmation_received = True
                 self.data.confirmation_search_index = self.data.rec_log.index("Received msg with hash {}".
                                                                               format(msg_hash)) + 1
-        th.start_new_thread(_check_for_confirm(), ())
+        th.start_new_thread(_check_for_confirm, ())
 
         # send until receiving was confirmed
         while not confirmation_received:
             self.target_socket.send(msg)
             time.sleep(3)
-
-    def kill_connection(self):
-        self.target_socket.close()
 
     @staticmethod
     def prep(to_send):
