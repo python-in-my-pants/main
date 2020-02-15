@@ -1,5 +1,5 @@
 from NewClient import *
 
 client = NetworkClient()
-client.send_control("8" + "="*50 + "D")
+client.send_control("8" + "="*71 + "D")
 client.kill_connection()
