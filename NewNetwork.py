@@ -74,16 +74,16 @@ class Connection:
             while True:
                 if self.connection_alive:
                     last_rec = self.target_socket.recv(size)
-
-                    if len(last_rec) == 0:
+                    print(len(last_rec))
+                    print(last_rec)
+                    if last_rec[-5:] == b'XXXXX':
                         self.data.rec_buffer.append(buf)
                         self.data.rec_log.append(buf)
                         if len(buf) > 53:  # len of 5 control bytes and "Received message with hash: ..." with 20 digits hash as ...
                             self._send_rec_confirmation(buf)
                         buf = b''
                     else:
-                        if len(last_rec) > 0:
-                            buf += last_rec
+                        buf += last_rec
                 else:
                     th.exit_thread()
         except Exception as e:

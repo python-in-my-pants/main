@@ -41,7 +41,7 @@ class NetworkClient:
         }
 
     def kill_connection(self):
-        self.connection.send(ctype=["control"], msg="Close connection")
+        self.connection.send(ctype=Data.scc["control"], msg="Close connection")
         #self.connection.kill_connection()
 
     # ----------------------------------------------------------------------------------------

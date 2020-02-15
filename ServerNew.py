@@ -46,10 +46,10 @@ class Server:
         self.hosting_list = dict()
         self.games = []
         self.ctype_dict = {
-            Data.scc["Host"]: self._hhost,
-            Data.scc["cancel hosting"]: self._hchost,
-            Data.scc["get host list"]: self._hgetHL,
-            Data.scc["Join"]: self._hjoin,
+            Data.scc["Host"]:              self._hhost,
+            Data.scc["cancel hosting"]:    self._hchost,
+            Data.scc["get host list"]:     self._hgetHL,
+            Data.scc["Join"]:              self._hjoin,
             Data.scc["char select ready"]: self._hcsrdy,
             Data.scc["Turn"]:              self._hturn,
             Data.scc["control"]:           self._hcon,
@@ -215,7 +215,7 @@ class Server:
     def _hcon(self, msg, con):
         if msg == "Close connection":
             self.connections.remove(con)
-        print("{} says: {}".format(con.target_addr, Connection.bytes_to_string(msg)))
+        print("{} says: {}".format("Some random Collegeboy", Connection.bytes_to_string(msg)))
 
     @staticmethod
     def combine_map(_map, team1, team2):
@@ -232,15 +232,14 @@ def main_routine():
     th.start_new_thread(server.start_listening, ())
 
     while True:
-        print(len(server.connections))
-        print(server.connections)
         # check rec buffer of all connections and handle accordingly
         for con in server.connections:
             ctype, msg = con.get_last_control_type_and_msg()
+            print(con.get_last_control_type_and_msg())
             # handle incoming messages
             server.ctype_dict[ctype](msg, con.target_socket)
 
-        time.sleep(1)
+        time.sleep(3)
 
 
 if __name__ == "__main__":
