@@ -51,12 +51,13 @@ class Server:
             Data.scc["get host list"]: self._hgetHL,
             Data.scc["Join"]: self._hjoin,
             Data.scc["char select ready"]: self._hcsrdy,
-            Data.scc["Turn"]: self._hturn,
-            Data.scc["control"]: self._hcon,
-            Data.scc["end game"]: self._hendg,
-            Data.scc["game begins"]: self._hgbegi,
-            Data.scc["undefined"]: self._hundef,
+            Data.scc["Turn"]:              self._hturn,
+            Data.scc["control"]:           self._hcon,
+            Data.scc["end game"]:          self._hendg,
+            Data.scc["game begins"]:       self._hgbegi,
+            Data.scc["undefined"]:         self._hundef,
         }
+
         self.game_players = dict()
 
     # connection handling
@@ -65,10 +66,10 @@ class Server:
         while True:
             c_sock, addr = self.serversocket.accept()
             self.connections.append(Connection(c_sock,
-                                            addr,
-                                            c_sock.getsockname(),
-                                            ConnectionData(),
-                                            "Server"))
+                                               addr,
+                                               c_sock.getsockname(),
+                                               ConnectionData(),
+                                               "Server"))
 
     def kill_connection(self, sock):
         for con in self.connections:
@@ -211,8 +212,9 @@ class Server:
         pass
 
     # handle sending text
-
     def _hcon(self, msg, con):
+        if msg == "Close connection":
+            self.connections.remove(con)
         print("{} says: {}".format(con.target_addr, Connection.bytes_to_string(msg)))
 
     @staticmethod
@@ -228,6 +230,7 @@ def main_routine():
 
     server = Server()
     th.start_new_thread(server.start_listening, ())
+
     while True:
         print(len(server.connections))
         print(server.connections)

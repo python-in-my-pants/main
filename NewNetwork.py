@@ -60,32 +60,32 @@ class Connection:
             else:
                 print("Connection from {} to server at {} established successfully!".format(self.role, target_addr))
         except Exception as e:
-            print("Starting new thread to receive bytes failed by {}, error:\n{]{}".format(self.role, e))
+            print("Starting new thread to receive bytes failed by {}, error:\n{}".format(self.role, e))
 
     def kill_connection(self):
+
         self.connection_alive = False
+        self.target_socket.shutdown(socket.SHUT_RDWR)
         self.target_socket.close()
 
     def receive_bytes(self, size=2048):  # first 5 bytes of the msg are control bytes defined in Data.py
         try:
             buf = b''
             while True:
-                    if self.connection_alive:
-                        last_rec = self.target_socket.recv(size)
-                        print(last_rec)
-                        if len(last_rec) == 0:
-                            print("lel")
-                            self.data.rec_buffer.append(buf)
-                            self.data.rec_log.append(buf)
-                            if len(buf) > 53:  # len of 5 control bytes and "Received message with hash: ..." with 20 digits hash as ...
-                                self._send_rec_confirmation(buf)
-                            buf = b''
-                        else:
-                            if len(last_rec) > 0:
-                                buf += last_rec
-                    else:
-                        th.exit_thread()
+                if self.connection_alive:
+                    last_rec = self.target_socket.recv(size)
 
+                    if len(last_rec) == 0:
+                        self.data.rec_buffer.append(buf)
+                        self.data.rec_log.append(buf)
+                        if len(buf) > 53:  # len of 5 control bytes and "Received message with hash: ..." with 20 digits hash as ...
+                            self._send_rec_confirmation(buf)
+                        buf = b''
+                    else:
+                        if len(last_rec) > 0:
+                            buf += last_rec
+                else:
+                    th.exit_thread()
         except Exception as e:
             print("Receiving bytes by the {} failed with exception:".format(self.role))
             print(e)
@@ -115,6 +115,7 @@ class Connection:
     # go for this if you want to send something
     def send(self, ctype, msg):  # control type and message to send, msg can be bytes or object
         _msg = ctype + Connection.prep(msg)
+        print(_msg)
         self._send_bytes_conf(_msg)  # should this run in a separated thread as it blocks while waiting for confirm?
                                      # no, as only the "send" part of the connection blocks
 
