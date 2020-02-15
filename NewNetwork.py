@@ -27,7 +27,7 @@ class ConnectionData:
         if send_buffer is None:
             send_buffer = []
         self.rec_buffer = rec_buffer            # holds list of things that were received over this connection
-                                                # is emptied every server iteration
+                                                # TODO is emptied every server iteration
         self.rec_log = []
         self.send_buffer = send_buffer
         self.confirmation_search_index = 0
@@ -80,14 +80,14 @@ class Connection:
                         self.data.rec_buffer.append(buf)
                         self.data.rec_log.append(buf)
                         if len(buf) > 53:  # len of 5 control bytes and "Received message with hash: ..." with 20 digits hash as ...
+                            print("Received: {} with hash:\n\t{}".format(buf, buf.__hash__()))
                             self._send_rec_confirmation(buf)
                         buf = b''
                     elif len(last_rec) == size and last_rec[-5:] == b'XXXXX':
                         # msg is exactly size long
                         self.data.rec_buffer.append(buf)
                         self.data.rec_log.append(buf)
-                        if len(
-                                buf) > 53:  # len of 5 control bytes and "Received message with hash: ..." with 20 digits hash as ...
+                        if len(buf) > 53:  # len of 5 control bytes and "Received message with hash: ..." with 20 digits hash as ...
                             self._send_rec_confirmation(buf)
                         buf = b''
                     elif len(last_rec) == size:  # kleben
@@ -143,6 +143,7 @@ class Connection:
     def _send_bytes_conf(self, msg):
 
         if len(msg) <= 53:  # should not come to use
+            # send without confirm
             self._send_bytes(msg_bytes=msg)
             print("WARNING: message len smaller than 53")
             return
@@ -151,21 +152,35 @@ class Connection:
         msg_hash = -1
         try:
             msg_hash = msg.__hash__()  # TODO see above
+            print("Expecting confirm for hash {}".format(msg_hash))
+            print(msg)
         except TypeError:
             print("Message is not hashable, failed to send by {}".format(self.role))
 
         # listen for confirm
         def _check_for_confirm():
-            nonlocal confirmation_received
-            if self.data.rec_log[self.data.confirmation_search_index:].\
-                    __contains__("Received message with hash: {}".format(msg_hash)):
-                confirmation_received = True
-                self.data.confirmation_search_index = self.data.rec_log.index("Received msg with hash {}".
-                                                                              format(msg_hash)) + 1
+            while True:
+                nonlocal confirmation_received
+                print(self.data.rec_log)
+                if self.data.rec_log[self.data.confirmation_search_index:].\
+                        __contains__("Received message with hash: {}".format(msg_hash).encode("UTF-8")):
+                    confirmation_received = True
+                    self.data.confirmation_search_index = self.data.rec_log.index("Received message with hash: {}".
+                                                                                  format(msg_hash)) + 1
+                    return
+                time.sleep(1)
+
+        try:
+            self.target_socket.send(msg)
+            time.sleep(1)
+        except Exception as e:
+            print(e)
+
         th.start_new_thread(_check_for_confirm, ())
 
         # send until receiving was confirmed
         while not confirmation_received:
+            print("looping in confirm ...")
             self.target_socket.send(msg)
             time.sleep(3)
 
