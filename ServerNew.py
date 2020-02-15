@@ -216,7 +216,7 @@ class Server:
     def _hcon(self, msg, con):
         if msg == "Close connection":
             self.connections.remove(con)
-        print("{} says: {}".format(con.target_addr, Connection.bytes_to_string(msg)))
+        print("{} says: {}".format("Some random client", Connection.bytes_to_string(msg)))
 
     @staticmethod
     def combine_map(_map, team1, team2):
@@ -238,7 +238,8 @@ def main_routine():
         for con in server.connections:
             ctype, msg = con.get_last_control_type_and_msg()
             # handle incoming messages
-            server.ctype_dict[ctype](msg, con.target_socket)
+            function_name = server.ctype_dict[ctype]
+            function_name(msg, con.target_socket)
 
         time.sleep(1)
         print("Server is active")

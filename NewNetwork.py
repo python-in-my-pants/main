@@ -75,15 +75,15 @@ class Connection:
                 if self.connection_alive:
                     last_rec = self.target_socket.recv(size)
 
-                    if len(last_rec) == 0:
+                    if last_rec[-5:] == b'XXXXX':
                         self.data.rec_buffer.append(buf)
                         self.data.rec_log.append(buf)
                         if len(buf) > 53:  # len of 5 control bytes and "Received message with hash: ..." with 20 digits hash as ...
                             self._send_rec_confirmation(buf)
                         buf = b''
                     else:
-                        if len(last_rec) > 0:
-                            buf += last_rec
+                        buf += last_rec
+
                 else:
                     th.exit_thread()
         except Exception as e:
@@ -113,8 +113,7 @@ class Connection:
 
     # go for this if you want to send something
     def send(self, ctype, msg):  # control type and message to send, msg can be bytes or object
-        _msg = ctype + Connection.prep(msg)
-        print(_msg)
+        _msg = ctype + Connection.prep(msg) + b'XXXXX'
         self._send_bytes_conf(_msg)  # should this run in a separated thread as it blocks while waiting for confirm?
                                      # no, as only the "send" part of the connection blocks
 
