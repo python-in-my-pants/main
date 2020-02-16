@@ -50,6 +50,9 @@ class Connection:
         self.role = role
         self.connection_alive = True
 
+        self.old_ctype_msg = {"old_ctype": None, "old_msg": None,
+                              "very_old_ctype": None, "very_old_msg": None}
+
         self.needs_unwrapping = [Data.scc["Turn"],
                                  Data.scc["hosting list"],
                                  Data.scc["char select ready"],
@@ -68,7 +71,12 @@ class Connection:
 
     def kill_connection(self):
 
+        # tell listening thread to stop
         self.connection_alive = False
+
+        # wait for it to recognize the stop (not necessary anymore), was time.sleep(2)
+
+        # now kill the socket (listening should be dead)
         self.target_socket.shutdown(socket.SHUT_RDWR)
         self.target_socket.close()
 
@@ -97,12 +105,16 @@ class Connection:
                         buf += last_rec
                     else:
                         print("Something in receive went wrong")
+                    time.sleep(0.5)
                 else:
-                    th.exit_thread()
+                    # just return, that should kill the thread too
+                    return
+                    # th.exit_thread()
         except Exception as e:
+            print("Connection alive:", self.connection_alive)
             print("Receiving bytes by the {} failed with exception:\n{}".format(self.role, e))
 
-    def unwrap(self, buf):  # gets input buffer without scc but with XXXXX
+    def unwrap(self, buf):  # gets in put buffer without scc but with XXXXX
         if buf[:5] in self.needs_unwrapping:
             return self.bytes_to_object(buf[5:-5])
         elif buf[:5] in self.unwrap_as_str:
@@ -115,10 +127,16 @@ class Connection:
         return msg[0:5]
 
     def get_last_control_type_and_msg(self):
-        return Connection.get_control_type(self.get_last_rec()), \
-               self.unwrap(self.get_last_rec())
+        # overwrite pre last return with last return
+        self.old_ctype_msg["very_old_ctype"] = self.old_ctype_msg["old_ctype"]
+        self.old_ctype_msg["very_old_msg"] = self.old_ctype_msg["old_msg"]
+        self.old_ctype_msg["old_ctype"] = Connection.get_control_type(self._get_last_rec())
+        self.old_ctype_msg["old_msg"] = self.unwrap(self._get_last_rec())
 
-    def get_last_rec(self):
+        return Connection.get_control_type(self._get_last_rec()), \
+               self.unwrap(self._get_last_rec())
+
+    def _get_last_rec(self):
         return self.data.rec_buffer[-1] if len(self.data.rec_buffer) > 0 else b'undef'
 
     # use with caution as this could get long
@@ -154,8 +172,6 @@ class Connection:
         msg_hash = -1
         try:
             msg_hash = hashlib.sha1(msg).hexdigest()  # TODO see above
-            print("Expecting confirm for hash {}".format(msg_hash))
-            print(msg)
         except TypeError:
             print("Message is not hashable, failed to send by {}".format(self.role))
 
@@ -182,7 +198,6 @@ class Connection:
 
         # send until receiving was confirmed
         while not confirmation_received:
-            print("looping in confirm ...")
             self.target_socket.send(msg)
             time.sleep(3)
 
