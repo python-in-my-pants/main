@@ -9,7 +9,7 @@ import os
 from pickle import *
 import numpy
 from _thread import *
-from network import *    # ToDo Network
+from NewClient import *
 from GUI import *
 from Team import *
 from Data import *
@@ -100,7 +100,7 @@ class ConnectionSetup:
         self.new_window_target = None
         self.role = "unknown"
         self.field_size = 0
-        self.net = None    # ToDo Network
+        self.client = None
 
         self.join_stat = "Join Status"
         self.host_stat = "Host Status"
@@ -167,14 +167,7 @@ class ConnectionSetup:
                 self.board_first_click = False
 
         def host_btn_fkt():   # ToDo Network
-            if self.host_thread == 0:
-                self.host_thread = start_new_thread(host_btn_fkt, ())
-                return
-            if self.host_thread != 0 and get_ident() == self.host_thread:
-                print("Starting server.py")
-                os.startfile("server.py")
-                self.net = Network.ip_setup(get('https://api.ipify.org').text)
-                start_new_thread(self.net.routine_threaded_listener, ())
+                self.client = NetworkClient()
                 self.host_stat = "Waiting for connection..."
                 while self.net.g_amount != "2":
                     self.net.send_control("G_amount")
@@ -407,6 +400,11 @@ class ConnectionSetup:
                     self.net.send_control("Close")  # TODO NETWORK
                 pg.quit()
                 sys.exit()
+
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_ESCAPE:
+                    pg.quit()
+                    sys.exit()
 
             if event.type == pg.KEYDOWN:
                 ret = True
