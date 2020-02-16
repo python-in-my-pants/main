@@ -53,12 +53,12 @@ class Connection:
         self.old_ctype_msg = {"old_ctype": None, "old_msg": None,
                               "very_old_ctype": None, "very_old_msg": None}
 
-        self.needs_unwrapping = [Data.scc["Turn"],
-                                 Data.scc["hosting list"],
-                                 Data.scc["char select ready"],
-                                 Data.scc["Host"],
-                                 Data.scc["game begins"]]
-        self.unwrap_as_str = [Data.scc["control"]]
+        self.unwrap_as_obj = [Data.scc["Turn"],
+                              Data.scc["hosting list"],
+                              Data.scc["char select ready"],
+                              Data.scc["Host"],
+                              Data.scc["game begins"]]
+        self.unwrap_as_str = [Data.scc["control"], Data.scc["close connection"]]
 
         try:
             th.start_new_thread(self.receive_bytes, ())
@@ -115,11 +115,12 @@ class Connection:
             print("Receiving bytes by the {} failed with exception:\n{}".format(self.role, e))
 
     def unwrap(self, buf):  # gets in put buffer without scc but with XXXXX
-        if buf[:5] in self.needs_unwrapping:
+        if buf[:5] in self.unwrap_as_obj:
             return self.bytes_to_object(buf[5:-5])
         elif buf[:5] in self.unwrap_as_str:
             return self.bytes_to_string(buf[5:-5])
         else:
+            print("Warning! Message unwrapping type is not defined in client! {}".format(buf[:5]))
             return buf
 
     @staticmethod
@@ -165,7 +166,9 @@ class Connection:
         if len(msg) <= magic_number:  # should not come to use
             # send without confirm
             self._send_bytes(msg_bytes=msg)
-            print("WARNING: message len smaller than {}".format(magic_number))
+            if msg[:5] != b'close':
+                print("WARNING: message length is smaller than {}, it will not get confirmed by the server!".
+                      format(magic_number))
             return
 
         confirmation_received = False

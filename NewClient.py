@@ -19,33 +19,41 @@ class NetworkClient:
     """
 
     def __init__(self, port=5556):
-        self.clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.clientsocket.connect((Data.serverIP, port))
-        self.connection = Connection(self.clientsocket,
-                                     Data.serverIP,
-                                     (self.clientsocket, Data.serverIP).__hash__(),
-                                     ConnectionData(),
-                                     "Client")
-        self.last_opp_turn_time = -1
-        self.ctype_dict = {
-            Data.scc["Host"]:              self._hhost,
-            Data.scc["cancel hosting"]:    self._hchost,
-            Data.scc["get host list"]:     self._hgetHL,
-            Data.scc["hosting list"]:      self._hhlist,
-            Data.scc["Join"]:              self._hjoin,
-            Data.scc["char select ready"]: self._hcsrdy,
-            Data.scc["Turn"]:              self._hturn,
-            Data.scc["control"]:           self._hcon,
-            Data.scc["end game"]:          self._hendg,
-            Data.scc["game begins"]:       self._hgbegi
-        }
+        try:
+            self.clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.clientsocket.connect((Data.serverIP, port))
+            self.connection = Connection(self.clientsocket,
+                                         Data.serverIP,
+                                         (self.clientsocket, Data.serverIP).__hash__(),
+                                         ConnectionData(),
+                                         "Client")
+
+            self.last_opp_turn_time = -1
+            self.ctype_dict = {
+                Data.scc["Host"]:              self._hhost,
+                Data.scc["cancel hosting"]:    self._hchost,
+                Data.scc["get host list"]:     self._hgetHL,
+                Data.scc["hosting list"]:      self._hhlist,
+                Data.scc["Join"]:              self._hjoin,
+                Data.scc["char select ready"]: self._hcsrdy,
+                Data.scc["Turn"]:              self._hturn,
+                Data.scc["control"]:           self._hcon,
+                Data.scc["end game"]:          self._hendg,
+                Data.scc["game begins"]:       self._hgbegi
+            }
+        except Exception as e:
+            print("Client failed to connect to server with exception:\n{}".format(e))
+            return
 
     def kill_connection(self):
         # (this is so that all pending sends go through) it seems we can just skip this???
         # time.sleep(3)
 
+        # this prevents *[WinError 10038] Ein Vorgang bezog sich auf ein Objekt, das kein Socket ist*
+        time.sleep(1)
+
         # blocks until confirm
-        self.connection.send(ctype=Data.scc["control"], msg="Close connection")
+        self.connection.send(ctype=Data.scc["close connection"], msg="")
 
         # this prevents *[WinError 10038] Ein Vorgang bezog sich auf ein Objekt, das kein Socket ist*
         time.sleep(2)
