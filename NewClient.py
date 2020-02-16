@@ -41,9 +41,16 @@ class NetworkClient:
         }
 
     def kill_connection(self):
-        time.sleep(3)
+        # (this is so that all pending sends go through) it seems we can just skip this???
+        # time.sleep(3)
+
+        # blocks until confirm
         self.connection.send(ctype=Data.scc["control"], msg="Close connection")
+
+        # this prevents *[WinError 10038] Ein Vorgang bezog sich auf ein Objekt, das kein Socket ist*
         time.sleep(2)
+
+        # this kills the socket and tells the listening thread to stop
         self.connection.kill_connection()
 
     # ----------------------------------------------------------------------------------------

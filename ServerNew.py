@@ -217,6 +217,8 @@ class Server:
         if msg == "Close connection":
             print("Server is closing connection ...")
             self.connections.remove(con)
+            con.kill_connection()
+            del con
             return
         print("{} says: {}".format("Some random client", msg))
 
@@ -233,22 +235,25 @@ def main_routine():
 
     server = Server()
     th.start_new_thread(server.start_listening, ())
-    old_ctype = old_msg = None
+    old_ctype = old_msg = None  # TODO this does not work as it cannot handle multiple connections
+                                # would have to be a connection speficfic variable
 
     while True:
 
+        #print("Connections:", len(server.connections))
         # check rec buffer of all connections and handle accordingly
         for con in server.connections:
-            # TODO prevent server from handling the last msg over and over again
-            # TODO so check if new msg was received on this connection after last loop
-            ctype, msg = con.get_last_control_type_and_msg()
-            # handle incoming messages
-            if not (old_ctype == ctype and old_msg == msg):
-                server.ctype_dict[ctype](msg, con)  # was con.target_socket
-                old_ctype, old_msg = ctype, msg
+            try:
+                # TODO check what can go wrong in this call and catch it
+                ctype, msg = con.get_last_control_type_and_msg()
+                # handle incoming messages
+                if not (ctype == con.old_ctype_msg["very_old_ctype"] and
+                        msg == con.old_ctype_msg["very_old_msg"]):
+                    server.ctype_dict[ctype](msg, con)  # was con.target_socket
+            except KeyError as e:
+                print("KeyError! {}".format(e))
 
-        time.sleep(1)
-        print(len(server.connections))
+        time.sleep(0.5)
 
 
 if __name__ == "__main__":
