@@ -49,6 +49,7 @@ class Connection:
         self.data = data
         self.role = role
         self.connection_alive = True
+        self.old_rec_len = -1
 
         self.old_ctype_msg = {"old_ctype": None, "old_msg": None,
                               "very_old_ctype": None, "very_old_msg": None}
@@ -139,6 +140,17 @@ class Connection:
 
     def _get_last_rec(self):
         return self.data.rec_buffer[-1] if len(self.data.rec_buffer) > 0 else b'undef'
+
+    def new_msg_sent(self):
+        if len(self.data.rec_log) != self.old_rec_len:
+            # check if rec_leg len has changed since last call
+            self.old_rec_len = len(self.data.rec_log)
+            return True
+        else:
+            return False
+
+    def get_rec_log_len(self):
+        return self.data.rec_log.__len__()
 
     # use with caution as this could get long
     def get_rec_log(self):

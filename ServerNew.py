@@ -253,7 +253,8 @@ def main_routine():
                 # TODO check what can go wrong in this call and catch it
                 ctype, msg = con.get_last_control_type_and_msg()
                 # handle incoming messages
-                if not (ctype == con.old_ctype_msg["very_old_ctype"] and
+                if not (ctype == con.old_ctype_msg["very_old_ctype"] and  # TODO this still doesn't work as 2 identical
+                                                                          # requests for the host list both have to be answered
                         msg == con.old_ctype_msg["very_old_msg"]):
                     server.ctype_dict[ctype](msg, con)
             except KeyError as e:
