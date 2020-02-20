@@ -28,19 +28,8 @@ class NetworkClient:
                                          ConnectionData(),
                                          "Client")
             self.last_opp_turn_time = -1
-            self.live_data = {"hosting_list": None, "game_begin": None}
-            self.ctype_dict = {
-                Data.scc["Host"]:              self._hhost,
-                Data.scc["cancel hosting"]:    self._hchost,
-                Data.scc["get host list"]:     self._hgetHL,
-                Data.scc["hosting list"]:      self._hhlist,
-                Data.scc["Join"]:              self._hjoin,
-                Data.scc["char select ready"]: self._hcsrdy,
-                Data.scc["Turn"]:              self._hturn,
-                Data.scc["control"]:           self._hcon,
-                Data.scc["end game"]:          self._hendg,
-                Data.scc["game begins"]:       self._hgbegi
-            }
+            self.live_data = {"hosting_list": None, "game_begin": None, "last_opp_turn": None}
+
         except Exception as e:
             print("Client failed to connect to server with exception:\n{}".format(e))
             return
@@ -68,70 +57,91 @@ class NetworkClient:
         # send relevant data to the server
         self.connection.send(ctype=Data.scc["host"], msg=(name, game_map, points))
 
-    def _get_hosting_list(self):   # TODO put hosting list in client v
-        # ar and get client var on call instead as main thread would block until server confirms otherwise
-        # TODO not very elegant method, maybe rework sometime
-        l1 = self.connection.get_rec_log_len()
-        self.connection.send(ctype=Data.scc["get host list"], msg="")
-        # wait until new message was received (hopefully the answer to get host list is not yet sent)
-        while l1 == self.connection.get_rec_log_len():
-            time.sleep(0.5)
-        # after this, check for "hosting list" ctype msg in receive and assign self.live_data["hosting_list"] that value
-        ctype = None
-        # now a new msg was sent
-        ctype, msg = self.connection.get_last_control_type_and_msg()
-        while ctype != Data.scc["hosting list"]:
-            time.sleep(1)
-            ctype, msg = self.connection.get_last_control_type_and_msg()
-        self.live_data["hosting_list"] = msg
-        return
-
-    def get_hosting_list(self):
-        th.start_new_thread(self._get_hosting_list(), ())
-        return self.live_data["hosting_list"]
-
     def join(self, name):
         self.connection.send(ctype=Data.scc["join"], msg=name)
 
     def cancel_hosting(self):  # TODO this has to be called from game logic if you are not ready any more
         self.connection.send(ctype=Data.scc["cancel hosting"], msg="")
 
-    def send_char_select_ready(self, ready, team):
-        # this will send until server confirms that he has received it
-        self.connection.send(ctype=Data.scc["char select ready"], msg=(ready, team))
-        # afterwards you we can check for game begin in our inbox
-        self._check_for_game_begin()
+    # get hosting list
+    def get_hosting_list(self):
+        th.start_new_thread(self._get_hosting_list, ())
+        return self.live_data["hosting_list"]
 
-    def check_for_game_begin(self):
-        self._check_for_game_begin()  # TODO same idea as get_host_list
+    def _get_hosting_list(self):
 
-    def _check_for_game_begin(self):  # TODO this has to be called from game logic while client char select is ready
-        # TODO but PLEASE not every frame, else the spam would be real
+        # check len of rec log to and tell server to send host list
+        l1 = self.connection.get_rec_log_len()
+        self.connection.send(ctype=Data.scc["get host list"], msg="")
+
+        # wait until new message was received (hopefully the answer to get host list is not yet sent)
+        while l1 == self.connection.get_rec_log_len():
+            time.sleep(0.5)
+
+        # now a new msg was sent
         ctype, msg = self.connection.get_last_control_type_and_msg()
-        if ctype == "game begin":
-            return msg
-        else:
-            return None
+        # as long as the data type is not a hosting list
+        while ctype != Data.scc["hosting list"]:
+            # wait a sec
+            time.sleep(1)
+            # and try again
+            ctype, msg = self.connection.get_last_control_type_and_msg()
 
-    def send_turn(self, turn):
-        self.connection.send(ctype=Data.scc["turn"], msg=(turn, current_milli_time()))
+        self.live_data["hosting_list"] = msg
+        return
 
-    def send_control(self, msg):
-        self.connection.send(ctype=Data.scc["control"], msg=msg)
+    # check for game begin
+    def check_for_game_begin(self):
+        th.start_new_thread(self._check_for_game_begin, ())
+        return self.live_data["game_begin"]
 
-    def get_turn(self):  # TODO this has to be called from main loop each frame while you are awaiting an opponent turn
-        # TODO same as hosting list
+    def _check_for_game_begin(self):
+        # TODO this has to be called from game logic while client char select is ready
+        # TODO but PLEASE not every frame, else the spam would be real
+
+        ctype, msg = self.connection.get_last_control_type_and_msg()
+        while ctype != Data.scc["game begin"]:
+            time.sleep(1)
+        return msg
+
+    # get turn
+    def get_turn(self):
+        # TODO this has to be called from main loop each frame while you are awaiting an opponent turn
+        # TODO maybe call this every 1 or 3 sec from main loop
+        th.start_new_thread(self._get_turn, ())
+        return self.live_data["last_opp_turn"]
+
+    def _get_turn(self):
+        l1 = self.connection.get_rec_log_len()
         self.connection.send(ctype=Data.scc["send turn"], msg="")
+
+        # assure that a new msg came in meanwhile
+        while l1 == self.connection.get_rec_log_len():
+            time.sleep(0.5)
+
         # now wait for turn msg in inbox
         ctype, msg = self.connection.get_last_control_type_and_msg()
         if ctype == Data.scc["turn"]:
             turn, turn_time = msg
             if self.last_opp_turn_time != turn_time:  # turn is new
                 self.last_opp_turn_time = turn_time
-                return turn
+                self.live_data["last_opp_turn"] = turn
             else:
+                print("Something in _get_turn went wrong")
                 return None
         else:
+            print("Something in _get_turn went wrong, wrong message type was sent by server")
             return None
 
+    # sends
+    def send_turn(self, turn):
+        self.connection.send(ctype=Data.scc["turn"], msg=(turn, current_milli_time()))
 
+    def send_control(self, msg):
+        self.connection.send(ctype=Data.scc["control"], msg=msg)
+
+    def send_char_select_ready(self, ready, team):
+        # this will send until server confirms that he has received it
+        self.connection.send(ctype=Data.scc["char select ready"], msg=(ready, team))
+        # afterwards you we can check for game begin in our inbox
+        self._check_for_game_begin()

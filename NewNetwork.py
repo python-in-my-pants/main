@@ -51,8 +51,7 @@ class Connection:
         self.connection_alive = True
         self.old_rec_len = -1
 
-        self.old_ctype_msg = {"old_ctype": None, "old_msg": None,
-                              "very_old_ctype": None, "very_old_msg": None}
+        self.old_ctype_msg = {"old_ctype": None, "old_msg": None, "very_old_ctype": None, "very_old_msg": None}
 
         self.unwrap_as_obj = [Data.scc["Turn"],
                               Data.scc["hosting list"],

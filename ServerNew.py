@@ -55,7 +55,7 @@ class Server:
             Data.scc["Turn"]:              self._hturn,
             Data.scc["control"]:           self._hcon,
             Data.scc["end game"]:          self._hendg,
-            Data.scc["game begins"]:       self._hgbegi,
+            Data.scc["game begins"]:       lambda x: None,
             Data.scc["undefined"]:         self._hundef,
             Data.scc["close connection"]:  self._hclose
         }
@@ -149,12 +149,7 @@ class Server:
             final_map = self.combine_map(game.game_map, game.host_team, game.guest_team)
             # send final map to both players
             game.host.send(ctype=Data.scc["game begin"], msg=final_map)
-
-    # handle game begin
-    # TODO both players wait for the game begin msg of the server when they are ready
-    # msg contains the final map for game start
-    def _hgbegi(self, msg, con):
-        pass
+            game.guest.send(ctype=Data.scc["game begin"], msg=final_map)
 
     # DEPRECATED
     '''
@@ -246,7 +241,7 @@ def main_routine():
 
     while True:
 
-        #print("Connections:", len(server.connections))
+        # print("Connections:", len(server.connections))
         # check rec buffer of all connections and handle accordingly
         for con in server.connections:
             try:
@@ -254,7 +249,7 @@ def main_routine():
                 ctype, msg = con.get_last_control_type_and_msg()
                 # handle incoming messages
                 if not (ctype == con.old_ctype_msg["very_old_ctype"] and  # TODO this still doesn't work as 2 identical
-                                                                          # requests for the host list both have to be answered
+                                                                  # requests for the host list both have to be answered
                         msg == con.old_ctype_msg["very_old_msg"]):
                     server.ctype_dict[ctype](msg, con)
             except KeyError as e:
