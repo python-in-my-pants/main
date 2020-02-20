@@ -56,7 +56,8 @@ scc = {  # server control codes             message holds the following:
     "end game":             b'endg ',       # TODO surely sth
     "game begins":          b'gbegi',       # final map
     "get turn":             b'gturn',       # ""
-    "undefined":            b'undef'        # N/A
+    "undefined":            b'undef',       # N/A
+    "close connection":     b'close'        # ""
 }
 
 iscc = {v: k for k, v in scc.items()}  # inverted server control codes

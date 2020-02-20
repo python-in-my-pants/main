@@ -56,6 +56,7 @@ class Server:
             Data.scc["end game"]:          self._hendg,
             Data.scc["game begins"]:       self._hgbegi,
             Data.scc["undefined"]:         self._hundef,
+            Data.scc["close connection"]:  self._hclose
         }
 
         self.game_players = dict()
@@ -219,7 +220,14 @@ class Server:
             con.kill_connection()
             del con
             return
-        print("{} says: {}".format("Some random client", msg))
+        print("Client@{} says: \n\n\t{}\n".format(con.target_addr, msg))
+
+    def _hclose(self, msg, con):
+        print("Server is closing connection ...")
+        self.connections.remove(con)
+        con.kill_connection()
+        del con
+        return
 
     @staticmethod
     def combine_map(_map, team1, team2):
@@ -234,8 +242,6 @@ def main_routine():
 
     server = Server()
     th.start_new_thread(server.start_listening, ())
-    old_ctype = old_msg = None  # TODO this does not work as it cannot handle multiple connections
-                                # would have to be a connection speficfic variable
 
     while True:
 
@@ -246,9 +252,10 @@ def main_routine():
                 # TODO check what can go wrong in this call and catch it
                 ctype, msg = con.get_last_control_type_and_msg()
                 # handle incoming messages
-                if not (ctype == con.old_ctype_msg["very_old_ctype"] and
+                if not (ctype == con.old_ctype_msg["very_old_ctype"] and  # TODO this still doesn't work as 2 identical
+                                                                          # requests for the host list both have to be answered
                         msg == con.old_ctype_msg["very_old_msg"]):
-                    server.ctype_dict[ctype](msg, con)  # was con.target_socket
+                    server.ctype_dict[ctype](msg, con)
             except KeyError as e:
                 print("KeyError! {}".format(e))
 
