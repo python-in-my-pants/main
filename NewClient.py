@@ -28,7 +28,11 @@ class NetworkClient:
                                          ConnectionData(),
                                          "Client")
             self.last_opp_turn_time = -1
-            self.live_data = {"hosting_list": None, "game_begin": None, "last_opp_turn": None}
+            self.live_data = {"hosting_list": None,
+                              "map": None,
+                              "in_game": False,
+                              "game_begin": None,
+                              "last_opp_turn": None}
 
         except Exception as e:
             print("Client failed to connect to server with exception:\n{}".format(e))
@@ -58,6 +62,7 @@ class NetworkClient:
         self.connection.send(ctype=Data.scc["host"], msg=(name, game_map, points))
 
     def join(self, name):
+        # client already gets map here in game_data object
         self.connection.send(ctype=Data.scc["join"], msg=name)
 
     def cancel_hosting(self):  # TODO this has to be called from game logic if you are not ready any more
@@ -88,6 +93,31 @@ class NetworkClient:
             ctype, msg = self.connection.get_last_control_type_and_msg()
 
         self.live_data["hosting_list"] = msg
+        return
+
+    def get_join_stat(self):
+        th.start_new_thread(self._get_join_stat, ())
+        return self.live_data["in_game"]
+
+    def _get_join_stat(self):
+        # check len of rec log and tell server to tell in game status
+        l1 = self.connection.get_rec_log_len()
+        self.connection.send(ctype=Data.scc["control"], msg="get in game stat")
+
+        # wait until new message was received
+        while l1 == self.connection.get_rec_log_len():
+            time.sleep(0.5)
+
+        # now a new msg was sent
+        ctype, msg = self.connection.get_last_control_type_and_msg()
+        # as long as the data type is not a hosting list
+        while ctype != Data.scc["control"]:
+            # wait a sec
+            time.sleep(1)
+            # and try again
+            ctype, msg = self.connection.get_last_control_type_and_msg()
+
+        self.live_data["in_game"] = True if (msg == "yes") else False
         return
 
     # check for game begin

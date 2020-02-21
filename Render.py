@@ -1,6 +1,6 @@
-'''
+"""
 Gives general classes and functions for rendering on screen
-'''
+"""
 
 import Item
 import Map
@@ -1885,7 +1885,7 @@ class InGame:
         # constants, passt
         self.btn_w = int((5 / 32) * 7 * w / 32)
         self.btn_h = self.btn_w
-        #self.inventory_gap_size = int((1 / 32) * 7 * w / 32)
+        # self.inventory_gap_size = int((1 / 32) * 7 * w / 32)
         self.inventory_gap_size = int((self.inventory_gear_weapons_surf.get_height()-self.btn_h)/2)
         self.inventory_line_len = 5
 
@@ -1900,7 +1900,7 @@ class InGame:
         for i in range(self.own_team.characters.__len__()):
 
             pos_w = self.btn_w + (i % 10) * (self.btn_w + self.inventory_gap_size)
-            #pos_h = self.inventory_gap_size + \
+            # pos_h = self.inventory_gap_size + \
             pos_h = int((1 / 32) * 7 * w / 32) + self.btn_h + int(i / 10) * \
                     (self.btn_h + int((1 / 32) * 7 * w / 32) + self.btn_h * 0.8)
 
