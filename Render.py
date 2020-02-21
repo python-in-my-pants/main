@@ -100,7 +100,7 @@ class ConnectionSetup:
         self.new_window_target = None
         self.role = "unknown"
         self.field_size = 0
-        self.client = None
+        self.client = NetworkClient()
 
         self.join_stat = "Join Status"
         self.host_stat = "Host Status"

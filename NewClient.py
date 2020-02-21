@@ -1,6 +1,7 @@
 import socket
 import Data
 import time
+import sys
 from NewNetwork import *
 
 # THE SERVER ONLY ANSWERS; IF THE CLIENT DOES NOT ASK HE WILL GET NOTHING
@@ -35,8 +36,8 @@ class NetworkClient:
                               "last_opp_turn": None}
 
         except Exception as e:
-            print("Client failed to connect to server with exception:\n{}".format(e))
-            return
+            print("\nClient failed to connect to server with exception:\n\n\t{}".format(e).upper())
+            sys.exit()
 
     def kill_connection(self):
         # (this is so that all pending sends go through) it seems we can just skip this???
