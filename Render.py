@@ -107,6 +107,7 @@ class ConnectionSetup:
         self.host_thread = 0
         self.join_thread = 0
         self.map = None
+        self.map_points = None
         self.team_number = 0
 
         self.ip_focus = False
@@ -118,7 +119,7 @@ class ConnectionSetup:
         self.screen = None
         self.buttons = None
 
-        self.ip_field_text = "88.150.32.237"  # TODO change
+        self.ip_field_text = "Dungeon"  # TODO change
         self.desi_board_text = "50"  # TODO change
         self.game_map = None
 
@@ -167,30 +168,24 @@ class ConnectionSetup:
                 self.board_first_click = False
 
         def host_btn_fkt():   # ToDo Network
+            if self.host_thread == 0:
+                self.host_thread = start_new_thread(host_btn_fkt, ())
+                return
+            if self.host_thread != 0 and get_ident() == self.host_thread: #ToDo Kill old threads per host_thread
                 self.client = NetworkClient()
-                self.host_stat = "Waiting for connection..."
-                while self.net.g_amount != "2":
-                    self.net.send_control("G_amount")
-                    time.sleep(0.500)
-                    pass  # Sleep tight Aniki!
+                self.host_stat = "Waiting for other players..."
 
                 while desired_board_size_button.text == "Enter the desired size":
                     self.host_stat = "Enter the desired map size"
                     pass  # Sleep tighter Aniki!!
 
                 self.field_size = int(desired_board_size_button.text)
-                self.role = "host"
                 self.host_stat = "Waiting for opponent"
-
-                while self.net.client_status != "Ready":
-                    self.net.send_control("Client_status")
-                    time.sleep(0.5)
-                    print(self.net.client_status)
-                    pass  # Sleep even tighter Aniki!!!
 
                 self.game_map = Map.MapBuilder().build_map(self.field_size)
 
-                self.team_number = numpy.random.randint(0, 2)
+                self.team_number = numpy.random.randint(0, 2) #ToDo Network Teamnummern? festgeelegt beim joinen oder random?
+                """
                 if self.team_number == 1:
                     self.net.send_data("Teams", str(0))
                     self.net.team = 1
@@ -199,28 +194,29 @@ class ConnectionSetup:
                     self.net.send_data("Teams", str(1))
                     self.net.team = 0
                     self.net.o_team = 1
+                """
                 # print(pickle.dumps(self.game_map.get_map()).__len__())
                 time.sleep(0.5)
-                self.net.send_data_pickle("Maps", self.game_map.get_map())
-                self.host_stat = "Waiting for other players confirmation to notice that bulge"
-                while self.net.client_got_map != "Yes":
-                    self.net.send_control("Fail?")
-                    if self.net.failsafe:
-                        time.sleep(0.5)
-                        self.net.send_data_pickle("Maps", self.game_map.get_map())
-                        self.net.failsafe = False
-                    # Sleep the tightest Aniki!!!!
+                self.map_points = int(((self.game_map.size_x * self.game_map.size_y) / 500) * 16.6)
+                self.client.host_game("Dungeon", self.game_map.get_map(), self.map_points)
+
+                # ToDO Network Gibts nen Ready state oder brauchen wir den noch?
+                """
+                while self.net.client_status != "Ready":  
+                    self.net.send_control("Client_status")
+                    time.sleep(0.5)
+                    print(self.net.client_status)
+                    pass  # Sleep even tighter Aniki!!!
+                """
                 self.host_stat = "Let's start!"
-                self.net.client_status = ""
-                self.net.host_status = ""
                 self.new_window_target = CharacterSelection
                 return
 
         def cancel_host_fkt():   # ToDo Network
-            if self.net is not None:
-                self.net.send_control("Close")
-                self.net = None
-                self.role = "unknown"
+            if self.client is not None:
+                self.client.cancel_hosting
+                self.client.kill_connection
+                self.client = None
                 self.host_thread = 0
             self.host_stat = "Hosting canceled!"
 
@@ -275,34 +271,16 @@ class ConnectionSetup:
                 self.join_thread = start_new_thread(join_btn_fkt, ())
                 return
             if self.join_thread != 0 and get_ident() == self.join_thread:
-                if ip_to_join_btn.text.count(".") == 3 and ip_to_join_btn.text.__len__() >= 4:  # TODO expand for IPv6
-                    self.net = Network.ip_setup(ip_to_join_btn.text)
-                    start_new_thread(self.net.routine_threaded_listener, ())
-                    self.join_stat = "Connecting..."
-                else:
-                    self.join_stat = "You have to enter an IP, Aniki <3"
-                    return
-                self.role = "client"
-                self.join_stat = "Awaiting map..."
-                self.net.send_control("Client_ready")
-                time.sleep(0.5)
-                self.net.send_control("Team pls")
-                time.sleep(0.5)
-                '''
-                while self.net.map == b'':
-                    self.net.send_control("Map pls")
-                    time.sleep(2)  # this must be at least 2!
-                    pass  # I'm a Performanceartist!'''
-                print("jo boiIIII")
-                while not isinstance(self.net.map, list):
-                    try:
-                        self.net.map = pickle.loads(bytes(self.net.map[6:]))
-                    except (pickle.UnpicklingError, EOFError):
-                        self.net.send_control("Fail")
-                        time.sleep(0.5)
-                        self.net.send_control("Map pls")
-                        time.sleep(2)
-
+                # ToDo Place for UI with Lobbylist
+                ip_to_join_btn.text = self.client.get_hosting_list
+                while ip_to_join_btn.text == "Enter the desired lobbyname":
+                    self.join_stat = "Enter the desired lobbyname"
+                    pass  # Sleep tighter Aniki!!
+                self.client.join(ip_to_join_btn.text)
+                # ToDo How long should the wait be if a wait should be even in place? Or maybe a handshake?
+                time.sleep(1)
+                # ToDo Same Teamquestion as in host
+                """
                 time.sleep(0.5)
                 self.net.send_control("Team pls")
                 time.sleep(0.5)
@@ -310,14 +288,10 @@ class ConnectionSetup:
                     self.net.o_team = 1
                 if self.net.team == 1:
                     self.net.o_team = 0
-
-                self.net.send_control("Map received")
-                self.net.client_status = ""
-                self.net.host_status = ""
-                #time.sleep(2)
+                """
                 self.new_window_target = CharacterSelection
 
-        def cancel_join_fkt():  # ToDo Network
+        def cancel_join_fkt():  # ToDo Network Still needed ? if yes more server handlin
             self.net = None
             self.role = "unknown"
             self.join_thread = 0
@@ -350,7 +324,7 @@ class ConnectionSetup:
 
         self.buttons.append(join_stat_btn)
 
-        ip_to_join_btn = Button([int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
+        ip_to_join_btn = Button([int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],  #ToDo Rename in Lobbylist or create new one
                                 pos=[int((right_surf.get_width() - (surfs_size[0] / 3)) / 2),
                                      int(surfs_size[1] * 0.7)],
                                 real_pos=[int((right_surf.get_width() - (surfs_size[0] / 3)) / 2) +
@@ -606,19 +580,18 @@ class ConnectionSetup:
 
 class CharacterSelection:  # commit comment
 
-    def __init__(self, points_to_spend, game_map, role="unknown", net=None):
+    def __init__(self, points_to_spend, game_map, client=None):
         # let only those things be here that are not to be reset every frame, so i.e. independent of window size
 
         size = true_res
 
         self.points_to_spend = points_to_spend  # TODO
         self.game_map = game_map
-        self.role = role
-        self.net = net   # ToDo Network
+        self.client = client
         self.new_window_target = None
         self.spent_points = 0
         self.screen = pg.display.set_mode(true_res, pg.RESIZABLE | pg.FULLSCREEN)
-        self.ownTeam = Team(team_number=self.net.team)    # ToDo Network
+        self.ownTeam = Team(team_number=self.net.team)    # ToDo Network Team?
         self.ready_thread = 0
         self.selectedChar = None
         self.weapons = []
@@ -1093,23 +1066,23 @@ class CharacterSelection:  # commit comment
         # right #
         #########
         # ToDo BIG Network
-        def ready_up():
+        def ready_up(): # ToDo Cancelbarer Readyup?
             if self.ready_thread == 0:
-                start_new_thread(ready_checker, ())
-            if self.role == "host":
-                self.ready = not self.ready
-                if self.ready:
-                    self.net.send_control("Host_ready")
-                else:
-                    self.net.send_control("Host_not_ready")
+                start_new_thread(new_ready_checker, ())
+            if self.ready:
+                self.client.send_char_select_ready  # ToDo Unready/Ready Cancelling
+                self.ready = False
+            else:
+                self.client.send_char_select_ready
+                self.ready = True
 
-            if self.role == "client":
-                self.ready = not self.ready
-                if self.ready:
-                    self.net.send_control("Client_ready")
-                else:
-                    self.net.send_control("Client_not_ready")
+        def new_ready_checker():
+            self.ready_thread = get_ident()
+            self.game_map = self.client.check_for_game_begin  # ToDo Maybe let it be blocking
+            self.new_window_target = InGame
 
+        # old readychecker
+        """
         def ready_checker():    # ToDo Network
             self.ready_thread = get_ident()
             while self.new_window_target != InGame:
@@ -1222,7 +1195,7 @@ class CharacterSelection:  # commit comment
                         if self.net.failsafe:
                             self.net.send_data_pickle("Teeam", self.ownTeam.characters)
                         self.new_window_target = InGame
-
+        """
         def get_text():
             return "Unready" if self.ready else "Ready!"
 
@@ -1723,14 +1696,14 @@ class CharacterSelection:  # commit comment
 
 class InGame:
 
-    def __init__(self, own_team, game_map, net=None):   # ToDo Network
+    def __init__(self, own_team, game_map, client=None):   # ToDo Turnsystem/Network not implemented yet
 
         # things to do here:
         # - put chars on spawning area
 
         self.own_team = own_team
         self.game_map = game_map
-        self.net = net   # ToDo Network
+        self.client = client
 
         self.cc_num = 6
         self.gc_num = 4

@@ -84,7 +84,7 @@ while True:
 
         if active_window.new_window_target:  # should be character selection
 
-            net_var = active_window.net  # ToDo Network
+            client_var = active_window.client  # ToDo Network
             role = active_window.role
 
             if active_window.role is "host":
@@ -93,19 +93,20 @@ while True:
                 # -> generate map
                 new_target = active_window.new_window_target
                 game_map = active_window.game_map
-                points_to_spend = int(((game_map.size_x * game_map.size_y) / 500) * 16.6)  # TODO change maybe
+                points_to_spend = active_window.map_points  # int(((game_map.size_x * game_map.size_y) / 500) * 16.6)  # TODO change maybe
                 active_window.harakiri()
 
                 active_window = new_target(points_to_spend=points_to_spend,
                                            game_map=game_map,
-                                           net=net_var,  # ToDo Network
+                                           client=client_var,  # ToDo Network
                                            role=role)  # TODO add after balancing dependent on desired_map_size
                                                        # cheapest char but full equipped for all team members
 
             elif active_window.role is "client":
 
                 # I am client
-                map_data = net_var.map  # ToDo Network
+                """
+                map_data = net_var.map  # ToDo Network 
                 game_map = Map.Map(x_size=map_data[3],
                                    y_size=map_data[4],
                                    elem_size=elem_size,
@@ -114,14 +115,15 @@ while True:
                                    unique_pixels=map_data[0])
 
                 points_to_spend = int(((game_map.size_x * game_map.size_y) / 500) * 16.6)   # TODO change maybe
-
+                """
                 new_target = active_window.new_window_target
                 active_window.harakiri()
 
-                game_map.draw_map()
-                active_window = new_target(points_to_spend=points_to_spend,
+                game_map.draw_map() # ToDO Sollte der Guest das hier scho haben
+
+                active_window = new_target(points_to_spend=points_to_spend,  # ToDo Gleiche wie Map hat der Guest das überhaupt scho?
                                            game_map=game_map,
-                                           net=net_var,   # ToDo Network
+                                           client=client_var,   # ToDo Network
                                            role=role)  # TODO add after balancing dependent on desired_map_size
                                                        # cheapest char but full equipped for all team members
 
@@ -143,13 +145,13 @@ while True:
 
         if active_window.new_window_target:
 
-            net_var = active_window.net  # ToDo Network
+            client_var = active_window.client
 
             new_target = active_window.new_window_target  # should be in_game
             team = active_window.ownTeam
             map = active_window.game_map
             active_window.harakiri()
-            active_window = new_target(own_team=team, game_map=map, net=net_var)   # ToDo Network
+            active_window = new_target(own_team=team, game_map=map, client=client_var)
 
         else:
 
