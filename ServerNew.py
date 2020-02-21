@@ -2,13 +2,6 @@ import socket
 import struct
 from NewNetwork import *
 
-'''
-    TODO
-        - unterscheide welches objekt ankommt
-        - entscheide, was du an wen weiter schicken musst und mach das
-        - bau n client der senden kann und so
-'''
-
 
 class MatchData:  # for hosting games
 
@@ -60,6 +53,7 @@ class Server:
             Data.scc["close connection"]:  self._hclose
         }
 
+        # dictionary that maps players (sockets) to their games
         self.game_players = dict()
 
     # connection handling
@@ -119,6 +113,8 @@ class Server:
         self.games.append(game)
         self.game_players[host.getsockname()] = game
         self.game_players[con.getsockname()] = game
+
+        # TODO notify host so that he can transition to next screen
 
     # handle get hosting list
     def _hgetHL(self, msg, con):
@@ -204,7 +200,6 @@ class Server:
         ...  # TODO
 
     # misc
-
     def _hundef(self, msg, con):
         pass
 
@@ -216,6 +211,9 @@ class Server:
             con.kill_connection()
             del con
             return
+        # message client to tell if he is in game or not
+        if msg == "get in game stat":
+            con.send(ctype=Data.scc["control"], msg="yes" if con.getsockname() in self.game_players else "no")
         print("Client@{} says: \n\n\t{}\n".format(con.target_addr, msg))
 
     def _hclose(self, msg, con):
