@@ -268,7 +268,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
 
         return 1
 
-    # TODO can I skip throught walls?
+    # TODO can I skip through walls?
     def movement_possible(self, char, new_pos):  # returns true or false
 
         if new_pos[0] < 0 or new_pos[0] > self.size_x-1 or new_pos[1] < 0 or new_pos[1] > self.size_y-1:
@@ -501,6 +501,14 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
 
         return lis
 
+    @staticmethod
+    def combine_map(_map, team1, team2):
+        for char in team1:
+            _map.objects[0].add_char(char)
+        for char in team2:
+            _map.objects[1].add_char(char)
+        return _map
+
 
 class MapBuilder:
 
@@ -647,6 +655,5 @@ class MapBuilder:
     def populate(self, team):
         # add all team members to characters
         for char in team.characters:
-
             self.map.add_object(char)
 

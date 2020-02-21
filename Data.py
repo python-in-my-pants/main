@@ -54,7 +54,7 @@ scc = {  # server control codes             message holds the following:
     "char select ready":    b'csRdy',       # (ready, team)
     "hosting list":         b'hostl',       # hosting list object
     "end game":             b'endg ',       # TODO surely sth
-    "game begins":          b'gbegi',       # final map
+    "game begins":          b'gbegi',       # final map, team 1, team 2
     "get turn":             b'gturn',       # ""
     "undefined":            b'undef',       # N/A
     "close connection":     b'close'        # ""

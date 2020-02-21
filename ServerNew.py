@@ -142,10 +142,10 @@ class Server:
 
         if game.host_ready and game.guest_ready:
             # send game begins to both? put all chars on map??
-            final_map = self.combine_map(game.game_map, game.host_team, game.guest_team)
+            teams = [game.host_team, game.guest_team]
             # send final map to both players
-            game.host.send(ctype=Data.scc["game begin"], msg=final_map)
-            game.guest.send(ctype=Data.scc["game begin"], msg=final_map)
+            game.host.send(ctype=Data.scc["game begin"], msg=teams)
+            game.guest.send(ctype=Data.scc["game begin"], msg=teams)
 
     # DEPRECATED
     '''
@@ -222,14 +222,6 @@ class Server:
         con.kill_connection()
         del con
         return
-
-    @staticmethod
-    def combine_map(_map, team1, team2):
-        for char in team1:
-            _map.objects[0].add_char(char)
-        for char in team2:
-            _map.objects[1].add_char(char)
-        return _map
 
 
 def main_routine():
