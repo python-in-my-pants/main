@@ -106,7 +106,7 @@ class ConnectionSetup:
         self.host_stat = "Host Status"
         self.host_thread = 0
         self.join_thread = 0
-        self.map = None
+        #self.map = None
         self.map_points = None
         self.team_number = 0
 
@@ -116,12 +116,15 @@ class ConnectionSetup:
         self.first_click = True
         self.board_first_click = True
 
+        self.get_hosting_list_counter = 0
+        self.game_to_join = None
+
         self.screen = None
         self.buttons = None
 
         self.ip_field_text = "Dungeon"  # TODO change
         self.desi_board_text = "50"  # TODO change
-        self.game_map = None
+        self.game_map_string = None
 
         self.main_background_img = pg.image.load("assets/rose.png").convert()
         self.main_background_img = fit_surf(pg.Surface(true_res), self.main_background_img)
@@ -136,6 +139,18 @@ class ConnectionSetup:
     def update(self):
 
         size = true_res
+
+        # Askin for tha Hostinglist with a counter boi all 3 seconds with a 60er framerate
+
+        if self.get_hosting_list_counter == 180:
+            hosting_list = self.client.get_hosting_list()
+            self.game_to_join = hosting_list[0]
+            self.ip_field_text = "{}:\n {}, {} Points".format(hosting_list[0].hosting_player,
+                                                              hosting_list[0].name,
+                                                              hosting_list[0].points)
+            self.get_hosting_list_counter = 0
+        else:
+            self.get_hosting_list_counter += 1
 
         # set up GUI ---------------------------------------------------------------------------------------------------
 
@@ -167,12 +182,13 @@ class ConnectionSetup:
                 self.desi_board_text = ""
                 self.board_first_click = False
 
-        def host_btn_fkt():   # ToDo Network
+        def host_btn_fkt():
             if self.host_thread == 0:
                 self.host_thread = start_new_thread(host_btn_fkt, ())
                 return
-            if self.host_thread != 0 and get_ident() == self.host_thread: #ToDo Kill old threads per host_thread
+            if self.host_thread != 0 and get_ident() == self.host_thread:
                 self.client = NetworkClient()
+                self.role = "host"
                 self.host_stat = "Waiting for other players..."
 
                 while desired_board_size_button.text == "Enter the desired size":
@@ -182,40 +198,28 @@ class ConnectionSetup:
                 self.field_size = int(desired_board_size_button.text)
                 self.host_stat = "Waiting for opponent"
 
-                self.game_map = Map.MapBuilder().build_map(self.field_size)
+                self.game_map_string = Map.MapBuilder().build_map(self.field_size)
 
-                self.team_number = numpy.random.randint(0, 2) #ToDo Network Teamnummern? festgeelegt beim joinen oder random?
-                """
-                if self.team_number == 1:
-                    self.net.send_data("Teams", str(0))
-                    self.net.team = 1
-                    self.net.o_team = 0
-                if self.team_number == 0:
-                    self.net.send_data("Teams", str(1))
-                    self.net.team = 0
-                    self.net.o_team = 1
-                """
+                self.team_number = 0
                 # print(pickle.dumps(self.game_map.get_map()).__len__())
-                time.sleep(0.5)
-                self.map_points = int(((self.game_map.size_x * self.game_map.size_y) / 500) * 16.6)
-                self.client.host_game("Dungeon", self.game_map.get_map(), self.map_points)
 
-                # ToDO Network Gibts nen Ready state oder brauchen wir den noch?
-                """
-                while self.net.client_status != "Ready":  
-                    self.net.send_control("Client_status")
-                    time.sleep(0.5)
-                    print(self.net.client_status)
-                    pass  # Sleep even tighter Aniki!!!
-                """
+                self.map_points = int(((self.game_map_string.size_x * self.game_map_string.size_y) / 500) * 16.6)
+                self.client.host_game("Dungeon", self.game_map_string.get_map(), self.map_points)
+
+                while not self.client.get_join_stat():
+                    if self.host_thread == 0:
+                        return
+                    pass
+
                 self.host_stat = "Let's start!"
                 self.new_window_target = CharacterSelection
                 return
 
         def cancel_host_fkt():   # ToDo Network
             if self.client is not None:
-                self.client.cancel_hosting
-                self.client.kill_connection
+                self.client.cancel_hosting()
+                self.client.kill_connection()
+                self.host = "unknown"
                 self.client = None
                 self.host_thread = 0
             self.host_stat = "Hosting canceled!"
@@ -266,36 +270,28 @@ class ConnectionSetup:
 
         # -------------------------------------------------------------------------------------------------------------
 
-        def join_btn_fkt():  # ToDo Network
+        def join_btn_fkt():
             if self.join_thread == 0:
                 self.join_thread = start_new_thread(join_btn_fkt, ())
                 return
             if self.join_thread != 0 and get_ident() == self.join_thread:
                 # ToDo Place for UI with Lobbylist
-                ip_to_join_btn.text = self.client.get_hosting_list
-                while ip_to_join_btn.text == "Enter the desired lobbyname":
-                    self.join_stat = "Enter the desired lobbyname"
-                    pass  # Sleep tighter Aniki!!
-                self.client.join(ip_to_join_btn.text)
-                # ToDo How long should the wait be if a wait should be even in place? Or maybe a handshake?
-                time.sleep(1)
-                # ToDo Same Teamquestion as in host
-                """
-                time.sleep(0.5)
-                self.net.send_control("Team pls")
-                time.sleep(0.5)
-                if self.net.team == 0:
-                    self.net.o_team = 1
-                if self.net.team == 1:
-                    self.net.o_team = 0
-                """
+                self.role = "client"
+                self.team_number = 1
+                while self.game_to_join is None:
+                    self.join_stat = "Waitin for ya lobby son!"  # Sleep tighter Aniki!!
+                self.game_map_string = self.game_to_join.game_map
+                self.map_points = self.game_to_join.points
+                self.client.join("Dungeon")
+                while not self.client.get_join_stat():  # Are i in a game?
+                    pass
                 self.new_window_target = CharacterSelection
 
-        def cancel_join_fkt():  # ToDo Network Still needed ? if yes more server handlin
-            self.net = None
-            self.role = "unknown"
-            self.join_thread = 0
-            self.join_stat = "Cancelled"
+        def cancel_join_fkt():  # ToDo Rework for later KAPPA
+            #self.net = None
+            #self.role = "unknown"
+            #self.join_thread = 0
+            self.join_stat = "Cancelled Kappa"
 
         def ip_field_fkt():
             # on first click erase content, else do nothing
@@ -580,24 +576,27 @@ class ConnectionSetup:
 
 class CharacterSelection:  # commit comment
 
-    def __init__(self, points_to_spend, game_map, client=None):
+    def __init__(self, points_to_spend, game_map, role="unknown", team_numberr=0, client=None):
         # let only those things be here that are not to be reset every frame, so i.e. independent of window size
 
         size = true_res
 
         self.points_to_spend = points_to_spend  # TODO
         self.game_map = game_map
+        self.role = role
         self.client = client
         self.new_window_target = None
         self.spent_points = 0
         self.screen = pg.display.set_mode(true_res, pg.RESIZABLE | pg.FULLSCREEN)
-        self.ownTeam = Team(team_number=self.net.team)    # ToDo Network Team?
+        self.team_numberr = team_numberr
+        self.ownTeam = Team(team_number=team_numberr)    # ToDo Network Team?
         self.ready_thread = 0
         self.selectedChar = None
         self.weapons = []
         self.gear = []
         self.items = []
         self.ready = None
+        self.ready_checker_counter = 0
         self.cc_num = 6  # number of character cards
         self.gc_num = 4
         self.wc_num = 7
@@ -1065,21 +1064,10 @@ class CharacterSelection:  # commit comment
         #########
         # right #
         #########
-        # ToDo BIG Network
-        def ready_up(): # ToDo Cancelbarer Readyup?
-            if self.ready_thread == 0:
-                start_new_thread(new_ready_checker, ())
-            if self.ready:
-                self.client.send_char_select_ready  # ToDo Unready/Ready Cancelling
-                self.ready = False
-            else:
-                self.client.send_char_select_ready
-                self.ready = True
 
-        def new_ready_checker():
-            self.ready_thread = get_ident()
-            self.game_map = self.client.check_for_game_begin  # ToDo Maybe let it be blocking
-            self.new_window_target = InGame
+        def ready_up():
+            self.ready = not self.ready
+            self.client.send_char_select_ready(self.ready, self.ownTeam)
 
         # old readychecker
         """
@@ -1274,6 +1262,15 @@ class CharacterSelection:  # commit comment
 
     def update(self):  # TODO for better performance render only things that changed
                         # TODO adjust size of small teamcharbtn dpendent on map oints
+        if self.ready:
+            if self.ready_checker_counter == 69:  # CHECKER EVERY Secondu
+                team_list = self.client.check_for_game_begin()
+                if team_list is not None:
+                    self.game_map = Map.Map.combine_map(self.game_map, team_list[0], team_list[1])
+                    self.new_window_target = InGame
+                self.ready_checker_counter = 0
+            else:
+                self.ready_checker_counter += 1
 
         # update buttons real positions
         if self.scroll:

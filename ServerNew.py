@@ -222,14 +222,6 @@ class Server:
         del con
         return
 
-    @staticmethod
-    def combine_map(_map, team1, team2):
-        for char in team1:
-            _map.objects[0].add_char(char)
-        for char in team2:
-            _map.objects[1].add_char(char)
-        return _map
-
 
 def main_routine():
 

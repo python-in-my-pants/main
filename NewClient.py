@@ -96,7 +96,7 @@ class NetworkClient:
         return
 
     def get_join_stat(self):
-        th.start_new_thread(self._get_join_stat, ())
+        self._get_join_stat()
         return self.live_data["in_game"]
 
     def _get_join_stat(self):
