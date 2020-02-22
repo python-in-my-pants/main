@@ -140,14 +140,21 @@ class ConnectionSetup:
 
         size = true_res
 
-        # Askin for tha Hostinglist with a counter boi all 3 seconds with a 60er framerate
+        # Asking for tha hosting list all 3 seconds assuming 60 FPS
 
         if self.get_hosting_list_counter == 180:
             hosting_list = self.client.get_hosting_list()
-            self.game_to_join = hosting_list[0]
-            self.ip_field_text = "{}:\n {}, {} Points".format(hosting_list[0].hosting_player,
-                                                              hosting_list[0].name,
-                                                              hosting_list[0].points)
+            if hosting_list:
+                # TODO this is hardcoded; always choosing game 1 from hosting list
+                # TODO change on demand of multiple hostable games
+                self.game_to_join = hosting_list[0]
+                self.ip_field_text = "{}:\n {}, {} Points".format(hosting_list[0].hosting_player,
+                                                                  hosting_list[0].name,
+                                                                  hosting_list[0].points)
+                # TODO
+                '''At a later point, the ip_to_join_button should be reworked as a list, containing 1 button per 
+                game in the hosting list. If you click the button, the corresponding game should be game_to_join. 
+                Clicking the join button should do the joining then'''
             self.get_hosting_list_counter = 0
         else:
             self.get_hosting_list_counter += 1
@@ -215,7 +222,7 @@ class ConnectionSetup:
                 self.new_window_target = CharacterSelection
                 return
 
-        def cancel_host_fkt():   # ToDo Network
+        def cancel_host_fkt():   # ToDo this kinda crashes the client? again? maybe its the kill
             if self.client is not None:
                 self.client.cancel_hosting()
                 self.client.kill_connection()
@@ -226,7 +233,6 @@ class ConnectionSetup:
 
         def back_fkt():
             self.new_window_target = MainWindow
-            print("click")
 
         # define buttons and put them on their surface
 

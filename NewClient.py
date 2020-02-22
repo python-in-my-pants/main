@@ -29,7 +29,7 @@ class NetworkClient:
                                          ConnectionData(),
                                          "Client")
             self.last_opp_turn_time = -1
-            self.live_data = {"hosting_list": None,
+            self.live_data = {"hosting_list": [],
                               "map": None,
                               "in_game": False,
                               "game_begin": None,
@@ -60,14 +60,14 @@ class NetworkClient:
     def host_game(self, name, game_map, points):
 
         # send relevant data to the server
-        self.connection.send(ctype=Data.scc["host"], msg=(name, game_map, points))
+        self.connection.send(Data.scc["Host"], (name, game_map, points))
 
     def join(self, name):
         # client already gets map here in game_data object
-        self.connection.send(ctype=Data.scc["join"], msg=name)
+        self.connection.send(Data.scc["Join"], name)
 
     def cancel_hosting(self):  # TODO this has to be called from game logic if you are not ready any more
-        self.connection.send(ctype=Data.scc["cancel hosting"], msg="")
+        self.connection.send(Data.scc["cancel hosting"], "")
 
     # get hosting list
     def get_hosting_list(self):
@@ -78,7 +78,7 @@ class NetworkClient:
 
         # check len of rec log to and tell server to send host list
         l1 = self.connection.get_rec_log_len()
-        self.connection.send(ctype=Data.scc["get host list"], msg="")
+        self.connection.send(Data.scc["get host list"], "")
 
         # wait until new message was received (hopefully the answer to get host list is not yet sent)
         while l1 == self.connection.get_rec_log_len():
@@ -103,7 +103,7 @@ class NetworkClient:
     def _get_join_stat(self):
         # check len of rec log and tell server to tell in game status
         l1 = self.connection.get_rec_log_len()
-        self.connection.send(ctype=Data.scc["control"], msg="get in game stat")
+        self.connection.send(Data.scc["control"], "get in game stat")
 
         # wait until new message was received
         while l1 == self.connection.get_rec_log_len():
@@ -144,7 +144,7 @@ class NetworkClient:
 
     def _get_turn(self):
         l1 = self.connection.get_rec_log_len()
-        self.connection.send(ctype=Data.scc["send turn"], msg="")
+        self.connection.send(Data.scc["send turn"], "")
 
         # assure that a new msg came in meanwhile
         while l1 == self.connection.get_rec_log_len():
@@ -152,7 +152,7 @@ class NetworkClient:
 
         # now wait for turn msg in inbox
         ctype, msg = self.connection.get_last_control_type_and_msg()
-        if ctype == Data.scc["turn"]:
+        if ctype == Data.scc["Turn"]:
             turn, turn_time = msg
             if self.last_opp_turn_time != turn_time:  # turn is new
                 self.last_opp_turn_time = turn_time
@@ -166,13 +166,13 @@ class NetworkClient:
 
     # sends
     def send_turn(self, turn):
-        self.connection.send(ctype=Data.scc["turn"], msg=(turn, current_milli_time()))
+        self.connection.send(Data.scc["turn"], (turn, current_milli_time()))
 
     def send_control(self, msg):
-        self.connection.send(ctype=Data.scc["control"], msg=msg)
+        self.connection.send(Data.scc["control"], msg)
 
     def send_char_select_ready(self, ready, team):
         # this will send until server confirms that he has received it
-        self.connection.send(ctype=Data.scc["char select ready"], msg=(ready, team))
+        self.connection.send(Data.scc["char select ready"], (ready, team))
         # afterwards you we can check for game begin in our inbox
         self._check_for_game_begin()

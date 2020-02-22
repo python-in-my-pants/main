@@ -117,7 +117,7 @@ class Server:
 
     # handle get hosting list
     def _hgetHL(self, msg, con):
-        con.target_socket.send(ctype="hosting list", msg=self.hosting_list)
+        con.send(Data.scc["hosting list"], self.hosting_list)
 
     # game
 
@@ -143,8 +143,8 @@ class Server:
             # send game begins to both? put all chars on map??
             teams = [game.host_team, game.guest_team]
             # send final map to both players
-            game.host.send(ctype=Data.scc["game begin"], msg=teams)
-            game.guest.send(ctype=Data.scc["game begin"], msg=teams)
+            game.host.send(Data.scc["game begin"], teams)
+            game.guest.send(Data.scc["game begin"], teams)
 
     # DEPRECATED
     '''
@@ -187,9 +187,9 @@ class Server:
             return
         if con.target_socket.getsockname() == game.host.getsockname():
             # send last opponent turn
-            game.host.send(ctype=Data.scc["turn"], msg=game.last_guest_turn)
+            game.host.send(Data.scc["turn"], game.last_guest_turn)
         elif con.target_socket.getsockname() == game.guest.getsockname():
-            game.host.send(ctype=Data.scc["turn"], msg=game.last_host_turn)
+            game.host.send(Data.scc["turn"], game.last_host_turn)
         else:
             print("Error in handling 'Get turn' request by server")
 
@@ -212,7 +212,7 @@ class Server:
             return
         # message client to tell if he is in game or not
         if msg == "get in game stat":
-            con.send(ctype=Data.scc["control"], msg="yes" if con.getsockname() in self.game_players else "no")
+            con.send(Data.scc["control"],   "yes" if con.getsockname() in self.game_players else "no")
         print("Client@{} says: \n\n\t{}\n".format(con.target_addr, msg))
 
     def _hclose(self, msg, con):

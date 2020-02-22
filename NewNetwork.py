@@ -58,7 +58,10 @@ class Connection:
                               Data.scc["char select ready"],
                               Data.scc["Host"],
                               Data.scc["game begins"]]
-        self.unwrap_as_str = [Data.scc["control"], Data.scc["close connection"]]
+        self.unwrap_as_str = [Data.scc["control"],
+                              Data.scc["close connection"],
+                              Data.scc["get host list"],
+                              Data.scc["undefined"]]
 
         try:
             th.start_new_thread(self.receive_bytes, ())
@@ -120,7 +123,7 @@ class Connection:
         elif buf[:5] in self.unwrap_as_str:
             return self.bytes_to_string(buf[5:-5])
         else:
-            print("Warning! Message unwrapping type is not defined in client! {}".format(buf[:5]))
+            print("Warning! Message unwrapping type is not defined in connection!\n\t{}".format(buf[:5]))
             return buf
 
     @staticmethod
@@ -169,17 +172,17 @@ class Connection:
             self.target_socket.send(msg_bytes)
             self.data.send_buffer.append(msg_bytes)
         except Exception as e:
-            print("Sending bytes to {} by {} failed. Data to send: {}\n Error:\n{}".
+            print("Sending bytes to {} by {} failed. Data to send: {}\n Error:\n{}\n".
                   format(self.target_addr, self.role, msg_bytes, e))
 
     def _send_bytes_conf(self, msg):
 
-        if len(msg) <= magic_number:  # should not come to use
+        if len(msg) <= magic_number:  # should not come to use often
             # send without confirm
-            self._send_bytes(msg_bytes=msg)
+            self._send_bytes(msg)
             if msg[:5] != b'close':
-                print("WARNING: message length is smaller than {}, it will not get confirmed by the server!".
-                      format(magic_number))
+                print("WARNING: message length is smaller than {}, it will not get confirmed by the server!\n\tMsg: {}".
+                      format(magic_number, msg[:-5]))
             return
 
         confirmation_received = False
@@ -222,11 +225,12 @@ class Connection:
         # TODO make sure things do not get pickled twice!!!
         try:
             if isinstance(to_send, type("a")):
+                # it is a string so just encode it so it becomes a bytes object?
                 return to_send.encode("UTF-8")
             else:
                 return Connection.object_to_bytes(to_send)
         except Exception as e:
-            print("Could not convert the message '{}' to bytes, error:\n{}".format(to_send, e))
+            print("Could not convert the message '{}' to bytes, error:\n{}\n".format(to_send, e))
 
     @staticmethod
     def object_to_bytes(obj):
