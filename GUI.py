@@ -45,6 +45,7 @@ class Button:
 
             self.surf.blit(background_img, (0, 0))
 
+            # TODO make font size dependent on text len
             font_size = int(0.7 * self.dim[1]) if int(0.7*self.dim[1]) < int(0.6*self.dim[0]) else int(0.6*self.dim[0])
             font = pg.font.SysFont("comicsansms", font_size)
             font_render = font.render(self.text, True, self.font_color)
@@ -60,6 +61,7 @@ class Button:
             col_surf.fill(color)
             self.surf.blit(col_surf, [b, b])
 
+            # TODO make font size dependent on text len
             font_size = int(0.7 * self.dim[1]) if int(0.7*self.dim[1]) < int(0.6*self.dim[0]) else int(0.6*self.dim[0])
             font = pg.font.SysFont("comicsansms", font_size)
             font_render = font.render(self.text, True, self.font_color)

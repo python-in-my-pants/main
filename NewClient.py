@@ -13,6 +13,7 @@ def current_milli_time():
     return int(round(time.time() * 1000))
 
 
+# TODO make this shit singleton!!!!!!!!!!!!!
 class NetworkClient:
 
     """
@@ -78,11 +79,17 @@ class NetworkClient:
 
         # check len of rec log to and tell server to send host list
         l1 = self.connection.get_rec_log_len()
-        self.connection.send(Data.scc["get host list"], "")
+        '''
+        print("\tRec log (host) in _get_hosting_list:")
+        for elem in self.connection.get_rec_log():
+            print("\t", elem)
+        '''
+        self.connection.send(Data.scc["get host list"], "")  # TODO this does not reach the server, make confirm
 
         # wait until new message was received (hopefully the answer to get host list is not yet sent)
         while l1 == self.connection.get_rec_log_len():
-            time.sleep(0.5)
+            print("I'm stuck here")
+            time.sleep(2)
 
         # now a new msg was sent
         ctype, msg = self.connection.get_last_control_type_and_msg()
@@ -96,7 +103,7 @@ class NetworkClient:
         self.live_data["hosting_list"] = msg
         return
 
-    def get_join_stat(self):
+    def get_join_stat(self):  # returns true if the server thinks the client is in game, false otherwise
         self._get_join_stat()
         return self.live_data["in_game"]
 

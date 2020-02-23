@@ -20,7 +20,12 @@ his own socket and NOT the serversocket of the server object.
 
 # TODO reformulate the debug messages with above note in mind
 
-magic_number = 5 + len("received message with hash: ") + 40
+# TODO make it so that you have a control type for confirm messages that does not get confirmed itself but all other
+#  messages do instead of length as control factor
+
+
+def current_milli_time():
+    return int(round(time.time() * 1000))
 
 
 class ConnectionData:
@@ -51,7 +56,9 @@ class Connection:
         self.connection_alive = True
         self.old_rec_len = -1
 
-        self.old_ctype_msg = {"old_ctype": None, "old_msg": None, "very_old_ctype": None, "very_old_msg": None}
+        self.last_chkd_msg = None
+
+        #self.old_ctype_msg = {"old_ctype": None, "old_msg": None, "very_old_ctype": None, "very_old_msg": None}
 
         self.unwrap_as_obj = [Data.scc["Turn"],
                               Data.scc["hosting list"],
@@ -61,7 +68,8 @@ class Connection:
         self.unwrap_as_str = [Data.scc["control"],
                               Data.scc["close connection"],
                               Data.scc["get host list"],
-                              Data.scc["undefined"]]
+                              Data.scc["undefined"],
+                              Data.scc["confirm"]]
 
         try:
             th.start_new_thread(self.receive_bytes, ())
@@ -88,20 +96,21 @@ class Connection:
             buf = b''
             while True:
                 if self.connection_alive:
+                    # print(self.role, "is receiving bytes ...")
                     last_rec = self.target_socket.recv(size)
                     if len(last_rec) < size:  # last piece of msg
                         buf += last_rec
                         self.data.rec_buffer.append(buf)
                         self.data.rec_log.append(buf)
-                        if len(buf) > magic_number:  # len of 5 control bytes and "Received message with hash: ..." with 20 digits hash as ...
-                            self._send_rec_confirmation(buf)
+                        if buf[:5] != Data.scc["confirm"]:  # confirms do not get confirmed, everything else does
+                            th.start_new_thread(self._send_rec_confirmation, tuple([buf]))
                         buf = b''
-                    elif len(last_rec) == size and last_rec[-5:] == b'XXXXX':
+                    elif len(last_rec) == size and last_rec[-5:] == Data.scc["message end"]:
                         # msg is exactly size long
                         self.data.rec_buffer.append(buf)
                         self.data.rec_log.append(buf)
-                        if len(buf) > magic_number:  # len of 5 control bytes and "Received message with hash: ..." with 20 digits hash as ...
-                            self._send_rec_confirmation(buf)
+                        if buf[:5] != Data.scc["confirm"]:
+                            th.start_new_thread(self._send_rec_confirmation, tuple([buf]))
                         buf = b''
                     elif len(last_rec) == size:  # kleben
                         # if len == 2048 and not end in XXXXX
@@ -117,11 +126,11 @@ class Connection:
             print("Connection alive:", self.connection_alive)
             print("Receiving bytes by the {} failed with exception:\n{}".format(self.role, e))
 
-    def unwrap(self, buf):  # gets in put buffer without scc but with XXXXX
+    def unwrap(self, buf):  # gets input buffer
         if buf[:5] in self.unwrap_as_obj:
-            return self.bytes_to_object(buf[5:-5])
+            return self.bytes_to_object(buf[45:-5])
         elif buf[:5] in self.unwrap_as_str:
-            return self.bytes_to_string(buf[5:-5])
+            return self.bytes_to_string(buf[45:-5])
         else:
             print("Warning! Message unwrapping type is not defined in connection!\n\t{}".format(buf[:5]))
             return buf
@@ -132,18 +141,36 @@ class Connection:
 
     def get_last_control_type_and_msg(self):
         # overwrite pre last return with last return
+        '''
         self.old_ctype_msg["very_old_ctype"] = self.old_ctype_msg["old_ctype"]
         self.old_ctype_msg["very_old_msg"] = self.old_ctype_msg["old_msg"]
         self.old_ctype_msg["old_ctype"] = Connection.get_control_type(self._get_last_rec())
         self.old_ctype_msg["old_msg"] = self.unwrap(self._get_last_rec())
+        '''
 
         return Connection.get_control_type(self._get_last_rec()), \
                self.unwrap(self._get_last_rec())
 
     def _get_last_rec(self):
-        return self.data.rec_buffer[-1] if len(self.data.rec_buffer) > 0 else b'undef'
+        return self.data.rec_buffer[-1] if len(self.data.rec_buffer) > 0 else Data.scc["undefined"]
 
-    def new_msg_sent(self):
+    def new_msg_sent(self):  # this now only checks for timestamps
+        last_rec = self._get_last_rec()
+        if last_rec == Data.scc["undefined"]:  # no msg was received yet
+            return False
+        if not self.last_chkd_msg:  # is it the first receive on this connection?
+            self.last_chkd_msg = last_rec
+            #print("new msg sent, first msg")
+            return True
+        if self.last_chkd_msg[5:45] == last_rec[5:45]:  # compare timestamps
+            #print("no new msg sent")
+            return False
+        else:
+            self.last_chkd_msg = last_rec
+            #print("new msg sent, not first msg")
+            return True
+
+    def old_new_msg_sent(self):
         if len(self.data.rec_log) != self.old_rec_len:
             # check if rec_leg len has changed since last call
             self.old_rec_len = len(self.data.rec_log)
@@ -159,15 +186,18 @@ class Connection:
         return copy.deepcopy(self.data.rec_log)
 
     def _send_rec_confirmation(self, rec_msg):
-        self._send_bytes("Received message with hash: {}".format(hashlib.sha1(rec_msg).hexdigest()).encode("UTF-8"))
+        self.send(Data.scc["confirm"], hashlib.sha1(rec_msg).hexdigest())  # this is a string
+        # self._send_bytes("Received message with hash: {}".format(hashlib.sha1(rec_msg).hexdigest()).encode("UTF-8"))
 
     # go for this if you want to send something
     def send(self, ctype, msg):  # control type and message to send, msg can be bytes or object
-        _msg = ctype + Connection.prep(msg) + b'XXXXX'
+        timestamp = hashlib.sha1(str(round(time.time()*1000)).encode("UTF-8")).hexdigest().encode("UTF-8")
+        _msg = ctype + timestamp + Connection.prep(msg) + Data.scc["message end"]
         self._send_bytes_conf(_msg)  # should this run in a separated thread as it blocks while waiting for confirm?
                                      # no, as only the "send" part of the connection blocks
 
     def _send_bytes(self, msg_bytes):
+        print("Warning! _send_bytes should not be used!")
         try:
             self.target_socket.send(msg_bytes)
             self.data.send_buffer.append(msg_bytes)
@@ -177,18 +207,26 @@ class Connection:
 
     def _send_bytes_conf(self, msg):
 
-        if len(msg) <= magic_number:  # should not come to use often
+        '''if len(msg) <= magic_number:  # should not come to use often
             # send without confirm
             self._send_bytes(msg)
-            if msg[:5] != b'close':
+            if msg[:5] != b'close' and msg[:5] != b'getHL':
                 print("WARNING: message length is smaller than {}, it will not get confirmed by the server!\n\tMsg: {}".
                       format(magic_number, msg[:-5]))
+            return'''
+
+        '''
+        you have to send the msg with identical timestamps every time
+        '''
+
+        if msg[0:5] == Data.scc["confirm"]:
+            self.target_socket.send(msg)
             return
 
         confirmation_received = False
         msg_hash = -1
         try:
-            msg_hash = hashlib.sha1(msg).hexdigest()  # TODO see above
+            msg_hash = hashlib.sha1(msg).hexdigest().encode("UTF-8")  # TODO see above
         except TypeError:
             print("Message is not hashable, failed to send by {}".format(self.role))
 
@@ -196,18 +234,30 @@ class Connection:
         def _check_for_confirm():
             while True:
                 nonlocal confirmation_received
+                nonlocal msg_hash
 
-                if self.data.rec_log[self.data.confirmation_search_index:].\
-                        __contains__("Received message with hash: {}".format(msg_hash).encode("UTF-8")):
+                print("Sending -> \nctype:", msg[0:5], "\ntimestamp:", msg[5:45], "\nmsg hash:", msg_hash, "\n")
+
+                for i, con_msg in enumerate(self.data.rec_log[self.data.confirmation_search_index:]):
+                    # if our hash was confirmed by the receiver
+                    if con_msg[0:5] == Data.scc["confirm"] and con_msg[45:-5] == msg_hash:
+                        print(msg[0:5], "message with timestamp", msg[5:45], "was confirmed!")
+                        confirmation_received = True
+                        self.data.confirmation_search_index += i + 1
+                        return
+                time.sleep(3)
+
+                '''
+                if self.data.rec_log[self.data.confirmation_search_index:].__contains__(
+                        Data.scc["confirm"] + msg_hash + Data.scc["message end"]):
                     confirmation_received = True
-                    self.data.confirmation_search_index = self.data.rec_log.index("Received message with hash: {}".
-                                                                                  format(msg_hash).encode("utf-8")) + 1
+                    self.data.confirmation_search_index = self.data.rec_log.index(msg_hash) + 1
                     return
                 time.sleep(1)
+                '''
 
         try:
             self.target_socket.send(msg)
-            time.sleep(1)
         except Exception as e:
             print(e)
 
@@ -215,8 +265,8 @@ class Connection:
 
         # send until receiving was confirmed
         while not confirmation_received:
-            self.target_socket.send(msg)
             time.sleep(3)
+            self.target_socket.send(msg)
 
     @staticmethod
     def prep(to_send):

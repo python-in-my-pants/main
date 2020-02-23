@@ -116,14 +116,14 @@ class ConnectionSetup:
         self.first_click = True
         self.board_first_click = True
 
-        self.get_hosting_list_counter = 0
+        self.get_hosting_list_counter = 210
         self.game_to_join = None
 
         self.screen = None
         self.buttons = None
 
-        self.ip_field_text = "Dungeon"  # TODO change
-        self.desi_board_text = "50"  # TODO change
+        self.ip_field_text = "no games available"  # TODO change; this will be a button in a list of games to join marking the game as the game to join
+        self.desi_board_text = "50"#"Enter board size"  # TODO change; here you should also enter the game name -> GameName, size, e.g. Dungeon, 50
         self.game_map_string = None
 
         self.main_background_img = pg.image.load("assets/rose.png").convert()
@@ -142,9 +142,13 @@ class ConnectionSetup:
 
         # Asking for tha hosting list all 3 seconds assuming 60 FPS
 
-        if self.get_hosting_list_counter == 180:
+        # this number has to be big enough to receive the list meanwhile
+        if self.get_hosting_list_counter >= 300 and not self.host_thread:  # do not send multiple different requests
+            print("Querying hosting list ...")
             hosting_list = self.client.get_hosting_list()
+
             if hosting_list:
+                print("Hosting list received!")
                 # TODO this is hardcoded; always choosing game 1 from hosting list
                 # TODO change on demand of multiple hostable games
                 self.game_to_join = hosting_list[0]
@@ -157,6 +161,7 @@ class ConnectionSetup:
                 Clicking the join button should do the joining then'''
             self.get_hosting_list_counter = 0
         else:
+           # print("Hosting list counter:", self.get_hosting_list_counter) if self.get_hosting_list_counter % 60 == 0 else None
             self.get_hosting_list_counter += 1
 
         # set up GUI ---------------------------------------------------------------------------------------------------
@@ -183,53 +188,62 @@ class ConnectionSetup:
 
             self.size_focus = True
             self.ip_focus = False
-            #print(self.desi_board_text)
 
             if self.board_first_click:
                 self.desi_board_text = ""
                 self.board_first_click = False
 
         def host_btn_fkt():
-            if self.host_thread == 0:
+            if not self.host_thread:
                 self.host_thread = start_new_thread(host_btn_fkt, ())
                 return
-            if self.host_thread != 0 and get_ident() == self.host_thread:
-                self.client = NetworkClient()
-                self.role = "host"
-                self.host_stat = "Waiting for other players..."
+            if self.host_thread and get_ident() == self.host_thread:
 
-                while desired_board_size_button.text == "Enter the desired size":
-                    self.host_stat = "Enter the desired map size"
-                    pass  # Sleep tighter Aniki!!
+                # do not host while the size is not entered yet
+                invalid_map_size = True
+                while invalid_map_size:
+                    self.host_stat = "Enter map size"
+                    try:
+                        self.field_size = int(self.desi_board_text)  # TODO split by ", " and get name too
+                        invalid_map_size = False
+                    except ValueError:
+                        pass
 
-                self.field_size = int(desired_board_size_button.text)
-                self.host_stat = "Waiting for opponent"
+                self.host_stat = "Generating map..."
 
+                # generate Map for the game
                 self.game_map_string = Map.MapBuilder().build_map(self.field_size)
-
-                self.team_number = 0
-                # print(pickle.dumps(self.game_map.get_map()).__len__())
-
                 self.map_points = int(((self.game_map_string.size_x * self.game_map_string.size_y) / 500) * 16.6)
+
+                self.host_stat = "Hosting..."
+
+                # TODO this never reaches the server, why???
+                # send the data to the server
                 self.client.host_game("Dungeon", self.game_map_string.get_map(), self.map_points)
 
+                self.host_stat = "Wait for opp...|...|...|"
+
+                # while you are not in a game yet (aka nobody has joined your hosted game)
                 while not self.client.get_join_stat():
+                    # kill the thread if outer conditions changed
                     if self.host_thread == 0:
                         return
-                    pass
 
+                self.role = "host"
+                # host is always team 0
+                self.team_number = 0
+                # go to char select if somebody has joined your game
                 self.host_stat = "Let's start!"
                 self.new_window_target = CharacterSelection
                 return
 
-        def cancel_host_fkt():   # ToDo this kinda crashes the client? again? maybe its the kill
-            if self.client is not None:
-                self.client.cancel_hosting()
-                self.client.kill_connection()
-                self.host = "unknown"
-                self.client = None
+        def cancel_host_fkt():  # TODO see if this still crashes
+            if self.host_thread:
                 self.host_thread = 0
-            self.host_stat = "Hosting canceled!"
+                self.host_stat = "Cancelling ..."
+                self.client.cancel_hosting()
+                self.host = "unknown"
+                self.host_stat = "Hosting canceled!"
 
         def back_fkt():
             self.new_window_target = MainWindow
@@ -277,27 +291,35 @@ class ConnectionSetup:
         # -------------------------------------------------------------------------------------------------------------
 
         def join_btn_fkt():
-            if self.join_thread == 0:
+            if not self.join_thread:
                 self.join_thread = start_new_thread(join_btn_fkt, ())
                 return
-            if self.join_thread != 0 and get_ident() == self.join_thread:
-                # ToDo Place for UI with Lobbylist
-                self.role = "client"
-                self.team_number = 1
-                while self.game_to_join is None:
-                    self.join_stat = "Waitin for ya lobby son!"  # Sleep tighter Aniki!!
+            if self.join_thread and get_ident() == self.join_thread:  # TODO join self.game_to_join on click
+
+                # no game was selected
+                if not self.game_to_join:
+                    self.join_stat = "Select a game first"
+                    return
+
+                # set the map to hosted map
                 self.game_map_string = self.game_to_join.game_map
                 self.map_points = self.game_to_join.points
+
+                # TODO hardcoded game name for testing
                 self.client.join("Dungeon")
-                while not self.client.get_join_stat():  # Are i in a game?
+                # wait until the server thinks that I am in a game
+                while not self.client.get_join_stat():
                     pass
+
+                self.role = "client"
+                self.team_number = 1
                 self.new_window_target = CharacterSelection
 
         def cancel_join_fkt():  # ToDo Rework for later KAPPA
             #self.net = None
             #self.role = "unknown"
             #self.join_thread = 0
-            self.join_stat = "Cancelled Kappa"
+            self.join_stat = "Cancelled"
 
         def ip_field_fkt():
             # on first click erase content, else do nothing
@@ -326,7 +348,8 @@ class ConnectionSetup:
 
         self.buttons.append(join_stat_btn)
 
-        ip_to_join_btn = Button([int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],  #ToDo Rename in Lobbylist or create new one
+        # ToDo Rename in Lobby list or create new one
+        ip_to_join_btn = Button([int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
                                 pos=[int((right_surf.get_width() - (surfs_size[0] / 3)) / 2),
                                      int(surfs_size[1] * 0.7)],
                                 real_pos=[int((right_surf.get_width() - (surfs_size[0] / 3)) / 2) +
@@ -371,9 +394,9 @@ class ConnectionSetup:
         for event in pg.event.get():
 
             # handle events
-            if event.type == pg.QUIT:   # ToDo Network
+            if event.type == pg.QUIT:
                 if self.role == "host":
-                    self.net.send_control("Close")  # TODO NETWORK
+                    self.client.kill_connection()
                 pg.quit()
                 sys.exit()
 

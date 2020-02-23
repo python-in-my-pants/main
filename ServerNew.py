@@ -35,6 +35,7 @@ class Server:
         self.serversocket.bind(("0.0.0.0", port))
         self.serversocket.listen(max_connections)
         self.connections = []
+        self.send_free = True
 
         self.hosting_list = dict()
         self.games = []
@@ -44,13 +45,17 @@ class Server:
             Data.scc["get host list"]:     self._hgetHL,
             Data.scc["Join"]:              self._hjoin,
             Data.scc["char select ready"]: self._hcsrdy,
+            Data.scc["get turn"]:          self._hgturn,
             Data.scc["Turn"]:              self._hturn,
             Data.scc["control"]:           self._hcon,
             Data.scc["end game"]:          self._hendg,
             Data.scc["game begins"]:       lambda x: None,
             Data.scc["undefined"]:         self._hundef,
+            Data.scc["confirm"]:           self._hundef,
             Data.scc["close connection"]:  self._hclose
         }
+        self.needs_send_resource = [Data.scc["get host list"],
+                                    Data.scc["char select ready"]]
 
         # dictionary that maps players (sockets) to their games
         self.game_players = dict()
@@ -93,6 +98,7 @@ class Server:
         match_data = MatchData(name, con.target_socket, game_map, points)
         if not self.hosting_list.values().__contains__(match_data) and not self.hosting_list.keys().__contains__(name):
             self.hosting_list[name] = match_data
+        print("Server received host data!")
 
     # handle cancel hosting
     def _hchost(self, msg, con):  # TODO unclean, untested
@@ -117,7 +123,11 @@ class Server:
 
     # handle get hosting list
     def _hgetHL(self, msg, con):
+        self.send_free = False
+        print("Hosting list was queried!")
         con.send(Data.scc["hosting list"], self.hosting_list)
+        print("Server has sent host list!")
+        self.send_free = True
 
     # game
 
@@ -143,8 +153,10 @@ class Server:
             # send game begins to both? put all chars on map??
             teams = [game.host_team, game.guest_team]
             # send final map to both players
+            self.send_free = False
             game.host.send(Data.scc["game begin"], teams)
             game.guest.send(Data.scc["game begin"], teams)
+            self.send_free = True
 
     # DEPRECATED
     '''
@@ -162,6 +174,8 @@ class Server:
             # send to host
             game.host.send(ctype=Data.scc["turn"], msg=msg)
     '''
+
+    # TODO from here, handle send_free (add where needed)
 
     def _hturn(self, msg, con):
 
@@ -212,7 +226,8 @@ class Server:
             return
         # message client to tell if he is in game or not
         if msg == "get in game stat":
-            con.send(Data.scc["control"],   "yes" if con.getsockname() in self.game_players else "no")
+            con.send(Data.scc["control"], "yes" if con.target_socket.getsockname() in self.game_players else "no")
+
         print("Client@{} says: \n\n\t{}\n".format(con.target_addr, msg))
 
     def _hclose(self, msg, con):
@@ -221,6 +236,13 @@ class Server:
         con.kill_connection()
         del con
         return
+
+    def send_if_free(self, method, msg, con):
+        while True:
+            if self.send_free:
+                th.start_new_thread(method(), (msg, con))
+                return
+            time.sleep(0.5)
 
 
 def main_routine():
@@ -234,17 +256,25 @@ def main_routine():
         # check rec buffer of all connections and handle accordingly
         for con in server.connections:
             try:
-                # TODO check what can go wrong in this call and catch it
-                ctype, msg = con.get_last_control_type_and_msg()
+
+                print("\tRec log len:", con.get_rec_log_len())
+                for elem in con.get_rec_log():
+                    print("\t", elem)
+                print()
+
                 # handle incoming messages
-                if not (ctype == con.old_ctype_msg["very_old_ctype"] and  # TODO this still doesn't work as 2 identical
-                                                                  # requests for the host list both have to be answered
-                        msg == con.old_ctype_msg["very_old_msg"]):
-                    server.ctype_dict[ctype](msg, con)
+                if con.new_msg_sent():
+                    # TODO check what can go wrong in this call and catch it
+                    ctype, msg = con.get_last_control_type_and_msg()  # TODO this blocks cause msg is too long in unwrap
+                    # if ctype needs send resources use send_if_free, else just call
+                    if ctype in server.needs_send_resource:
+                        server.send_if_free(server.ctype_dict[ctype], msg, con)
+                    else:
+                        th.start_new_thread(server.ctype_dict[ctype], (msg, con))  # TODO assure that all send resources are free
             except KeyError as e:
                 print("KeyError! {}".format(e))
 
-        time.sleep(0.5)
+        time.sleep(1)
 
 
 if __name__ == "__main__":

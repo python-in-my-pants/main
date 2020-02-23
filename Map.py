@@ -358,7 +358,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
 
         return [1, 1]  # can see & shoot
 
-    def get_reachable_fields(self, pos_w, pos_h, mov_range):  # TODO gruesome performace, overthink when not sick
+    def get_reachable_fields(self, pos_w, pos_h, mov_range):  # TODO gruesome performance, over think when not sick
 
         reachable = [[pos_w, pos_h]]
 
@@ -392,7 +392,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
     def check_valid(self, x, y):
 
         if 0 <= x <= self.size_x-1 and 0 <= y <= self.size_y-1:
-           return True
+            return True
         else:
             return False
 
@@ -646,9 +646,8 @@ class MapBuilder:
             else:
                 tree_counter += 1
 
-
         # draw everything to surf
-
+        # TODO why would I draw this here already?
         self.map.draw_map()
         return self.map
 

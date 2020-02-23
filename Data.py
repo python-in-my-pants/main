@@ -57,7 +57,9 @@ scc = {  # server control codes             message holds the following:
     "game begins":          b'gbegi',       # final map, team 1, team 2
     "get turn":             b'gturn',       # ""
     "undefined":            b'undef',       # N/A
-    "close connection":     b'close'        # ""
+    "close connection":     b'close',       # ""
+    "confirm":              b'confi',       # confirm msg with hash
+    "message end":          b'XXXXX'        # not a control type but here anyway
 }
 
 iscc = {v: k for k, v in scc.items()}  # inverted server control codes

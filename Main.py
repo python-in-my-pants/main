@@ -56,7 +56,7 @@ y = elem_size * fields_y  # mult of 10
 active_window = None
 
 main_window = MainWindow
-connection_setup = ConnectionSetup  # ToDo Network
+connection_setup = ConnectionSetup
 character_selection = CharacterSelection
 in_game = InGame
 
@@ -94,7 +94,7 @@ while True:
                 new_target = active_window.new_window_target
                 points_to_spend = active_window.map_points
                 game_map = active_window.game_map_string
-                  # int(((game_map.size_x * game_map.size_y) / 500) * 16.6)  # TODO change maybe
+                # int(((game_map.size_x * game_map.size_y) / 500) * 16.6)  # TODO change maybe
                 active_window.harakiri()
 
                 active_window = new_target(points_to_spend=points_to_spend,
@@ -120,7 +120,7 @@ while True:
                 new_target = active_window.new_window_target
                 active_window.harakiri()
 
-                game_map.draw_map() # ToDO Sollte der Guest das hier scho haben
+                game_map.draw_map()  # ToDO Sollte der Guest das hier scho haben
 
                 active_window = new_target(points_to_spend=points_to_spend,  # ToDo Gleiche wie Map hat der Guest das überhaupt scho?
                                            team_numberr=active_window.team_number,
