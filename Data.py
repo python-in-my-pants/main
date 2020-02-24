@@ -1,8 +1,8 @@
 import ctypes
 
 true_res = (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
-#serverIP = "88.150.32.237"
-serverIP = "localhost"
+serverIP = "88.150.32.237"
+#serverIP = "localhost"
 
 mat_colour = {
     "sandstone": (255, 140, 0),
