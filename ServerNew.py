@@ -94,7 +94,7 @@ class Server:
 
     # handle hosting
     def _hhost(self, msg, con):
-        name, game_map, points = Connection.bytes_to_object(msg)
+        name, game_map, points = msg
         match_data = MatchData(name, con.target_socket, game_map, points)
         if not self.hosting_list.values().__contains__(match_data) and not self.hosting_list.keys().__contains__(name):
             self.hosting_list[name] = match_data
@@ -240,7 +240,7 @@ class Server:
     def send_if_free(self, method, msg, con):
         while True:
             if self.send_free:
-                th.start_new_thread(method(), (msg, con))
+                th.start_new_thread(method, (msg, con))
                 return
             time.sleep(0.5)
 
@@ -259,7 +259,7 @@ def main_routine():
 
                 print("\tRec log len:", con.get_rec_log_len())
                 for elem in con.get_rec_log():
-                    print("\t", elem)
+                    print("\t", elem[:50].encode("utf-8"), "...", elem[-10:].encode("utf-8"))
                 print()
 
                 # handle incoming messages
