@@ -96,8 +96,8 @@ class Connection:
             buf = b''
             while True:
                 if self.connection_alive:
-                    print(self.role, "is receiving bytes ...")
-                    print("buffer input size:", len(buf))
+                    # print(self.role, "is receiving bytes ...")
+                    # print("buffer input size:", len(buf))
                     last_rec = self.target_socket.recv(size)
                     if len(last_rec) < size:  # last piece of msg
                         buf += last_rec
@@ -140,14 +140,6 @@ class Connection:
         return msg[0:5]
 
     def get_last_control_type_and_msg(self):
-        # overwrite pre last return with last return
-        '''
-        self.old_ctype_msg["very_old_ctype"] = self.old_ctype_msg["old_ctype"]
-        self.old_ctype_msg["very_old_msg"] = self.old_ctype_msg["old_msg"]
-        self.old_ctype_msg["old_ctype"] = Connection.get_control_type(self._get_last_rec())
-        self.old_ctype_msg["old_msg"] = self.unwrap(self._get_last_rec())
-        '''
-
         return Connection.get_control_type(self._get_last_rec()), \
                self.unwrap(self._get_last_rec())
 
@@ -193,8 +185,6 @@ class Connection:
     def send(self, ctype, msg):  # control type and message to send, msg can be bytes or object
         timestamp = hashlib.sha1(str(round(time.time()*1000)).encode("UTF-8")).hexdigest().encode("UTF-8")
         _msg = ctype + timestamp + Connection.prep(msg) + Data.scc["message end"]
-        if ctype == Data.scc["Host"]:
-            print("host msg len:", len(msg))
         self._send_bytes_conf(_msg)  # should this run in a separated thread as it blocks while waiting for confirm?
                                      # no, as only the "send" part of the connection blocks
 
@@ -241,7 +231,7 @@ class Connection:
                 for i, con_msg in enumerate(self.data.rec_log[self.data.confirmation_search_index:]):
                     # if our hash was confirmed by the receiver
                     if con_msg[0:5] == Data.scc["confirm"] and con_msg[45:-5] == msg_hash:
-                        print(msg[0:5], "message with timestamp", msg[5:45], "was confirmed!")
+                        #print(msg[0:5], "message with timestamp", msg[5:45], "was confirmed!")
                         confirmation_received = True
                         self.data.confirmation_search_index += i + 1
                         return
@@ -257,8 +247,7 @@ class Connection:
                 '''
 
         try:
-            print("Sending -> \nlen:", len(msg), "\nctype:", msg[0:5], "\ntimestamp:", msg[5:45], "\nmsg hash:",
-                  msg_hash, "\n")
+            # print("Sending -> \nlen:", len(msg), "\nctype:", msg[0:5], "\ntimestamp:", msg[5:45], "\nmsg hash:", msg_hash, "\n")
             self.target_socket.send(msg)
         except Exception as e:
             print(e)
@@ -268,8 +257,7 @@ class Connection:
         # send until receiving was confirmed
         while not confirmation_received:
             time.sleep(3)
-            print("Sending -> \nlen:", len(msg), "\nctype:", msg[0:5], "\ntimestamp:", msg[5:45], "\nmsg hash:",
-                  msg_hash, "\n")
+            #print("R E sending -> \nlen:", len(msg), "\nctype:", msg[0:5], "\ntimestamp:", msg[5:45], "\nmsg hash:", msg_hash, "\n")
             self.target_socket.send(msg)
 
     @staticmethod
@@ -295,7 +283,7 @@ class Connection:
 
     @staticmethod
     def bytes_to_object(_bytes):
-        print("unpickling", len(_bytes), "bytes ....")
+        # print("unpickling", len(_bytes), "bytes ....")
         return pickle.loads(_bytes)
 
     @staticmethod

@@ -143,12 +143,12 @@ class ConnectionSetup:
         # Asking for tha hosting list all 3 seconds assuming 60 FPS
 
         # this number has to be big enough to receive the list meanwhile
-        if self.get_hosting_list_counter >= 300 and not self.host_thread:  # do not send multiple different requests
+        if self.get_hosting_list_counter >= 300:  # and not self.host_thread:  # do not send multiple different requests
             print("Querying hosting list ...")
             hosting_list = self.client.get_hosting_list()
-
+            print("host list:", hosting_list)
             if hosting_list:
-                print("Hosting list received!")
+                print("---> Full hosting list received! <---")
                 # TODO this is hardcoded; always choosing game 1 from hosting list
                 # TODO change on demand of multiple hostable games
                 self.game_to_join = hosting_list[0]

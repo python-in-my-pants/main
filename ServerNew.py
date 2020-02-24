@@ -94,9 +94,10 @@ class Server:
 
     # handle hosting
     def _hhost(self, msg, con):
+        print("Starting handle host ...")
         name, game_map, points = msg
         match_data = MatchData(name, con.target_socket, game_map, points)
-        if not self.hosting_list.values().__contains__(match_data) and not self.hosting_list.keys().__contains__(name):
+        if match_data not in self.hosting_list.values() and name not in self.hosting_list.keys():
             self.hosting_list[name] = match_data
         print("Server received host data!")
 
@@ -124,9 +125,7 @@ class Server:
     # handle get hosting list
     def _hgetHL(self, msg, con):
         self.send_free = False
-        print("Hosting list was queried!")
         con.send(Data.scc["hosting list"], self.hosting_list)
-        print("Server has sent host list!")
         self.send_free = True
 
     # game
@@ -227,6 +226,7 @@ class Server:
         # message client to tell if he is in game or not
         if msg == "get in game stat":
             con.send(Data.scc["control"], "yes" if con.target_socket.getsockname() in self.game_players else "no")
+            return
 
         print("Client@{} says: \n\n\t{}\n".format(con.target_addr, msg))
 
@@ -256,12 +256,12 @@ def main_routine():
         # check rec buffer of all connections and handle accordingly
         for con in server.connections:
             try:
-
+                '''
                 print("\tRec log len:", con.get_rec_log_len())
-                for elem in con.get_rec_log():
-                    print("\t", elem[:50].encode("utf-8"), "...", elem[-10:].encode("utf-8")) # boi
+                for elem in con.get_rec_log()[-10:]:
+                    print("\t", elem[:50], "...", elem[-10:])
                 print()
-
+                '''
                 # handle incoming messages
                 if con.new_msg_sent():
                     # TODO check what can go wrong in this call and catch it

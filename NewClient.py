@@ -38,6 +38,7 @@ class NetworkClient:
 
         except Exception as e:
             print("\nClient failed to connect to server with exception:\n\n\t{}".format(e).upper())
+            time.sleep(2)
             sys.exit()
 
     def kill_connection(self):
@@ -79,16 +80,15 @@ class NetworkClient:
 
         # check len of rec log to and tell server to send host list
         l1 = self.connection.get_rec_log_len()
-        '''
+
         print("\tRec log (host) in _get_hosting_list:")
-        for elem in self.connection.get_rec_log():
-            print("\t", elem)
-        '''
-        self.connection.send(Data.scc["get host list"], "")  # TODO this does not reach the server, make confirm
+        for elem in self.connection.get_rec_log()[-10:]:
+            print("\t", elem[:10], "...", elem[-10:])
+
+        self.connection.send(Data.scc["get host list"], "")
 
         # wait until new message was received (hopefully the answer to get host list is not yet sent)
         while l1 == self.connection.get_rec_log_len():
-            print("I'm stuck here")
             time.sleep(2)
 
         # now a new msg was sent
