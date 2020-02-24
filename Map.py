@@ -550,7 +550,7 @@ class MapBuilder:
             # while there is a house (to add) and it does not fit and you did not try 100 times yet generate a new one
             limit = 0
             while h != 0 and self.map.add_object(h, border_size=1) != 1 and limit < 100:
-                h = SimpleHouse(name=("Simple house " + str(house_counter)), obj_type="default", \
+                h = SimpleHouse(name=("Simple house " + str(house_counter)), obj_type="default",
                                 pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
                 limit += 1
 

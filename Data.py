@@ -63,3 +63,13 @@ scc = {  # server control codes             message holds the following:
 }
 
 iscc = {v: k for k, v in scc.items()}  # inverted server control codes
+
+
+# this has to be here so that server AND client know what MatchData looks like
+class MatchData:  # for hosting games
+
+    def __init__(self, name, hosting_player, game_map, points):
+        self.name = name
+        self.hosting_player = hosting_player
+        self.game_map = game_map
+        self.points = points

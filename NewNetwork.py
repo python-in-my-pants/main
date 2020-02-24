@@ -276,6 +276,10 @@ class Connection:
 
     @staticmethod
     def object_to_bytes(obj):
+        return pickle.dumps(obj)
+
+    @staticmethod
+    def old_object_to_bytes(obj):
         if len(pickle.dumps(obj)) > 48:
             return pickle.dumps(obj)
         else:

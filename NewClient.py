@@ -80,11 +80,11 @@ class NetworkClient:
 
         # check len of rec log to and tell server to send host list
         l1 = self.connection.get_rec_log_len()
-
+        '''
         print("\tRec log (host) in _get_hosting_list:")
         for elem in self.connection.get_rec_log()[-10:]:
             print("\t", elem[:10], "...", elem[-10:])
-
+        '''
         self.connection.send(Data.scc["get host list"], "")
 
         # wait until new message was received (hopefully the answer to get host list is not yet sent)

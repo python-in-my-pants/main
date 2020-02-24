@@ -1,15 +1,9 @@
 import socket
 import struct
+from Data import *
 from NewNetwork import *
 
-
-class MatchData:  # for hosting games
-
-    def __init__(self, name, hosting_player, game_map, points):
-        self.name = name
-        self.hosting_player = hosting_player
-        self.game_map = game_map
-        self.points = points
+# TODO all con.ident were con.target_socket.getsockname() prior
 
 
 class Game:  # for actual games
@@ -40,22 +34,22 @@ class Server:
         self.hosting_list = dict()
         self.games = []
         self.ctype_dict = {
-            Data.scc["Host"]:              self._hhost,
-            Data.scc["cancel hosting"]:    self._hchost,
-            Data.scc["get host list"]:     self._hgetHL,
-            Data.scc["Join"]:              self._hjoin,
-            Data.scc["char select ready"]: self._hcsrdy,
-            Data.scc["get turn"]:          self._hgturn,
-            Data.scc["Turn"]:              self._hturn,
-            Data.scc["control"]:           self._hcon,
-            Data.scc["end game"]:          self._hendg,
-            Data.scc["game begins"]:       lambda x: None,
-            Data.scc["undefined"]:         self._hundef,
-            Data.scc["confirm"]:           self._hundef,
-            Data.scc["close connection"]:  self._hclose
+            scc["Host"]:              self._hhost,
+            scc["cancel hosting"]:    self._hchost,
+            scc["get host list"]:     self._hgetHL,
+            scc["Join"]:              self._hjoin,
+            scc["char select ready"]: self._hcsrdy,
+            scc["get turn"]:          self._hgturn,
+            scc["Turn"]:              self._hturn,
+            scc["control"]:           self._hcon,
+            scc["end game"]:          self._hendg,
+            scc["game begins"]:       lambda x: None,
+            scc["undefined"]:         self._hundef,
+            scc["confirm"]:           self._hundef,
+            scc["close connection"]:  self._hclose
         }
-        self.needs_send_resource = [Data.scc["get host list"],
-                                    Data.scc["char select ready"]]
+        self.needs_send_resource = [scc["get host list"],
+                                    scc["char select ready"]]
 
         # dictionary that maps players (sockets) to their games
         self.game_players = dict()
@@ -96,16 +90,20 @@ class Server:
     def _hhost(self, msg, con):
         print("Starting handle host ...")
         name, game_map, points = msg
-        match_data = MatchData(name, con.target_socket, game_map, points)
+        match_data = MatchData(name, con.ident, game_map, points)
         if match_data not in self.hosting_list.values() and name not in self.hosting_list.keys():
             self.hosting_list[name] = match_data
         print("Server received host data!")
 
     # handle cancel hosting
     def _hchost(self, msg, con):  # TODO unclean, untested
+        print("Cancelling host, hosting list len:", len(self.hosting_list))
+        # TODO print self.hosting list with all values here
+
         for host_elem in self.hosting_list.values():
-            if host_elem.hosting_player is con.target_socket:
+            if host_elem.hosting_player is con.ident:
                 del host_elem
+        print("len after cancel:", len(self.hosting_list))
 
     # handle join
     def _hjoin(self, msg, con):
@@ -114,7 +112,7 @@ class Server:
         match_data = copy.deepcopy(self.hosting_list[host])
         del self.hosting_list[host]
 
-        game = Game(host, con.target_socket)
+        game = Game(host, con.ident)
         game.game_map = match_data.game_map
         self.games.append(game)
         self.game_players[host.getsockname()] = game
@@ -125,7 +123,7 @@ class Server:
     # handle get hosting list
     def _hgetHL(self, msg, con):
         self.send_free = False
-        con.send(Data.scc["hosting list"], self.hosting_list)
+        con.send(scc["hosting list"], self.hosting_list)
         self.send_free = True
 
     # game
@@ -135,15 +133,15 @@ class Server:
         ready, team = Connection.bytes_to_object(msg)
         try:
             # check if player is in a game already (should be the case)
-            game = self.game_players[con.target_socket.getsockname()]
+            game = self.game_players[con.ident]
         except KeyError:
             print("Player is not in a game, sending 'ready' failed!")
             return
-        if game.host.getsockname() == con.target_socket.getsockname():
+        if game.host.ident == con.ident:
             # msg comes from game host
             game.host_ready = ready
             game.host_team = team
-        elif game.guest.getsocketname() == con.target_socket.getsockname():
+        elif game.guest.ident == con.ident:
             # msg comes from game guest
             game.guest_ready = ready
             game.guest_team = team
@@ -153,8 +151,8 @@ class Server:
             teams = [game.host_team, game.guest_team]
             # send final map to both players
             self.send_free = False
-            game.host.send(Data.scc["game begin"], teams)
-            game.guest.send(Data.scc["game begin"], teams)
+            game.host.send(scc["game begin"], teams)
+            game.guest.send(scc["game begin"], teams)
             self.send_free = True
 
     # DEPRECATED
@@ -168,10 +166,10 @@ class Server:
             return
         if con.getsockname() == game.host.getsockname():
             # send to client
-            game.guest.send(ctype=Data.scc["turn"], msg=msg)
+            game.guest.send(ctype=scc["turn"], msg=msg)
         else:
             # send to host
-            game.host.send(ctype=Data.scc["turn"], msg=msg)
+            game.host.send(ctype=scc["turn"], msg=msg)
     '''
 
     # TODO from here, handle send_free (add where needed)
@@ -179,14 +177,14 @@ class Server:
     def _hturn(self, msg, con):
 
         try:
-            game = self.game_players[con.target_socket.getsockname()]
+            game = self.game_players[con.ident]
         except KeyError:
             print("Player is not in a game, receiving turn by server failed!")
             return
-        if con.target_socket.getsockname() == game.host.getsockname():
+        if con.ident == game.host.ident:
             # set last turn and keep it until requested
             game.last_host_turn = msg
-        elif con.target_socket.getsockname() == game.guest.getsockname():
+        elif con.ident == game.guest.ident:
             # set last turn and keep it until requested
             game.last_guest_turn = msg
         else:
@@ -194,15 +192,15 @@ class Server:
 
     def _hgturn(self, msg, con):
         try:
-            game = self.game_players[con.target_socket.getsockname()]
+            game = self.game_players[con.ident]
         except KeyError:
             print("Player is not in a game, receiving turn by server failed!")
             return
-        if con.target_socket.getsockname() == game.host.getsockname():
+        if con.ident == game.host.ident:
             # send last opponent turn
-            game.host.send(Data.scc["turn"], game.last_guest_turn)
-        elif con.target_socket.getsockname() == game.guest.getsockname():
-            game.host.send(Data.scc["turn"], game.last_host_turn)
+            game.host.send(scc["turn"], game.last_guest_turn)
+        elif con.ident == game.guest.ident:
+            game.host.send(scc["turn"], game.last_host_turn)
         else:
             print("Error in handling 'Get turn' request by server")
 
@@ -225,7 +223,7 @@ class Server:
             return
         # message client to tell if he is in game or not
         if msg == "get in game stat":
-            con.send(Data.scc["control"], "yes" if con.target_socket.getsockname() in self.game_players else "no")
+            con.send(scc["control"], "yes" if con.ident in self.game_players else "no")
             return
 
         print("Client@{} says: \n\n\t{}\n".format(con.target_addr, msg))
