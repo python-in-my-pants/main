@@ -259,7 +259,7 @@ def main_routine():
 
                 print("\tRec log len:", con.get_rec_log_len())
                 for elem in con.get_rec_log():
-                    print("\t", elem[:50].encode("utf-8"), "...", elem[-10:].encode("utf-8"))
+                    print("\t", elem[:50].encode("utf-8"), "...", elem[-10:].encode("utf-8")) # boi
                 print()
 
                 # handle incoming messages
