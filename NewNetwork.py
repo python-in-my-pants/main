@@ -45,13 +45,13 @@ class Packet:
         self.ctype = ctype
         self.__payload = payload
         # TODO maybe remove timestamp for packet number
-        # hash for fixed len (maybe zero padding instead?)
+        timestamp_padding = 30
         if timestamp:
-            if isinstance(timestamp, bytes) and len(timestamp) == 40:  # TODO maybe it can be a byte array too?
+            if isinstance(timestamp, bytes) and len(timestamp) == timestamp_padding:
                 self.timestamp = timestamp
         else:
             t = str(current_milli_time())
-            self.timestamp = ("0"*(30-len(t)) + t).encode("UTF-8")  # zero padding to 30 symbols
+            self.timestamp = ("0"*(timestamp_padding-len(t)) + t).encode("UTF-8")  # zero padding to 30 symbols
             # self.timestamp = hashlib.sha1(str(current_milli_time()).encode("UTF-8")).hexdigest().encode("UTF-8")
         # TODO maybe "get_bytes()" to remove redundancy?
         self.bytes = self.ctype + self.timestamp + self.__payload + Data.scc["message end"]
@@ -72,6 +72,10 @@ class Packet:
         else:
             print("Warning! Unwrapping type for", self.ctype.decode("UTF-8"), "is not defined!")
             return self.__payload
+
+    def to_string(self):
+        return "Ctype:\t\t{}\nTimestamp:\t{}\nPayload:\t{}...\nHash:\t\t{}".\
+            format(self.ctype, self.timestamp, self.__payload[-40:], self.bytes_hash)
 
 
 class Connection:
@@ -151,7 +155,7 @@ class Connection:
 
     def get_last_control_type_and_msg(self):
         last_rec = self._get_last_rec()
-        print("Last receive:", last_rec)
+        # print("Last receive:", last_rec.to_string())
         if last_rec:
             return last_rec.ctype, last_rec.get_payload()
         else:

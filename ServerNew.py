@@ -260,9 +260,9 @@ def main_routine():
         for con in server.connections:
             try:
 
-                print("\tRec log len:", con.get_rec_log_len())
+                print("-"*30 + "\nRec log len:", con.get_rec_log_len())
                 for elem in con.get_rec_log()[-10:]:
-                    print("\t", elem.ctype, elem.timestamp, "...", elem.bytes[-10:])
+                    print("\n", elem.to_string())
                 print()
 
                 # handle incoming messages

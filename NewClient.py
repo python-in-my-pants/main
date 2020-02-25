@@ -38,7 +38,6 @@ class NetworkClient:
 
         except Exception as e:
             print("\nClient failed to connect to server with exception:\n\n\t{}".format(e).upper())
-            time.sleep(2)
             sys.exit()
 
     def kill_connection(self):
