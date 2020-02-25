@@ -64,7 +64,7 @@ class NetworkClient:
         self.connection.send(Data.scc["Join"], name)
 
     def cancel_hosting(self):  # TODO this has to be called from game logic if you are not ready any more
-        self.connection.send(Data.scc["cancel hosting"], "")
+        th.start_new_thread(self.connection.send, tuple([Data.scc["cancel hosting"], ""]))
 
     # get hosting list
     def get_hosting_list(self):

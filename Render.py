@@ -157,9 +157,13 @@ class ConnectionSetup:
                 # TODO this is hardcoded; always choosing game 1 from hosting list
                 self.game_to_join = hosting_list["Dungeon"]
                 self.ip_field_text = "{}, {} Points".format(self.game_to_join.name, self.game_to_join.points)
+
                 ''' At a later point, the ip_to_join_button should be reworked as a list, containing 1 button per 
                 game in the hosting list. If you click the button, the corresponding game should be game_to_join. 
                 Clicking the join button should do the joining then'''
+            else:
+                self.game_to_join = None
+                self.ip_field_text = "No games available"
             self.get_hosting_list_counter = 0
         else:
             self.get_hosting_list_counter += 1

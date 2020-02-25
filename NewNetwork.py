@@ -43,8 +43,7 @@ class Packet:
 
     def __init__(self, ctype, payload, timestamp=None):
         self.ctype = ctype
-        self.__payload = payload
-        # TODO maybe remove timestamp for packet number
+        self._payload = payload
         timestamp_padding = 30
         if timestamp:
             if isinstance(timestamp, bytes) and len(timestamp) == timestamp_padding:
@@ -52,9 +51,8 @@ class Packet:
         else:
             t = str(current_milli_time())
             self.timestamp = ("0"*(timestamp_padding-len(t)) + t).encode("UTF-8")  # zero padding to 30 symbols
-            # self.timestamp = hashlib.sha1(str(current_milli_time()).encode("UTF-8")).hexdigest().encode("UTF-8")
         # TODO maybe "get_bytes()" to remove redundancy?
-        self.bytes = self.ctype + self.timestamp + self.__payload + Data.scc["message end"]
+        self.bytes = self.ctype + self.timestamp + self._payload + Data.scc["message end"]
         self.bytes_hash = hashlib.sha1(self.bytes).hexdigest().encode("UTF-8")  # this is a string a byte array
         self.confirmed = False
 
@@ -66,16 +64,16 @@ class Packet:
     def get_payload(self):  # TODO look after data types of confirm message!!!
         """returns unwrapped payload, object or string or byte array if no unwrapping type was defined in Data.py"""
         if self.ctype in Data.unwrap_as_str:
-            return self.__payload.decode("UTF-8")
+            return self._payload.decode("UTF-8")
         if self.ctype in Data.unwrap_as_obj:
-            return pickle.loads(self.__payload)
+            return pickle.loads(self._payload)
         else:
             print("Warning! Unwrapping type for", self.ctype.decode("UTF-8"), "is not defined!")
-            return self.__payload
+            return self._payload
 
     def to_string(self):
         return "Ctype:\t\t{}\nTimestamp:\t{}\nPayload:\t{}...\nHash:\t\t{}".\
-            format(self.ctype, self.timestamp, self.__payload[-40:], self.bytes_hash)
+            format(self.ctype, self.timestamp, self._payload[-40:], self.bytes_hash)
 
 
 class Connection:
@@ -208,8 +206,8 @@ class Connection:
             while not confirmation_received:
                 for i, con_msg in enumerate(self.data.rec_log[self.data.confirmation_search_index:]):
                     # if our hash was confirmed by the receiver
-                    if con_msg.ctype == Data.scc["confirm"] and con_msg.get_payload() == msg_hash:
-                        print(packet.ctype, "message with timestamp", packet.timestamp, "was confirmed!")
+                    if con_msg.ctype == Data.scc["confirm"] and con_msg._payload == msg_hash:
+                        # print(packet.ctype, "message with timestamp", packet.timestamp, "was confirmed!")
                         confirmation_received = True
                         self.data.confirmation_search_index += i + 1
                         return
