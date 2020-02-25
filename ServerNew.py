@@ -98,11 +98,16 @@ class Server:
     # handle cancel hosting
     def _hchost(self, msg, con):  # TODO unclean, untested
         print("Cancelling host, hosting list len:", len(self.hosting_list))
-        # TODO print self.hosting list with all values here
+        print("Hosting list:")
+        for x in self.hosting_list:
+            print(x)
+            print("\t", self.hosting_list[x].name)
+            print("\t", self.hosting_list[x].points)
+            print("\t", self.hosting_list[x].hosting_player)
 
-        for host_elem in self.hosting_list.values():
-            if host_elem.hosting_player is con.ident:
-                del host_elem
+        for key, value in self.hosting_list.items():
+            if value.hosting_player is con.ident:
+                del self.hosting_list[key]
         print("len after cancel:", len(self.hosting_list))
 
     # handle join
@@ -254,17 +259,19 @@ def main_routine():
         # check rec buffer of all connections and handle accordingly
         for con in server.connections:
             try:
-                '''
+
                 print("\tRec log len:", con.get_rec_log_len())
                 for elem in con.get_rec_log()[-10:]:
-                    print("\t", elem[:50], "...", elem[-10:])
+                    print("\t", elem.ctype, elem.timestamp, "...", elem.content[-10:])
                 print()
-                '''
+
                 # handle incoming messages
                 if con.new_msg_sent():
                     # TODO check what can go wrong in this call and catch it
                     ctype, msg = con.get_last_control_type_and_msg()  # TODO this blocks cause msg is too long in unwrap
                     # if ctype needs send resources use send_if_free, else just call
+                    if ctype == scc["cancel hosting"]:
+                        print("Cancel host received")
                     if ctype in server.needs_send_resource:
                         server.send_if_free(server.ctype_dict[ctype], msg, con)
                     else:

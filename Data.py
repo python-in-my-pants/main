@@ -64,6 +64,17 @@ scc = {  # server control codes             message holds the following:
 
 iscc = {v: k for k, v in scc.items()}  # inverted server control codes
 
+unwrap_as_obj = [scc["Turn"],
+                 scc["hosting list"],
+                 scc["char select ready"],
+                 scc["Host"],
+                 scc["game begins"]]
+unwrap_as_str = [scc["control"],
+                 scc["close connection"],
+                 scc["get host list"],
+                 scc["undefined"],
+                 scc["confirm"]]
+
 
 # this has to be here so that server AND client know what MatchData looks like
 class MatchData:  # for hosting games

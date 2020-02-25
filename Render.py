@@ -143,23 +143,25 @@ class ConnectionSetup:
         # Asking for tha hosting list all 3 seconds assuming 60 FPS
 
         # this number has to be big enough to receive the list meanwhile
-        if self.get_hosting_list_counter >= 180:  # and not self.host_thread:  # do not send multiple different requests
-            # print("Querying hosting list ...")
+        if self.get_hosting_list_counter >= 180:  # TODO maybe lower this number to 1s?
             hosting_list = self.client.get_hosting_list()
             # print("host list:", hosting_list)
+
+            print("\tRec log len:", self.client.connection.get_rec_log_len())
+            for elem in self.client.connection.get_rec_log()[-10:]:
+                print("\t", elem[:5], elem[5:50], "...", elem[-10:])
+            print()
+
             if hosting_list:
                 # print("---> Full hosting list received! <---")
                 # TODO this is hardcoded; always choosing game 1 from hosting list
-                # TODO change on demand of multiple hostable games
-                self.game_to_join = hosting_list["Dungeon"]  # TODO hardcoded key, change later
+                self.game_to_join = hosting_list["Dungeon"]
                 self.ip_field_text = "{}, {} Points".format(self.game_to_join.name, self.game_to_join.points)
-                # TODO
-                '''At a later point, the ip_to_join_button should be reworked as a list, containing 1 button per 
+                ''' At a later point, the ip_to_join_button should be reworked as a list, containing 1 button per 
                 game in the hosting list. If you click the button, the corresponding game should be game_to_join. 
                 Clicking the join button should do the joining then'''
             self.get_hosting_list_counter = 0
         else:
-           # print("Hosting list counter:", self.get_hosting_list_counter) if self.get_hosting_list_counter % 60 == 0 else None
             self.get_hosting_list_counter += 1
 
         # set up GUI ---------------------------------------------------------------------------------------------------
@@ -214,8 +216,6 @@ class ConnectionSetup:
                 self.map_points = int(((self.game_map_string.size_x * self.game_map_string.size_y) / 500) * 16.6)
 
                 self.host_stat = "Hosting..."
-                print("field size:", self.field_size)
-                print("map points:", self.map_points)
 
                 # send the data to the server
                 self.client.host_game("Dungeon", self.game_map_string.get_map(), self.map_points)
@@ -238,8 +238,8 @@ class ConnectionSetup:
 
         def cancel_host_fkt():
             if self.host_thread:
-                self.host_stat = "Cancelling ..."
                 self.host_thread = 0
+                self.host_stat = "Cancelling ..."
                 self.client.cancel_hosting()
                 self.host = "unknown"
                 self.host_stat = "Hosting canceled!"

@@ -44,16 +44,12 @@ class NetworkClient:
     def kill_connection(self):
         # (this is so that all pending sends go through) it seems we can just skip this???
         # time.sleep(3)
-
         # this prevents *[WinError 10038] Ein Vorgang bezog sich auf ein Objekt, das kein Socket ist*
         time.sleep(1)
-
         # blocks until confirm
-        self.connection.send(ctype=Data.scc["close connection"], msg="")
-
+        self.connection.send(Data.scc["close connection"], "")
         # this prevents *[WinError 10038] Ein Vorgang bezog sich auf ein Objekt, das kein Socket ist*
         time.sleep(2)
-
         # this kills the socket and tells the listening thread to stop
         self.connection.kill_connection()
 
@@ -108,12 +104,10 @@ class NetworkClient:
         return self.live_data["in_game"]
 
     def _get_join_stat(self):
-        # check len of rec log and tell server to tell in game status
-        l1 = self.connection.get_rec_log_len()
-        self.connection.send(Data.scc["control"], "get in game stat")
 
+        self.connection.send(Data.scc["control"], "get in game stat")
         # wait until new message was received
-        while l1 == self.connection.get_rec_log_len():
+        while not self.connection.new_msg_sent():
             time.sleep(0.5)
 
         # now a new msg was sent

@@ -41,9 +41,44 @@ class ConnectionData:
         self.confirmation_search_index = 0
 
 
+class Packet:
+
+    def __init__(self, ctype, payload):
+        self.ctype = ctype
+        self.payload = payload
+        # TODO maybe remove timestamp for packet number
+        # hash for fixed len (maybe zero padding instead?)
+        self.timestamp = hashlib.sha1(str(round(time.time()*1000)).encode("UTF-8")).hexdigest().encode("UTF-8")
+        # TODO maybe "get_bytes()" to remove redundancy?
+        self.bytes = self.ctype + self.timestamp + self.payload + Data.scc["message end"]
+        self.bytes_hash = hashlib.sha1(self.content).hexdigest().encode("UTF-8")  # this is a string a byte array
+        self.confirmed = False
+
+    @classmethod
+    def from_buffer(cls, buffer):
+        """Construct a packet from a byte array"""
+        cls.ctype = buffer[0:5]
+        cls.timestamp = buffer[5:45]
+        cls.payload = buffer[45:-5]
+        cls.content = buffer
+        cls.bytes_hash = hashlib.sha1(cls.content).hexdigest().encode("UTF-8")  # this is a byte array
+        cls.confirmed = False
+        return cls
+
+    def get_payload(self):  # TODO look after data types of confirm message!!!
+        """returns unwrapped payload, object or string or byte array if no unwrapping type was defined in Data.py"""
+        if self.ctype in Data.unwrap_as_str:
+            return self.payload.decode("UTF-8")
+        if self.ctype in Data.unwrap_as_obj:
+            return pickle.loads(self.payload)
+        else:
+            print("Warning! Unwrapping type for", self.ctype.decode("UTF-8"), "is not defined!")
+            return self.payload
+
+
 class Connection:
 
-    # TODO: add security by replacing __hash__ with HMAC
+    # TODO: add security by replacing sha1 with HMAC
     # https://docs.python.org/3/library/pickle.html
     # https://docs.python.org/3/library/hmac.html#module-hmac
 
@@ -57,19 +92,6 @@ class Connection:
         self.old_rec_len = -1
 
         self.last_chkd_msg = None
-
-        #self.old_ctype_msg = {"old_ctype": None, "old_msg": None, "very_old_ctype": None, "very_old_msg": None}
-
-        self.unwrap_as_obj = [Data.scc["Turn"],
-                              Data.scc["hosting list"],
-                              Data.scc["char select ready"],
-                              Data.scc["Host"],
-                              Data.scc["game begins"]]
-        self.unwrap_as_str = [Data.scc["control"],
-                              Data.scc["close connection"],
-                              Data.scc["get host list"],
-                              Data.scc["undefined"],
-                              Data.scc["confirm"]]
 
         try:
             th.start_new_thread(self.receive_bytes, ())
@@ -90,6 +112,7 @@ class Connection:
         # now kill the socket (listening should be dead)
         self.target_socket.shutdown(socket.SHUT_RDWR)
         self.target_socket.close()
+        del self
 
     def receive_bytes(self, size=2048):  # first 5 bytes of the msg are control bytes defined in Data.py
         try:
@@ -99,142 +122,97 @@ class Connection:
                     # print(self.role, "is receiving bytes ...")
                     # print("buffer input size:", len(buf))
                     last_rec = self.target_socket.recv(size)
-                    if len(last_rec) < size:  # last piece of msg
-                        buf += last_rec
-                        self.data.rec_buffer.append(buf)
-                        self.data.rec_log.append(buf)
-                        if buf[:5] != Data.scc["confirm"]:  # confirms do not get confirmed, everything else does
-                            th.start_new_thread(self._send_rec_confirmation, tuple([buf]))
+                    if len(last_rec) < size or \
+                       (len(last_rec) == size and last_rec[-5:] == Data.scc["message end"]):  # last piece of msg
+
+                        if len(last_rec) < size:
+                            buf += last_rec
+
+                        pack = Packet.from_buffer(buf)
+                        self.data.rec_buffer.append(pack)
+                        self.data.rec_log.append(pack)
+
+                        # confirms do not get confirmed, everything else does
+                        if pack.ctype != Data.scc["confirm"]:
+                            th.start_new_thread(self._send_rec_confirmation, Packet.from_buffer(buf))
                         buf = b''
-                    elif len(last_rec) == size and last_rec[-5:] == Data.scc["message end"]:
-                        # msg is exactly size long
-                        self.data.rec_buffer.append(buf)
-                        self.data.rec_log.append(buf)
-                        if buf[:5] != Data.scc["confirm"]:
-                            th.start_new_thread(self._send_rec_confirmation, tuple([buf]))
-                        buf = b''
+
                     elif len(last_rec) == size:  # kleben
                         # if len == 2048 and not end in XXXXX
                         buf += last_rec
                     else:
                         print("Something in receive went wrong")
+
                     time.sleep(0.005)
+
                 else:
                     # just return, that should kill the thread too
                     return
+
         except Exception as e:
             print("Connection alive:", self.connection_alive)
             print("Receiving bytes by the {} failed with exception:\n{}".format(self.role, e))
 
-    def unwrap(self, buf):  # gets input buffer
-        if buf[:5] in self.unwrap_as_obj:
-            return self.bytes_to_object(buf[45:-5])
-        elif buf[:5] in self.unwrap_as_str:
-            return self.bytes_to_string(buf[45:-5])
-        else:
-            print("Warning! Message unwrapping type is not defined in connection!\n\t{}".format(buf[:5]))
-            return buf
-
-    @staticmethod
-    def get_control_type(msg):
-        return msg[0:5]
-
     def get_last_control_type_and_msg(self):
-        return Connection.get_control_type(self._get_last_rec()), \
-               self.unwrap(self._get_last_rec())
+        last_rec = self._get_last_rec()
+        if last_rec:
+            return last_rec.ctype, last_rec.get_payload()
+        else:
+            return Data.scc["undefined"], b''
 
     def _get_last_rec(self):
-        return self.data.rec_buffer[-1] if len(self.data.rec_buffer) > 0 else Data.scc["undefined"]
+        return self.data.rec_buffer[-1] if len(self.data.rec_buffer) > 0 else None
 
     def new_msg_sent(self):  # this now only checks for timestamps
         last_rec = self._get_last_rec()
-        if last_rec == Data.scc["undefined"]:  # no msg was received yet
+        if not last_rec:  # no msg was received yet
             return False
         if not self.last_chkd_msg:  # is it the first receive on this connection?
             self.last_chkd_msg = last_rec
-            #print("new msg sent, first msg")
             return True
-        if self.last_chkd_msg[5:45] == last_rec[5:45]:  # compare timestamps
-            #print("no new msg sent")
+        if self.last_chkd_msg.timestamp == last_rec.timestamp:  # compare timestamps
             return False
         else:
             self.last_chkd_msg = last_rec
-            #print("new msg sent, not first msg")
             return True
-
-    def old_new_msg_sent(self):
-        if len(self.data.rec_log) != self.old_rec_len:
-            # check if rec_leg len has changed since last call
-            self.old_rec_len = len(self.data.rec_log)
-            return True
-        else:
-            return False
 
     def get_rec_log_len(self):
         return self.data.rec_log.__len__()
 
-    # use with caution as this could get long
     def get_rec_log(self):
+        """use with caution as this could get long and expensive"""
         return copy.deepcopy(self.data.rec_log)
 
-    def _send_rec_confirmation(self, rec_msg):
-        self.send(Data.scc["confirm"], hashlib.sha1(rec_msg).hexdigest())  # this is a string
-        # self._send_bytes("Received message with hash: {}".format(hashlib.sha1(rec_msg).hexdigest()).encode("UTF-8"))
+    def _send_rec_confirmation(self, packet):
+        self.send(Data.scc["confirm"], packet.bytes_hash)
 
-    # go for this if you want to send something
-    def send(self, ctype, msg):  # control type and message to send, msg can be bytes or object
-        timestamp = hashlib.sha1(str(round(time.time()*1000)).encode("UTF-8")).hexdigest().encode("UTF-8")
-        _msg = ctype + timestamp + Connection.prep(msg) + Data.scc["message end"]
-        self._send_bytes_conf(_msg)  # should this run in a separated thread as it blocks while waiting for confirm?
-                                     # no, as only the "send" part of the connection blocks
+    def send(self, ctype, msg):
 
-    def _send_bytes(self, msg_bytes):
-        print("Warning! _send_bytes should not be used!")
-        try:
-            self.target_socket.send(msg_bytes)
-            self.data.send_buffer.append(msg_bytes)
-        except Exception as e:
-            print("Sending bytes to {} by {} failed. Data to send: {}\n Error:\n{}\n".
-                  format(self.target_addr, self.role, msg_bytes, e))
+        """Universal send method, just give the ctype and the payload"""
 
-    def _send_bytes_conf(self, msg):
-
-        '''if len(msg) <= magic_number:  # should not come to use often
-            # send without confirm
-            self._send_bytes(msg)
-            if msg[:5] != b'close' and msg[:5] != b'getHL':
-                print("WARNING: message length is smaller than {}, it will not get confirmed by the server!\n\tMsg: {}".
-                      format(magic_number, msg[:-5]))
-            return'''
-
-        '''
-        you have to send the msg with identical timestamps every time
-        '''
-
-        if msg[0:5] == Data.scc["confirm"]:
-            self.target_socket.send(msg)
+        if ctype == Data.scc["confirm"]:
+            self.target_socket.send(Packet(ctype, msg).content)
             return
 
+        packet = Packet(ctype, Connection.prep(msg))
+
         confirmation_received = False
-        msg_hash = -1
-        try:
-            msg_hash = hashlib.sha1(msg).hexdigest().encode("UTF-8")  # TODO see above
-        except TypeError:
-            print("Message is not hashable, failed to send by {}".format(self.role))
+        msg_hash = packet.bytes_hash
 
         # listen for confirm
         def _check_for_confirm():
-            while True:
-                nonlocal confirmation_received
-                nonlocal msg_hash
+            nonlocal confirmation_received
+            nonlocal msg_hash
 
+            while not confirmation_received:
                 for i, con_msg in enumerate(self.data.rec_log[self.data.confirmation_search_index:]):
                     # if our hash was confirmed by the receiver
-                    if con_msg[0:5] == Data.scc["confirm"] and con_msg[45:-5] == msg_hash:
-                        #print(msg[0:5], "message with timestamp", msg[5:45], "was confirmed!")
+                    if con_msg.ctype == Data.scc["confirm"] and con_msg.get_payload() == msg_hash:
+                        print(packet.ctype, "message with timestamp", packet.timestamp, "was confirmed!")
                         confirmation_received = True
                         self.data.confirmation_search_index += i + 1
                         return
+                # check for confirm every 3 seconds
                 time.sleep(3)
 
                 '''
@@ -248,7 +226,7 @@ class Connection:
 
         try:
             # print("Sending -> \nlen:", len(msg), "\nctype:", msg[0:5], "\ntimestamp:", msg[5:45], "\nmsg hash:", msg_hash, "\n")
-            self.target_socket.send(msg)
+            self.target_socket.send(packet.content)
         except Exception as e:
             print(e)
 
@@ -258,12 +236,11 @@ class Connection:
         while not confirmation_received:
             time.sleep(3)
             #print("R E sending -> \nlen:", len(msg), "\nctype:", msg[0:5], "\ntimestamp:", msg[5:45], "\nmsg hash:", msg_hash, "\n")
-            self.target_socket.send(msg)
+            self.target_socket.send(packet.content)
 
     @staticmethod
     def prep(to_send):
         # TODO check if actual strings get pickled (they should not)
-
         # TODO make sure things do not get pickled twice!!!
         try:
             if isinstance(to_send, type("a")):
@@ -277,13 +254,6 @@ class Connection:
     @staticmethod
     def object_to_bytes(obj):
         return pickle.dumps(obj)
-
-    @staticmethod
-    def old_object_to_bytes(obj):
-        if len(pickle.dumps(obj)) > 48:
-            return pickle.dumps(obj)
-        else:
-            return pickle.dumps(obj) + (48-len(pickle.dumps(obj)))*b'\x00'
 
     @staticmethod
     def bytes_to_object(_bytes):

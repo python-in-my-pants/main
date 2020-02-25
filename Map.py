@@ -253,7 +253,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
 
         if border_size > 0:
             self.objects.append(Border(obj_type="default", size_x_=size_x - 1, size_y_=size_y - 1,
-                                       pos=[game_object.pos[0] - border_size, game_object.pos[1] - border_size], \
+                                       pos=[game_object.pos[0] - border_size, game_object.pos[1] - border_size],
                                        thiccness=border_size))
 
         # modify unique_pixs TODO because new
