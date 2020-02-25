@@ -116,7 +116,7 @@ class ConnectionSetup:
         self.first_click = True
         self.board_first_click = True
 
-        self.get_hosting_list_counter = 170
+        self.get_hosting_list_counter = 0
         self.game_to_join = None
 
         self.screen = None
@@ -143,9 +143,8 @@ class ConnectionSetup:
         # Asking for tha hosting list all 3 seconds assuming 60 FPS
 
         # this number has to be big enough to receive the list meanwhile
-        if self.get_hosting_list_counter >= 180:  # TODO maybe lower this number to 1s?
+        if self.get_hosting_list_counter >= 60:  # TODO maybe lower this number to 1s?
             hosting_list = self.client.get_hosting_list()
-            # print("host list:", hosting_list)
 
             print("-"*30 + "\nRec log len:", self.client.connection.get_rec_log_len())
             for elem in self.client.connection.get_rec_log()[-10:]:
@@ -153,7 +152,6 @@ class ConnectionSetup:
             print()
 
             if hosting_list:
-                # print("---> Full hosting list received! <---")
                 # TODO this is hardcoded; always choosing game 1 from hosting list
                 self.game_to_join = hosting_list["Dungeon"]
                 self.ip_field_text = "{}, {} Points".format(self.game_to_join.name, self.game_to_join.points)

@@ -183,14 +183,20 @@ class Connection:
         return copy.deepcopy(self.data.rec_log)
 
     def _send_rec_confirmation(self, packet):
-        self.send(Data.scc["confirm"], packet.bytes_hash)
+        try:
+            self.send(Data.scc["confirm"], packet.bytes_hash)
+        except Exception as e:
+            print("Sending confirmation failed! Error: {}".format(e))
 
     def send(self, ctype, msg):
 
         """Universal send method, just give the ctype and the payload"""
 
         if ctype == Data.scc["confirm"]:
-            self.target_socket.send(Packet(ctype, msg).bytes)
+            try:
+                self.target_socket.send(Packet(ctype, msg).bytes)
+            except Exception as e:
+                print("Sending confirmation failed! Error: {}".format(e))
             return
 
         packet = Packet(ctype, Connection.prep(msg))
@@ -214,17 +220,7 @@ class Connection:
                 # check for confirm every 3 seconds
                 time.sleep(3)
 
-                '''
-                if self.data.rec_log[self.data.confirmation_search_index:].__contains__(
-                        Data.scc["confirm"] + msg_hash + Data.scc["message end"]):
-                    confirmation_received = True
-                    self.data.confirmation_search_index = self.data.rec_log.index(msg_hash) + 1
-                    return
-                time.sleep(1)
-                '''
-
         try:
-            # print("Sending -> \nlen:", len(msg), "\nctype:", msg[0:5], "\ntimestamp:", msg[5:45], "\nmsg hash:", msg_hash, "\n")
             self.target_socket.send(packet.bytes)
         except Exception as e:
             print(e)
@@ -234,8 +230,10 @@ class Connection:
         # send until receiving was confirmed
         while not confirmation_received:
             time.sleep(3)
-            #print("R E sending -> \nlen:", len(msg), "\nctype:", msg[0:5], "\ntimestamp:", msg[5:45], "\nmsg hash:", msg_hash, "\n")
-            self.target_socket.send(packet.bytes)
+            try:
+                self.target_socket.send(packet.bytes)
+            except Exception as e:
+                print("Resending message failed! Error: {}".format(e))
 
     @staticmethod
     def prep(to_send):
