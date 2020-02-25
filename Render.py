@@ -149,7 +149,7 @@ class ConnectionSetup:
 
             print("\tRec log len:", self.client.connection.get_rec_log_len())
             for elem in self.client.connection.get_rec_log()[-10:]:
-                print("\t", elem[:5], elem[5:50], "...", elem[-10:])
+                print("\t", elem.ctype, elem.timestamp, "...", elem.bytes[-10:])
             print()
 
             if hosting_list:

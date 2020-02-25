@@ -262,7 +262,7 @@ def main_routine():
 
                 print("\tRec log len:", con.get_rec_log_len())
                 for elem in con.get_rec_log()[-10:]:
-                    print("\t", elem.ctype, elem.timestamp, "...", elem.content[-10:])
+                    print("\t", elem.ctype, elem.timestamp, "...", elem.bytes[-10:])
                 print()
 
                 # handle incoming messages
