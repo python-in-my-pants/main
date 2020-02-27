@@ -87,27 +87,26 @@ class Server:
 
     # handle hosting
     def _hhost(self, msg, con):
-        print("Starting handle host ...")
         name, game_map, points = msg
         match_data = MatchData(name, con.ident, game_map, points)
         if match_data not in self.hosting_list.values() and name not in self.hosting_list.keys():
             self.hosting_list[name] = match_data
-        print("Server received host data!")
 
     # handle cancel hosting
     def _hchost(self, msg, con):  # TODO unclean, untested
-        print("Cancelling host, hosting list len:", len(self.hosting_list))
-        print("Hosting list:")
+
+        '''
         for x in self.hosting_list:
             print(x)
             print("\t", self.hosting_list[x].name)
             print("\t", self.hosting_list[x].points)
             print("\t", self.hosting_list[x].hosting_player)
+        '''
 
         for key, value in self.hosting_list.items():
             if value.hosting_player is con.ident:
                 del self.hosting_list[key]
-        print("len after cancel:", len(self.hosting_list))
+                break
 
     # handle join
     def _hjoin(self, msg, con):
@@ -178,25 +177,6 @@ class Server:
             game.host.send(scc["game begin"], teams)
             game.guest.send(scc["game begin"], teams)
             self.send_free = True
-
-    # DEPRECATED
-    '''
-    # handle sending turn
-    def _hturn_old(self, msg, con):
-        try:
-            game = self.game_players[con.getsockname()]
-        except KeyError:
-            print("Player is not in a game, sending turn failed!")
-            return
-        if con.getsockname() == game.host.getsockname():
-            # send to client
-            game.guest.send(ctype=scc["turn"], msg=msg)
-        else:
-            # send to host
-            game.host.send(ctype=scc["turn"], msg=msg)
-    '''
-
-    # TODO from here, handle send_free (add where needed)
 
     def _hturn(self, msg, con):
 
@@ -297,7 +277,6 @@ def main_routine():
 
     while True:
 
-        # print("Connections:", len(server.connections))
         # check rec buffer of all connections and handle accordingly
         for con in server.connections:
             try:
@@ -312,14 +291,6 @@ def main_routine():
 
                     ctype, msg = con.get_last_control_type_and_msg()
                     server.q.put([server.ctype_dict[ctype], msg, con])
-
-                    '''
-                    # if ctype needs send resources use send_if_free, else just call
-                    if ctype in server.needs_send_resource:
-                        server.send_if_free(server.ctype_dict[ctype], msg, con)
-                    else:
-                        th.start_new_thread(server.ctype_dict[ctype], (msg, con))
-                    '''
 
             except KeyError as e:
                 print("KeyError! {}".format(e))

@@ -9,12 +9,12 @@ import socket
 '''
 Important note:
 
-The server holds a serversocket only to accept incoming connections from clients. Once the connection is established,
+The server holds a server socket only to accept incoming connections from clients. Once the connection is established,
 he moves on to communicate with the client over the clients socket returned by accept().
 
 The client however uses his own socket for communication and not just for connection establishment. So the name
 "target_socket" does not quiet hold for the client, because the socket over which the communication is made is actually
-his own socket and NOT the serversocket of the server object.
+his own socket and NOT the server socket of the server object.
 
 '''
 
@@ -131,8 +131,8 @@ class Connection:
                         pack = Packet.from_buffer(buf)
                         self.data.rec_log.append(pack)
 
-                        # confirms do not get confirmed, everything else does
-                        if pack.ctype != Data.scc["confirm"]:
+                        # check if msg needs confirm
+                        if Data.needs_confirm[Data.iscc[pack.ctype]]:
                             th.start_new_thread(self._send_rec_confirmation, tuple([Packet.from_buffer(buf)]))
                         buf = b''
 
@@ -178,6 +178,11 @@ class Connection:
     def get_rec_log_len(self):
         return self.data.rec_log.__len__()
 
+    def get_rec_log_fast(self, n):
+        lol = self.data.rec_log[-n:]
+        lol.reverse()
+        return lol
+
     def get_rec_log(self):
         """use with caution as this could get long and expensive"""
         return copy.deepcopy(self.data.rec_log)
@@ -209,7 +214,6 @@ class Connection:
             return
 
         packet = Packet(ctype, Connection.prep(msg))
-        print("\t"*30 + "Sending:\n\n{}".format(packet.to_string(n=30)))
 
         confirmation_received = False
         msg_hash = packet.bytes_hash
@@ -223,25 +227,31 @@ class Connection:
                 for i, con_msg in enumerate(self.data.rec_log[self.data.confirmation_search_index:]):
                     # if our hash was confirmed by the receiver
                     if con_msg.ctype == Data.scc["confirm"] and con_msg._payload == msg_hash:
-                        # print(packet.ctype, "message with timestamp", packet.timestamp, "was confirmed!")
+                        print("->"*10, packet.ctype, "message with timestamp", packet.timestamp, "was confirmed!")
                         confirmation_received = True
                         self.data.confirmation_search_index += i + 1
                         return
                 # check for confirm every 3 seconds
-                time.sleep(2.3)
+                time.sleep(0.5)
 
         try:
+            print("\t" * 30 + "Sending:\n\n{}".format(packet.to_string(n=30)))
             self.target_socket.send(packet.bytes)
         except Exception as e:
             print(e)
 
         th.start_new_thread(_check_for_confirm, ())
 
+        counter = 2
+
         # send until receiving was confirmed
         while not confirmation_received:
-            time.sleep(2.3)
+            time.sleep(3)
             try:
+                print("\t" * 30 + "... for the", counter, "th time:")
+                print("\t" * 30 + "Sending:\n\n{}".format(packet.to_string(n=30)))
                 self.target_socket.send(packet.bytes)
+                counter += 1
             except Exception as e:
                 print("Resending message failed! Error: {}".format(e))
 
