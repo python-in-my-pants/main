@@ -62,6 +62,23 @@ scc = {  # server control codes             message holds the following:
     "message end":          b'XXXXX'        # not a control type but here anyway
 }
 
+needs_confirm = {
+    "Host":             True,
+    "cancel hosting":   True,
+    "Join":             True,
+    "Turn":             True,
+    "get host list":    True,
+    "control":          True,
+    "char select ready":False,
+    "hosting list":     False,
+    "end game":         True,
+    "game begins":      True,
+    "get turn":         True,
+    "undefined":        False,
+    "close connection": False,
+    "confirm":          False
+}
+
 iscc = {v: k for k, v in scc.items()}  # inverted server control codes
 
 unwrap_as_obj = [scc["Turn"],

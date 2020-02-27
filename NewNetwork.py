@@ -71,8 +71,8 @@ class Packet:
             print("Warning! Unwrapping type for", self.ctype.decode("UTF-8"), "is not defined!")
             return self._payload
 
-    def to_string(self):
-        return "Ctype:\t\t{}\nTimestamp:\t{}\nPayload:\t{}...\nHash:\t\t{}".\
+    def to_string(self, n=0):
+        return ("\t" * n + "Ctype:\t\t{}\n" + "\t"*n + "Timestamp:\t{}\n" + "\t"*n + "Payload:\t{}...\n" + "\t"*n + "Hash:\t\t{}").\
             format(self.ctype, self.timestamp, self._payload[-40:], self.bytes_hash)
 
 
@@ -188,18 +188,28 @@ class Connection:
         except Exception as e:
             print("Sending confirmation failed! Error: {}".format(e))
 
+    # TODO implement unconfirmed UDP style messages
     def send(self, ctype, msg):
 
         """Universal send method, just give the ctype and the payload"""
 
-        if ctype == Data.scc["confirm"]:
+        # doesn't need to be confirmed
+        if not Data.needs_confirm[Data.iscc[ctype]]:
             try:
-                self.target_socket.send(Packet(ctype, msg).bytes)
+                if ctype == Data.scc["confirm"]:
+                    p = Packet(ctype, msg)
+                    print("\t"*30 + "Sending:\n\t{}".format(p.to_string(n=30)))
+                    self.target_socket.send(p.bytes)
+                else:
+                    p = Packet(ctype, Connection.prep(msg))
+                    print("\t"*30 + "Sending:\n\t{}".format(p.to_string(n=30)))
+                    self.target_socket.send(p.bytes)
             except Exception as e:
                 print("Sending confirmation failed! Error: {}".format(e))
             return
 
         packet = Packet(ctype, Connection.prep(msg))
+        print("\t"*30 + "Sending:\n\t{}".format(packet.to_string(n=30)))
 
         confirmation_received = False
         msg_hash = packet.bytes_hash
@@ -218,7 +228,7 @@ class Connection:
                         self.data.confirmation_search_index += i + 1
                         return
                 # check for confirm every 3 seconds
-                time.sleep(3)
+                time.sleep(2.3)
 
         try:
             self.target_socket.send(packet.bytes)
@@ -229,7 +239,7 @@ class Connection:
 
         # send until receiving was confirmed
         while not confirmation_received:
-            time.sleep(3)
+            time.sleep(2.3)
             try:
                 self.target_socket.send(packet.bytes)
             except Exception as e:
