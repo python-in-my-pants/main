@@ -146,7 +146,8 @@ class ConnectionSetup:
         # Asking for tha hosting list all 3 seconds assuming 60 FPS
 
         # this number has to be big enough to receive the list meanwhile
-        if self.get_hosting_list_counter >= 180:  # TODO maybe lower this number to 1s?
+        if self.get_hosting_list_counter >= 60:  # TODO maybe lower this number to 1s?
+
             self.hosting_list = self.client.get_hosting_list()
 
             print("-"*30 + "\nRec log len:", self.client.connection.get_rec_log_len())
