@@ -116,6 +116,7 @@ class ConnectionSetup:
         self.first_click = True
         self.board_first_click = True
 
+        self.hosting_list = None
         self.get_hosting_list_counter = 0
         self.game_to_join = None
 
@@ -125,6 +126,8 @@ class ConnectionSetup:
         self.ip_field_text = "No games available"  # TODO change; this will be a button in a list of games to join marking the game as the game to join
         self.desi_board_text = "50"#"Enter board size"  # TODO change; here you should also enter the game name -> GameName, size, e.g. Dungeon, 50
         self.game_map_string = None
+
+        self.client.get_hosting_list_from_server()
 
         self.main_background_img = pg.image.load("assets/rose.png").convert()
         self.main_background_img = fit_surf(pg.Surface(true_res), self.main_background_img)
@@ -143,28 +146,29 @@ class ConnectionSetup:
         # Asking for tha hosting list all 3 seconds assuming 60 FPS
 
         # this number has to be big enough to receive the list meanwhile
-        if self.get_hosting_list_counter >= 60:  # TODO maybe lower this number to 1s?
-            hosting_list = self.client.get_hosting_list()
+        if self.get_hosting_list_counter >= 180:  # TODO maybe lower this number to 1s?
+            self.hosting_list = self.client.get_hosting_list()
 
             print("-"*30 + "\nRec log len:", self.client.connection.get_rec_log_len())
             for elem in self.client.connection.get_rec_log()[-10:]:
                 print("\n", elem.to_string())
             print()
 
-            if hosting_list:
-                # TODO this is hardcoded; always choosing game 1 from hosting list
-                self.game_to_join = hosting_list["Dungeon"]
-                self.ip_field_text = "{}, {} Points".format(self.game_to_join.name, self.game_to_join.points)
-
-                ''' At a later point, the ip_to_join_button should be reworked as a list, containing 1 button per 
-                game in the hosting list. If you click the button, the corresponding game should be game_to_join. 
-                Clicking the join button should do the joining then'''
-            else:
-                self.game_to_join = None
-                self.ip_field_text = "No games available"
             self.get_hosting_list_counter = 0
         else:
             self.get_hosting_list_counter += 1
+
+        if self.hosting_list:
+            # TODO this is hardcoded; always choosing game 1 from hosting list
+            self.game_to_join = self.hosting_list["Dungeon"]
+            self.ip_field_text = "{}, {} Points".format(self.game_to_join.name, self.game_to_join.points)
+
+            ''' At a later point, the ip_to_join_button should be reworked as a list, containing 1 button per 
+            game in the hosting list. If you click the button, the corresponding game should be game_to_join. 
+            Clicking the join button should do the joining then'''
+        else:
+            self.game_to_join = None
+            self.ip_field_text = "No games available"
 
         # set up GUI ---------------------------------------------------------------------------------------------------
 
@@ -225,10 +229,12 @@ class ConnectionSetup:
                 self.host_stat = "Waiting for opp..."
 
                 # while you are not in a game yet (aka nobody has joined your hosted game)
-                while not self.client.get_join_stat():
+                while True:  # TODO change back
+                #while not self.client.get_join_stat():
                     # kill the thread if outer conditions changed
                     if self.host_thread == 0:
                         return
+                    time.sleep(0.05)
 
                 self.role = "host"
                 # host is always team 0

@@ -1,9 +1,7 @@
-import socket
 import struct
+import queue
 from Data import *
 from NewNetwork import *
-
-# TODO all con.ident were con.target_socket.getsockname() prior
 
 
 class Game:  # for actual games
@@ -50,6 +48,7 @@ class Server:
         }
         self.needs_send_resource = [scc["get host list"],
                                     scc["char select ready"]]
+        self.q = queue.Queue()
 
         # dictionary that maps players (sockets) to their games
         self.game_players = dict()
@@ -126,10 +125,30 @@ class Server:
         # TODO notify host so that he can transition to next screen
 
     # handle get hosting list
-    def _hgetHL(self, msg, con):
+    def old_hgetHL(self, msg, con):
         self.send_free = False
         con.send(scc["hosting list"], self.hosting_list)
         self.send_free = True
+
+    def _hgetHL(self, msg, con):
+
+        if msg == "True":
+            # start thread for sending host list to this client continuously
+            send_hosting_list = True
+        elif msg == "False":
+            send_hosting_list = False
+        else:
+            print("Error! Something in _hgetHL went wrong!")
+            return
+
+        def _sendHL():
+            # send host list to client every 2 seconds (unconfirmed)
+            if not send_hosting_list:
+                return
+            con.send(scc["hosting list"], self.hosting_list)
+            time.sleep(2)
+
+        self.q.put([_sendHL, "loop"])
 
     # game
 
@@ -240,18 +259,41 @@ class Server:
         del con
         return
 
+    # tODO deprecated
     def send_if_free(self, method, msg, con):
         while True:
             if self.send_free:
                 th.start_new_thread(method, (msg, con))
                 return
-            time.sleep(0.5)
+            time.sleep(0.1)
+
+    def empty_q(self):
+        while True:
+            # put all elements in a list
+            params = self.q.get()
+
+            # first element is a function, all succeeding elements are parameters for the function call
+            if params[1] == "loop":  # if the first param is "loop" enqueue the function again after calling it
+                params[0]()
+                self.q.put([params[0], "loop"])
+            else:
+                # unpack the rest of the list to use them as parameters
+                params[0](*params[1:])
 
 
-def main_routine(): # baum
+def main_routine():
+
+    """
+    This does 3 things:
+    - start a separate thread to listen to incoming connections and put them in server.connections
+    - start a separate thread that empties the queue
+    - put incoming messages of connections in a server.queue
+    :return: nothing
+    """
 
     server = Server()
     th.start_new_thread(server.start_listening, ())
+    th.start_new_thread(server.empty_q, ())
 
     while True:
 
@@ -260,26 +302,29 @@ def main_routine(): # baum
         for con in server.connections:
             try:
 
-                print("-"*30 + "\nRec log len:", con.get_rec_log_len())
-                for elem in con.get_rec_log()[-10:]:
-                    print("\n", elem.to_string())
-                print()
-
                 # handle incoming messages
                 if con.new_msg_sent():
-                    # TODO check what can go wrong in this call and catch it
-                    ctype, msg = con.get_last_control_type_and_msg()  # TODO this blocks cause msg is too long in unwrap
+
+                    print("-" * 30 + "\nRec log len:", con.get_rec_log_len())
+                    for elem in con.get_rec_log()[-10:]:
+                        print("\n", elem.to_string())
+                    print()
+
+                    ctype, msg = con.get_last_control_type_and_msg()
+                    server.q.put([server.ctype_dict[ctype], msg, con])
+
+                    '''
                     # if ctype needs send resources use send_if_free, else just call
-                    if ctype == scc["cancel hosting"]:
-                        print("Cancel host received")
                     if ctype in server.needs_send_resource:
                         server.send_if_free(server.ctype_dict[ctype], msg, con)
                     else:
-                        th.start_new_thread(server.ctype_dict[ctype], (msg, con))  # TODO assure that all send resources are free
+                        th.start_new_thread(server.ctype_dict[ctype], (msg, con))
+                    '''
+
             except KeyError as e:
                 print("KeyError! {}".format(e))
 
-        time.sleep(1)
+        time.sleep(0.005)
 
 
 if __name__ == "__main__":
