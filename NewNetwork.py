@@ -198,18 +198,18 @@ class Connection:
             try:
                 if ctype == Data.scc["confirm"]:
                     p = Packet(ctype, msg)
-                    print("\t"*30 + "Sending:\n\t{}".format(p.to_string(n=30)))
+                    print("\t"*30 + "Sending:\n\n{}".format(p.to_string(n=30)))
                     self.target_socket.send(p.bytes)
                 else:
                     p = Packet(ctype, Connection.prep(msg))
-                    print("\t"*30 + "Sending:\n\t{}".format(p.to_string(n=30)))
+                    print("\t"*30 + "Sending:\n\n{}".format(p.to_string(n=30)))
                     self.target_socket.send(p.bytes)
             except Exception as e:
                 print("Sending confirmation failed! Error: {}".format(e))
             return
 
         packet = Packet(ctype, Connection.prep(msg))
-        print("\t"*30 + "Sending:\n\t{}".format(packet.to_string(n=30)))
+        print("\t"*30 + "Sending:\n\n{}".format(packet.to_string(n=30)))
 
         confirmation_received = False
         msg_hash = packet.bytes_hash

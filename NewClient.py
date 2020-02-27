@@ -100,7 +100,7 @@ class NetworkClient(metaclass=Singleton):
     # get hosting list (tell server to start sending)
     def get_hosting_list_from_server(self, b=True):
         """
-        Tells server weather to send hosting list every x seconds form now on, should be called once from init
+        Tells server whether to send hosting list every x seconds form now on, should be called once from init
         :param b: should he send it or not?
         :return: most up to date hosting list object
         """
@@ -111,7 +111,7 @@ class NetworkClient(metaclass=Singleton):
     # get hosting list
     def get_hosting_list(self):
         # update the live data
-        th.start_new_thread(self.get_hosting_list, ())
+        th.start_new_thread(self._get_hosting_list, ())
         # no need to tell the server to send, he does so anyway every 2 sec
         # return the current hosting list
         return self.live_data["hosting_list"]
