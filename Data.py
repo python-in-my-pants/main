@@ -1,8 +1,14 @@
 import ctypes
+import sys
 
-true_res = (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
+if sys.platform == "win32":
+    true_res = (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
+else:
+    true_res = [1920, 1080]  # just set the res manually for linux, maybe adjust later?
+
 #serverIP = "88.150.32.237"
-serverIP = "localhost"
+serverIP = "78.47.178.105"
+#serverIP = "localhost"
 
 mat_colour = {
     "sandstone": (255, 140, 0),
