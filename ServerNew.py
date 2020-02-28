@@ -86,14 +86,14 @@ class Server:
     ###############
 
     # handle hosting
-    def _hhost(self, msg, con):
+    def _hhost(self, msg, con):  # works
         name, game_map, points = msg
         match_data = MatchData(name, con.ident, game_map, points)
         if match_data not in self.hosting_list.values() and name not in self.hosting_list.keys():
             self.hosting_list[name] = match_data
 
     # handle cancel hosting
-    def _hchost(self, msg, con):  # TODO unclean, untested
+    def _hchost(self, msg, con):  # works
 
         '''
         for x in self.hosting_list:
@@ -112,24 +112,18 @@ class Server:
     def _hjoin(self, msg, con):
         host = Connection.bytes_to_string(msg)
         # remove host from hosting list (2 player scenario)
-        match_data = copy.deepcopy(self.hosting_list[host])
+        match_data = self.hosting_list[host]
         del self.hosting_list[host]
 
         game = Game(host, con.ident)
         game.game_map = match_data.game_map
         self.games.append(game)
-        self.game_players[host.getsockname()] = game
-        self.game_players[con.getsockname()] = game
+        self.game_players[match_data.hosting_player] = game
+        self.game_players[con.ident] = game
 
         # TODO notify host so that he can transition to next screen
 
-    # handle get hosting list
-    def old_hgetHL(self, msg, con):
-        self.send_free = False
-        con.send(scc["hosting list"], self.hosting_list)
-        self.send_free = True
-
-    def _hgetHL(self, msg, con):
+    def _hgetHL(self, msg, con):  # works
 
         if msg == "True":
             # start thread for sending host list to this client continuously
@@ -218,7 +212,7 @@ class Server:
         pass
 
     # handle sending text
-    def _hcon(self, msg, con):
+    def _hcon(self, msg, con):  # works
         if msg == "Close connection":
             print("Server is closing connection ...")
             self.connections.remove(con)

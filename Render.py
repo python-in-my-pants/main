@@ -124,7 +124,7 @@ class ConnectionSetup:
         self.buttons = None
 
         self.ip_field_text = "No games available"  # TODO change; this will be a button in a list of games to join marking the game as the game to join
-        self.desi_board_text = "50"#"Enter board size"  # TODO change; here you should also enter the game name -> GameName, size, e.g. Dungeon, 50
+        self.desi_board_text = "50"  # "Enter board size" TODO change; here you should also enter the game name -> GameName, size, e.g. Dungeon, 50
         self.game_map_string = None
 
         self.client.get_hosting_list_from_server()
@@ -146,7 +146,7 @@ class ConnectionSetup:
         # Asking for tha hosting list all 3 seconds assuming 60 FPS
 
         # this number has to be big enough to receive the list meanwhile
-        if self.get_hosting_list_counter >= 60:  # TODO maybe lower this number to 1s?
+        if self.get_hosting_list_counter >= 30:  # TODO maybe lower this number to 1s?
 
             self.hosting_list = self.client.get_hosting_list()
 
@@ -219,6 +219,7 @@ class ConnectionSetup:
                 self.host_stat = "Generating map..."
 
                 # generate Map for the game
+                # TODO generate map png and attach it to map for better rendering performance
                 self.game_map_string = Map.MapBuilder().build_map(self.field_size)
                 self.map_points = int(((self.game_map_string.size_x * self.game_map_string.size_y) / 500) * 16.6)
 
@@ -230,8 +231,7 @@ class ConnectionSetup:
                 self.host_stat = "Waiting for opp..."
 
                 # while you are not in a game yet (aka nobody has joined your hosted game)
-                while True:  # TODO change back
-                #while not self.client.get_join_stat():
+                while not self.client.get_join_stat():
                     # kill the thread if outer conditions changed
                     if self.host_thread == 0:
                         return
@@ -302,7 +302,7 @@ class ConnectionSetup:
             if not self.join_thread:
                 self.join_thread = start_new_thread(join_btn_fkt, ())
                 return
-            if self.join_thread and get_ident() == self.join_thread:  # TODO join self.game_to_join on click
+            if self.join_thread and get_ident() == self.join_thread:
 
                 # no game was selected
                 if not self.game_to_join:
@@ -313,21 +313,25 @@ class ConnectionSetup:
                 self.game_map_string = self.game_to_join.game_map
                 self.map_points = self.game_to_join.points
 
-                # TODO hardcoded game name for testing
-                self.client.join("Dungeon")
+                self.client.join(self.game_to_join.name)
+
                 # wait until the server thinks that I am in a game
                 while not self.client.get_join_stat():
-                    pass
+                    if not self.join_thread:
+                        return
+                    time.sleep(0.05)
 
                 self.role = "client"
                 self.team_number = 1
                 self.new_window_target = CharacterSelection
 
-        def cancel_join_fkt():  # ToDo Rework for later KAPPA
-            #self.net = None
-            #self.role = "unknown"
-            #self.join_thread = 0
+        def cancel_join_fkt():  # TODO add network communication?
+            self.join_thread = 0
             self.join_stat = "Cancelled"
+
+        def hosted_game_fkt():
+            # TODO select corresponding game from button text as game to join
+            pass
 
         def ip_field_fkt():
             # on first click erase content, else do nothing
