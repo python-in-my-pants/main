@@ -146,12 +146,12 @@ class ConnectionSetup:
         # Asking for tha hosting list all 3 seconds assuming 60 FPS
 
         # this number has to be big enough to receive the list meanwhile
-        if self.get_hosting_list_counter >= 30:  # TODO maybe lower this number to 1s?
+        if self.get_hosting_list_counter >= 60:  # TODO maybe lower this number to 1s?
 
             self.hosting_list = self.client.get_hosting_list()
 
             print("-"*30 + "\nRec log len:", self.client.connection.get_rec_log_len())
-            for elem in self.client.connection.get_rec_log()[-10:]:
+            for elem in self.client.connection.get_rec_log_fast(5):
                 print("\n", elem.to_string())
             print()
 
@@ -231,11 +231,12 @@ class ConnectionSetup:
                 self.host_stat = "Waiting for opp..."
 
                 # while you are not in a game yet (aka nobody has joined your hosted game)
-                while not self.client.get_join_stat():
+                #while True:  # TODO change back ... wtf of this is changed back, cancel doesn't work anymore
+                while not self.client.get_in_game_stat():
                     # kill the thread if outer conditions changed
                     if self.host_thread == 0:
                         return
-                    time.sleep(0.05)
+                    time.sleep(0.5)
 
                 self.role = "host"
                 # host is always team 0
@@ -316,7 +317,7 @@ class ConnectionSetup:
                 self.client.join(self.game_to_join.name)
 
                 # wait until the server thinks that I am in a game
-                while not self.client.get_join_stat():
+                while not self.client.get_in_game_stat():
                     if not self.join_thread:
                         return
                     time.sleep(0.05)

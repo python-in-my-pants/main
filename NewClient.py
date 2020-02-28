@@ -100,13 +100,14 @@ class NetworkClient(metaclass=Singleton):
                 self.live_data["hosting_list"] = pack.get_payload()
                 return self.live_data["hosting_list"]
 
-    # get join stat (in game or not)
-    def get_join_stat(self):  # returns true if the server thinks the client is in game, false otherwise
-        self.send_q.put((Data.scc["control"], "get in game stat"))
+    def get_in_game_stat_from_server(self, b=True):
+        self.send_q.put((Data.scc["get in game stat"], str(b)))
 
+    # get in-game-stat (in game or not)
+    def get_in_game_stat(self):  # returns true if the server thinks the client is in game, false otherwise
         log = self.connection.get_rec_log_fast(10)
         for pack in log:
-            if pack.ctype == Data.scc["control"]:
+            if pack.ctype == Data.scc["in game stat"]:
                 self.live_data["in_game"] = True if (pack.get_payload() == "yes") else False
                 return self.live_data["in_game"]
 

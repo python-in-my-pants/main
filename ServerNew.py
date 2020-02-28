@@ -44,6 +44,7 @@ class Server:
             scc["game begins"]:       lambda x: None,
             scc["undefined"]:         self._hundef,
             scc["confirm"]:           self._hundef,
+            scc["get in game stat"]:  self._hginst,
             scc["close connection"]:  self._hclose
         }
         self.needs_send_resource = [scc["get host list"],
@@ -107,6 +108,26 @@ class Server:
             if value.hosting_player is con.ident:
                 del self.hosting_list[key]
                 break
+
+    def _hginst(self, msg, con):
+
+        if msg == "True":
+            # start thread for sending host list to this client continuously
+            send_in_game_stat = True
+        elif msg == "False":
+            send_in_game_stat = False
+        else:
+            print("Error! Something in _hingst went wrong!")
+            return
+
+        def _send_IGS():
+            # send in game stat to client every 2 seconds (unconfirmed)
+            if not send_in_game_stat:
+                return
+            con.send(scc["in game stat"], "yes" if con.ident in self.game_players else "no")
+            time.sleep(2)
+
+        self.q.put([_send_IGS, "loop"])
 
     # handle join
     def _hjoin(self, msg, con):
@@ -219,10 +240,6 @@ class Server:
             con.kill_connection()
             del con
             return
-        # message client to tell if he is in game or not
-        if msg == "get in game stat":
-            con.send(scc["control"], "yes" if con.ident in self.game_players else "no")
-            return
 
         print("Client@{} says: \n\n\t{}\n".format(con.target_addr, msg))
 
@@ -232,14 +249,6 @@ class Server:
         con.kill_connection()
         del con
         return
-
-    # tODO deprecated
-    def send_if_free(self, method, msg, con):
-        while True:
-            if self.send_free:
-                th.start_new_thread(method, (msg, con))
-                return
-            time.sleep(0.1)
 
     def empty_q(self):
         while True:
@@ -279,7 +288,7 @@ def main_routine():
                 if con.new_msg_sent():
 
                     print("-" * 30 + "\nRec log len:", con.get_rec_log_len())
-                    for elem in con.get_rec_log()[-10:]:
+                    for elem in con.get_rec_log_fast(5):
                         print("\n", elem.to_string())
                     print()
 

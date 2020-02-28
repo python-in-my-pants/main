@@ -168,7 +168,9 @@ class Connection:
     def _get_last_rec(self):
         return self.data.rec_log[-1] if len(self.data.rec_log) > 0 else None
 
-    def new_msg_sent(self):  # this now only checks for timestamps
+    def old_new_msg_sent(self):  # this now only checks for timestamps
+        # TODO doesn't work bc timestamp of last could be timestamp of third last u know?
+        # # new msg in between doesn't get seen
         last_rec = self._get_last_rec()
         if not last_rec:  # no msg was received yet
             return False
@@ -176,6 +178,21 @@ class Connection:
             self.last_chkd_msg = last_rec
             return True
         if self.last_chkd_msg.timestamp == last_rec.timestamp:  # compare timestamps
+            return False
+        else:
+            self.last_chkd_msg = last_rec
+            return True
+
+    def new_msg_sent(self):  # this now only checks for timestamps
+        # TODO doesn't work bc timestamp of last could be timestamp of third last u know?
+        # # new msg in between doesn't get seen
+        last_rec = self.get_rec_log_fast(5)
+        if not last_rec:  # no msg was received yet
+            return False
+        if not self.last_chkd_msg:  # is it the first receive on this connection?
+            self.last_chkd_msg = last_rec
+            return True
+        if self.last_chkd_msg == last_rec:  # compare timestamps
             return False
         else:
             self.last_chkd_msg = last_rec
@@ -209,11 +226,11 @@ class Connection:
             try:
                 if ctype == Data.scc["confirm"]:
                     p = Packet(ctype, msg)
-                    print("\t"*30 + "Sending:\n\n{}".format(p.to_string(n=30)))
+                    print("\t"*30 + "Sending:\n{}\n".format(p.to_string(n=30)))
                     self.target_socket.send(p.bytes)
                 else:
                     p = Packet(ctype, Connection.prep(msg))
-                    print("\t"*30 + "Sending:\n\n{}".format(p.to_string(n=30)))
+                    print("\t"*30 + "Sending:\n{}\n".format(p.to_string(n=30)))
                     self.target_socket.send(p.bytes)
             except Exception as e:
                 print("Sending confirmation failed! Error: {}".format(e))
@@ -241,7 +258,7 @@ class Connection:
                 time.sleep(0.5)
 
         try:
-            print("\t" * 30 + "Sending:\n\n{}".format(packet.to_string(n=30)))
+            print("\t" * 30 + "Sending:\n{}\n".format(packet.to_string(n=30)))
             self.target_socket.send(packet.bytes)
         except Exception as e:
             print(e)
