@@ -96,6 +96,7 @@ class NetworkClient(metaclass=Singleton):
         log = self.connection.get_rec_log_fast(10)
         for pack in log:
             if pack.ctype == Data.scc["hosting list"]:
+                print(pack.to_string())
                 self.live_data["hosting_list"] = pack.get_payload()
                 return self.live_data["hosting_list"]
 
