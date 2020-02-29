@@ -44,6 +44,7 @@ class Server:
             scc["game begins"]:       lambda x: None,
             scc["undefined"]:         self._hundef,
             scc["confirm"]:           self._hundef,
+            scc["get in game stat"]:  self._hginst,
             scc["close connection"]:  self._hclose
         }
         self.needs_send_resource = [scc["get host list"],
@@ -86,14 +87,14 @@ class Server:
     ###############
 
     # handle hosting
-    def _hhost(self, msg, con):
+    def _hhost(self, msg, con):  # works
         name, game_map, points = msg
         match_data = MatchData(name, con.ident, game_map, points)
         if match_data not in self.hosting_list.values() and name not in self.hosting_list.keys():
             self.hosting_list[name] = match_data
 
     # handle cancel hosting
-    def _hchost(self, msg, con):  # TODO unclean, untested
+    def _hchost(self, msg, con):  # works
 
         '''
         for x in self.hosting_list:
@@ -108,28 +109,42 @@ class Server:
                 del self.hosting_list[key]
                 break
 
+    def _hginst(self, msg, con):
+
+        if msg == "True":
+            # start thread for sending host list to this client continuously
+            send_in_game_stat = True
+        elif msg == "False":
+            send_in_game_stat = False
+        else:
+            print("Error! Something in _hingst went wrong!")
+            return
+
+        def _send_IGS():
+            # send in game stat to client every 2 seconds (unconfirmed)
+            if not send_in_game_stat:
+                return
+            con.send(scc["in game stat"], "yes" if con.ident in self.game_players else "no")
+            time.sleep(2)
+
+        self.q.put([_send_IGS, "loop"])
+
     # handle join
     def _hjoin(self, msg, con):
         host = Connection.bytes_to_string(msg)
         # remove host from hosting list (2 player scenario)
-        match_data = copy.deepcopy(self.hosting_list[host])
+        match_data = self.hosting_list[host]
         del self.hosting_list[host]
 
         game = Game(host, con.ident)
         game.game_map = match_data.game_map
         self.games.append(game)
-        self.game_players[host.getsockname()] = game
-        self.game_players[con.getsockname()] = game
+        self.game_players[match_data.hosting_player] = game
+        self.game_players[con.ident] = game
 
         # TODO notify host so that he can transition to next screen
 
-    # handle get hosting list
-    def old_hgetHL(self, msg, con):
-        self.send_free = False
-        con.send(scc["hosting list"], self.hosting_list)
-        self.send_free = True
-
-    def _hgetHL(self, msg, con):
+    def _hgetHL(self, msg, con):  # works
 
         if msg == "True":
             # start thread for sending host list to this client continuously
@@ -218,16 +233,12 @@ class Server:
         pass
 
     # handle sending text
-    def _hcon(self, msg, con):
+    def _hcon(self, msg, con):  # works
         if msg == "Close connection":
             print("Server is closing connection ...")
             self.connections.remove(con)
             con.kill_connection()
             del con
-            return
-        # message client to tell if he is in game or not
-        if msg == "get in game stat":
-            con.send(scc["control"], "yes" if con.ident in self.game_players else "no")
             return
 
         print("Client@{} says: \n\n\t{}\n".format(con.target_addr, msg))
@@ -238,14 +249,6 @@ class Server:
         con.kill_connection()
         del con
         return
-
-    # tODO deprecated
-    def send_if_free(self, method, msg, con):
-        while True:
-            if self.send_free:
-                th.start_new_thread(method, (msg, con))
-                return
-            time.sleep(0.1)
 
     def empty_q(self):
         while True:
@@ -285,7 +288,7 @@ def main_routine():
                 if con.new_msg_sent():
 
                     print("-" * 30 + "\nRec log len:", con.get_rec_log_len())
-                    for elem in con.get_rec_log()[-10:]:
+                    for elem in con.get_rec_log_fast(5):
                         print("\n", elem.to_string())
                     print()
 

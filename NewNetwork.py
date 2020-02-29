@@ -72,8 +72,12 @@ class Packet:
             return self._payload
 
     def to_string(self, n=0):
-        return ("\t" * n + "Ctype:\t\t{}\n" + "\t"*n + "Timestamp:\t{}\n" + "\t"*n + "Payload:\t{}...\n" + "\t"*n + "Hash:\t\t{}").\
-            format(self.ctype, self.timestamp, self._payload[-40:], self.bytes_hash)
+        return ("\t" * n + "Ctype:\t\t{}\n" +
+                "\t" * n + "Length:\t\t{}\n" +
+                "\t"*n + "Timestamp:\t{}\n" +
+                "\t"*n + "Payload:\t{}...\n" +
+                "\t"*n + "Hash:\t\t{}").\
+            format(self.ctype, str(len(self.bytes)), self.timestamp, self._payload[-40:], self.bytes_hash)
 
 
 class Connection:
@@ -122,11 +126,20 @@ class Connection:
                     # print(self.role, "is receiving bytes ...")
                     # print("buffer input size:", len(buf))
                     last_rec = self.target_socket.recv(size)
-                    if len(last_rec) < size or \
-                       (len(last_rec) == size and last_rec[-5:] == Data.scc["message end"]):  # last piece of msg
 
-                        if len(last_rec) < size:
-                            buf += last_rec
+                    # always glue together
+                    buf += last_rec
+
+                    # check if its the last piece of the message
+                    if len(last_rec) < size or last_rec[-5:] == Data.scc["message end"]:
+
+                        '''
+                        It is the last piece of the message if:
+                        3 cases:
+                        - ends     in xxxxx and len < size   ... if len < then it's always the last msg
+                        - ends     in xxxxx and len = size   ... size and last frame size match
+                        - ends not in xxxxx and len < size   ... xxxxx got cut apart, this is the second part of it
+                        '''
 
                         pack = Packet.from_buffer(buf)
                         self.data.rec_log.append(pack)
@@ -136,14 +149,7 @@ class Connection:
                             th.start_new_thread(self._send_rec_confirmation, tuple([Packet.from_buffer(buf)]))
                         buf = b''
 
-                    elif len(last_rec) == size:  # kleben
-                        # if len == 2048 and not end in XXXXX
-                        buf += last_rec
-                    else:
-                        print("Something in receive went wrong")
-
                     time.sleep(0.005)
-
                 else:
                     # just return, that should kill the thread too
                     return
@@ -162,7 +168,9 @@ class Connection:
     def _get_last_rec(self):
         return self.data.rec_log[-1] if len(self.data.rec_log) > 0 else None
 
-    def new_msg_sent(self):  # this now only checks for timestamps
+    def old_new_msg_sent(self):  # this now only checks for timestamps
+        # TODO doesn't work bc timestamp of last could be timestamp of third last u know?
+        # # new msg in between doesn't get seen
         last_rec = self._get_last_rec()
         if not last_rec:  # no msg was received yet
             return False
@@ -170,6 +178,21 @@ class Connection:
             self.last_chkd_msg = last_rec
             return True
         if self.last_chkd_msg.timestamp == last_rec.timestamp:  # compare timestamps
+            return False
+        else:
+            self.last_chkd_msg = last_rec
+            return True
+
+    def new_msg_sent(self):  # this now only checks for timestamps
+        # TODO doesn't work bc timestamp of last could be timestamp of third last u know?
+        # # new msg in between doesn't get seen
+        last_rec = self.get_rec_log_fast(5)
+        if not last_rec:  # no msg was received yet
+            return False
+        if not self.last_chkd_msg:  # is it the first receive on this connection?
+            self.last_chkd_msg = last_rec
+            return True
+        if self.last_chkd_msg == last_rec:  # compare timestamps
             return False
         else:
             self.last_chkd_msg = last_rec
@@ -203,11 +226,11 @@ class Connection:
             try:
                 if ctype == Data.scc["confirm"]:
                     p = Packet(ctype, msg)
-                    print("\t"*30 + "Sending:\n\n{}".format(p.to_string(n=30)))
+                    print("\t"*30 + "Sending:\n{}\n".format(p.to_string(n=30)))
                     self.target_socket.send(p.bytes)
                 else:
                     p = Packet(ctype, Connection.prep(msg))
-                    print("\t"*30 + "Sending:\n\n{}".format(p.to_string(n=30)))
+                    print("\t"*30 + "Sending:\n{}\n".format(p.to_string(n=30)))
                     self.target_socket.send(p.bytes)
             except Exception as e:
                 print("Sending confirmation failed! Error: {}".format(e))
@@ -235,7 +258,7 @@ class Connection:
                 time.sleep(0.5)
 
         try:
-            print("\t" * 30 + "Sending:\n\n{}".format(packet.to_string(n=30)))
+            print("\t" * 30 + "Sending:\n{}\n".format(packet.to_string(n=30)))
             self.target_socket.send(packet.bytes)
         except Exception as e:
             print(e)

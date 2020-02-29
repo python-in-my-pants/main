@@ -65,6 +65,8 @@ scc = {  # server control codes             message holds the following:
     "undefined":            b'undef',       # N/A
     "close connection":     b'close',       # ""
     "confirm":              b'confi',       # confirm msg with hash
+    "get in game stat":     b'ginst',       # True or False
+    "in game stat":         b'ingst',       # yes or no
     "message end":          b'XXXXX'        # not a control type but here anyway
 }
 
@@ -82,6 +84,8 @@ needs_confirm = {
     "get turn":         True,
     "undefined":        False,
     "close connection": False,
+    "get in game stat": True,
+    "in game stat":     False,
     "confirm":          False
 }
 
