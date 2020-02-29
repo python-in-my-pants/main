@@ -116,15 +116,18 @@ class ConnectionSetup:
         self.first_click = True
         self.board_first_click = True
 
-        self.get_hosting_list_counter = 210
+        self.hosting_list = None
+        self.get_hosting_list_counter = 0
         self.game_to_join = None
 
         self.screen = None
         self.buttons = None
 
-        self.ip_field_text = "no games available"  # TODO change; this will be a button in a list of games to join marking the game as the game to join
-        self.desi_board_text = "50"#"Enter board size"  # TODO change; here you should also enter the game name -> GameName, size, e.g. Dungeon, 50
+        self.ip_field_text = "No games available"  # TODO change; this will be a button in a list of games to join marking the game as the game to join
+        self.desi_board_text = "50"  # "Enter board size" TODO change; here you should also enter the game name -> GameName, size, e.g. Dungeon, 50
         self.game_map_string = None
+
+        self.client.get_hosting_list_from_server()
 
         self.main_background_img = pg.image.load("assets/rose.png").convert()
         self.main_background_img = fit_surf(pg.Surface(true_res), self.main_background_img)
@@ -143,26 +146,30 @@ class ConnectionSetup:
         # Asking for tha hosting list all 3 seconds assuming 60 FPS
 
         # this number has to be big enough to receive the list meanwhile
-        if self.get_hosting_list_counter >= 300 and not self.host_thread:  # do not send multiple different requests
-            print("Querying hosting list ...")
-            hosting_list = self.client.get_hosting_list()
+        if self.get_hosting_list_counter >= 60:  # TODO maybe lower this number to 1s?
 
-            if hosting_list:
-                print("Hosting list received!")
-                # TODO this is hardcoded; always choosing game 1 from hosting list
-                # TODO change on demand of multiple hostable games
-                self.game_to_join = hosting_list[0]
-                self.ip_field_text = "{}:\n {}, {} Points".format(hosting_list[0].hosting_player,
-                                                                  hosting_list[0].name,
-                                                                  hosting_list[0].points)
-                # TODO
-                '''At a later point, the ip_to_join_button should be reworked as a list, containing 1 button per 
-                game in the hosting list. If you click the button, the corresponding game should be game_to_join. 
-                Clicking the join button should do the joining then'''
+            self.hosting_list = self.client.get_hosting_list()
+
+            print("-"*30 + "\nRec log len:", self.client.connection.get_rec_log_len())
+            for elem in self.client.connection.get_rec_log_fast(5):
+                print("\n", elem.to_string())
+            print()
+
             self.get_hosting_list_counter = 0
         else:
-           # print("Hosting list counter:", self.get_hosting_list_counter) if self.get_hosting_list_counter % 60 == 0 else None
             self.get_hosting_list_counter += 1
+
+        if self.hosting_list:
+            # TODO this is hardcoded; always choosing game 1 from hosting list
+            self.game_to_join = self.hosting_list["Dungeon"]
+            self.ip_field_text = "{}, {} Points".format(self.game_to_join.name, self.game_to_join.points)
+
+            ''' At a later point, the ip_to_join_button should be reworked as a list, containing 1 button per 
+            game in the hosting list. If you click the button, the corresponding game should be game_to_join. 
+            Clicking the join button should do the joining then'''
+        else:
+            self.game_to_join = None
+            self.ip_field_text = "No games available"
 
         # set up GUI ---------------------------------------------------------------------------------------------------
 
@@ -212,22 +219,24 @@ class ConnectionSetup:
                 self.host_stat = "Generating map..."
 
                 # generate Map for the game
+                # TODO generate map png and attach it to map for better rendering performance
                 self.game_map_string = Map.MapBuilder().build_map(self.field_size)
                 self.map_points = int(((self.game_map_string.size_x * self.game_map_string.size_y) / 500) * 16.6)
 
                 self.host_stat = "Hosting..."
 
-                # TODO this never reaches the server, why???
                 # send the data to the server
                 self.client.host_game("Dungeon", self.game_map_string.get_map(), self.map_points)
 
-                self.host_stat = "Wait for opp...|...|...|"
+                self.host_stat = "Waiting for opp..."
 
                 # while you are not in a game yet (aka nobody has joined your hosted game)
-                while not self.client.get_join_stat():
+                #while True:  # TODO change back ... wtf of this is changed back, cancel doesn't work anymore
+                while not self.client.get_in_game_stat():
                     # kill the thread if outer conditions changed
                     if self.host_thread == 0:
                         return
+                    time.sleep(0.5)
 
                 self.role = "host"
                 # host is always team 0
@@ -237,7 +246,7 @@ class ConnectionSetup:
                 self.new_window_target = CharacterSelection
                 return
 
-        def cancel_host_fkt():  # TODO see if this still crashes
+        def cancel_host_fkt():
             if self.host_thread:
                 self.host_thread = 0
                 self.host_stat = "Cancelling ..."
@@ -294,7 +303,7 @@ class ConnectionSetup:
             if not self.join_thread:
                 self.join_thread = start_new_thread(join_btn_fkt, ())
                 return
-            if self.join_thread and get_ident() == self.join_thread:  # TODO join self.game_to_join on click
+            if self.join_thread and get_ident() == self.join_thread:
 
                 # no game was selected
                 if not self.game_to_join:
@@ -305,21 +314,25 @@ class ConnectionSetup:
                 self.game_map_string = self.game_to_join.game_map
                 self.map_points = self.game_to_join.points
 
-                # TODO hardcoded game name for testing
-                self.client.join("Dungeon")
+                self.client.join(self.game_to_join.name)
+
                 # wait until the server thinks that I am in a game
-                while not self.client.get_join_stat():
-                    pass
+                while not self.client.get_in_game_stat():
+                    if not self.join_thread:
+                        return
+                    time.sleep(0.05)
 
                 self.role = "client"
                 self.team_number = 1
                 self.new_window_target = CharacterSelection
 
-        def cancel_join_fkt():  # ToDo Rework for later KAPPA
-            #self.net = None
-            #self.role = "unknown"
-            #self.join_thread = 0
+        def cancel_join_fkt():  # TODO add network communication?
+            self.join_thread = 0
             self.join_stat = "Cancelled"
+
+        def hosted_game_fkt():
+            # TODO select corresponding game from button text as game to join
+            pass
 
         def ip_field_fkt():
             # on first click erase content, else do nothing

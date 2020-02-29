@@ -253,7 +253,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
 
         if border_size > 0:
             self.objects.append(Border(obj_type="default", size_x_=size_x - 1, size_y_=size_y - 1,
-                                       pos=[game_object.pos[0] - border_size, game_object.pos[1] - border_size], \
+                                       pos=[game_object.pos[0] - border_size, game_object.pos[1] - border_size],
                                        thiccness=border_size))
 
         # modify unique_pixs TODO because new
@@ -550,7 +550,7 @@ class MapBuilder:
             # while there is a house (to add) and it does not fit and you did not try 100 times yet generate a new one
             limit = 0
             while h != 0 and self.map.add_object(h, border_size=1) != 1 and limit < 100:
-                h = SimpleHouse(name=("Simple house " + str(house_counter)), obj_type="default", \
+                h = SimpleHouse(name=("Simple house " + str(house_counter)), obj_type="default",
                                 pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
                 limit += 1
 

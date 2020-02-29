@@ -1,7 +1,13 @@
 import ctypes
+import sys
 
-true_res = (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
-serverIP = "88.150.32.237"
+if sys.platform == "win32":
+    true_res = (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
+else:
+    true_res = [1920, 1080]  # just set the res manually for linux, maybe adjust later?
+
+#serverIP = "88.150.32.237"
+serverIP = "78.47.178.105"
 #serverIP = "localhost"
 
 mat_colour = {
@@ -59,7 +65,49 @@ scc = {  # server control codes             message holds the following:
     "undefined":            b'undef',       # N/A
     "close connection":     b'close',       # ""
     "confirm":              b'confi',       # confirm msg with hash
+    "get in game stat":     b'ginst',       # True or False
+    "in game stat":         b'ingst',       # yes or no
     "message end":          b'XXXXX'        # not a control type but here anyway
 }
 
+needs_confirm = {
+    "Host":             True,
+    "cancel hosting":   True,
+    "Join":             True,
+    "Turn":             True,
+    "get host list":    True,
+    "control":          True,
+    "char select ready":False,
+    "hosting list":     False,
+    "end game":         True,
+    "game begins":      True,
+    "get turn":         True,
+    "undefined":        False,
+    "close connection": False,
+    "get in game stat": True,
+    "in game stat":     False,
+    "confirm":          False
+}
+
 iscc = {v: k for k, v in scc.items()}  # inverted server control codes
+
+unwrap_as_obj = [scc["Turn"],
+                 scc["hosting list"],
+                 scc["char select ready"],
+                 scc["Host"],
+                 scc["game begins"]]
+unwrap_as_str = [scc["control"],
+                 scc["close connection"],
+                 scc["get host list"],
+                 scc["undefined"],
+                 scc["confirm"]]
+
+
+# this has to be here so that server AND client know what MatchData looks like
+class MatchData:  # for hosting games
+
+    def __init__(self, name, hosting_player, game_map, points):
+        self.name = name
+        self.hosting_player = hosting_player
+        self.game_map = game_map
+        self.points = points
