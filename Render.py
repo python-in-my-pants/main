@@ -958,7 +958,7 @@ class CharacterSelection:  # commit comment
             def butn_fkt():
 
                 if not self.ready:
-                    char = create_character(card_num, self.net.team)    # ToDo Network
+                    char = create_character(card_num, self.team_numberr)
                     if self.spent_points + char.cost <= self.points_to_spend:
                         self.ownTeam.add_char(char)
                         self.spent_points += char.cost
@@ -1861,7 +1861,7 @@ class InGame:
 
         self.map_surface = pg.Surface([int(9 * w / 16), h])
         # TODO place characters on map first
-        self.game_map.selective_draw_map(team_num=self.net.team)# own_team.team_num)    # ToDo Network
+        self.game_map.selective_draw_map(team_num=self.own_team.team_num)  # own_team.team_num)
         self.map_content = fit_surf(surf=self.game_map.window, size=self.map_surface.get_size())
 
         self.own_team_stats = pg.Surface([int(self.map_surface.get_width() * 0.9), own_team_height])
@@ -2004,9 +2004,9 @@ class InGame:
         def func():
 
             print("char button clicked")
-            if char.team == self.net.team:  # own char
+            if char.team == self.own_team.team_num:  # own char
                 self.selected_own_char = char
-            if char.team == self.net.other_team and self.selected_own_char:  # opp. char
+            if char.team != self.own_team.team_num and self.selected_own_char:  # opp. char
                 # attack routine
                 self.selected_own_char.shoot(char, 3)
 
@@ -2045,7 +2045,7 @@ class InGame:
 
         # chars on map
 
-        v_chars = self.game_map.get_visible_chars_ind(self.net.team)
+        v_chars = self.game_map.get_visible_chars_ind(self.own_team.team_num)
 
         for index in v_chars:
 
