@@ -31,7 +31,7 @@ class Action:
         # self.destination = destination  # has value if moved
         self.path = path  # holds list of positions starting from player pos on action begin and ending in destination
 
-        self.dmg2b = dmg2b  # has value if damage >0 was inflicted, holds LIST for bodyparts
+        self.dmg2b = dmg2b  # has value if damage >0 was inflicted, holds LIST for body parts
         self.dmg2a = dmg2a  # has value if player A damaged himself (eg rocket launcher) OR he healed himself, in
                             # this case the dmg is <0, holds LIST for bodyparts
         self.pos_a_dmg2b = ...  # holds index of pos in path of player a when the damage to B was inflicted

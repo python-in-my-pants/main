@@ -7,7 +7,11 @@ else:
     true_res = [1920, 1080]  # just set the res manually for linux, maybe adjust later?
 
 #serverIP = "88.150.32.237"
+
+
 serverIP = "78.47.178.105"
+
+
 #serverIP = "localhost"
 
 mat_colour = {
