@@ -1762,6 +1762,9 @@ class InGame:
         self.amount = [0, 0]
         self.old_factor = 1
 
+        self.turn_wait_counter = 0
+        self.turn_get_thread = 0
+
         self.shifting = False
         self.shift_start = [0, 0]
         self.con_shift_offset = [0, 0]
@@ -1906,8 +1909,20 @@ class InGame:
             return func
 
         def done_button_action():  # TODO
-
-            pass
+            if self.turn_get_thread == 0:
+                self.turn_get_thread = start_new_thread(done_button_action, ())
+                return
+            else:
+                self.client.send_turn()  # ToDo Turn musch da rein
+                time.sleep(1)
+                while not self.client.live_data["last_opp_turn"]:  # ToDo implement better later (only first functionality)
+                    if self.turn_wait_counter == 150:
+                        self.client.get_turn()
+                        self.turn_wait_counter = 0
+                    else:
+                        self.turn_wait_counter += 1
+                # ToDo Turn Apply Function?
+                return
 
         # -------------------------------------------------------------------------------------------------------------
         # buttons and bars
@@ -2234,6 +2249,7 @@ class InGame:
                                                   self.player_banners.get_height()])
         self.screen.blit(self.done_btn_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
                                                    self.player_banners.get_height() + self.minimap_surf.get_height()])
+
 
     def event_handling(self):
 
