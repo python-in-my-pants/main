@@ -228,6 +228,9 @@ class ConnectionSetup:
                 # send the data to the server
                 self.client.host_game("Dungeon", self.game_map_string.get_map(), self.map_points)
 
+                # start getting in game stat
+                self.client.get_in_game_stat_from_server(True)
+
                 self.host_stat = "Waiting for opp..."
 
                 # while you are not in a game yet (aka nobody has joined your hosted game)
@@ -237,6 +240,8 @@ class ConnectionSetup:
                     if self.host_thread == 0:
                         return
                     time.sleep(0.5)
+
+                self.client.get_in_game_stat_from_server(False)
 
                 self.role = "host"
                 # host is always team 0
@@ -314,6 +319,8 @@ class ConnectionSetup:
                 self.game_map_string = self.game_to_join.game_map
                 self.map_points = self.game_to_join.points
 
+                self.client.get_in_game_stat_from_server(True)
+
                 self.client.join(self.game_to_join.name)
 
                 # wait until the server thinks that I am in a game
@@ -321,6 +328,8 @@ class ConnectionSetup:
                     if not self.join_thread:
                         return
                     time.sleep(0.05)
+
+                self.client.get_in_game_stat_from_server(False)
 
                 self.role = "client"
                 self.team_number = 1

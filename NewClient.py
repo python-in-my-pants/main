@@ -107,9 +107,13 @@ class NetworkClient(metaclass=Singleton):
     def get_in_game_stat(self):  # returns true if the server thinks the client is in game, false otherwise
         log = self.connection.get_rec_log_fast(10)
         for pack in log:
-            if pack.ctype == Data.scc["in game stat"]:
-                self.live_data["in_game"] = True if (pack.get_payload() == "yes") else False
-                return self.live_data["in_game"]
+            try:
+                if pack.ctype == Data.scc["in game stat"]:
+                    self.live_data["in_game"] = True if (pack.get_payload() == "yes") else False
+                    return self.live_data["in_game"]
+            except Exception as e:
+                print("Something in NetworkClients get_in_game_stat went wrong!")
+                print(e)
 
         return self.live_data["in_game"]
 
