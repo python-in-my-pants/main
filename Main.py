@@ -25,10 +25,18 @@ from Characters import Character
 debug = True
 counter = 0
 timee = True
+# TODO throw out
+c = CustomTimer()
 
+# stuff to beautify rendering
+
+if sys.platform == "win32":
+    ctypes.windll.user32.SetProcessDPIAware()
 ctypes.windll.user32.SetProcessDPIAware()
-true_res = (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
 os.environ['SDL_VIDEO_CENTERED'] = '1'  # make so that popping windows are centered
+
+# obligatory pygame init
+
 pg.init()
 
 # client / server stuff
@@ -37,6 +45,7 @@ pg.init()
 # start_new_thread(net.routine_threaded_listener, ())
 role = "nobody"
 teams = []
+# TODO still up to date?
 map_data = []  # holds data of map received from server PLUS the team number you have
 
 select = False
@@ -174,9 +183,9 @@ while True:
             active_window.update()
 
     clock.tick(60)  # controls max fps
-    #print("FPS: " + str(clock.get_fps()) + "\n\n") if counter % 60 == 0 else (lambda: None)
+    print("FPS: " + str(clock.get_fps()) + "\n\n") if counter % 180 == 0 else (lambda: None)
     counter += 1
-    counter %= 60
+    counter %= 180
     pg.display.flip()
 
     '''

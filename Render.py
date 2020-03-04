@@ -19,7 +19,8 @@ import time
 import copy
 import ctypes
 
-ctypes.windll.user32.SetProcessDPIAware()
+if sys.platform == "win32":
+    ctypes.windll.user32.SetProcessDPIAware()
 
 debug = False
 
@@ -29,10 +30,10 @@ class MainWindow:
     def __init__(self):  # creates main window with contents -> "mainscreen"
 
         size = [pg.display.Info().current_w, pg.display.Info().current_h]
-        print("MainWindow thinks the size is: " + str(size))
+        # print("MainWindow thinks the size is: " + str(size))
 
         self.new_window_target = None
-        self.screen = pg.display.set_mode(true_res, pg.RESIZABLE | pg.FULLSCREEN)
+        self.screen = pg.display.set_mode(true_res)  # , pg.RESIZABLE | pg.FULLSCREEN)  # TODO put back in
 
         main_background_img = pg.image.load("assets/rose.png")
 
@@ -53,7 +54,7 @@ class MainWindow:
 
         def button_fkt():
             pg.mixer.music.load("assets/ass.mp3")  # TODO replace with omae wa mou and play on window open in loop
-            #pg.mixer.music.play(0)
+            # pg.mixer.music.play(0)
             # time.sleep(2.5)
 
             # go to different window and kill this one
@@ -102,17 +103,14 @@ class ConnectionSetup:
         self.field_size = 0
         self.client = NetworkClient()
 
-        self.join_stat = "Join Status"
-        self.host_stat = "Host Status"
         self.host_thread = 0
         self.join_thread = 0
-        #self.map = None
         self.map_points = None
         self.team_number = 0
 
+        # TODO maybe make a focus list if buttons become more?
         self.ip_focus = False
         self.size_focus = False
-
         self.first_click = True
         self.board_first_click = True
 
@@ -120,11 +118,9 @@ class ConnectionSetup:
         self.get_hosting_list_counter = 0
         self.game_to_join = None
 
-        self.screen = None
-        self.buttons = None
+        #self.ip_field_text = ...# TODO change; this will be a button in a list of games to join marking the game as the game to join
+        self.desi_board_text = "35"# TODO change; here you should also enter the game name -> GameName, size, e.g. Dungeon, 50
 
-        self.ip_field_text = "No games available"  # TODO change; this will be a button in a list of games to join marking the game as the game to join
-        self.desi_board_text = "50"  # "Enter board size" TODO change; here you should also enter the game name -> GameName, size, e.g. Dungeon, 50
         self.game_map_string = None
 
         self.client.get_hosting_list_from_server()
@@ -133,27 +129,141 @@ class ConnectionSetup:
         self.main_background_img = fit_surf(pg.Surface(true_res), self.main_background_img)
 
         # create window
-        self.screen = pg.display.set_mode(true_res, pg.RESIZABLE | pg.FULLSCREEN)
+        self.screen = pg.display.set_mode(true_res)  # , pg.RESIZABLE | pg.FULLSCREEN)  # TODO put back in
 
         self.screen.blit(self.main_background_img, blit_centered_pos(self.screen, self.main_background_img))
+        # TODO remove
+        self.c = CustomTimer()
 
+        # set up GUI ---------------------------------------------------------------------------------------------------
+
+        # <editor-fold desc="Setting up surfaces">
+        # set up surfaces
+        # we need 2 surfaces that are transparent
+        self.left_surf = pg.Surface([int(true_res[0] / 2), true_res[1]])  # TODO: is it working?
+        self.left_surf.fill((255, 12, 255))
+        self.left_surf.set_colorkey((255, 12, 255))
+
+        self.right_surf = pg.Surface([int(true_res[0] / 2), true_res[1]])
+        self.right_surf.fill((255, 12, 255))
+        self.right_surf.set_colorkey((255, 12, 255))
+
+        surfs_size = [self.left_surf.get_width(), self.left_surf.get_height()]  # only 1 because they are equally big
+        self.surfs_size = surfs_size
+        # </editor-fold>
+
+        # Buttons
+        # <editor-fold desc="Host buttons">
+        # define buttons and put them on their surface
+
+        # define list of buttons
+        self.buttons = []
+
+        self.desired_board_size_button = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
+                                                pos=[int((self.left_surf.get_width() - int(surfs_size[0] / 3)) / 2),
+                                                     int(surfs_size[1] * 0.7)],
+                                                real_pos=[int((self.right_surf.get_width() - (surfs_size[0] / 3)) / 2),
+                                                          int(surfs_size[1] * 0.7)], color=(255, 255, 255),
+                                                text="35", name="board_size_button",
+                                                action=self.desired_board_size_button_fkt)
+
+        # append later to not mess up indices
+
+        self.host_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
+                               pos=[int((self.left_surf.get_width() - int(surfs_size[0] / 3)) / 2),
+                                    int(surfs_size[1] / 6)], color=(135, 206, 235), text="Host", name="host_btn",
+                               action=self.host_btn_fkt)
+
+        self.buttons.append(self.host_btn)
+
+        self.host_stat_btn = Button([int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
+                                    pos=[int((self.left_surf.get_width() - int(surfs_size[0] / 3)) / 2),
+                                    int(surfs_size[1] * 0.43)], color=(135, 206, 235), text="Host proposed <3",
+                                    name="host_stat", action=(lambda: None))
+
+        self.buttons.append(self.host_stat_btn)
+
+        self.host_cancel_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
+                                 pos=[int((self.left_surf.get_width() - int(surfs_size[0] / 3)) / 2),
+                                      int(surfs_size[1] * 0.84)],
+                                 real_pos=[int((self.left_surf.get_width() - int(surfs_size[0] / 3)) / 2),
+                                           int(surfs_size[1] * 0.84)], color=(250, 128, 114), text="Cancel",
+                                 name="cancel_host", action=self.cancel_host_fkt)
+
+        self.buttons.append(self.host_cancel_btn)
+
+        self.back_btn = Button(dim=[int(true_res[0] * 0.03), int(true_res[0] * 0.03)], pos=[0, 0], real_pos=[0, 0],
+                          img_uri="assets/back_btn.png", text="", name="back_btn", use_dim=True, action=self.back_fkt)
+
+        self.buttons.append(self.back_btn)
+        # </editor-fold>
+
+        # <editor-fold desc="Join Buttons">
+        self.join_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
+                          pos=[int((self.right_surf.get_width() - (surfs_size[0] / 3)) / 2),
+                               int(surfs_size[1] / 6)],
+                          real_pos=[int((self.right_surf.get_width() - (surfs_size[0] / 3)) / 2) +
+                                    self.left_surf.get_width(),
+                                    int(surfs_size[1] / 6)], color=(135, 206, 235), text="Join", name="join_btn",
+                          action=self.join_btn_fkt)
+
+        self.buttons.append(self.join_btn)
+
+        self.join_stat_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
+                               pos=[int((self.right_surf.get_width() - (surfs_size[0] / 3)) / 2),
+                                    int(surfs_size[1] * 0.43)],
+                               real_pos=[int((self.right_surf.get_width() - (surfs_size[0] / 3)) / 2) +
+                                         self.left_surf.get_width(), int(surfs_size[1] * 0.43)], color=(135, 206, 235),
+                               text="Join a game UwU", name="join_stat", action=(lambda: None))
+
+        self.buttons.append(self.join_stat_btn)
+
+        # ToDo Rename in Lobby list or create new one
+        self.ip_to_join_btn = Button([int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
+                                pos=[int((self.right_surf.get_width() - (surfs_size[0] / 3)) / 2),
+                                     int(surfs_size[1] * 0.7)],
+                                real_pos=[int((self.right_surf.get_width() - (surfs_size[0] / 3)) / 2) +
+                                          self.left_surf.get_width(), int(surfs_size[1] * 0.7)], color=(255, 255, 255),
+                                text="As empty as your soul", name="ip_to_join_btn", action=self.ip_field_fkt)
+
+        self.buttons.append(self.ip_to_join_btn)
+        # this is here for a reason, just don't know which that is
+        self.buttons.append(self.desired_board_size_button)
+
+        self.join_cancel_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
+                                      pos=[int((self.right_surf.get_width() - (surfs_size[0] / 3)) / 2),
+                                           int(surfs_size[1] * 0.84)],
+                                      real_pos=[int((self.right_surf.get_width() - (surfs_size[0] / 3)) / 2) +
+                                                self.left_surf.get_width(),
+                                                int(surfs_size[1] * 0.84)], color=(250, 128, 114), text="Cancel",
+                                      name="cancel_join", action=self.cancel_join_fkt)
+
+        self.buttons.append(self.join_cancel_btn)
+
+        # </editor-fold>
+
+        self.content_changed = True
         self.update()
 
     def update(self):
 
-        size = true_res
-
+        print()
+        self.c.start()
+        # <editor-fold desc="Get and fill hosting list">
         # Asking for tha hosting list all 3 seconds assuming 60 FPS
 
         # this number has to be big enough to receive the list meanwhile
         if self.get_hosting_list_counter >= 60:  # TODO maybe lower this number to 1s?
 
-            self.hosting_list = self.client.get_hosting_list()
+            h = self.client.get_hosting_list()
+            if h != self.hosting_list:
+                self.content_changed = True
+            self.hosting_list = h
 
-            print("-"*30 + "\nRec log len:", self.client.connection.get_rec_log_len())
+            '''print("-"*30 + "\nRec log len:", self.client.connection.get_rec_log_len())
             for elem in self.client.connection.get_rec_log_fast(5):
                 print("\n", elem.to_string())
-            print()
+            print()'''
 
             self.get_hosting_list_counter = 0
         else:
@@ -162,252 +272,47 @@ class ConnectionSetup:
         if self.hosting_list:
             # TODO this is hardcoded; always choosing game 1 from hosting list
             self.game_to_join = self.hosting_list["Dungeon"]
-            self.ip_field_text = "{}, {} Points".format(self.game_to_join.name, self.game_to_join.points)
+            self.change_btn_text(self.ip_to_join_btn,
+                                 "{}, {} Points".format(self.game_to_join.name, self.game_to_join.points))
 
             ''' At a later point, the ip_to_join_button should be reworked as a list, containing 1 button per 
             game in the hosting list. If you click the button, the corresponding game should be game_to_join. 
             Clicking the join button should do the joining then'''
         else:
             self.game_to_join = None
-            self.ip_field_text = "No games available"
+            self.change_btn_text(self.ip_to_join_btn, "The endless void...")
+        # </editor-fold>
+        self.c.t("Hosting list")
 
-        # set up GUI ---------------------------------------------------------------------------------------------------
+        if self.size_focus or self.ip_focus:
+            self.content_changed = True
 
-        # we need 2 surfaces that are transparent
+        if self.content_changed:
+            self.reblit()
 
-        left_surf = pg.Surface([int(size[0] / 2), size[1]])  # TODO: is it working?
-        left_surf.fill((255, 12, 255))
-        left_surf.set_colorkey((255, 12, 255))
+        self.c.end()
 
-        right_surf = pg.Surface([int(size[0] / 2), size[1]])
-        right_surf.fill((255, 12, 255))
-        right_surf.set_colorkey((255, 12, 255))
+    def reblit(self):
 
-        surfs_size = [left_surf.get_width(), left_surf.get_height()]  # only 1 because they are equally big
+        self.left_surf.blit(self.host_btn.surf, self.host_btn.pos)
+        self.left_surf.blit(self.desired_board_size_button.surf, self.desired_board_size_button.pos)
+        self.left_surf.blit(self.host_stat_btn.surf, self.host_stat_btn.pos)
+        self.left_surf.blit(self.host_cancel_btn.surf, self.host_cancel_btn.pos)
+        self.left_surf.blit(self.back_btn.surf, self.back_btn.pos)
 
-        # define list of buttons
-
-        self.buttons = []
-
-        # button functions need to be defined before buttons
-
-        def desired_board_size_button_fkt():
-
-            self.size_focus = True
-            self.ip_focus = False
-
-            if self.board_first_click:
-                self.desi_board_text = ""
-                self.board_first_click = False
-
-        def host_btn_fkt():
-            if not self.host_thread:
-                self.host_thread = start_new_thread(host_btn_fkt, ())
-                return
-            if self.host_thread and get_ident() == self.host_thread:
-
-                # do not host while the size is not entered yet
-                invalid_map_size = True
-                while invalid_map_size:
-                    self.host_stat = "Enter map size"
-                    try:
-                        self.field_size = int(self.desi_board_text)  # TODO split by ", " and get name too
-                        invalid_map_size = False
-                    except ValueError:
-                        pass
-
-                self.host_stat = "Generating map..."
-
-                # generate Map for the game
-                # TODO generate map png and attach it to map for better rendering performance
-                self.game_map_string = Map.MapBuilder().build_map(self.field_size)
-                self.map_points = int(((self.game_map_string.size_x * self.game_map_string.size_y) / 500) * 16.6)
-
-                self.host_stat = "Hosting..."
-
-                # send the data to the server
-                self.client.host_game("Dungeon", self.game_map_string.get_map(), self.map_points)
-
-                # start getting in game stat
-                self.client.get_in_game_stat_from_server(True)
-
-                self.host_stat = "Waiting for opp..."
-
-                # while you are not in a game yet (aka nobody has joined your hosted game)
-                #while True:  # TODO change back ... wtf of this is changed back, cancel doesn't work anymore
-                while not self.client.get_in_game_stat():
-                    # kill the thread if outer conditions changed
-                    if self.host_thread == 0:
-                        return
-                    time.sleep(0.5)
-
-                self.client.get_in_game_stat_from_server(False)
-
-                self.role = "host"
-                # host is always team 0
-                self.team_number = 0
-                # go to char select if somebody has joined your game
-                self.host_stat = "Let's start!"
-                self.new_window_target = CharacterSelection
-                return
-
-        def cancel_host_fkt():
-            if self.host_thread:
-                self.host_thread = 0
-                self.host_stat = "Cancelling ..."
-                self.client.cancel_hosting()
-                self.host = "unknown"
-                self.host_stat = "Hosting canceled!"
-
-        def back_fkt():
-            self.new_window_target = MainWindow
-
-        # define buttons and put them on their surface
-
-        desired_board_size_button = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
-                                           pos=[int((left_surf.get_width() - int(surfs_size[0] / 3)) / 2),
-                                                int(surfs_size[1] * 0.7)],
-                                           real_pos=[int((right_surf.get_width() - (surfs_size[0] / 3)) / 2),
-                                                     int(surfs_size[1] * 0.7)], color=(255, 255, 255),
-                                           text=self.desi_board_text, name="board_size_button",
-                                           action=desired_board_size_button_fkt)
-
-        # append later to not mess up indices
-
-        host_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
-                          pos=[int((left_surf.get_width() - int(surfs_size[0] / 3)) / 2),
-                               int(surfs_size[1] / 6)], color=(135, 206, 235), text="Host", name="host_btn",
-                          action=host_btn_fkt)
-
-        self.buttons.append(host_btn)
-
-        host_stat_btn = Button([int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
-                               pos=[int((left_surf.get_width() - int(surfs_size[0] / 3)) / 2),
-                                    int(surfs_size[1] * 0.43)], color=(135, 206, 235), text=self.host_stat,
-                               name="host_stat", action=(lambda: None))
-
-        self.buttons.append(host_stat_btn)
-
-        host_cancel_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
-                                 pos=[int((left_surf.get_width() - int(surfs_size[0] / 3)) / 2),
-                                      int(surfs_size[1] * 0.84)],
-                                 real_pos=[int((left_surf.get_width() - int(surfs_size[0] / 3)) / 2),
-                                           int(surfs_size[1] * 0.84)], color=(250, 128, 114), text="Cancel",
-                                 name="cancel_host", action=cancel_host_fkt)
-
-        self.buttons.append(host_cancel_btn)
-
-        back_btn = Button(dim=[int(size[0] * 0.03), int(size[0] * 0.03)], pos=[0, 0], real_pos=[0, 0],
-                          img_uri="assets/back_btn.png", text="", name="back_btn", use_dim=True, action=back_fkt)
-
-        self.buttons.append(back_btn)
-
-        # -------------------------------------------------------------------------------------------------------------
-
-        def join_btn_fkt():
-            if not self.join_thread:
-                self.join_thread = start_new_thread(join_btn_fkt, ())
-                return
-            if self.join_thread and get_ident() == self.join_thread:
-
-                # no game was selected
-                if not self.game_to_join:
-                    self.join_stat = "Select a game first"
-                    return
-
-                # set the map to hosted map
-                self.game_map_string = self.game_to_join.game_map
-                self.map_points = self.game_to_join.points
-
-                self.client.get_in_game_stat_from_server(True)
-
-                self.client.join(self.game_to_join.name)
-
-                # wait until the server thinks that I am in a game
-                while not self.client.get_in_game_stat():
-                    if not self.join_thread:
-                        return
-                    time.sleep(0.05)
-
-                self.client.get_in_game_stat_from_server(False)
-
-                self.role = "client"
-                self.team_number = 1
-                self.new_window_target = CharacterSelection
-
-        def cancel_join_fkt():  # TODO add network communication?
-            self.join_thread = 0
-            self.join_stat = "Cancelled"
-
-        def hosted_game_fkt():
-            # TODO select corresponding game from button text as game to join
-            pass
-
-        def ip_field_fkt():
-            # on first click erase content, else do nothing
-            self.size_focus = False
-            self.ip_focus = True
-            if self.first_click:
-                self.ip_field_text = ""
-                self.first_click = False
-
-        join_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
-                          pos=[int((right_surf.get_width() - (surfs_size[0] / 3)) / 2),
-                               int(surfs_size[1] / 6)],
-                          real_pos=[int((right_surf.get_width() - (surfs_size[0] / 3)) / 2) +
-                                    left_surf.get_width(),
-                                    int(surfs_size[1] / 6)], color=(135, 206, 235), text="Join", name="join_btn",
-                          action=join_btn_fkt)
-
-        self.buttons.append(join_btn)
-
-        join_stat_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
-                               pos=[int((right_surf.get_width() - (surfs_size[0] / 3)) / 2),
-                                    int(surfs_size[1] * 0.43)],
-                               real_pos=[int((right_surf.get_width() - (surfs_size[0] / 3)) / 2) +
-                                         left_surf.get_width(), int(surfs_size[1] * 0.43)], color=(135, 206, 235),
-                               text=self.join_stat, name="join_stat", action=(lambda: None))
-
-        self.buttons.append(join_stat_btn)
-
-        # ToDo Rename in Lobby list or create new one
-        ip_to_join_btn = Button([int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
-                                pos=[int((right_surf.get_width() - (surfs_size[0] / 3)) / 2),
-                                     int(surfs_size[1] * 0.7)],
-                                real_pos=[int((right_surf.get_width() - (surfs_size[0] / 3)) / 2) +
-                                          left_surf.get_width(), int(surfs_size[1] * 0.7)], color=(255, 255, 255),
-                                text=self.ip_field_text, name="ip_to_join_btn", action=ip_field_fkt)
-
-        self.buttons.append(ip_to_join_btn)
-        self.buttons.append(desired_board_size_button)
-
-        join_cancel_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
-                                 pos=[int((right_surf.get_width() - (surfs_size[0] / 3)) / 2),
-                                      int(surfs_size[1] * 0.84)],
-                                 real_pos=[int((right_surf.get_width() - (surfs_size[0] / 3)) / 2) +
-                                           left_surf.get_width(),
-                                           int(surfs_size[1] * 0.84)], color=(250, 128, 114), text="Cancel",
-                                 name="cancel_join", action=cancel_join_fkt)
-
-        self.buttons.append(join_cancel_btn)
-
-        # ----------------------------------------------------------------------------------------------------------
-
-        left_surf.blit(host_btn.surf, host_btn.pos)
-        left_surf.blit(desired_board_size_button.surf, desired_board_size_button.pos)
-        left_surf.blit(host_stat_btn.surf, host_stat_btn.pos)
-        left_surf.blit(host_cancel_btn.surf, host_cancel_btn.pos)
-        left_surf.blit(back_btn.surf, back_btn.pos)
-
-        right_surf.blit(join_btn.surf, join_btn.pos)
-        right_surf.blit(join_stat_btn.surf, join_stat_btn.pos)
-        right_surf.blit(join_cancel_btn.surf, join_cancel_btn.pos)
-        right_surf.blit(ip_to_join_btn.surf, ip_to_join_btn.pos)
+        self.right_surf.blit(self.join_btn.surf, self.join_btn.pos)
+        self.right_surf.blit(self.join_stat_btn.surf, self.join_stat_btn.pos)
+        self.right_surf.blit(self.join_cancel_btn.surf, self.join_cancel_btn.pos)
+        self.right_surf.blit(self.ip_to_join_btn.surf, self.ip_to_join_btn.pos)
 
         # put right and left surface to screen
 
-        self.screen.blit(left_surf, (0, 0))
-        self.screen.blit(right_surf, (surfs_size[0], 0))
+        self.screen.blit(self.left_surf, (0, 0))
+        self.screen.blit(self.right_surf, (self.surfs_size[0], 0))
+
+        self.content_changed = False
+
+        self.c.t("final blitting")
 
     def event_handling(self):
 
@@ -429,6 +334,7 @@ class ConnectionSetup:
 
             if event.type == pg.KEYDOWN:
                 ret = True
+                prev_desi_board_text = self.desi_board_text
                 if event.key == pg.K_KP0:
                     if self.ip_focus:
                         self.ip_field_text += "0"
@@ -611,6 +517,9 @@ class ConnectionSetup:
                     self.buttons[6].update_text()
                 if self.size_focus:
                     self.buttons[7].update_text()'''
+                if prev_desi_board_text != self.desi_board_text:
+                    self.desired_board_size_button.change_text(self.desi_board_text)
+                    self.content_changed = True
 
             if event.type == pg.MOUSEBUTTONDOWN:
                 ret = True
@@ -619,7 +528,159 @@ class ConnectionSetup:
                         if b.is_focused(pg.mouse.get_pos()):
                             b.action()
 
+        self.c.t("event handling")
+        self.c.end()
+
         return ret
+
+    # <editor-fold desc="Host button functions">
+    # button functions need to be defined before buttons
+
+    def desired_board_size_button_fkt(self):
+
+        self.size_focus = True
+        self.ip_focus = False
+
+        if self.board_first_click:
+            self.desi_board_text = ""  # TODO still needed?
+            self.desired_board_size_button.change_text("")
+            self.board_first_click = False
+
+    def host_btn_fkt(self):
+        self.size_focus = False
+        self.ip_focus = False
+        print("--------------------------> Host button clicked!")
+        if not self.host_thread:
+            self.host_thread = start_new_thread(self.host_btn_fkt, ())
+            return
+        if self.host_thread and get_ident() == self.host_thread:
+
+            # do not host while the size is not entered yet
+            invalid_map_size = True
+            while invalid_map_size:
+                try:
+                    self.field_size = int(self.desi_board_text)  # TODO split by ", " and get name too
+                    invalid_map_size = False
+                except ValueError:
+                    self.change_btn_text(self.host_stat_btn, "Enter map size!")
+                    return
+
+            self.change_btn_text(self.host_stat_btn, "Generating map...")
+
+            # generate Map for the game
+            # TODO generate map png and attach it to map for better rendering performance
+            self.game_map_string = Map.MapBuilder().build_map(self.field_size)
+            self.map_points = int(((self.game_map_string.size_x * self.game_map_string.size_y) / 500) * 16.6)
+
+            self.change_btn_text(self.host_stat_btn, "Hosting ...")
+
+            # send the data to the server
+            self.client.host_game("Dungeon", self.game_map_string.get_map(), self.map_points)
+
+            # start getting in game stat
+            self.client.get_in_game_stat_from_server(True)
+
+            self.change_btn_text(self.host_stat_btn, "Waiting for opp..")
+
+            # while you are not in a game yet (aka nobody has joined your hosted game)
+            # while True:  # TODO change back ... wtf of this is changed back, cancel doesn't work anymore
+            while not self.client.get_in_game_stat():
+                # kill the thread if outer conditions changed
+                if self.host_thread == 0:
+                    return
+                time.sleep(0.5)
+
+            self.client.get_in_game_stat_from_server(False)
+
+            self.role = "host"
+            # host is always team 0
+            self.team_number = 0
+            # go to char select if somebody has joined your game
+            self.new_window_target = CharacterSelection
+            return
+
+    def cancel_host_fkt(self):
+        self.size_focus = False
+        self.ip_focus = False
+        if self.host_thread:
+            self.host_thread = 0
+            self.change_btn_text(self.host_stat_btn, "Cancelling ...")
+            self.content_changed = True
+            self.client.cancel_hosting()
+            self.change_btn_text(self.host_stat_btn, "Cancelled, fucker!")
+            self.content_changed = True
+
+    def back_fkt(self):
+        self.size_focus = False
+        self.ip_focus = False
+        self.new_window_target = MainWindow
+
+    # </editor-fold>
+
+    # <editor-fold desc="Join Button functions">
+    def join_btn_fkt(self):
+        self.size_focus = False
+        self.ip_focus = False
+        if not self.join_thread:
+            self.join_thread = start_new_thread(self.join_btn_fkt, ())
+            return
+        if self.join_thread and get_ident() == self.join_thread:
+
+            # no game was selected
+            if not self.game_to_join:
+                #self.join_stat = "Select a game first"
+                self.change_btn_text(self.join_stat_btn, "Select a game first!")
+                return
+
+            # set the map to hosted map
+            self.game_map_string = self.game_to_join.game_map
+            self.map_points = self.game_to_join.points
+
+            self.client.get_in_game_stat_from_server(True)
+
+            self.change_btn_text(self.join_stat_btn, "Joining...")
+
+            self.client.join(self.game_to_join.name)
+
+            # wait until the server thinks that I am in a game
+            while not self.client.get_in_game_stat():
+                if not self.join_thread:
+                    return
+                time.sleep(0.05)
+
+            self.client.get_in_game_stat_from_server(False)
+
+            self.role = "client"
+            self.team_number = 1
+            self.new_window_target = CharacterSelection
+
+    def cancel_join_fkt(self):  # TODO add network communication?
+        self.size_focus = False
+        self.ip_focus = False
+        self.join_thread = 0
+        self.change_btn_text(self.join_stat_btn, "Cancelled!")
+        self.content_changed = True
+
+    def hosted_game_fkt(self):
+        self.size_focus = False
+        self.ip_focus = False
+        self.content_changed = True  # TODO put this where it belongs (after screen change is intended)
+        # TODO select corresponding game from button text as game to join
+        pass
+
+    def ip_field_fkt(self):
+        # on first click erase content, else do nothing
+        self.size_focus = False
+        self.ip_focus = True
+        if self.first_click:
+            self.ip_field_text = ""
+            self.first_click = False
+
+    def change_btn_text(self, btn, text):
+        btn.change_text(text)
+        self.content_changed = True
+
+    # </editor-fold>
 
     def harakiri(self):
         del self
@@ -638,9 +699,9 @@ class CharacterSelection:  # commit comment
         self.client = client
         self.new_window_target = None
         self.spent_points = 0
-        self.screen = pg.display.set_mode(true_res, pg.RESIZABLE | pg.FULLSCREEN)
+        self.screen = pg.display.set_mode(true_res)  # , pg.RESIZABLE | pg.FULLSCREEN) # TODO put back in
         self.team_numberr = team_numberr
-        self.ownTeam = Team(team_number=team_numberr)    # ToDo Network Team?
+        self.ownTeam = Team(team_number=team_numberr)  # ToDo Network Team?
         self.ready_thread = 0
         self.selectedChar = None
         self.weapons = []
@@ -753,7 +814,7 @@ class CharacterSelection:  # commit comment
 
         self.gear_back = pg.Surface([self.troop_overview.get_width(),
                                      int(2 * self.gap_size +
-                                         int(math.ceil(self.gc_num / self.line_len)*self.card_h) +
+                                         int(math.ceil(self.gc_num / self.line_len) * self.card_h) +
                                          int(self.gc_num / self.line_len) * self.gap_size +
                                          int(self.card_h * 0.5))])
         self.gear_content = pg.Surface([self.gear_back.get_width(), self.gear_back.get_height() - int(self.card_h / 2)])
@@ -782,7 +843,7 @@ class CharacterSelection:  # commit comment
 
         self.item_back = pg.Surface([self.troop_overview.get_width(),
                                      int(2 * self.gap_size +
-                                         int(math.ceil(self.ic_num / self.line_len)*self.card_h) +
+                                         int(math.ceil(self.ic_num / self.line_len) * self.card_h) +
                                          int(self.ic_num / self.line_len) * self.gap_size +
                                          int(self.card_h * 0.5))])
         self.item_content = pg.Surface([self.item_back.get_width(), self.item_back.get_height() - int(self.card_h / 2)])
@@ -798,7 +859,7 @@ class CharacterSelection:  # commit comment
         # right side #
         ##############
 
-        mini = max(int(0.3 * size[0]), int(0.2*size[1]))
+        mini = max(int(0.3 * size[0]), int(0.2 * size[1]))
         self.minimap_surf = pg.Surface([mini, mini])
         if debug:
             self.minimap_surf.fill((10, 11, 12))
@@ -810,12 +871,12 @@ class CharacterSelection:  # commit comment
         '''
 
         self.game_map.draw_map()
-        self.map_surf = fit_surf(pg.Surface([self.minimap_surf.get_width(), int(self.minimap_surf.get_height()*0.8)]),
+        self.map_surf = fit_surf(pg.Surface([self.minimap_surf.get_width(), int(self.minimap_surf.get_height() * 0.8)]),
                                  self.game_map.window)
 
         # ---------------
 
-        self.selected_units_back = pg.Surface([int(0.3 * size[0]), int((size[1] - self.minimap_surf.get_height())/2)])
+        self.selected_units_back = pg.Surface([int(0.3 * size[0]), int((size[1] - self.minimap_surf.get_height()) / 2)])
         if debug:
             self.selected_units_back.fill((255, 0, 0))
         '''
@@ -826,7 +887,7 @@ class CharacterSelection:  # commit comment
         '''
 
         self.selected_units_box = pg.Surface(
-                [self.selected_units_back.get_width() - 10, self.selected_units_back.get_height() - 10])
+            [self.selected_units_back.get_width() - 10, self.selected_units_back.get_height() - 10])
 
         # NEWWW
         sel_uni_box_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert(),
@@ -835,7 +896,8 @@ class CharacterSelection:  # commit comment
 
         # --------------
 
-        self.selected_weapons_back = pg.Surface([int(0.3 * size[0]), int((size[1] - self.minimap_surf.get_height())/2)])
+        self.selected_weapons_back = pg.Surface(
+            [int(0.3 * size[0]), int((size[1] - self.minimap_surf.get_height()) / 2)])
         if debug:
             self.selected_weapons_back.fill((0, 255, 0))
         '''
@@ -886,10 +948,10 @@ class CharacterSelection:  # commit comment
         def char_ban_func():
             if self.render_char_ban:
                 self.character_back = resize_surface_height(self.character_back,
-                                      y_diff=-self.character_content.get_height())
+                                                            y_diff=-self.character_content.get_height())
             else:
                 self.character_back = resize_surface_height(self.character_back,
-                                      y_diff=self.character_content.get_height())
+                                                            y_diff=self.character_content.get_height())
             self.char_banner_clicked = True
             self.render_char_ban = not self.render_char_ban
 
@@ -904,10 +966,10 @@ class CharacterSelection:  # commit comment
         def gear_ban_func():
             if self.render_gear_ban:
                 self.gear_back = resize_surface_height(self.gear_back,
-                                      y_diff=-self.gear_content.get_height())
+                                                       y_diff=-self.gear_content.get_height())
             else:
                 self.gear_back = resize_surface_height(self.gear_back,
-                                      y_diff=self.gear_content.get_height())
+                                                       y_diff=self.gear_content.get_height())
 
             self.gear_banner_clicked = True
             self.render_gear_ban = not self.render_gear_ban
@@ -985,7 +1047,8 @@ class CharacterSelection:  # commit comment
         for i in range(self.cc_num):
             w_pos = self.gap_size + ((i % self.line_len) * (self.card_w + self.gap_size))
 
-            h_pos = 2*self.gap_size + int(i / self.line_len)*self.card_h + (int(i/self.line_len)-1)*self.gap_size
+            h_pos = 2 * self.gap_size + int(i / self.line_len) * self.card_h + (
+                    int(i / self.line_len) - 1) * self.gap_size
 
             card_btn = Button(dim=[self.card_w, self.card_h], pos=[w_pos, h_pos],
                               real_pos=[w_pos,
@@ -1021,7 +1084,8 @@ class CharacterSelection:  # commit comment
         for i in range(self.gc_num):
             w_pos = self.gap_size + ((i % self.line_len) * (self.card_w + self.gap_size))
 
-            h_pos = 2*self.gap_size + int(i / self.line_len)*self.card_h + (int(i/self.line_len)-1)*self.gap_size
+            h_pos = 2 * self.gap_size + int(i / self.line_len) * self.card_h + (
+                    int(i / self.line_len) - 1) * self.gap_size
 
             card_btn = Button(dim=[self.card_w, self.card_h], pos=[w_pos, h_pos], real_pos=[w_pos,
                                                                                             h_pos +
@@ -1058,7 +1122,7 @@ class CharacterSelection:  # commit comment
             w_pos = self.gap_size + ((i % self.line_len) * (self.card_w + self.gap_size))
 
             h_pos = 2 * self.gap_size + int(i / self.line_len) * self.card_h + (
-                        int(i / self.line_len) - 1) * self.gap_size
+                    int(i / self.line_len) - 1) * self.gap_size
 
             card_btn = Button(dim=[self.card_w, self.card_h], pos=[w_pos, h_pos], real_pos=[w_pos,
                                                                                             h_pos +
@@ -1097,13 +1161,13 @@ class CharacterSelection:  # commit comment
 
             #               height of point counter + line_len_factor         *  card height plus gap
             h_pos = 2 * self.gap_size + int(i / self.line_len) * self.card_h + (
-                        int(i / self.line_len) - 1) * self.gap_size
+                    int(i / self.line_len) - 1) * self.gap_size
 
             card_btn = Button(dim=[self.card_w, self.card_h], pos=[w_pos, h_pos], real_pos=[w_pos,
                                                                                             h_pos +
                                                                                             self.rem_points_back.get_height() +
                                                                                             self.character_back.get_height() +
-                                                                                            self.gear_back.get_height()+
+                                                                                            self.gear_back.get_height() +
                                                                                             self.weapon_back.get_height() +
                                                                                             self.item_banner.dim[1] +
                                                                                             self.scroll_offset],
@@ -1235,15 +1299,16 @@ class CharacterSelection:  # commit comment
                             self.net.send_data_pickle("Teeam", self.ownTeam.characters)
                         self.new_window_target = InGame
         """
+
         def get_text():
             return "Unready" if self.ready else "Ready!"
 
         self.ready_btn = Button(
             dim=[int(self.minimap_surf.get_size()[0] * 0.9), int(self.minimap_surf.get_size()[1] * 0.2)],
-            pos=[int(self.minimap_surf.get_size()[0] * 0.05), int(self.minimap_surf.get_size()[1]*0.8)],
+            pos=[int(self.minimap_surf.get_size()[0] * 0.05), int(self.minimap_surf.get_size()[1] * 0.8)],
             real_pos=[int(self.minimap_surf.get_size()[0] * 0.05) +
                       self.troop_overview.get_size()[0],
-                      int(self.minimap_surf.get_size()[1]*0.8)], img_uri="assets/blue_button_menu.jpg",
+                      int(self.minimap_surf.get_size()[1] * 0.8)], img_uri="assets/blue_button_menu.jpg",
             text=get_text(), action=ready_up)
 
         # rest has to be handled in update
@@ -1276,7 +1341,7 @@ class CharacterSelection:  # commit comment
                 for i in char.items:
                     self.spent_points -= i.cost
 
-                #self.points_to_spend += char.cost
+                # self.points_to_spend += char.cost
 
         btn_fkt.__name__ = name
         return btn_fkt
@@ -1312,7 +1377,7 @@ class CharacterSelection:  # commit comment
         return btn_fkt
 
     def update(self):  # TODO for better performance render only things that changed
-                        # TODO adjust size of small teamcharbtn dpendent on map oints
+        # TODO adjust size of small teamcharbtn dpendent on map oints
         if self.ready:
             if self.ready_checker_counter == 69:  # CHECKER EVERY Secondu
                 team_list = self.client.check_for_game_begin()
@@ -1426,7 +1491,8 @@ class CharacterSelection:  # commit comment
         # -------------------------------------------------------------------------------------------------------------
 
         # constants
-        char_small_line_len = 5 if self.ownTeam.characters.__len__() <= 10 else int(self.ownTeam.characters.__len__()/2+0.5)
+        char_small_line_len = 5 if self.ownTeam.characters.__len__() <= 10 else int(
+            self.ownTeam.characters.__len__() / 2 + 0.5)
         char_small_gap_size = int(self.selected_units_box.get_width() / (char_small_line_len * 9 + 1))
         char_w_small_card = int(self.selected_units_box.get_width() * 8 / (char_small_line_len * 9 + 1))
         char_h_small_card = char_w_small_card  # int(w_small_card * 1.457)
@@ -1435,15 +1501,15 @@ class CharacterSelection:  # commit comment
         for i in range(self.ownTeam.characters.__len__()):
             pos_w = char_small_gap_size + ((i % char_small_line_len) * (char_w_small_card + char_small_gap_size))
             pos_h = 2 * char_small_gap_size + int(i / char_small_line_len) * char_h_small_card + (
-                        int(i / char_small_line_len) - 1) * char_small_gap_size
+                    int(i / char_small_line_len) - 1) * char_small_gap_size
 
             class_num = self.ownTeam.characters[i].class_id
 
             btn = Button(dim=[char_w_small_card, char_h_small_card], pos=[pos_w, pos_h], real_pos=
-                            [pos_w + int((self.selected_units_back.get_width() - self.selected_units_box.get_width())/2)+
-                            self.troop_overview.get_width(),
-                             pos_h + int((self.selected_units_back.get_height()-self.selected_units_box.get_height())/2)+
-                             self.minimap_surf.get_height()],
+            [pos_w + int((self.selected_units_back.get_width() - self.selected_units_box.get_width()) / 2) +
+             self.troop_overview.get_width(),
+             pos_h + int((self.selected_units_back.get_height() - self.selected_units_box.get_height()) / 2) +
+             self.minimap_surf.get_height()],
                          img_uri=("assets/cc/small/cc_" + str(class_num) + ".png"), use_dim=True, text="",
                          action=self.cc_function_binder("assets/cc/cc_small_btn_func" + str(i),
                                                         self.ownTeam.characters[i].idi))
@@ -1474,7 +1540,7 @@ class CharacterSelection:  # commit comment
 
             pos_w = gear_small_gap_size + ((i % gear_small_line_len) * (gear_w_small_card + gear_small_gap_size))
             pos_h = 2 * gear_small_gap_size + int(i / gear_small_line_len) * gear_h_small_card + (
-                        int(i / gear_small_line_len) - 1) * gear_small_gap_size
+                    int(i / gear_small_line_len) - 1) * gear_small_gap_size
 
             img_source = ""
             cat = None
@@ -1496,13 +1562,13 @@ class CharacterSelection:  # commit comment
                 cat = "item"
 
             btn = Button(dim=[gear_w_small_card, gear_h_small_card], pos=[pos_w, pos_h], real_pos=
-                             [pos_w +
-                              self.troop_overview.get_width() +
-                              int((self.selected_weapons_back.get_width()-self.selected_weapons_box.get_width())/2),
-                              pos_h +
-                              self.minimap_surf.get_height() +
-                              self.selected_units_back.get_height() +
-                              int((self.selected_weapons_back.get_height()-self.selected_weapons_box.get_height())/2)],
+            [pos_w +
+             self.troop_overview.get_width() +
+             int((self.selected_weapons_back.get_width() - self.selected_weapons_box.get_width()) / 2),
+             pos_h +
+             self.minimap_surf.get_height() +
+             self.selected_units_back.get_height() +
+             int((self.selected_weapons_back.get_height() - self.selected_weapons_box.get_height()) / 2)],
                          text="", img_source=img_source, use_dim=True,
                          action=self.ic_function_binder("ic_small_btn_func" + str(i), _category=cat, _id=my_id))
 
@@ -1593,9 +1659,10 @@ class CharacterSelection:  # commit comment
 
         # map and ready btn
 
-        self.minimap_surf.blit(self.map_surf, dest=[int((self.minimap_surf.get_width() - self.map_surf.get_width())/2),
-                                                    int((int(self.minimap_surf.get_height()*0.8) -
-                                                         self.map_surf.get_height()) / 2)])
+        self.minimap_surf.blit(self.map_surf,
+                               dest=[int((self.minimap_surf.get_width() - self.map_surf.get_width()) / 2),
+                                     int((int(self.minimap_surf.get_height() * 0.8) -
+                                          self.map_surf.get_height()) / 2)])
         self.ready_btn.set_text("Ready!" if not self.ready else "Unready")
         self.ready_btn.update_text()
 
@@ -1616,10 +1683,10 @@ class CharacterSelection:  # commit comment
             self.selected_units_box.blit(sm_char_btn.surf, sm_char_btn.pos)
 
         self.selected_units_back.blit(self.selected_units_box, dest=
-                                      [int((self.selected_units_back.get_width() -
-                                       self.selected_units_box.get_width()) / 2),
-                                       int((self.selected_units_back.get_height() -
-                                            self.selected_units_box.get_height()) / 2)])
+        [int((self.selected_units_back.get_width() -
+              self.selected_units_box.get_width()) / 2),
+         int((self.selected_units_back.get_height() -
+              self.selected_units_box.get_height()) / 2)])
 
         self.player_overview.blit(self.selected_units_back, dest=[0, self.minimap_surf.get_height()])
 
@@ -1639,7 +1706,7 @@ class CharacterSelection:  # commit comment
                                                                                           self.selected_weapons_box))
 
         self.player_overview.blit(self.selected_weapons_back, dest=
-                                  [0, self.minimap_surf.get_height() + self.selected_units_back.get_height()])
+        [0, self.minimap_surf.get_height() + self.selected_units_back.get_height()])
 
         ###########################
         # right and left together #
@@ -1654,7 +1721,7 @@ class CharacterSelection:  # commit comment
         self.rem_points_back.set_colorkey((1, 1, 1))'''
         self.rem_points_back.blit(self.points_btn.surf, dest=self.points_btn.pos)
         self.screen.blit(self.rem_points_back, dest=[int((self.troop_overview.get_width() -
-                                                          self.rem_points_back.get_width())/2), 0])
+                                                          self.rem_points_back.get_width()) / 2), 0])
 
         self.screen.blit(self.player_overview, [self.troop_overview.get_width(), 0])  # make
 
@@ -1733,10 +1800,11 @@ class CharacterSelection:  # commit comment
                     self.scroll = True
                     self.scroll_offset -= 300
                     self.scroll_offset = max(self.scroll_offset, -(max(self.character_back.get_height() +
-                                                                   self.gear_back.get_height() +
-                                                                   self.weapon_back.get_height() +
-                                                                   self.item_back.get_height() -
-                                                                   true_res[1] + self.rem_points_back.get_height(), 0)))
+                                                                       self.gear_back.get_height() +
+                                                                       self.weapon_back.get_height() +
+                                                                       self.item_back.get_height() -
+                                                                       true_res[1] + self.rem_points_back.get_height(),
+                                                                       0)))
 
     def harakiri(self):
         del self
@@ -1744,7 +1812,7 @@ class CharacterSelection:  # commit comment
 
 class InGame:
 
-    def __init__(self, own_team, game_map, client=None):   # ToDo Turnsystem/Network not implemented yet
+    def __init__(self, own_team, game_map, client=None):  # ToDo Turnsystem/Network not implemented yet
 
         # things to do here:
         # - put chars on spawning area
@@ -1792,7 +1860,7 @@ class InGame:
         # render image lists
         # -------------------
 
-        self.detail_size = [int((7/32) * w - 20), int((4/10) * h - 20)]
+        self.detail_size = [int((7 / 32) * w - 20), int((4 / 10) * h - 20)]
         self.small_size = [int((5 / 32) * 7 * w / 32), int((5 / 32) * 7 * w / 32)]
 
         self.detail_char = []
@@ -1837,7 +1905,8 @@ class InGame:
 
         self.map_char_imgs = []
         for i in range(self.cc_num):
-            img = pg.image.load("assets/cc/small/cc_" + str(i) + ".png").convert_alpha()  # TODO change to actual right images
+            img = pg.image.load(
+                "assets/cc/small/cc_" + str(i) + ".png").convert_alpha()  # TODO change to actual right images
             self.map_char_imgs.append(img)
 
         self.detail_back_metall = pg.image.load("assets/metall.png").convert()
@@ -1850,26 +1919,27 @@ class InGame:
 
         # surface 1.0 and 1.1
         self.char_detail_back = pg.Surface([int(7 * w / 32), int(7 * h / 18)])
-        #self.char_detail_back.fill((98, 70, 230))
+        # self.char_detail_back.fill((98, 70, 230))
         self.char_stat_card = self.detail_char[0]  # TODO
 
         # surface 2 and subsurfaces
         self.char_inventory_back = pg.Surface([int(7 * w / 32), int(4 * h / 18)])
-        self.inventory_gear_weapons_surf = pg.Surface([int(7 * w / 32), int(0.34 * 4 * h / 18)])  # 2 first are gear, last 3 are weapons
+        self.inventory_gear_weapons_surf = pg.Surface(
+            [int(7 * w / 32), int(0.34 * 4 * h / 18)])  # 2 first are gear, last 3 are weapons
         self.inventory_items_surf = pg.Surface([int(7 * w / 32), int(0.66 * 4 * h / 18)])  # 2 rows high
 
         # TODO make so that actual stats are shown in character card instead of just standard stats
         self.item_detail_back = pg.Surface([int(7 * w / 32), int(7 * h / 18)])
-        #self.item_detail_back.fill((77, 98, 219))
-        #self.item_detail_back.fill((255, 0, 0))
-        self.item_stat_card = self.detail_item[0]   # TODO
+        # self.item_detail_back.fill((77, 98, 219))
+        # self.item_detail_back.fill((255, 0, 0))
+        self.item_stat_card = self.detail_item[0]  # TODO
 
         # -------------- mid ----------------------------------
 
         own_team_height = 2 * int((1 / 32) * 7 * w / 32) + \
-                          int((self.own_team.characters.__len__() / 10) + 1) *\
+                          int((self.own_team.characters.__len__() / 10) + 1) * \
                           ((int((1 / 32) * 7 * w / 32) +  # number of lines * gap size
-                           int(1.6 * (5 / 32) * 7 * w / 32)))  # button + hp bar
+                            int(1.6 * (5 / 32) * 7 * w / 32)))  # button + hp bar
 
         self.map_surface = pg.Surface([int(9 * w / 16), h])
         # TODO place characters on map first
@@ -1882,8 +1952,9 @@ class InGame:
         self.own_team_stats.fill((255, 0, 0))
         self.own_team_stats.set_colorkey((255, 0, 0))
 
-        self.own_team_stats_back_img = pg.transform.smoothscale(pg.image.load("assets/team_char_back.png").convert_alpha(),
-                                                                self.own_team_stats.get_size())  # TODO size from own team stats
+        self.own_team_stats_back_img = pg.transform.smoothscale(
+            pg.image.load("assets/team_char_back.png").convert_alpha(),
+            self.own_team_stats.get_size())  # TODO size from own team stats
 
         # -------------- right ----------------------------------
 
@@ -1924,7 +1995,8 @@ class InGame:
             else:
                 self.client.send_turn()  # ToDo Turn musch da rein
                 time.sleep(1)
-                while not self.client.live_data["last_opp_turn"]:  # ToDo implement better later (only first functionality)
+                while not self.client.live_data[
+                    "last_opp_turn"]:  # ToDo implement better later (only first functionality)
                     if self.turn_wait_counter == 150:
                         self.client.get_turn()
                         self.turn_wait_counter = 0
@@ -1949,7 +2021,7 @@ class InGame:
         self.btn_w = int((5 / 32) * 7 * w / 32)
         self.btn_h = self.btn_w
         # self.inventory_gap_size = int((1 / 32) * 7 * w / 32)
-        self.inventory_gap_size = int((self.inventory_gear_weapons_surf.get_height()-self.btn_h)/2)
+        self.inventory_gap_size = int((self.inventory_gear_weapons_surf.get_height() - self.btn_h) / 2)
         self.inventory_line_len = 5
 
         # ----- left -----
@@ -1985,7 +2057,8 @@ class InGame:
 
             btn = Button(dim=[self.btn_w, self.btn_h], pos=[pos_w, pos_h], real_pos=[pos_w +
                                                                                      self.char_detail_back.get_width() +
-                                                                                     int(self.map_surface.get_width() * 0.05),
+                                                                                     int(
+                                                                                         self.map_surface.get_width() * 0.05),
                                                                                      pos_h],
                          img_uri=("assets/cc/small/cc_" + str(self.own_team.characters[i].class_id) + ".png"),
                          text="", name="char btn " + str(self.own_team.characters[i].class_id),
@@ -2006,8 +2079,8 @@ class InGame:
                                    self.zoom_size[0],
                                    char.get_pos(1) * self.element_size +
                                    self.zoom_size[1]],
-                                    # TODO img_uri="assets/char/" + str(char.unit_class) + ".png",
-                                    img_source=self.map_char_imgs[char.class_id],
+                         # TODO img_uri="assets/char/" + str(char.unit_class) + ".png",
+                         img_source=self.map_char_imgs[char.class_id],
                          action=self.sel_char_binder("map_char_btn_" + str(char.idi), char.idi))
 
             self.char_map_buttons.append(btn)
@@ -2082,10 +2155,10 @@ class InGame:
                  char.get_pos(1) * self.element_size + self.zoom_size[1]]
 
             rp = [char.get_pos(0) * self.element_size +
-                                    self.char_detail_back.get_width() +
-                                    self.zoom_size[0],
+                  self.char_detail_back.get_width() +
+                  self.zoom_size[0],
                   char.get_pos(1) * self.element_size +
-                                    self.zoom_size[1]]
+                  self.zoom_size[1]]
 
             btn = Button(dim=[self.element_size * self.zoom_factor, self.element_size * self.zoom_factor],
                          pos=[char.get_pos(0) * self.element_size + self.zoom_size[0],
@@ -2115,7 +2188,7 @@ class InGame:
                                  real_pos=[pos_w,
                                            pos_h +
                                            self.char_detail_back.get_height()],
-                                 #img_uri="assets/gc/small/gc_" + str(self.selected_own_char.gear[i].my_id) + ".png",
+                                 # img_uri="assets/gc/small/gc_" + str(self.selected_own_char.gear[i].my_id) + ".png",
                                  img_source=self.small_gear[i],
                                  text="", name=("gear " + str(self.selected_own_char.gear[i].my_id) + " button"),
                                  action=(lambda: None))
@@ -2135,8 +2208,9 @@ class InGame:
                                            self.char_detail_back.get_height()],
                                  img_source=self.small_weapon[i],
                                  text="", name=("weapon " + str(self.selected_own_char.weapons[i].class_id) + ".png"),
-                                 action=self.inventory_function_binder("weapon " + str(self.selected_own_char.weapons[i].class_idi),
-                                                                       self.selected_own_char.weapons[i].class_idi, item_type="weapon"))
+                                 action=self.inventory_function_binder(
+                                     "weapon " + str(self.selected_own_char.weapons[i].class_idi),
+                                     self.selected_own_char.weapons[i].class_idi, item_type="weapon"))
 
                     self.weapon_buttons.append(btn)
 
@@ -2145,19 +2219,20 @@ class InGame:
                 # item buttons
                 for i in range(self.selected_own_char.items.__len__()):
                     pos_w = self.inventory_gap_size + (i % 5) * (self.btn_w + self.inventory_gap_size)
-                    pos_h = self.inventory_gap_size + int(i/5) * (self.btn_h + self.inventory_gap_size)
+                    pos_h = self.inventory_gap_size + int(i / 5) * (self.btn_h + self.inventory_gap_size)
 
                     btn = Button(dim=[self.btn_w, self.btn_h], pos=[pos_w, pos_h],
                                  real_pos=[pos_w,
                                            pos_h +
                                            self.char_detail_back.get_height() +
                                            self.inventory_gear_weapons_surf.get_height()],
-                                 #="assets/ic/small/ic_" + str(self.selected_own_char.items[i].my_id) + ".png",
+                                 # ="assets/ic/small/ic_" + str(self.selected_own_char.items[i].my_id) + ".png",
                                  img_source=self.small_item[i],
                                  text="",
                                  name=("item " + str(self.selected_own_char.items[i].my_id) + ".png"),
-                                 action=self.inventory_function_binder("item " + str(self.selected_own_char.items[i].idi),
-                                                                  self.selected_own_char.items[i].idi, item_type="item"))
+                                 action=self.inventory_function_binder(
+                                     "item " + str(self.selected_own_char.items[i].idi),
+                                     self.selected_own_char.items[i].idi, item_type="item"))
 
                     self.item_buttons.append(btn)
 
@@ -2184,7 +2259,8 @@ class InGame:
         for btn in self.item_buttons:
             self.inventory_items_surf.blit(btn.surf, btn.pos)
 
-        self.char_inventory_back.blit(fit_surf(back=self.char_inventory_back, surf=self.detail_back_metall), dest=[0, 0])
+        self.char_inventory_back.blit(fit_surf(back=self.char_inventory_back, surf=self.detail_back_metall),
+                                      dest=[0, 0])
         self.char_inventory_back.blit(self.inventory_gear_weapons_surf, dest=[0, 0])
         self.char_inventory_back.blit(self.inventory_items_surf, dest=[0,
                                                                        self.inventory_gear_weapons_surf.get_height()])
@@ -2205,7 +2281,6 @@ class InGame:
                 self.own_team_stats.blit(b.surf, b.pos)
 
         if self.zoomed:
-
             real_mouse_pos = [(self.mouse_pos[0] - (7 / 32) * w), self.mouse_pos[1]]
 
             self.amount = [int(real_mouse_pos[0] - (self.zoom_factor * real_mouse_pos[0])),
@@ -2222,8 +2297,10 @@ class InGame:
 
         else:
             dest = blit_centered_pos(self.map_surface, pg.transform.smoothscale(self.map_content,
-                                                      (max(0, int(self.map_content.get_width() * self.zoom_factor)),
-                                                       max(0, int(self.map_content.get_height() * self.zoom_factor)))))
+                                                                                (max(0, int(
+                                                                                    self.map_content.get_width() * self.zoom_factor)),
+                                                                                 max(0, int(
+                                                                                     self.map_content.get_height() * self.zoom_factor)))))
 
         self.map_surface.fill((0, 0, 10))
 
@@ -2253,12 +2330,12 @@ class InGame:
 
         self.screen.blit(self.map_surface, dest=[self.char_detail_back.get_height(), 0])
 
-        self.screen.blit(self.player_banners, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(), 0])
+        self.screen.blit(self.player_banners,
+                         dest=[self.char_detail_back.get_width() + self.map_surface.get_width(), 0])
         self.screen.blit(self.minimap_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
                                                   self.player_banners.get_height()])
         self.screen.blit(self.done_btn_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
                                                    self.player_banners.get_height() + self.minimap_surf.get_height()])
-
 
     def event_handling(self):
 
@@ -2348,8 +2425,9 @@ class InGame:
         del self
 
 
-def resize_surface_height(surf, y_diff=0):
+# <editor-fold desc="Helper functions">
 
+def resize_surface_height(surf, y_diff=0):
     new = pg.Surface([surf.get_width(), surf.get_height() + y_diff])
     new.blit(surf, dest=[0, 0], area=(0, 0, new.get_width(), new.get_height()))
     return new
@@ -2368,15 +2446,15 @@ def fit_surf(back=None, surf=None, x_back=0, y_back=0, size=None):  # scales sec
 
     # case 1: back is bigger than surf
     if background.get_height() >= surface.get_height() and background.get_width() >= surface.get_width():
-        w_diff = background.get_width()-surface.get_width()
-        h_diff = background.get_height()-surface.get_height()
-        w_lim = w_diff/surface.get_width()
-        h_lim = h_diff/surface.get_height()
+        w_diff = background.get_width() - surface.get_width()
+        h_diff = background.get_height() - surface.get_height()
+        w_lim = w_diff / surface.get_width()
+        h_lim = h_diff / surface.get_height()
 
         if w_lim <= h_lim:
             # w is scaling limit
             target_size = [background.get_width(),
-                           int((background.get_width()*surface.get_height())/surface.get_width())]
+                           int((background.get_width() * surface.get_height()) / surface.get_width())]
         else:
             # h is scaling limit
             target_size = [int((background.get_height() * surface.get_width()) / surface.get_height()),
@@ -2416,10 +2494,10 @@ def fit_surf(back=None, surf=None, x_back=0, y_back=0, size=None):  # scales sec
 
 
 def blit_centered_pos(back, surf):
-
-    return [int((back.get_width()-surf.get_width())/2),
-            int((back.get_height()-surf.get_height())/2)]
+    return [int((back.get_width() - surf.get_width()) / 2),
+            int((back.get_height() - surf.get_height()) / 2)]
 
 
 def threaded_timer(period):
     time.sleep(period)
+# </editor-fold>

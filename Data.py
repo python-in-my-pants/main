@@ -1,8 +1,12 @@
 import ctypes
 import sys
+# TODO
+import time
 
 if sys.platform == "win32":
     true_res = (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
+    # TODO put out, just for debugging
+    true_res = [1600, 900]
 else:
     true_res = [1920, 1080]  # just set the res manually for linux, maybe adjust later?
 
@@ -117,3 +121,24 @@ class MatchData:  # for hosting games
         self.hosting_player = hosting_player
         self.game_map = game_map
         self.points = points
+
+
+class CustomTimer:
+
+    def __init__(self, start=False):
+        self.start_time = None
+        self.last_time = None
+
+    def t(self, name="This"):
+
+        print("{:<20} takes:\t\t\t {:<25} s".format(name,
+                                                    time.time() - self.last_time) if self.last_time else -1)
+        self.last_time = time.time()
+
+    def start(self):
+        self.start_time = time.time()
+        self.last_time = self.start_time
+
+    def end(self):
+        print(("\tTimer took:" + " "*21 + " {:<25} s").format(time.time() - self.start_time) if self.last_time else -1)
+        self.last_time = time.time()

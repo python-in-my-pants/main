@@ -96,7 +96,6 @@ class NetworkClient(metaclass=Singleton):
         log = self.connection.get_rec_log_fast(10)
         for pack in log:
             if pack.ctype == Data.scc["hosting list"]:
-                print(pack.to_string())
                 self.live_data["hosting_list"] = pack.get_payload()
                 return self.live_data["hosting_list"]
 
@@ -121,7 +120,7 @@ class NetworkClient(metaclass=Singleton):
     def check_for_game_begin(self):  # server sends this automatically
         log = self.connection.get_rec_log_fast(10)
         for pack in log:
-            if pack.ctype == Data.scc["game begin"]:
+            if pack.ctype == Data.scc["game begins"]:
                 self.live_data["game_begin"] = pack.get_payload()
                 return self.live_data["game_begin"]
         return self.live_data["game_begin"]

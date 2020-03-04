@@ -115,6 +115,10 @@ class Button:
 
         self.text = text
 
+    def change_text(self, new_text):
+        self.text = new_text
+        self.update_text()
+
     def is_focused(self, mouse_pos):
 
         if self.real_pos[0] + self.dim[0] >= mouse_pos[0] >= self.real_pos[0] and \

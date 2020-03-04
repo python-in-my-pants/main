@@ -4,6 +4,11 @@ from Data import *
 from NewNetwork import *
 
 
+"""
+You could easily transform this into a generic client/server network framework ...
+"""
+
+
 class Game:  # for actual games
 
     def __init__(self, host, guest):
@@ -54,6 +59,7 @@ class Server:
         # dictionary that maps players (sockets) to their games
         self.game_players = dict()
 
+    # <editor-fold desc="Connection handling">
     # connection handling
 
     def start_listening(self):
@@ -65,13 +71,14 @@ class Server:
                                                ConnectionData(),
                                                "Server"))
 
-    def kill_connection(self, sock):
+    def kill_connection(self, sock):  # TODO fix reconnecting to server
         for con in self.connections:
             if con.identifier == sock.getsockname():
-                del con
+                self.connections.remove(con)
 
-    def kill_all_connections(self):
-        del self.connections
+    def kill_all_connections(self):  # TODO works?
+        for con in self.connections:
+            con.kill_connection()
         self.connections = []
 
     @staticmethod
@@ -81,11 +88,9 @@ class Server:
         """
         packed_ip = socket.inet_aton(ip)
         return struct.unpack("!L", packed_ip)[0]
+    # </editor-fold>
 
-    ###############
-    # matchmaking #
-    ###############
-
+    # <editor-fold desc="Handle incoming msgs">
     # handle hosting
     def _hhost(self, msg, con):  # works
         name, game_map, points = msg
@@ -175,7 +180,7 @@ class Server:
 
     # handle char select ready
     def _hcsrdy(self, msg, con):
-        ready, team = Connection.bytes_to_object(msg)
+        ready, team = msg
         try:
             # check if player is in a game already (should be the case)
             game = self.game_players[con.ident]
@@ -256,19 +261,24 @@ class Server:
         con.kill_connection()
         del con
         return
+    # </editor-fold>
 
     def empty_q(self):
         while True:
-            # put all elements in a list
-            params = self.q.get()
+            try:
+                # put all elements in a list
+                params = self.q.get()
 
-            # first element is a function, all succeeding elements are parameters for the function call
-            if params[1] == "loop":  # if the first param is "loop" enqueue the function again after calling it
-                params[0]()
-                self.q.put([params[0], "loop"])
-            else:
-                # unpack the rest of the list to use them as parameters
-                params[0](*params[1:])
+                # first element is a function, all succeeding elements are parameters for the function call
+                if params[1] == "loop":  # if the first param is "loop" enqueue the function again after calling it
+                    params[0]()
+                    self.q.put([params[0], "loop"])
+                else:
+                    # unpack the rest of the list to use them as parameters
+                    params[0](*params[1:])
+            except Exception as e:
+                print("Error in emptying server queue!")
+                print(e)
 
 
 def main_routine():

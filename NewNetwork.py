@@ -118,7 +118,8 @@ class Connection:
         self.target_socket.close()
         del self
 
-    def receive_bytes(self, size=2048):  # first 5 bytes of the msg are control bytes defined in Data.py
+    def receive_bytes(self, size=2048):
+        # first 5 bytes of the msg are control bytes defined in Data.py
         try:
             buf = b''
             while True:
@@ -221,19 +222,31 @@ class Connection:
 
         """Universal send method, just give the ctype and the payload"""
 
+        if not self.connection_alive:
+            print("Connection is dead!")
+            return
+
         # doesn't need to be confirmed
         if not Data.needs_confirm[Data.iscc[ctype]]:
+            fail_counter = 0
             try:
                 if ctype == Data.scc["confirm"]:
                     p = Packet(ctype, msg)
-                    print("\t"*30 + "Sending:\n{}\n".format(p.to_string(n=30)))
+                    if self.role == "server":
+                        print("\t"*30 + "Sending:\n{}\n".format(p.to_string(n=30)))
                     self.target_socket.send(p.bytes)
                 else:
                     p = Packet(ctype, Connection.prep(msg))
-                    print("\t"*30 + "Sending:\n{}\n".format(p.to_string(n=30)))
+                    if self.role == "server":
+                        print("\t"*30 + "Sending:\n{}\n".format(p.to_string(n=30)))
                     self.target_socket.send(p.bytes)
             except Exception as e:
                 print("Sending confirmation failed! Error: {}".format(e))
+                fail_counter += 1
+                if fail_counter >= 3:
+                    print("Recipient seems dead!")
+                    self.kill_connection()
+                    return
             return
 
         packet = Packet(ctype, Connection.prep(msg))
@@ -247,10 +260,13 @@ class Connection:
             nonlocal msg_hash
 
             while not confirmation_received:
+                if not self.connection_alive:
+                    return
                 for i, con_msg in enumerate(self.data.rec_log[self.data.confirmation_search_index:]):
                     # if our hash was confirmed by the receiver
                     if con_msg.ctype == Data.scc["confirm"] and con_msg._payload == msg_hash:
-                        print("->"*10, packet.ctype, "message with timestamp", packet.timestamp, "was confirmed!")
+                        if self.role == "server":
+                            print("->"*10, packet.ctype, "message with timestamp", packet.timestamp, "was confirmed!")
                         confirmation_received = True
                         self.data.confirmation_search_index += i + 1
                         return
@@ -258,7 +274,8 @@ class Connection:
                 time.sleep(0.5)
 
         try:
-            print("\t" * 30 + "Sending:\n{}\n".format(packet.to_string(n=30)))
+            if self.role == "server":
+                print("\t" * 30 + "Sending:\n{}\n".format(packet.to_string(n=30)))
             self.target_socket.send(packet.bytes)
         except Exception as e:
             print(e)
@@ -271,8 +288,9 @@ class Connection:
         while not confirmation_received:
             time.sleep(3)
             try:
-                print("\t" * 30 + "... for the", counter, "th time:")
-                print("\t" * 30 + "Sending:\n\n{}".format(packet.to_string(n=30)))
+                if self.role == "server":
+                    print("\t" * 30 + "... for the", counter, "th time:")
+                    print("\t" * 30 + "Sending:\n\n{}".format(packet.to_string(n=30)))
                 self.target_socket.send(packet.bytes)
                 counter += 1
             except Exception as e:
