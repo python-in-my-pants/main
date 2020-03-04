@@ -7,8 +7,12 @@ else:
     true_res = [1920, 1080]  # just set the res manually for linux, maybe adjust later?
 
 #serverIP = "88.150.32.237"
-serverIP = "78.47.178.105"
-#serverIP = "localhost"
+
+
+#serverIP = "78.47.178.105"
+
+
+serverIP = "localhost"
 
 mat_colour = {
     "sandstone": (255, 140, 0),
@@ -100,7 +104,9 @@ unwrap_as_str = [scc["control"],
                  scc["close connection"],
                  scc["get host list"],
                  scc["undefined"],
-                 scc["confirm"]]
+                 scc["confirm"],
+                 scc["get in game stat"],
+                 scc["in game stat"]]
 
 
 # this has to be here so that server AND client know what MatchData looks like

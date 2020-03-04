@@ -117,7 +117,7 @@ class Server:
         elif msg == "False":
             send_in_game_stat = False
         else:
-            print("Error! Something in _hingst went wrong!")
+            print("Error! Something in _hginst went wrong!")
             return
 
         def _send_IGS():
@@ -131,16 +131,23 @@ class Server:
 
     # handle join
     def _hjoin(self, msg, con):
+        # TODO multiple join attempts result in error as player is already in a game then and the hosted game is not
+        # in the hosting list anymore
+        print(self.hosting_list)
         host = Connection.bytes_to_string(msg)
-        # remove host from hosting list (2 player scenario)
-        match_data = self.hosting_list[host]
-        del self.hosting_list[host]
+        try:
+            # remove host from hosting list (2 player scenario)
+            match_data = self.hosting_list[host]
+            del self.hosting_list[host]
 
-        game = Game(host, con.ident)
-        game.game_map = match_data.game_map
-        self.games.append(game)
-        self.game_players[match_data.hosting_player] = game
-        self.game_players[con.ident] = game
+            game = Game(host, con.ident)
+            game.game_map = match_data.game_map
+            self.games.append(game)
+            self.game_players[match_data.hosting_player] = game
+            self.game_players[con.ident] = game
+        except Exception as e:
+            print("Error! Something in _hjoin went wrong! (Player might be already in a game or hosting name is wrong)")
+            print(e)
 
         # TODO notify host so that he can transition to next screen
 
