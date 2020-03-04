@@ -110,7 +110,18 @@ unwrap_as_str = [scc["control"],
                  scc["undefined"],
                  scc["confirm"],
                  scc["get in game stat"],
-                 scc["in game stat"]]
+                 scc["in game stat"],
+                 scc["cancel hosting"]]
+
+
+def dict_eq(dict1, dict2):
+    try:
+        for key, val in dict1.items():
+            if dict2[key] != val:
+                return False
+        return True
+    except KeyError:
+        return False
 
 
 # this has to be here so that server AND client know what MatchData looks like

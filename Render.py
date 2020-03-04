@@ -93,7 +93,7 @@ class MainWindow:
         del self
 
 
-# TODO save last entered ip in file and fill ip field with it
+# TODO time to take over hosting list in screen increases with cancels/hosts, why?
 class ConnectionSetup:
 
     def __init__(self):
@@ -114,7 +114,7 @@ class ConnectionSetup:
         self.first_click = True
         self.board_first_click = True
 
-        self.hosting_list = None
+        self.hosting_list = {}
         self.get_hosting_list_counter = 0
         self.game_to_join = None
 
@@ -247,16 +247,15 @@ class ConnectionSetup:
 
     def update(self):
 
-        print()
-        self.c.start()
         # <editor-fold desc="Get and fill hosting list">
         # Asking for tha hosting list all 3 seconds assuming 60 FPS
 
         # this number has to be big enough to receive the list meanwhile
-        if self.get_hosting_list_counter >= 60:  # TODO maybe lower this number to 1s?
+        if self.get_hosting_list_counter >= 60:
 
             h = self.client.get_hosting_list()
-            if h != self.hosting_list:
+            if Data.dict_eq(h, self.hosting_list):  # TODO does think that a new list came after reconnecting to server
+                print("Hosting list is new:\t\t\t  {}".format(time.time()))
                 self.content_changed = True
             self.hosting_list = h
 
@@ -282,15 +281,12 @@ class ConnectionSetup:
             self.game_to_join = None
             self.change_btn_text(self.ip_to_join_btn, "The endless void...")
         # </editor-fold>
-        self.c.t("Hosting list")
 
         if self.size_focus or self.ip_focus:
             self.content_changed = True
 
         if self.content_changed:
             self.reblit()
-
-        self.c.end()
 
     def reblit(self):
 
@@ -312,8 +308,6 @@ class ConnectionSetup:
 
         self.content_changed = False
 
-        self.c.t("final blitting")
-
     def event_handling(self):
 
         ret = False
@@ -322,8 +316,9 @@ class ConnectionSetup:
 
             # handle events
             if event.type == pg.QUIT:
-                if self.role == "host":
-                    self.client.kill_connection()
+                '''self.host_thread = 0
+                self.join_thread = 0
+                self.client.kill_connection()'''
                 pg.quit()
                 sys.exit()
 
@@ -528,9 +523,6 @@ class ConnectionSetup:
                         if b.is_focused(pg.mouse.get_pos()):
                             b.action()
 
-        self.c.t("event handling")
-        self.c.end()
-
         return ret
 
     # <editor-fold desc="Host button functions">
@@ -549,7 +541,7 @@ class ConnectionSetup:
     def host_btn_fkt(self):
         self.size_focus = False
         self.ip_focus = False
-        print("--------------------------> Host button clicked!")
+        print("--------------------------> Host button clicked! Time: {}".format(time.time()))
         if not self.host_thread:
             self.host_thread = start_new_thread(self.host_btn_fkt, ())
             return
@@ -604,11 +596,8 @@ class ConnectionSetup:
         self.ip_focus = False
         if self.host_thread:
             self.host_thread = 0
-            self.change_btn_text(self.host_stat_btn, "Cancelling ...")
-            self.content_changed = True
             self.client.cancel_hosting()
             self.change_btn_text(self.host_stat_btn, "Cancelled, fucker!")
-            self.content_changed = True
 
     def back_fkt(self):
         self.size_focus = False
@@ -673,7 +662,6 @@ class ConnectionSetup:
         self.size_focus = False
         self.ip_focus = True
         if self.first_click:
-            self.ip_field_text = ""
             self.first_click = False
 
     def change_btn_text(self, btn, text):

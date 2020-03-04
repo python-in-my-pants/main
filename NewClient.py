@@ -31,9 +31,9 @@ class NetworkClient(metaclass=Singleton):
                                          (self.clientsocket, Data.serverIP).__hash__(),
                                          ConnectionData(),
                                          "Client")
+            self.send_q = queue.Queue()
             th.start_new_thread(self.empty_send_q, ())
             self.last_opp_turn_time = -1
-            self.send_q = queue.Queue()
             self.live_data = {"hosting_list":   [],
                               "map":            None,
                               "in_game":        False,
@@ -93,6 +93,7 @@ class NetworkClient(metaclass=Singleton):
     # get hosting list
     def get_hosting_list(self):
         # get last 10 items of receive log, newest first
+        print("Time get hosting list was called: {}".format(time.time()))
         log = self.connection.get_rec_log_fast(10)
         for pack in log:
             if pack.ctype == Data.scc["hosting list"]:

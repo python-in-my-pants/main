@@ -132,13 +132,12 @@ class Server:
             con.send(scc["in game stat"], "yes" if con.ident in self.game_players else "no")
             time.sleep(2)
 
-        self.q.put([_send_IGS, "loop"])
+        self.q.put([_send_IGS, "loop", con])
 
     # handle join
     def _hjoin(self, msg, con):
         # TODO multiple join attempts result in error as player is already in a game then and the hosted game is not
         # in the hosting list anymore
-        print(self.hosting_list)
         host = Connection.bytes_to_string(msg)
         try:
             # remove host from hosting list (2 player scenario)
@@ -174,7 +173,7 @@ class Server:
             con.send(scc["hosting list"], self.hosting_list)
             time.sleep(2)
 
-        self.q.put([_sendHL, "loop"])
+        self.q.put([_sendHL, "loop", con])
 
     # game
 
@@ -263,16 +262,18 @@ class Server:
         return
     # </editor-fold>
 
-    def empty_q(self):
+    def empty_q(self):  # tODO stop this asshole from sending hosting list after connection dies
         while True:
-            try:
-                # put all elements in a list
-                params = self.q.get()
 
+            try:  # TODO change keyword loop to sth more distinct
+                params = self.q.get()
+                if not params[2].connection_alive:
+                    print("Client is dead...........")
+                    continue
                 # first element is a function, all succeeding elements are parameters for the function call
                 if params[1] == "loop":  # if the first param is "loop" enqueue the function again after calling it
                     params[0]()
-                    self.q.put([params[0], "loop"])
+                    self.q.put([params[0], "loop", params[2]])
                 else:
                     # unpack the rest of the list to use them as parameters
                     params[0](*params[1:])
@@ -300,6 +301,19 @@ def main_routine():
         # check rec buffer of all connections and handle accordingly
         for con in server.connections:
             try:
+
+                # if client is gone remove his stuff
+                if not con.connection_alive:
+                    # remove from connections
+                    server.connections.remove(con)
+                    # remove from hosting list
+                    for key, val in server.hosting_list.items():
+                        if server.hosting_list[key].hosting_player == con.ident:
+                            server.hosting_list.pop(key)
+                    # remove from game players
+                    for key, val in server.game_players.items():
+                        if server.game_players[key].hosting_player == con.ident:
+                            server.game_players.pop(key)
 
                 # handle incoming messages
                 if con.new_msg_sent():
