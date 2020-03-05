@@ -94,6 +94,7 @@ class Connection:
         self.role = role
         self.connection_alive = True
         self.old_rec_len = -1
+        self.fail_counter = 0
 
         self.last_chkd_msg = None
 
@@ -228,7 +229,7 @@ class Connection:
 
         # doesn't need to be confirmed
         if not Data.needs_confirm[Data.iscc[ctype]]:
-            fail_counter = 0
+            # fail_counter = 0
             try:
                 if ctype == Data.scc["confirm"]:
                     p = Packet(ctype, msg)
@@ -242,8 +243,8 @@ class Connection:
                     self.target_socket.send(p.bytes)
             except Exception as e:
                 print("Sending confirmation failed! Error: {}".format(e))
-                fail_counter += 1
-                if fail_counter >= 3:
+                self.fail_counter += 1
+                if self.fail_counter >= 3:
                     print("Recipient seems dead!")
                     self.kill_connection()
                     return

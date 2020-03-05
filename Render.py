@@ -322,8 +322,7 @@ class ConnectionSetup:
 
             # handle events
             if event.type == pg.QUIT:
-                if self.role == "host":
-                    self.client.kill_connection()
+                self.client.kill_connection()
                 pg.quit()
                 sys.exit()
 
