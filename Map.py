@@ -507,10 +507,10 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
 
     @staticmethod
     def combine_map(_map, team1, team2):
-        for char in team1:
-            _map.objects[0].add_char(char)
-        for char in team2:
-            _map.objects[1].add_char(char)
+        for char in team1.characters:
+            _map.objects[0].place_character(char)
+        for char in team2.characters:
+            _map.objects[1].place_character(char)
         return _map
 
 
