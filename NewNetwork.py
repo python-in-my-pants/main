@@ -91,11 +91,11 @@ class Connection:
         self.target_addr = target_addr
         self.ident = ident              # hash from (socket, addr)
         self.data = data
-        self.fail_counter = 0
         self.role = role
         self.connection_alive = True
-        self.old_rec_len = -1
 
+        self.fail_counter = 0
+        self.old_rec_len = -1
         self.last_chkd_msg = None
 
         try:
@@ -106,6 +106,13 @@ class Connection:
                 print("Connection from {} to server at {} established successfully!".format(self.role, target_addr))
         except Exception as e:
             print("Starting new thread to receive bytes failed by {}, error:\n{}".format(self.role, e))
+
+    def __eq__(self, other):
+        if not isinstance(other, Connection):
+            return False
+        if self.ident == other.ident:
+            return True
+        return False
 
     def kill_connection(self):
 

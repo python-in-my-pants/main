@@ -29,7 +29,7 @@ class MainWindow:
 
     def __init__(self):  # creates main window with contents -> "mainscreen"
 
-        size = [pg.display.Info().current_w, pg.display.Info().current_h]
+        size = Data.true_res
         # print("MainWindow thinks the size is: " + str(size))
 
         self.new_window_target = None
@@ -53,7 +53,7 @@ class MainWindow:
         self.buttons = []
 
         def button_fkt():
-            pg.mixer.music.load("assets/ass.mp3")  # TODO replace with omae wa mou and play on window open in loop
+            # pg.mixer.music.load("assets/ass.mp3")  # TODO replace with omae wa mou and play on window open in loop
             # pg.mixer.music.play(0)
             # time.sleep(2.5)
 
@@ -102,6 +102,7 @@ class ConnectionSetup:
         self.role = "unknown"
         self.field_size = 0
         self.client = NetworkClient()
+        self.client.get_hosting_list_from_server()
 
         self.host_thread = 0
         self.join_thread = 0
@@ -123,14 +124,11 @@ class ConnectionSetup:
 
         self.game_map_string = None
 
-        self.client.get_hosting_list_from_server()
-
-        self.main_background_img = pg.image.load("assets/rose.png").convert()
+        self.main_background_img = pg.image.load("assets/notmikan02.jpg").convert()
         self.main_background_img = fit_surf(pg.Surface(true_res), self.main_background_img)
 
         # create window
         self.screen = pg.display.set_mode(true_res)  # , pg.RESIZABLE | pg.FULLSCREEN)  # TODO put back in
-
         self.screen.blit(self.main_background_img, blit_centered_pos(self.screen, self.main_background_img))
         # TODO remove
         self.c = CustomTimer()
@@ -140,7 +138,7 @@ class ConnectionSetup:
         # <editor-fold desc="Setting up surfaces">
         # set up surfaces
         # we need 2 surfaces that are transparent
-        self.left_surf = pg.Surface([int(true_res[0] / 2), true_res[1]])  # TODO: is it working?
+        self.left_surf = pg.Surface([int(true_res[0] / 2), true_res[1]])
         self.left_surf.fill((255, 12, 255))
         self.left_surf.set_colorkey((255, 12, 255))
 
@@ -160,59 +158,60 @@ class ConnectionSetup:
         self.buttons = []
 
         self.desired_board_size_button = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
-                                                pos=[int((self.left_surf.get_width() - int(surfs_size[0] / 3)) / 2),
+                                                pos=[int(surfs_size[0] / 4),
                                                      int(surfs_size[1] * 0.7)],
-                                                real_pos=[int((self.right_surf.get_width() - (surfs_size[0] / 3)) / 2),
-                                                          int(surfs_size[1] * 0.7)], color=(255, 255, 255),
-                                                text="35", name="board_size_button",
+                                                color=(255, 255, 255), text="35", name="board_size_button",
                                                 action=self.desired_board_size_button_fkt)
 
         # append later to not mess up indices
 
         self.host_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
-                               pos=[int((self.left_surf.get_width() - int(surfs_size[0] / 3)) / 2),
-                                    int(surfs_size[1] / 6)], color=(135, 206, 235), text="Host", name="host_btn",
+                               pos=[int(surfs_size[0] / 4),
+                                    int(surfs_size[1] / 6)],
+                               color=(135, 206, 235), text="Host", name="host_btn",
                                action=self.host_btn_fkt)
 
         self.buttons.append(self.host_btn)
 
         self.host_stat_btn = Button([int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
-                                    pos=[int((self.left_surf.get_width() - int(surfs_size[0] / 3)) / 2),
-                                    int(surfs_size[1] * 0.43)], color=(135, 206, 235), text="Host proposed <3",
+                                    pos=[int(surfs_size[0] / 4),
+                                         int(surfs_size[1] * 0.43)],
+                                    color=(135, 206, 235), text="Host proposed <3",
                                     name="host_stat", action=(lambda: None))
 
         self.buttons.append(self.host_stat_btn)
 
         self.host_cancel_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
-                                 pos=[int((self.left_surf.get_width() - int(surfs_size[0] / 3)) / 2),
-                                      int(surfs_size[1] * 0.84)],
-                                 real_pos=[int((self.left_surf.get_width() - int(surfs_size[0] / 3)) / 2),
-                                           int(surfs_size[1] * 0.84)], color=(250, 128, 114), text="Cancel",
-                                 name="cancel_host", action=self.cancel_host_fkt)
+                                      pos=[int(surfs_size[0] / 4),
+                                           int(surfs_size[1] * 0.84)],
+                                      color=(250, 128, 114), text="Cancel",
+                                      name="cancel_host", action=self.cancel_host_fkt)
 
         self.buttons.append(self.host_cancel_btn)
 
-        self.back_btn = Button(dim=[int(true_res[0] * 0.03), int(true_res[0] * 0.03)], pos=[0, 0], real_pos=[0, 0],
-                          img_uri="assets/back_btn.png", text="", name="back_btn", use_dim=True, action=self.back_fkt)
+        self.back_btn = Button(dim=[int(true_res[0] * 0.03), int(true_res[0] * 0.03)], pos=[0, 0],
+                               img_uri="assets/back_btn.png", text="", name="back_btn",
+                               use_dim=True, action=self.back_fkt)
 
         self.buttons.append(self.back_btn)
         # </editor-fold>
 
         # <editor-fold desc="Join Buttons">
         self.join_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
-                          pos=[int((self.right_surf.get_width() - (surfs_size[0] / 3)) / 2),
-                               int(surfs_size[1] / 6)],
-                          real_pos=[int((self.right_surf.get_width() - (surfs_size[0] / 3)) / 2) +
-                                    self.left_surf.get_width(),
-                                    int(surfs_size[1] / 6)], color=(135, 206, 235), text="Join", name="join_btn",
-                          action=self.join_btn_fkt)
+                               pos=[int(surfs_size[0] / 4),
+                                    int(surfs_size[1] / 6)],
+                               real_pos=[int(surfs_size[0] / 4) +
+                                         self.left_surf.get_width(),
+                                         int(surfs_size[1] / 6)],
+                               color=(135, 206, 235), text="Join", name="join_btn",
+                               action=self.join_btn_fkt)
 
         self.buttons.append(self.join_btn)
 
         self.join_stat_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
-                               pos=[int((self.right_surf.get_width() - (surfs_size[0] / 3)) / 2),
+                               pos=[int((surfs_size[0] / 2) / 2),
                                     int(surfs_size[1] * 0.43)],
-                               real_pos=[int((self.right_surf.get_width() - (surfs_size[0] / 3)) / 2) +
+                               real_pos=[int((self.right_surf.get_width() - (surfs_size[0] / 2)) / 2) +
                                          self.left_surf.get_width(), int(surfs_size[1] * 0.43)], color=(135, 206, 235),
                                text="Join a game UwU", name="join_stat", action=(lambda: None))
 
@@ -220,20 +219,20 @@ class ConnectionSetup:
 
         # ToDo Rename in Lobby list or create new one
         self.ip_to_join_btn = Button([int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
-                                pos=[int((self.right_surf.get_width() - (surfs_size[0] / 3)) / 2),
+                                pos=[int((self.right_surf.get_width() - (surfs_size[0] / 2)) / 2),
                                      int(surfs_size[1] * 0.7)],
-                                real_pos=[int((self.right_surf.get_width() - (surfs_size[0] / 3)) / 2) +
+                                real_pos=[int((self.right_surf.get_width() - (surfs_size[0] / 2)) / 2) +
                                           self.left_surf.get_width(), int(surfs_size[1] * 0.7)], color=(255, 255, 255),
-                                text="As empty as your soul", name="ip_to_join_btn", action=self.ip_field_fkt)
+                                text="No games hosted", name="ip_to_join_btn", action=self.ip_field_fkt)
 
         self.buttons.append(self.ip_to_join_btn)
         # this is here for a reason, just don't know which that is
         self.buttons.append(self.desired_board_size_button)
 
         self.join_cancel_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
-                                      pos=[int((self.right_surf.get_width() - (surfs_size[0] / 3)) / 2),
+                                      pos=[int((self.right_surf.get_width() - (surfs_size[0] / 2)) / 2),
                                            int(surfs_size[1] * 0.84)],
-                                      real_pos=[int((self.right_surf.get_width() - (surfs_size[0] / 3)) / 2) +
+                                      real_pos=[int((self.right_surf.get_width() - (surfs_size[0] / 2)) / 2) +
                                                 self.left_surf.get_width(),
                                                 int(surfs_size[1] * 0.84)], color=(250, 128, 114), text="Cancel",
                                       name="cancel_join", action=self.cancel_join_fkt)
@@ -251,13 +250,26 @@ class ConnectionSetup:
         # Asking for tha hosting list all 3 seconds assuming 60 FPS
 
         # this number has to be big enough to receive the list meanwhile
-        if self.get_hosting_list_counter >= 60:
+        if self.get_hosting_list_counter >= 42:  # no pun intended number has a calculation behind it
 
-            h = self.client.get_hosting_list()
-            if Data.dict_eq(h, self.hosting_list):  # TODO does think that a new list came after reconnecting to server
-                print("Hosting list is new:\t\t\t  {}".format(time.time()))
+            new_list = self.client.get_hosting_list()
+
+            # check if hosting list is new
+            if not Data.hostin_list_eq(new_list, self.hosting_list):  # TODO does think that a new list came after reconnecting to server
+                self.hosting_list = new_list
+
+                if bool(self.hosting_list):  # if it is full
+                    # TODO this is hardcoded; always choosing game 1 from hosting list
+                    self.game_to_join = self.hosting_list["Dungeon"]
+                    # change text of field in future list
+                    self.change_btn_text(self.ip_to_join_btn,
+                                         "{}, {} Points".format(self.game_to_join.name, self.game_to_join.points))
+                else:
+
+                    self.game_to_join = None
+                    self.change_btn_text(self.ip_to_join_btn, "No games hosted")
+
                 self.content_changed = True
-            self.hosting_list = h
 
             '''print("-"*30 + "\nRec log len:", self.client.connection.get_rec_log_len())
             for elem in self.client.connection.get_rec_log_fast(5):
@@ -268,18 +280,10 @@ class ConnectionSetup:
         else:
             self.get_hosting_list_counter += 1
 
-        if self.hosting_list:
-            # TODO this is hardcoded; always choosing game 1 from hosting list
-            self.game_to_join = self.hosting_list["Dungeon"]
-            self.change_btn_text(self.ip_to_join_btn,
-                                 "{}, {} Points".format(self.game_to_join.name, self.game_to_join.points))
-
             ''' At a later point, the ip_to_join_button should be reworked as a list, containing 1 button per 
             game in the hosting list. If you click the button, the corresponding game should be game_to_join. 
             Clicking the join button should do the joining then'''
-        else:
-            self.game_to_join = None
-            self.change_btn_text(self.ip_to_join_btn, "The endless void...")
+
         # </editor-fold>
 
         if self.size_focus or self.ip_focus:
@@ -294,12 +298,13 @@ class ConnectionSetup:
         self.left_surf.blit(self.desired_board_size_button.surf, self.desired_board_size_button.pos)
         self.left_surf.blit(self.host_stat_btn.surf, self.host_stat_btn.pos)
         self.left_surf.blit(self.host_cancel_btn.surf, self.host_cancel_btn.pos)
-        self.left_surf.blit(self.back_btn.surf, self.back_btn.pos)
 
         self.right_surf.blit(self.join_btn.surf, self.join_btn.pos)
         self.right_surf.blit(self.join_stat_btn.surf, self.join_stat_btn.pos)
         self.right_surf.blit(self.join_cancel_btn.surf, self.join_cancel_btn.pos)
         self.right_surf.blit(self.ip_to_join_btn.surf, self.ip_to_join_btn.pos)
+
+        self.left_surf.blit(self.back_btn.surf, self.back_btn.pos)
 
         # put right and left surface to screen
 
@@ -522,6 +527,7 @@ class ConnectionSetup:
                     for b in self.buttons:
                         if b.is_focused(pg.mouse.get_pos()):
                             b.action()
+                            self.content_changed = True
 
         return ret
 
@@ -541,7 +547,6 @@ class ConnectionSetup:
     def host_btn_fkt(self):
         self.size_focus = False
         self.ip_focus = False
-        print("--------------------------> Host button clicked! Time: {}".format(time.time()))
         if not self.host_thread:
             self.host_thread = start_new_thread(self.host_btn_fkt, ())
             return
@@ -582,6 +587,7 @@ class ConnectionSetup:
                     return
                 time.sleep(0.5)
 
+            self.client.get_hosting_list_from_server(False)
             self.client.get_in_game_stat_from_server(False)
 
             self.role = "host"
@@ -594,6 +600,7 @@ class ConnectionSetup:
     def cancel_host_fkt(self):
         self.size_focus = False
         self.ip_focus = False
+
         if self.host_thread:
             self.host_thread = 0
             self.client.cancel_hosting()
@@ -617,7 +624,6 @@ class ConnectionSetup:
 
             # no game was selected
             if not self.game_to_join:
-                #self.join_stat = "Select a game first"
                 self.change_btn_text(self.join_stat_btn, "Select a game first!")
                 return
 
@@ -625,11 +631,10 @@ class ConnectionSetup:
             self.game_map_string = self.game_to_join.game_map
             self.map_points = self.game_to_join.points
 
+            self.client.join(self.game_to_join.name)
             self.client.get_in_game_stat_from_server(True)
 
             self.change_btn_text(self.join_stat_btn, "Joining...")
-
-            self.client.join(self.game_to_join.name)
 
             # wait until the server thinks that I am in a game
             while not self.client.get_in_game_stat():
@@ -637,6 +642,7 @@ class ConnectionSetup:
                     return
                 time.sleep(0.05)
 
+            self.client.get_hosting_list_from_server(False)
             self.client.get_in_game_stat_from_server(False)
 
             self.role = "client"

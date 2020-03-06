@@ -3,6 +3,7 @@
 import pygame as pg
 from pygame.locals import *
 from skimage.draw import line_aa
+import hashlib
 import numpy as np
 import sys
 
@@ -500,6 +501,9 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
                self.size_y]  # encode self.window as string and rebuild surface from this
 
         return lis
+
+    def get_ident(self):
+        return hashlib.sha1(self.get_map())
 
     @staticmethod
     def combine_map(_map, team1, team2):

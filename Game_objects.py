@@ -20,7 +20,7 @@ class GameObject:
     size_x = 0
     size_y = 0
 
-    def __init__(self, obj_type="default_type", name="default_name", materials=["default_material"], pos=[0, 0], \
+    def __init__(self, obj_type="default_type", name="default_name", materials=["default_material"], pos=[0, 0],
                  mat_ind=[]):
         self.type = obj_type
         self.name = name
@@ -31,8 +31,23 @@ class GameObject:
         self.render_type = "draw"
         self.orientation = 0  # attribute ONLY for render type "blit", has nothing to do  with "turn" method
         self.special_pixs = []  # array for doors etc. with functionality
-        self.collider = 0
         self.changed = False  # TODO only draw game_objects, if changed is True
+
+    def __eq__(self, other):
+        if not isinstance(other, GameObject):
+            return False
+
+        if self.type == other.type and \
+            self.name == other.name and \
+            self.materials == other.materials and \
+            self.pos == other.pos and \
+            self.class_id == other.class_id and \
+            self.mat_ind == other.mat_ind and \
+            self.render_type == other.render_type and \
+            self.orientation == other.orientation and \
+            self.special_pixs == other.special_pixs:
+            return True
+        return False
 
     def confirm(self):
         pass

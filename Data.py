@@ -1,4 +1,5 @@
 import ctypes
+import hashlib
 import sys
 # TODO
 import time
@@ -9,6 +10,8 @@ if sys.platform == "win32":
     true_res = [1600, 900]
 else:
     true_res = [1920, 1080]  # just set the res manually for linux, maybe adjust later?
+
+font = "comicsansms"
 
 #serverIP = "88.150.32.237"
 
@@ -114,13 +117,22 @@ unwrap_as_str = [scc["control"],
                  scc["cancel hosting"]]
 
 
-def dict_eq(dict1, dict2):
+def hostin_list_eq(dict1, dict2):
     try:
+        if len(dict1) != len(dict2):
+            return False
         for key, val in dict1.items():
-            if dict2[key] != val:
+            if not dict1[key] == dict2[key]:
                 return False
         return True
-    except KeyError:
+    except KeyError as e:
+        print("Key error: {}".format(e))
+        return False
+    except TypeError as e:
+        print("Type error: {}".format(e))
+        return False
+    except Exception as e:
+        print(e)
         return False
 
 
@@ -132,6 +144,16 @@ class MatchData:  # for hosting games
         self.hosting_player = hosting_player
         self.game_map = game_map
         self.points = points
+
+    def __eq__(self, other):
+        if self.name == other.name and self.hosting_player == other.hosting_player and \
+           self.game_map == other.game_map and self.points == other.points:
+            return True
+        else:
+            return False
+
+    def to_string(self):
+        return "{}, {}, {}".format(self.name, self.hosting_player, self.points)
 
 
 class CustomTimer:
