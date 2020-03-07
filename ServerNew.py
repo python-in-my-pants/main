@@ -1,5 +1,6 @@
 import struct
 import queue
+import traceback  # TODO
 from Data import *
 from NewNetwork import *
 
@@ -31,8 +32,7 @@ class Server:
         self.serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.serversocket.bind(("0.0.0.0", port))
         self.serversocket.listen(max_connections)
-        self.connections = []
-        self.send_free = True
+        self.connections = dict()
 
         self.hosting_list = dict()
         self.games = []
@@ -52,6 +52,8 @@ class Server:
             scc["get in game stat"]:  self._hginst,
             scc["close connection"]:  self._hclose
         }
+        self.enqueueing_dict = dict()
+        self.loop_funcs = ["_sendHL", "_send_IGS"]
         self.needs_send_resource = [scc["get host list"],
                                     scc["char select ready"]]
         self.q = queue.Queue()
@@ -65,21 +67,21 @@ class Server:
     def start_listening(self):
         while True:
             c_sock, addr = self.serversocket.accept()
-            self.connections.append(Connection(c_sock,
-                                               addr,
-                                               c_sock.getsockname(),
-                                               ConnectionData(),
-                                               "Server"))
+            self.connections[addr] = (Connection(c_sock,
+                                                 addr,
+                                                 addr,  # c_sock.getsockname(),  # TODO
+                                                 ConnectionData(),
+                                                 "Server"))
 
     def kill_connection(self, sock):  # TODO fix reconnecting to server
         for con in self.connections:
-            if con.identifier == sock.getsockname():
-                self.connections.remove(con)
+            if con.ident == sock.getsockname():  # todo this does not work
+                self.connections.pop(con)
 
-    def kill_all_connections(self):  # TODO works?
+    def kill_all_connections(self):  # TODO
         for con in self.connections:
             con.kill_connection()
-        self.connections = []
+        self.connections = dict()
 
     @staticmethod
     def ip2long(ip):
@@ -92,14 +94,15 @@ class Server:
 
     # <editor-fold desc="Handle incoming msgs">
     # handle hosting
-    def _hhost(self, msg, con):  # works
+    def _hhost(self, con, msg):  # works
         name, game_map, points = msg
         match_data = MatchData(name, con.ident, game_map, points)
         if match_data not in self.hosting_list.values() and name not in self.hosting_list.keys():
             self.hosting_list[name] = match_data
+        print("~~~~~~~~~~~~~~~~~~~~Host list was filled: {}".format(time.time()))
 
     # handle cancel hosting
-    def _hchost(self, msg, con):  # works
+    def _hchost(self, con, msg):  # works
 
         '''
         for x in self.hosting_list:
@@ -110,17 +113,28 @@ class Server:
         '''
 
         for key, value in self.hosting_list.items():
+            print("cancel host:")
+            print(value.hosting_player)
+            print(con.ident)
             if value.hosting_player is con.ident:
                 del self.hosting_list[key]
                 break
 
-    def _hginst(self, msg, con):
+    def _hginst(self, con, msg):
 
         if msg == "True":
             # start thread for sending host list to this client continuously
             send_in_game_stat = True
+            if ("_send_IGS", con.ident) in self.enqueueing_dict and self.enqueueing_dict[("_send_IGS", con.ident)]:
+                return
+            for elem in list(self.q.queue):
+                name, msg, _con = elem
+                if name == "_send_IGS" and _con == con:
+                    return
         elif msg == "False":
+            self.enqueueing_dict[("_send_IGS", con.ident)] = True
             send_in_game_stat = False
+            return
         else:
             print("Error! Something in _hginst went wrong!")
             return
@@ -128,58 +142,67 @@ class Server:
         def _send_IGS():
             # send in game stat to client every 2 seconds (unconfirmed)
             if not send_in_game_stat:
+                self.enqueueing_dict[("_send_IGS", con.ident)] = True
                 return
             con.send(scc["in game stat"], "yes" if con.ident in self.game_players else "no")
-            time.sleep(2)
 
-        self.q.put([_send_IGS, "loop"])
+        self.q.put([_send_IGS, con, "loop"])
 
     # handle join
-    def _hjoin(self, msg, con):
+    def _hjoin(self, con, msg):
         # TODO multiple join attempts result in error as player is already in a game then and the hosted game is not
         # in the hosting list anymore
-        print(self.hosting_list)
-        host = Connection.bytes_to_string(msg)
+        game_to_join_name = Connection.bytes_to_string(msg)
         try:
             # remove host from hosting list (2 player scenario)
-            match_data = self.hosting_list[host]
-            del self.hosting_list[host]
+            match_data = copy.deepcopy(self.hosting_list[game_to_join_name])
+            self.hosting_list.pop(game_to_join_name)
 
-            game = Game(host, con.ident)
+            game = Game(match_data.hosting_player, con.ident)
             game.game_map = match_data.game_map
+
             self.games.append(game)
             self.game_players[match_data.hosting_player] = game
             self.game_players[con.ident] = game
         except Exception as e:
             print("Error! Something in _hjoin went wrong! (Player might be already in a game or hosting name is wrong)")
             print(e)
+            print(traceback.format_exc())
 
-        # TODO notify host so that he can transition to next screen
-
-    def _hgetHL(self, msg, con):  # works
+    def _hgetHL(self, con, msg):  # works
 
         if msg == "True":
             # start thread for sending host list to this client continuously
             send_hosting_list = True
+            # if it is currently enqueueing
+            if ("_sendHL", con.ident) in self.enqueueing_dict and self.enqueueing_dict[("_sendHL", con.ident)]:
+                return
+            # or if it is currently in the queue
+            for elem in list(self.q.queue):
+                name, msg, _con = elem
+                if name == "_sendHL" and _con == con:
+                    return
         elif msg == "False":
+            self.enqueueing_dict[("_sendHL", con.ident)] = True
             send_hosting_list = False
+            return
         else:
             print("Error! Something in _hgetHL went wrong!")
             return
 
         def _sendHL():
-            # send host list to client every 2 seconds (unconfirmed)
+            # send host list to client every second (unconfirmed)
             if not send_hosting_list:
+                self.enqueueing_dict[("_sendHL", con.ident)] = True
                 return
             con.send(scc["hosting list"], self.hosting_list)
-            time.sleep(2)
 
-        self.q.put([_sendHL, "loop"])
+        self.q.put([_sendHL, con, "loop"])
 
     # game
 
     # handle char select ready
-    def _hcsrdy(self, msg, con):
+    def _hcsrdy(self, con, msg):
         ready, team = msg
         try:
             # check if player is in a game already (should be the case)
@@ -187,11 +210,11 @@ class Server:
         except KeyError:
             print("Player is not in a game, sending 'ready' failed!")
             return
-        if game.host.ident == con.ident:
+        if game.host == con.ident:
             # msg comes from game host
             game.host_ready = ready
             game.host_team = team
-        elif game.guest.ident == con.ident:
+        elif game.guest == con.ident:
             # msg comes from game guest
             game.guest_ready = ready
             game.guest_team = team
@@ -200,12 +223,10 @@ class Server:
             # send game begins to both? put all chars on map??
             teams = [game.host_team, game.guest_team]
             # send final map to both players
-            self.send_free = False
-            game.host.send(scc["game begin"], teams)
-            game.guest.send(scc["game begin"], teams)
-            self.send_free = True
+            self.connections[game.host].send(scc["game begins"], teams)
+            self.connections[game.guest].send(scc["game begins"], teams)
 
-    def _hturn(self, msg, con):
+    def _hturn(self, con, msg):
 
         try:
             game = self.game_players[con.ident]
@@ -221,7 +242,7 @@ class Server:
         else:
             print("Error in handling 'Turn' message from client by server")
 
-    def _hgturn(self, msg, con):
+    def _hgturn(self, con, msg):
         try:
             game = self.game_players[con.ident]
         except KeyError:
@@ -236,49 +257,64 @@ class Server:
             print("Error in handling 'Get turn' request by server")
 
     # handle game end
-    def _hendg(self, msg, con):
+    def _hendg(self, con, msg):
         print("Error! Not implemented yet!")
         ...  # TODO
 
     # misc
-    def _hundef(self, msg, con):
+    def _hundef(self, con, msg):
         pass
 
     # handle sending text
-    def _hcon(self, msg, con):  # works
+    def _hcon(self, con, msg):  # works
         if msg == "Close connection":
             print("Server is closing connection ...")
-            self.connections.remove(con)
+            self.connections.pop(con)
             con.kill_connection()
             del con
             return
 
         print("Client@{} says: \n\n\t{}\n".format(con.target_addr, msg))
 
-    def _hclose(self, msg, con):
+    def _hclose(self, con, msg):
         print("Server is closing connection ...")
-        self.connections.remove(con)
+        self.connections.pop(con)
         con.kill_connection()
         del con
         return
     # </editor-fold>
 
-    def empty_q(self):
+    def requeue(self, t, func, params):  # todo client 2 doesnt receive host list and is not in enq dict
+        self.enqueueing_dict[(params[0].__name__, params[1].ident)] = True
+        time.sleep(t)
+        func(params)
+        self.enqueueing_dict[(params[0].__name__, params[1].ident)] = False
+
+    def empty_q(self):  # tODO stop this asshole from sending hosting list after connection dies
         while True:
-            try:
-                # put all elements in a list
+
+            try:  # TODO change keyword "loop" to sth more distinct
+
                 params = self.q.get()
+                if not params[1].connection_alive:
+                    continue
 
                 # first element is a function, all succeeding elements are parameters for the function call
-                if params[1] == "loop":  # if the first param is "loop" enqueue the function again after calling it
+                if params[2] == "loop":  # if the first param is "loop" enqueue the function again after calling it
                     params[0]()
-                    self.q.put([params[0], "loop"])
+                    # if this function is not queueing right now
+                    if (((params[0].__name__, params[1].ident) not in self.enqueueing_dict) or
+                            not self.enqueueing_dict[(params[0].__name__, params[1].ident)]) and \
+                            params[1].ident not in self.game_players:
+                        th.start_new_thread(self.requeue,
+                                            (1, self.q.put, params))
                 else:
                     # unpack the rest of the list to use them as parameters
-                    params[0](*params[1:])
+                    params[0](params[1], *params[2:])
             except Exception as e:
                 print("Error in emptying server queue!")
                 print(e)
+                print(traceback.format_exc())
 
 
 def main_routine():
@@ -298,8 +334,29 @@ def main_routine():
     while True:
 
         # check rec buffer of all connections and handle accordingly
-        for con in server.connections:
+        for con in list(server.connections.values()):
             try:
+
+                # if client is gone remove his stuff
+                if not con.connection_alive:
+                    # remove from connections
+                    server.connections.pop(con)
+                    # remove from hosting list
+                    for key, val in server.hosting_list.items():
+                        if server.hosting_list[key].hosting_player == con.ident:
+                            server.hosting_list.pop(key)
+                    # remove from game players
+                    for key, val in server.game_players.items():
+                        if server.game_players[key].hosting_player == con.ident:
+                            server.game_players.pop(key)
+
+                    for elem in list(server.q.queue):
+                        if elem[1] == con.ident:
+                            server.q.queue.remove(elem)
+
+                    for elem in [(name, con) for name in server.loop_funcs]:
+                        if elem in server.enqueueing_dict:
+                            server.enqueueing_dict.pop(elem)
 
                 # handle incoming messages
                 if con.new_msg_sent():
@@ -310,10 +367,14 @@ def main_routine():
                     print()
 
                     ctype, msg = con.get_last_control_type_and_msg()
-                    server.q.put([server.ctype_dict[ctype], msg, con])
+                    server.q.put([server.ctype_dict[ctype], con, msg])
 
             except KeyError as e:
                 print("KeyError! {}".format(e))
+            except RuntimeError:
+                continue
+            except Exception as e:
+                print(e)
 
         time.sleep(0.005)
 

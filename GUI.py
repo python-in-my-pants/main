@@ -1,4 +1,5 @@
 import pygame as pg
+import Data
 import sys
 
 
@@ -31,7 +32,7 @@ class Button:
         if img_uri or img_source:
 
             if img_uri and not img_source:
-                background_img = pg.image.load(img_uri).convert_alpha()
+                background_img = pg.image.load(img_uri).convert_alpha()  # HAHAHAHA does not work ...
             if img_source:
                 background_img = img_source
 
@@ -44,10 +45,12 @@ class Button:
                 self.surf = pg.Surface(dim)
 
             self.surf.blit(background_img, (0, 0))
+            self.surf.convert_alpha()
 
             # TODO make font size dependent on text len
             font_size = int(0.7 * self.dim[1]) if int(0.7*self.dim[1]) < int(0.6*self.dim[0]) else int(0.6*self.dim[0])
-            font = pg.font.SysFont("comicsansms", font_size)
+            font = pg.font.SysFont(Data.font, font_size)
+            #font = pg.font.Font("assets/18 ARMY.ttf", font_size)
             font_render = font.render(self.text, True, self.font_color)
             self.surf.blit(font_render, (int(self.dim[0] / 2) - int(font_render.get_width() / 2),
                                          int(self.dim[1] / 2) - int(font_render.get_height() / 2)))
@@ -63,7 +66,7 @@ class Button:
 
             # TODO make font size dependent on text len
             font_size = int(0.7 * self.dim[1]) if int(0.7*self.dim[1]) < int(0.6*self.dim[0]) else int(0.6*self.dim[0])
-            font = pg.font.SysFont("comicsansms", font_size)
+            font = pg.font.SysFont(Data.font, font_size)
             font_render = font.render(self.text, True, self.font_color)
             self.surf.blit(font_render, (int(self.dim[0] / 2) - int(font_render.get_width() / 2),
                                          int(self.dim[1] / 2) - int(font_render.get_height() / 2)))
@@ -90,24 +93,26 @@ class Button:
             self.surf.blit(background_img, (0, 0))
 
             font_size = int(0.7 * self.dim[1]) if int(0.7*self.dim[1]) < int(0.6*self.dim[0]) else int(0.6*self.dim[0])
-            font = pg.font.SysFont("comicsansms", font_size)
+            font = pg.font.SysFont(Data.font, font_size)
             font_render = font.render(self.text, True, self.font_color)
             self.surf.blit(font_render, (int(self.dim[0] / 2) - int(font_render.get_width() / 2),
                                          int(self.dim[1] / 2) - int(font_render.get_height() / 2)))
 
         else:
-            color = self.color
-            darker = (max(color[0] - 20, color[0]),
-                      max(color[1] - 20, color[1]),
-                      max(color[2] - 20, color[2]))
+            darker = (max(0, self.color[0] - 45),
+                      max(0, self.color[1] - 45),
+                      max(0, self.color[2] - 45))
             self.surf.fill(darker)
-            col_surf = pg.Surface([int(self.surf.get_width() * 0.9), int(self.surf.get_width() * 0.9)])
-            col_surf.fill(color)
-            self.surf.blit(col_surf, [int(self.surf.get_width() * 0.05), int(self.surf.get_width() * 0.05)])
+            b = min(int(self.surf.get_width() * 0.05), int(self.surf.get_height() * 0.05))
+            col_surf = pg.Surface([self.surf.get_width() - 2 * b, self.surf.get_height() - 2 * b])
+            col_surf.fill(self.color)
+            self.surf.blit(col_surf, [b, b])
 
-            font_size = int(0.7 * self.dim[1]) if int(0.7*self.dim[1]) < int(0.6*self.dim[0]) else int(0.6*self.dim[0])
-            font = pg.font.SysFont("comicsansms", font_size)
-            font_render = font.render(self.text, True,  self.font_color)
+            # TODO make font size dependent on text len
+            font_size = int(0.7 * self.dim[1]) if int(0.7 * self.dim[1]) < int(0.6 * self.dim[0]) else int(
+                0.6 * self.dim[0])
+            font = pg.font.SysFont(Data.font, font_size)
+            font_render = font.render(self.text, True, self.font_color)
             self.surf.blit(font_render, (int(self.dim[0] / 2) - int(font_render.get_width() / 2),
                                          int(self.dim[1] / 2) - int(font_render.get_height() / 2)))
 
@@ -196,7 +201,7 @@ class HPBar:
     def draw(self):  # returns surface of button
 
         self.surf.fill(self.background_colour)
-        font = pg.font.SysFont("comicsansms", 24)
+        font = pg.font.SysFont(Data.font, 24)
         font_render = font.render(self.content, True, (255, 255, 255))
         self.surf.blit(font_render, (int(self.dimension[0] / 2) - int(font_render.get_width() / 2),
                                      int(self.dimension[1] / 2) - int(font_render.get_height() / 2)))

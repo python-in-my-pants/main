@@ -31,10 +31,10 @@ class NetworkClient(metaclass=Singleton):
                                          (self.clientsocket, Data.serverIP).__hash__(),
                                          ConnectionData(),
                                          "Client")
+            self.send_q = queue.Queue()
             th.start_new_thread(self.empty_send_q, ())
             self.last_opp_turn_time = -1
-            self.send_q = queue.Queue()
-            self.live_data = {"hosting_list":   [],
+            self.live_data = {"hosting_list":   {},
                               "map":            None,
                               "in_game":        False,
                               "game_begin":     None,
