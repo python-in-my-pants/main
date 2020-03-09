@@ -52,12 +52,12 @@ material_codes = {
 }
 
 character_classes = {
-    0: "Rook",           # basic stats
-    1: "Light Troop",    # fast and nimble
-    2: "Heavy Troop",    # slow and strong, heavily armed
+    0: "Pawn",           # basic stats
+    1: "Light",    # fast and nimble
+    2: "Heavy",    # slow and strong, heavily armed
     3: "Medic",          # fast and lightly armed
     4: "Sniper",         # high acc
-    5: "Special Troop",  # idk
+    5: "Spezi",  # idk
     6: "Commander"       # higher stats than normal but more expensive
 }
 

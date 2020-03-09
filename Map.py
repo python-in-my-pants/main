@@ -52,6 +52,17 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
         self.objects = objects[:]           # holds list of objects on the map of the form: [id, object]
         self.characters = characters[:]     # holds indices of objects[] of characters
 
+        # ToDo Texture Stuff, implement flooring for ruined difference
+        self.texture_dump = [pg.transform.scale(pg.image.load("assets/mats/Grass.png"), (self.elem_size, self.elem_size)),
+                             pg.transform.scale(pg.image.load("assets/mats/sandstone.png"), (self.elem_size, self.elem_size)),
+                             pg.transform.scale(pg.image.load("assets/mats/border.png"), (self.elem_size, self.elem_size)),
+                             pg.transform.scale(pg.image.load("assets/mats/dirt.png"), (self.elem_size, self.elem_size)),
+                             pg.transform.scale(pg.image.load("assets/mats/Flooring.png"), (self.elem_size, self.elem_size)),
+                             pg.transform.scale(pg.image.load("assets/mats/bush.png"), (self.elem_size, self.elem_size)),
+                             None,
+                             pg.transform.scale(pg.image.load("assets/mats/boulder.png"), (self.elem_size, self.elem_size)),
+                             pg.transform.scale(pg.image.load("assets/mats/sandstone.png"), (self.elem_size, self.elem_size))]
+
     def set_elem_size(self, elem_size):
         self.elem_size = elem_size
 
@@ -403,6 +414,10 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
 
     def draw_map(self):  # STATUS: new
 
+        for i in range(self.size_x):
+            for d in range(self.size_y):
+                self.window.blit(self.texture_dump[0], (i * self.elem_size, d * self.elem_size))
+
         for go in self.objects:
             if go.render_type == "blit":
                 if go.is_selected is True:
@@ -423,8 +438,12 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
                     if go.mat_ind:
                         if mat_counter < go.mat_ind.__len__() and index > go.mat_ind[mat_counter]:
                             mat_counter += 1
-                    pg.draw.rect(self.window, mat_colour[go.materials[mat_counter]],
-                                 (pix[0] * self.elem_size, pix[1] * self.elem_size, self.elem_size, self.elem_size))
+                    self.window.blit(self.texture_dump[material_codes[go.materials[mat_counter]]],
+                                     (pix[0] * self.elem_size, pix[1] * self.elem_size))
+                """
+                pg.draw.rect(self.window, mat_colour[go.materials[mat_counter]],
+                             (pix[0] * self.elem_size, pix[1] * self.elem_size, self.elem_size, self.elem_size))
+                """
         self.__draw_grid()
 
     def get_visible_chars_ind(self, team_num):
@@ -453,13 +472,22 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
     def selective_draw_map(self, team_num):
 
         visible_chars = self.get_visible_chars_ind(team_num=team_num)
-
+        # pg.image.load("assets/Teams/Red_Team/"+character_classes[go.class_id]+"/Red_"+character_classes[go.class_id]+
+        #                          "_Pistol.png")
+        # pg.image.load("assets/Teams/Blue_Team/"+character_classes[go.class_id]+"/Blue_"+character_classes[go.class_id]+
+        #                          "_Pistol.png")
         for index, go in enumerate(self.objects):
             if go.render_type == "blit":  # character
                 if visible_chars.__contains__(index):
                     if go.is_selected is True:
                         go.orientation = go.orientation  # TODO: look at mouse OR at char to attack
-                    go_surf = go.get_drawable_surf()
+                    if go.team == 0:
+                        go_surf = pg.image.load("assets/Teams/Blue_Team/" + character_classes[go.class_id] + "/Blue_" +
+                                                character_classes[go.class_id] + "_Pistol.png")
+                    if go.team == 1:
+                        go_surf = pg.image.load("assets/Teams/Red_Team/"+character_classes[go.class_id]+"/Red_"+
+                                                character_classes[go.class_id]+"_Pistol.png")
+                    # go_surf = go.get_drawable_surf()
                     if go.orientation > 0:
                         go_surf = pg.transform.rotate(go_surf, go.orientation)
                     factor = ((numpy.sqrt(2) - 1) / 2) * numpy.sin(3.5 * numpy.pi + 4 * numpy.deg2rad(go.orientation)) + \
@@ -477,9 +505,12 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
                     if go.mat_ind:
                         if mat_counter < go.mat_ind.__len__() and indidex > go.mat_ind[mat_counter]:
                             mat_counter += 1
+                    self.window.blit(self.texture_dump[material_codes[go.materials[mat_counter]]],
+                                     (pix[0] * self.elem_size, pix[1] * self.elem_size))
+                    """
                     pg.draw.rect(self.window, mat_colour[go.materials[mat_counter]],
                                  (pix[0] * self.elem_size, pix[1] * self.elem_size, self.elem_size, self.elem_size))
-
+                    """
         self.__draw_grid()
 
     def __draw_grid(self):  # maybe static? (but who cares tbh)
