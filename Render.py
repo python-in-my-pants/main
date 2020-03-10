@@ -2360,7 +2360,7 @@ class InGame:
                     self.shifting = False
                     self.con_shift_offset = [self.con_shift_offset[0] + p[0] - self.shift_start[0],
                                              self.con_shift_offset[1] + p[1] - self.shift_start[1]]
-            if event.type == pg.MOUSEMOTION
+
             if event.type == pg.MOUSEBUTTONDOWN:
                 p = pg.mouse.get_pos()
 
