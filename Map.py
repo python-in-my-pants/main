@@ -317,6 +317,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
         :return: matrix of [a, b]s as the entries where a indicates that char1 can see char2 and b that he can shoot him
         '''
 
+        # build char list
         chars = []
         for ind, obj in enumerate(self.objects):
             if self.characters.__contains__(ind):
@@ -341,7 +342,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
 
         return mat
 
-    # this func is private
+    # tells if line of sight between 2 chars collides with objects in world
     def __get_mat_x_y(self, line_gr, char1, char2):  # line group
 
         for obj in self.objects:

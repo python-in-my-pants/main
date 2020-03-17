@@ -1815,6 +1815,7 @@ class InGame:
         self.game_map = game_map
         self.client = client
 
+        #print(self.game_map.objects)
         self.cc_num = 6
         self.gc_num = 4
         self.wc_num = 7
@@ -1841,6 +1842,23 @@ class InGame:
         self.con_shift_offset = [0, 0]
 
         self.screen = pg.display.set_mode(true_res)  # , pg.RESIZABLE | pg.FULLSCREEN)
+
+        # ToDO PLACE CHARACTERS ON MAP
+
+        # Place characters on map
+        for char in self.client.live_data["game_begin"][0].characters:
+            # first game objs should always be spawning areas
+            self.game_map.objects[0].place_character(char)
+            # assuming exactly 2 players
+            self.game_map.objects.append(char)
+            self.game_map.characters.append(self.game_map.objects.__len__() - 1)
+        for char in self.client.live_data["game_begin"][1].characters:
+            # first game objs should always be spawning areas
+            self.game_map.objects[1].place_character(char)
+            # assuming exactly 2 players
+            self.game_map.objects.append(char)
+            self.game_map.characters.append(self.game_map.objects.__len__() - 1)
+
 
         # holds selected char of own team
         self.selected_own_char = self.own_team.characters[0]
