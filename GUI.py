@@ -32,7 +32,7 @@ class Button:
         if img_uri or img_source:
 
             if img_uri and not img_source:
-                background_img = pg.image.load(img_uri).convert_alpha()  # HAHAHAHA does not work ...
+                background_img = pg.image.load(img_uri)#.convert_alpha()  # HAHAHAHA does not work ...
             if img_source:
                 background_img = img_source
 
