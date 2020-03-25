@@ -160,6 +160,8 @@ class Border(GameObject):
         self.size_x = size_x_
         self.size_y = size_y_
 
+        self.collider = False
+
         # select pixels for walls
         for i in range(self.size_x):
             self.pixs.append([i, 0])
@@ -585,6 +587,7 @@ class Spawnarea(GameObject):
 
         self.pixs = []
         self.characters = []
+        self.collider = False
 
         for x in range(self.size_x):
             for y in range(self.size_y):

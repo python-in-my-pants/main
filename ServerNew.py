@@ -99,7 +99,6 @@ class Server:
         match_data = MatchData(name, con.ident, game_map, points)
         if match_data not in self.hosting_list.values() and name not in self.hosting_list.keys():
             self.hosting_list[name] = match_data
-        print("~~~~~~~~~~~~~~~~~~~~Host list was filled: {}".format(time.time()))
 
     # handle cancel hosting
     def _hchost(self, con, msg):  # works
@@ -113,9 +112,6 @@ class Server:
         '''
 
         for key, value in self.hosting_list.items():
-            print("cancel host:")
-            print(value.hosting_player)
-            print(con.ident)
             if value.hosting_player is con.ident:
                 del self.hosting_list[key]
                 break
