@@ -126,6 +126,9 @@ class Button:
 
     def is_focused(self, mouse_pos):
 
+        # todo is this faster? presumably no because you have to use real positions
+        # return self.surf.get_rect().collidepoint(mouse_pos)
+
         if self.real_pos[0] + self.dim[0] >= mouse_pos[0] >= self.real_pos[0] and \
            self.real_pos[1] + self.offset + self.dim[1] >= mouse_pos[1] >= self.real_pos[1] + self.offset:
             return True
