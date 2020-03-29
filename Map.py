@@ -469,7 +469,6 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
 
         return visible_chars
 
-    # TODO selective map draw
     def selective_draw_map(self, team_num):
 
         visible_chars = self.get_visible_chars_ind(team_num=team_num)
@@ -499,7 +498,6 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
                         (int(go.pos[0] * self.elem_size), int(go.pos[1] * self.elem_size)))
                     # shit = pg.transform.smoothscale(go_surf, (int(self.elem_size * factor),
                     # int(self.elem_size * factor)))
-
             else:  # game object
                 mat_counter = 0
                 for indidex, pix in enumerate(go.get_drawable()):
