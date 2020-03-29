@@ -93,7 +93,6 @@ class MainWindow:
         del self
 
 
-# TODO time to take over hosting list in screen increases with cancels/hosts, why?
 class ConnectionSetup:
 
     def __init__(self):
@@ -119,12 +118,12 @@ class ConnectionSetup:
         self.get_hosting_list_counter = 0
         self.game_to_join = None
 
-        #self.ip_field_text = ...# TODO change; this will be a button in a list of games to join marking the game as the game to join
-        self.desi_board_text = "35"# TODO change; here you should also enter the game name -> GameName, size, e.g. Dungeon, 50
+        #self.ip_field_text = ...  # TODO change; this will be a button in a list of games to join marking the game as the game to join
+        self.desi_board_text = "35"  # TODO change; here you should also enter the game name -> GameName, size, e.g. Dungeon, 50
 
         self.game_map_string = None
 
-        self.main_background_img = pg.image.load("assets/notmikan02.jpg").convert()
+        self.main_background_img = pg.image.load("assets/notmikan02.jpg").convert_alpha()
         self.main_background_img = fit_surf(pg.Surface(true_res), self.main_background_img)
 
         # create window
@@ -730,23 +729,23 @@ class CharacterSelection:  # commit comment
         self.cc_small_images = []
         for i in range(self.cc_num):
             # load small preview pics for buttons
-            img = pg.image.load("assets/cc/small/cc_" + str(i) + ".png").convert()
+            img = pg.image.load("assets/cc/small/cc_" + str(i) + ".png").convert_alpha()
             self.cc_small_images.append(img)
 
         self.gc_small_images = []
         for i in range(self.gc_num):
             # load small preview pics for buttons
-            img = pg.image.load("assets/gc/small/gc_" + str(i) + ".png").convert()
+            img = pg.image.load("assets/gc/small/gc_" + str(i) + ".png").convert_alpha()
             self.gc_small_images.append(img)
 
         self.wc_small_images = []
         for i in range(self.wc_num):
-            img = pg.image.load("assets/wc/small/wc_" + str(i) + ".png").convert()
+            img = pg.image.load("assets/wc/small/wc_" + str(i) + ".png").convert_alpha()
             self.wc_small_images.append(img)
 
         self.ic_small_images = []
         for i in range(self.ic_num):
-            img = pg.image.load("assets/ic/small/ic_" + str(i) + ".png").convert()
+            img = pg.image.load("assets/ic/small/ic_" + str(i) + ".png").convert_alpha()
             self.ic_small_images.append(img)
 
         # -------------------------------------------------------------------------------------------------------------
@@ -762,7 +761,7 @@ class CharacterSelection:  # commit comment
 
         '''
         # NEWWW
-        troop_overview_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert(),
+        troop_overview_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert_alpha(),
                                                            self.troop_overview.get_size())
         self.troop_overview.blit(troop_overview_back_img, [0, 0])
         '''
@@ -801,7 +800,7 @@ class CharacterSelection:  # commit comment
 
         '''
         # NEWWW
-        c_con_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert(),
+        c_con_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert_alpha(),
                                                   self.character_content.get_size())
         self.character_content.blit(c_con_back_img, [0, 0])
         '''
@@ -815,7 +814,7 @@ class CharacterSelection:  # commit comment
 
         '''
         # NEWWW
-        g_con_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert(),
+        g_con_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert_alpha(),
                                                   self.gear_content.get_size())
         self.gear_content.blit(g_con_back_img, [0, 0])
         '''
@@ -830,7 +829,7 @@ class CharacterSelection:  # commit comment
 
         '''
         # NEWWW
-        w_con_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert(),
+        w_con_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert_alpha(),
                                                   self.weapon_content.get_size())
         self.weapon_content.blit(w_con_back_img, [0, 0])
         '''
@@ -844,7 +843,7 @@ class CharacterSelection:  # commit comment
 
         '''
         # NEWWW
-        i_con_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert(),
+        i_con_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert_alpha(),
                                                   self.item_content.get_size())
         self.item_content.blit(i_con_back_img, [0, 0])
         '''
@@ -859,7 +858,7 @@ class CharacterSelection:  # commit comment
             self.minimap_surf.fill((10, 11, 12))
         '''
         # NEWWW
-        minimap_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert(),
+        minimap_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert_alpha(),
                                                     self.minimap_surf.get_size())
         self.minimap_surf.blit(minimap_back_img, [0, 0])
         '''
@@ -875,7 +874,7 @@ class CharacterSelection:  # commit comment
             self.selected_units_back.fill((255, 0, 0))
         '''
         # NEWWW
-        sel_uni_back_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert(),
+        sel_uni_back_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert_alpha(),
                                                          self.selected_units_back.get_size())
         self.selected_units_back.blit(sel_uni_back_back_img, [0, 0])
         '''
@@ -884,7 +883,7 @@ class CharacterSelection:  # commit comment
             [self.selected_units_back.get_width() - 10, self.selected_units_back.get_height() - 10])
 
         # NEWWW
-        sel_uni_box_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert(),
+        sel_uni_box_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert_alpha(),
                                                         self.selected_units_box.get_size())
         self.selected_units_box.blit(sel_uni_box_back_img, [0, 0])
 
@@ -896,7 +895,7 @@ class CharacterSelection:  # commit comment
             self.selected_weapons_back.fill((0, 255, 0))
         '''
         # NEWWW
-        sel_weap_back_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert(),
+        sel_weap_back_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert_alpha(),
                                                           self.selected_weapons_back.get_size())
         self.selected_weapons_back.blit(sel_weap_back_back_img, [0, 0])
         '''
@@ -905,7 +904,7 @@ class CharacterSelection:  # commit comment
                                                 self.selected_weapons_back.get_height() - 10])
 
         # NEWWW
-        sel_weap_box_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert(),
+        sel_weap_box_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert_alpha(),
                                                          self.selected_weapons_box.get_size())
         self.selected_weapons_box.blit(sel_weap_box_back_img, [0, 0])
 
@@ -1309,6 +1308,7 @@ class CharacterSelection:  # commit comment
 
         self.update()
 
+    # <editor-fold desc="Function binder">
     def cc_function_binder(self, name, unique_char_id):
 
         def btn_fkt(button):
@@ -1369,6 +1369,7 @@ class CharacterSelection:  # commit comment
 
         btn_fkt.__name__ = name
         return btn_fkt
+    # </editor-fold>
 
     def update(self):  # TODO for better performance render only things that changed
         # TODO adjust size of small teamcharbtn dpendent on map oints
@@ -1617,7 +1618,7 @@ class CharacterSelection:  # commit comment
         # TODO fill here with background image
         '''
         # NEWWW
-        troop_overview_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert(),
+        troop_overview_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert_alpha(),
                                                            self.troop_overview.get_size())
         self.troop_overview.blit(troop_overview_back_img, [0, 0])
         '''
@@ -1669,7 +1670,7 @@ class CharacterSelection:  # commit comment
 
         # self.selected_units_box.fill((0, 0, 0))
         # NEWWW
-        sel_uni_box_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert(),
+        sel_uni_box_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert_alpha(),
                                                         self.selected_units_box.get_size())
         self.selected_units_box.blit(sel_uni_box_back_img, [0, 0])
 
@@ -1689,7 +1690,7 @@ class CharacterSelection:  # commit comment
         # self.selected_weapons_box.fill((0, 0, 0))
 
         # NEWWW
-        sel_weap_box_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert(),
+        sel_weap_box_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert_alpha(),
                                                          self.selected_weapons_box.get_size())
         self.selected_weapons_box.blit(sel_weap_box_back_img, [0, 0])
 
@@ -1808,9 +1809,7 @@ class InGame:
 
     def __init__(self, own_team, game_map, client=None):  # ToDo Turnsystem/Network not implemented yet
 
-        # things to do here:
-        # - put chars on spawning area
-
+        # <editor-fold desc="Initialisation">
         self.own_team = own_team
         self.game_map = game_map
         self.client = client
@@ -1842,8 +1841,7 @@ class InGame:
         self.con_shift_offset = [0, 0]
 
         self.screen = pg.display.set_mode(true_res)  # , pg.RESIZABLE | pg.FULLSCREEN)
-
-        # ToDO PLACE CHARACTERS ON MAP
+        # </editor-fold>
 
         # Place characters on map
         for char in self.client.live_data["game_begin"][0].characters:
@@ -1859,7 +1857,6 @@ class InGame:
             self.game_map.objects.append(char)
             self.game_map.characters.append(self.game_map.objects.__len__() - 1)
 
-
         # holds selected char of own team
         self.selected_own_char = self.own_team.characters[0]
         self.selected_item = None if not self.selected_own_char.items else self.selected_own_char.items[0]
@@ -1872,46 +1869,47 @@ class InGame:
         # render image lists
         # -------------------
 
+        # <editor-fold desc="Render image setup">
         self.detail_size = [int((7 / 32) * w - 20), int((4 / 10) * h - 20)]
         self.small_size = [int((5 / 32) * 7 * w / 32), int((5 / 32) * 7 * w / 32)]
 
         self.detail_char = []
         self.small_char = []
         for i in range(self.cc_num):
-            img = pg.transform.smoothscale(pg.image.load("assets/cc/detail/cc_" + str(i) + ".png").convert(),
+            img = pg.transform.smoothscale(pg.image.load("assets/cc/detail/cc_" + str(i) + ".png").convert_alpha(),
                                            self.detail_size)
             self.detail_char.append(img)
-            img = pg.transform.smoothscale(pg.image.load("assets/cc/small/cc_" + str(i) + ".png").convert(),
+            img = pg.transform.smoothscale(pg.image.load("assets/cc/small/cc_" + str(i) + ".png").convert_alpha(),
                                            self.small_size)
             self.small_char.append(img)
 
         self.detail_gear = []
         self.small_gear = []
         for i in range(self.gc_num):
-            img = pg.transform.smoothscale(pg.image.load("assets/gc/detail/gc_" + str(i) + ".png").convert(),
+            img = pg.transform.smoothscale(pg.image.load("assets/gc/detail/gc_" + str(i) + ".png").convert_alpha(),
                                            self.detail_size)
             self.detail_gear.append(img)
-            img = pg.transform.smoothscale(pg.image.load("assets/gc/small/gc_" + str(i) + ".png").convert(),
+            img = pg.transform.smoothscale(pg.image.load("assets/gc/small/gc_" + str(i) + ".png").convert_alpha(),
                                            self.small_size)
             self.small_gear.append(img)
 
         self.detail_weapon = []
         self.small_weapon = []
         for i in range(self.wc_num):
-            img = pg.transform.smoothscale(pg.image.load("assets/wc/detail/wc_" + str(i) + ".png").convert(),
+            img = pg.transform.smoothscale(pg.image.load("assets/wc/detail/wc_" + str(i) + ".png").convert_alpha(),
                                            self.detail_size)
             self.detail_weapon.append(img)
-            img = pg.transform.smoothscale(pg.image.load("assets/wc/small/wc_" + str(i) + ".png").convert(),
+            img = pg.transform.smoothscale(pg.image.load("assets/wc/small/wc_" + str(i) + ".png").convert_alpha(),
                                            self.small_size)
             self.small_weapon.append(img)
 
         self.detail_item = []
         self.small_item = []
         for i in range(self.ic_num):
-            img = pg.transform.smoothscale(pg.image.load("assets/ic/detail/ic_" + str(i) + ".png").convert(),
+            img = pg.transform.smoothscale(pg.image.load("assets/ic/detail/ic_" + str(i) + ".png").convert_alpha(),
                                            self.detail_size)
             self.detail_item.append(img)
-            img = pg.transform.smoothscale(pg.image.load("assets/ic/small/ic_" + str(i) + ".png").convert(),
+            img = pg.transform.smoothscale(pg.image.load("assets/ic/small/ic_" + str(i) + ".png").convert_alpha(),
                                            self.small_size)
             self.small_item.append(img)
 
@@ -1921,18 +1919,20 @@ class InGame:
                 "assets/cc/small/cc_" + str(i) + ".png").convert_alpha()  # TODO change to actual right images
             self.map_char_imgs.append(img)
 
-        self.detail_back_metall = pg.image.load("assets/metall.png").convert()
+        self.detail_back_metall = pg.image.load("assets/metall.png").convert_alpha()
+        # </editor-fold>
 
         # -------------------------------------------------------------------------------------------------------------
         # set up surfaces
         # -------------------------------------------------------------------------------------------------------------
 
+        # <editor-fold desc="left">
         # -------------- left -------------------------------
 
         # surface 1.0 and 1.1
         self.char_detail_back = pg.Surface([int(7 * w / 32), int(7 * h / 18)])
         # self.char_detail_back.fill((98, 70, 230))
-        self.char_stat_card = self.detail_char[0]  # TODO
+        self.char_stat_card = self.detail_char[0]
 
         # surface 2 and subsurfaces
         self.char_inventory_back = pg.Surface([int(7 * w / 32), int(4 * h / 18)])
@@ -1944,8 +1944,10 @@ class InGame:
         self.item_detail_back = pg.Surface([int(7 * w / 32), int(7 * h / 18)])
         # self.item_detail_back.fill((77, 98, 219))
         # self.item_detail_back.fill((255, 0, 0))
-        self.item_stat_card = self.detail_item[0]  # TODO
+        self.item_stat_card = self.detail_item[0]  # just start with this pic bc first team char may not have an item
+        # </editor-fold>
 
+        # <editor-fold desc="mid">
         # -------------- mid ----------------------------------
 
         own_team_height = 2 * int((1 / 32) * 7 * w / 32) + \
@@ -1954,8 +1956,7 @@ class InGame:
                             int(1.6 * (5 / 32) * 7 * w / 32)))  # button + hp bar
 
         self.map_surface = pg.Surface([int(9 * w / 16), h])
-        # TODO place characters on map first
-        self.game_map.selective_draw_map(team_num=self.own_team.team_num)  # own_team.team_num)
+        self.game_map.selective_draw_map(team_num=self.own_team.team_num)
         self.map_content = fit_surf(surf=self.game_map.window, size=self.map_surface.get_size())
 
         self.own_team_stats = pg.Surface([int(self.map_surface.get_width() * 0.9), own_team_height])
@@ -1967,15 +1968,20 @@ class InGame:
         self.own_team_stats_back_img = pg.transform.smoothscale(
             pg.image.load("assets/team_char_back.png").convert_alpha(),
             self.own_team_stats.get_size())  # TODO size from own team stats
+        # </editor-fold>
 
+        # <editor-fold desc="right">
         # -------------- right ----------------------------------
 
+        # TODO design banner
         self.player_banners = pg.Surface([int(7 * w / 32), int(7 * h / 18)])
+        # tODO design stats
         self.match_stats = pg.Surface([self.player_banners.get_width(), int(self.player_banners.get_height() * 0.2)])
 
         # TODO set content of minimap by blitting scaled map to it
         self.minimap_surf = pg.Surface([int(7 * w / 32), int(7 * h / 18)])
         self.done_btn_surf = pg.Surface([int(7 * w / 32), int(4 * h / 18)])
+        # </editor-fold>
 
         # -------------------------------------------------------------------------------------------------------------
 
@@ -1990,6 +1996,7 @@ class InGame:
         # TODO characters on map must have buttons to select them as sel char
         # -------------------------------------------------------------------------------------------------------------
 
+        # <editor-fold desc="button functions">
         # button functions
 
         def sel_own_char_binder(name, _id):
@@ -2016,6 +2023,7 @@ class InGame:
                         self.turn_wait_counter += 1
                 # ToDo Turn Apply Function?
                 return
+        # </editor-fold>
 
         # -------------------------------------------------------------------------------------------------------------
         # buttons and bars
@@ -2074,7 +2082,7 @@ class InGame:
                                                                                      pos_h],
                          img_uri=("assets/cc/small/cc_" + str(self.own_team.characters[i].class_id) + ".png"),
                          text="", name="char btn " + str(self.own_team.characters[i].class_id),
-                         action=sel_own_char_binder("chat_btn_" + str(self.own_team.characters[i].idi),
+                         action=sel_own_char_binder("char_btn_" + str(self.own_team.characters[i].idi),
                                                     self.own_team.characters[i].idi))
 
             self.own_team_stat_buttons.append(btn)
@@ -2115,7 +2123,12 @@ class InGame:
             print("char button clicked")
             if char.team == self.own_team.team_num:  # own char
                 self.selected_own_char = char
+                # tODO highlight field where I can move
+                # TOdo check whether a user clicks on a reachable field on click
+                #  (get vector from map surface upper left to mouse and calc mouse field pos from that)
+                # TODO move character to destination (show dotted line for opponent)
             if char.team != self.own_team.team_num and self.selected_own_char:  # opp. char
+                # TODO
                 # attack routine
                 self.selected_own_char.shoot(char, 3)
 
@@ -2146,12 +2159,14 @@ class InGame:
         w = true_res[0]
         h = true_res[1]
 
+        # todo cannot shift when small zoom (<1)
         if self.shifting:
             shift_offset = [pg.mouse.get_pos()[0] - self.shift_start[0],
                             pg.mouse.get_pos()[1] - self.shift_start[1]]
         else:
             shift_offset = [0, 0]
 
+        # <editor-fold desc="char ui">
         # chars on map
 
         v_chars = self.game_map.get_visible_chars_ind(self.own_team.team_num)
@@ -2190,7 +2205,7 @@ class InGame:
         if self.selected_own_char:
 
             self.gear_buttons = []
-            if self.selected_own_char.gear:
+            if self.selected_own_char.gear:  # character has gear
                 # gear buttons
                 for i in range(self.selected_own_char.gear.__len__()):
                     pos_w = (i + 1) * self.inventory_gap_size + i * self.btn_w
@@ -2247,11 +2262,13 @@ class InGame:
                                      self.selected_own_char.items[i].idi, item_type="item"))
 
                     self.item_buttons.append(btn)
+        # </editor-fold>
 
         ##############################################################################################################
         # blit everything to positions
         ##############################################################################################################
 
+        # <editor-fold desc="left side">
         # ----- left -----
 
         self.char_detail_back.blit(fit_surf(back=self.char_detail_back, surf=self.detail_back_metall), dest=[0, 0])
@@ -2280,9 +2297,12 @@ class InGame:
         self.item_detail_back.blit(fit_surf(back=self.item_detail_back, surf=self.detail_back_metall), dest=[0, 0])
         self.item_detail_back.blit(self.item_stat_card, dest=blit_centered_pos(self.item_detail_back,
                                                                                self.item_stat_card))
+        # </editor-fold>
 
+        # <editor-fold desc="Mid">
         # ----- mid -----
 
+        # <editor-fold desc="team stats">
         self.own_team_stats.blit(self.own_team_stats_back_img, dest=[0, 0])
 
         for btn in self.own_team_stat_buttons:
@@ -2291,13 +2311,12 @@ class InGame:
         for bar in self.hp_bars:
             for b in bar:
                 self.own_team_stats.blit(b.surf, b.pos)
+        # </editor-fold>
 
-        if self.zoomed:
-            real_mouse_pos = [(self.mouse_pos[0] - (7 / 32) * w), self.mouse_pos[1]]
-
+        if self.zoomed:  # if zoom was made since last update, set values
+            real_mouse_pos = [(self.mouse_pos[0] - self.char_detail_back.get_width()), self.mouse_pos[1]]  # was 7/32 * w instead of char detail back
             self.amount = [int(real_mouse_pos[0] - (self.zoom_factor * real_mouse_pos[0])),
                            int(real_mouse_pos[1] - (self.zoom_factor * real_mouse_pos[1]))]
-
             self.zoomed = False
 
         self.game_map.selective_draw_map(team_num=self.own_team.team_num)
@@ -2306,15 +2325,12 @@ class InGame:
         if self.zoom_factor >= 1:
             dest = [self.amount[0] + self.con_shift_offset[0] + shift_offset[0],
                     self.amount[1] + self.con_shift_offset[1] + shift_offset[1]]
-
         else:
-            dest = blit_centered_pos(self.map_surface, pg.transform.smoothscale(self.map_content,
-                                                                                (max(0, int(
-                                                                                    self.map_content.get_width() * self.zoom_factor)),
-                                                                                 max(0, int(
-                                                                                     self.map_content.get_height() * self.zoom_factor)))))
+            s1 = max(0, int(self.map_content.get_width() * self.zoom_factor))
+            s2 = max(0, int(self.map_content.get_height() * self.zoom_factor))
+            dest = blit_centered_pos(self.map_surface, pg.transform.smoothscale(self.map_content, (s1, s2)))
 
-        self.map_surface.fill((0, 0, 10))
+        self.map_surface.fill((0, 0, 10))  # redraw background here
 
         var = pg.transform.smoothscale(self.map_content,
                                        (max(0, int(self.map_surface.get_width() * self.zoom_factor)),
@@ -2324,7 +2340,9 @@ class InGame:
 
         # TODO beware of 0.05 as constant
         self.map_surface.blit(self.own_team_stats, dest=[int(0.05 * self.map_surface.get_width()), 0])
+        # </editor-fold>
 
+        # <editor-fold desc="right side">
         # ----- right -----
 
         self.player_banners.blit(self.match_stats, dest=[0, int(0.8 * self.player_banners.get_height())])
@@ -2332,7 +2350,9 @@ class InGame:
         self.minimap_surf.blit(fit_surf(back=self.minimap_surf, surf=self.map_content), dest=[0, 0])
 
         self.done_btn_surf.blit(self.done_btn.surf, self.done_btn.pos)
+        # </editor-fold>
 
+        # <editor-fold desc="all together">
         # ----- all together -----
 
         self.screen.blit(self.char_detail_back, dest=[0, 0])
@@ -2348,6 +2368,7 @@ class InGame:
                                                   self.player_banners.get_height()])
         self.screen.blit(self.done_btn_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
                                                    self.player_banners.get_height() + self.minimap_surf.get_height()])
+        # </editor-fold>
 
     def event_handling(self):
 
@@ -2374,7 +2395,7 @@ class InGame:
             if event.type == pg.MOUSEBUTTONUP:
                 p = list(pg.mouse.get_pos())
 
-                if event.button == 2:  # scroll wheel release
+                if event.button == 3:  # right button release
                     self.shifting = False
                     self.con_shift_offset = [self.con_shift_offset[0] + p[0] - self.shift_start[0],
                                              self.con_shift_offset[1] + p[1] - self.shift_start[1]]
@@ -2384,11 +2405,11 @@ class InGame:
 
                 if event.button == 1:  # on left click
 
-                    for button in self.gear_buttons:
+                    for button in self.gear_buttons+self.weapon_buttons+self.item_buttons+self.own_team_stat_buttons:
                         if button.is_focused(p):
                             button.action()
 
-                    for button in self.weapon_buttons:
+                    """for button in self.weapon_buttons:
                         if button.is_focused(p):
                             button.action()
 
@@ -2398,7 +2419,7 @@ class InGame:
 
                     for button in self.own_team_stat_buttons:
                         if button.is_focused(p):
-                            button.action()
+                            button.action()"""
 
                     if self.done_btn.is_focused(p):
                         self.done_btn.action()
@@ -2409,11 +2430,11 @@ class InGame:
                                 button.action()
 
                 if event.button == 2:  # on mid click
-                    self.shift_start = p
-                    self.shifting = True
+                    pass
 
                 if event.button == 3:  # on right click
-                    pass
+                    self.shift_start = p
+                    self.shifting = True
 
                 if event.button == 4:  # scroll up
 

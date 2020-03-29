@@ -32,7 +32,7 @@ class Button:
         if img_uri or img_source:
 
             if img_uri and not img_source:
-                background_img = pg.image.load(img_uri).convert_alpha()  # HAHAHAHA does not work ...
+                background_img = pg.image.load(img_uri)#.convert_alpha()  # HAHAHAHA does not work ...
             if img_source:
                 background_img = img_source
 
@@ -125,6 +125,9 @@ class Button:
         self.update_text()
 
     def is_focused(self, mouse_pos):
+
+        # todo is this faster? presumably no because you have to use real positions
+        # return self.surf.get_rect().collidepoint(mouse_pos)
 
         if self.real_pos[0] + self.dim[0] >= mouse_pos[0] >= self.real_pos[0] and \
            self.real_pos[1] + self.offset + self.dim[1] >= mouse_pos[1] >= self.real_pos[1] + self.offset:
