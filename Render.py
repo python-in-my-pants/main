@@ -1836,6 +1836,9 @@ class InGame:
         self.turn_wait_counter = 0
         self.turn_get_thread = 0
 
+        self.overlay = None
+        self.overlay_btn = []
+
         self.shifting = False
         self.shift_start = [0, 0]
         self.con_shift_offset = [0, 0]
@@ -2130,10 +2133,31 @@ class InGame:
             if char.team != self.own_team.team_num and self.selected_own_char:  # opp. char
                 # TODO
                 # attack routine
-                self.selected_own_char.shoot(char, 3)
+                current_pos = pg.mouse.get_pos()
+                if current_pos[1] >= 700:
+                    current_pos = [current_pos[0], current_pos[1] - 200]
+                if current_pos[0] <= 400:
+                    current_pos = [current_pos[0] + 100, current_pos[1]]
+                if current_pos[0] >= 1500:
+                    current_pos = [current_pos[0] - 100, current_pos[1]]
+
+                self.overlay = Overlay(current_pos, char)
+                self.overlay_btn_build()
 
         func.__name__ = name
         return func
+
+    def overlay_btn_build(self):
+        self.overlay_btn = []
+        for i in range(6):
+            btn = Button(dim=self.overlay.btn_dim[i], pos=self.overlay.btn_pos[i],
+                         real_pos=self.overlay.btn_pos[i], name=str(i),
+                         action=self.attack_that_boi(self.overlay.boi_to_attack, i))
+
+            self.overlay_btn.append(btn)
+
+    def attack_that_boi(self, char, part):
+        self.selected_own_char.shoot(char, part)
 
     def inventory_function_binder(self, name, _id, item_type):
 
@@ -2368,6 +2392,14 @@ class InGame:
                                                   self.player_banners.get_height()])
         self.screen.blit(self.done_btn_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
                                                    self.player_banners.get_height() + self.minimap_surf.get_height()])
+
+        if self.overlay:
+            for btn in self.overlay_btn:
+                if btn.is_focused(pg.mouse.get_pos()):
+                    self.overlay.surf = self.overlay.type[btn.name]
+                else:
+                    self.overlay.surf = self.overlay.type["6"]
+            self.screen.blit(self.overlay.surf, dest=self.overlay.pos)
         # </editor-fold>
 
     def event_handling(self):
@@ -2404,6 +2436,11 @@ class InGame:
                 p = pg.mouse.get_pos()
 
                 if event.button == 1:  # on left click
+
+                    if self.overlay:
+                        if not self.overlay.pos[0]+100 >= p >= self.overlay.pos[0]:
+                            if not self.overlay.pos[1]+200 >= p >= self.overlay.pos[1]:
+                                self.overlay = None
 
                     for button in self.gear_buttons+self.weapon_buttons+self.item_buttons+self.own_team_stat_buttons:
                         if button.is_focused(p):

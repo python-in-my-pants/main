@@ -178,6 +178,42 @@ class HPBar:
         self.surf.blit(self.bar_surf, [0, 0])
 
 
+class Overlay:
+
+    def __init__(self, pos=(0, 0), boi_to_attack=None):
+        self.surf = pg.transform.scale(pg.image.load("assets/Overlay/dude.png"), (100, 200))
+        self.pos = pos
+        self.boi_to_attack = boi_to_attack
+        self.type = {
+            "0": pg.transform.scale(pg.image.load("assets/Overlay/dude_kopf.png"), (100, 200)),
+            "1": pg.transform.scale(pg.image.load("assets/Overlay/dude_larm.png"), (100, 200)),
+            "2": pg.transform.scale(pg.image.load("assets/Overlay/dude_rarm.png"), (100, 200)),
+            "3": pg.transform.scale(pg.image.load("assets/Overlay/dude_torso.png"), (100, 200)),
+            "4": pg.transform.scale(pg.image.load("assets/Overlay/dude_lbein.png"), (100, 200)),
+            "5": pg.transform.scale(pg.image.load("assets/Overlay/dude_rbein.png"), (100, 200)),
+            "6": pg.transform.scale(pg.image.load("assets/Overlay/dude.png"), (100, 200))
+        }
+        self.btn_dim = {
+            0: (20, 25),
+            1: (19, 69),
+            2: (19, 69),
+            3: (30, 50),
+            4: (15, 87),
+            5: (15, 87)
+        }
+        self.btn_pos = {
+            0: (self.pos[0] + 41, self.pos[1] + 16),
+            1: (self.pos[0] + 16, self.pos[1] + 41),
+            2: (self.pos[0] + 66, self.pos[1] + 41),
+            3: (self.pos[0] + 35, self.pos[1] + 42),
+            4: (self.pos[0] + 35, self.pos[1] + 93),
+            5: (self.pos[0] + 51, self.pos[1] + 93),
+        }
+
+
+
+
+
 '''class Textfield:
 
     def __init__(self, dim, pos=[], background_colour=(255, 255, 255), name="Textfield"):
