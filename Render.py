@@ -684,6 +684,7 @@ class CharacterSelection:  # commit comment
     def __init__(self, points_to_spend, game_map, role="unknown", team_numberr=0, client=None):
         # let only those things be here that are not to be reset every frame, so i.e. independent of window size
 
+        # <editor-fold desc="vars">
         size = true_res
 
         self.points_to_spend = points_to_spend  # TODO
@@ -721,11 +722,13 @@ class CharacterSelection:  # commit comment
         self.scroll_offset = 0
         self.scroll = False
         self.invisible = -10000
+        # </editor-fold>
 
         # -------------------------------------------------------------------------------------------------------------
         # I'm gonna do what's called a pro gamer move: load assets in init!
         # -------------------------------------------------------------------------------------------------------------
 
+        # <editor-fold desc="Just pro">
         self.cc_small_images = []
         for i in range(self.cc_num):
             # load small preview pics for buttons
@@ -747,6 +750,7 @@ class CharacterSelection:  # commit comment
         for i in range(self.ic_num):
             img = pg.image.load("assets/ic/small/ic_" + str(i) + ".png").convert_alpha()
             self.ic_small_images.append(img)
+        # </editor-fold>
 
         # -------------------------------------------------------------------------------------------------------------
         # set up surfaces for screen
@@ -756,6 +760,7 @@ class CharacterSelection:  # commit comment
         # left side #
         #############
 
+        # <editor-fold desc="left side">
         # character cards go here as buttons
         self.troop_overview = pg.Surface([int(0.7 * size[0]), size[1] * 10])  # make very long for scroll stuff
 
@@ -847,11 +852,13 @@ class CharacterSelection:  # commit comment
                                                   self.item_content.get_size())
         self.item_content.blit(i_con_back_img, [0, 0])
         '''
+        # </editor-fold>
 
         ##############
         # right side #
         ##############
 
+        # <editor-fold desc="right side">
         mini = max(int(0.3 * size[0]), int(0.2 * size[1]))
         self.minimap_surf = pg.Surface([mini, mini])
         if debug:
@@ -915,6 +922,7 @@ class CharacterSelection:  # commit comment
         small_gap_size = int(self.selected_units_box.get_width() / (small_line_len * 9 + 1))
         w_small_card = int(self.selected_units_box.get_width() * 8 / (small_line_len * 9 + 1))
         h_small_card = w_small_card  # int(w_small_card * 1.457)
+        # </editor-fold>
 
         # -------------------------------------------------------------------------------------------------------------
         # set up buttons
@@ -938,6 +946,7 @@ class CharacterSelection:  # commit comment
         # banners
         # #############################################################################################################
 
+        # <editor-fold desc="Banners">
         def char_ban_func():
             if self.render_char_ban:
                 self.character_back = resize_surface_height(self.character_back,
@@ -1012,11 +1021,13 @@ class CharacterSelection:  # commit comment
                                             self.scroll_offset], color=(30, 230, 50), text="Gegenstände",
                                   action=item_ban_func)
         self.banners.append(self.item_banner)
+        # </editor-fold>
 
         # #############################################################################################################
         # character cards big
         # #############################################################################################################
 
+        # <editor-fold desc="Peaky Binders">
         def character_function_binder(name, card_num):
 
             def butn_fkt():
@@ -1168,6 +1179,7 @@ class CharacterSelection:  # commit comment
                               action=item_function_binder("ic_btn_function_" + str(i), i))
 
             self.item_cards.append(card_btn)
+        # </editor-fold>
 
         #########
         # right #
@@ -1176,122 +1188,6 @@ class CharacterSelection:  # commit comment
         def ready_up():
             self.ready = not self.ready
             self.client.send_char_select_ready(self.ready, self.ownTeam)
-
-        # old readychecker
-        """
-        def ready_checker():    # ToDo Network
-            self.ready_thread = get_ident()
-            while self.new_window_target != InGame:
-
-                if self.role == "host":
-                    self.net.send_control("Client_status")
-                    if self.net.client_status == "Ready" and self.ready:
-
-                        # TODO add own chars to map
-                        for char in self.ownTeam.characters:
-                            # first game objs should always be spawning areas
-                            self.game_map.objects[self.net.team].place_character(char)
-                            # assuming exactly 2 players
-                            self.game_map.objects.append(char)
-                            self.game_map.characters.append(self.game_map.objects.__len__() - 1)
-
-                        self.net.send_data_pickle("Teeam", self.ownTeam.characters)
-
-                        while not self.net.confirmation:
-                            self.net.send_control("Fail?")
-                            time.sleep(1)
-                            if self.net.failsafe:
-                                self.net.send_data_pickle("Teeam", self.ownTeam.characters)
-                                self.net.failsafe = False
-                        time.sleep(0.5)
-                        self.net.confirmation = False
-
-                        # get other team
-                        while self.net.other_team.__len__ == 0:
-                            self.net.send_control("Team_pls")
-                            time.sleep(1)  # this must be at least 2!
-                            pass  # I'm a Performanceartist!
-
-                        while not isinstance(self.net.other_team, list):
-                            try:
-                                self.net.other_team = pickle.loads(self.net.other_team[6:])
-                            except (pickle.UnpicklingError, EOFError):
-                                self.net.send_control("Fail")
-                                time.sleep(1)
-                                self.net.send_control("Team_pls")
-                                time.sleep(1)
-                        self.net.send_control("Confirm")
-                        print("LELELEL")
-                        print(self.net.team)
-                        print(self.net.o_team)
-                        # wait for other team positions and put them in their spawn as well
-                        for opp_char in self.net.other_team:
-                            self.game_map.objects[self.net.o_team].place_character(opp_char)
-                            self.game_map.objects.append(opp_char)
-                            self.game_map.characters.append(self.game_map.objects.__len__() - 1)
-
-                        if self.net.failsafe:
-                            self.net.send_data_pickle("Teeam", self.ownTeam.characters)
-
-                        self.new_window_target = InGame
-
-                if self.role == "client":
-
-                    self.net.send_control("Host_status")
-
-                    print("!"*30)
-                    print(self.net.host_status)
-                    print(self.ready)
-
-                    if self.net.host_status == "Ready" and self.ready:
-
-                        print("branching")
-                        # TODO add own chars to map
-                        for char in self.ownTeam.characters:
-                            # first game objs should always be spawning areas
-                            self.game_map.objects[self.net.team].place_character(char)
-                            # assuming exactly 2 players
-                            self.game_map.objects.append(char)
-                            self.game_map.characters.append(self.game_map.objects.__len__() - 1)
-
-                        # get other team
-                        print("GETTING TEAM")
-                        while not isinstance(self.net.other_team, list):
-                            try:
-                                print(self.net.other_team)
-                                print(len(self.net.other_team))
-
-                                self.net.other_team = pickle.loads(self.net.other_team[6:])
-                            except (pickle.UnpicklingError, EOFError):
-                                self.net.send_control("Fail")
-                                time.sleep(1)
-                                self.net.send_control("Team_pls")
-                                time.sleep(1)
-                                print("LOL ERROR")
-                        time.sleep(0.5)
-                        self.net.send_control("Confirm")
-                        time.sleep(0.5)
-                        self.net.send_data_pickle("Teeam", self.ownTeam.characters)
-                        print("Sending own Team")
-                        while not self.net.confirmation:
-                            self.net.send_control("Fail?")
-                            time.sleep(1)
-                            if self.net.failsafe:
-                                self.net.send_data_pickle("Teeam", self.ownTeam.characters)
-                                self.net.failsafe = False
-                        time.sleep(0.5)
-                        self.net.confirmation = False
-
-                        # wait for other team positions and put them in their spawn as well
-                        for opp_char in self.net.other_team:
-                            self.game_map.objects[self.net.o_team].place_character(opp_char)
-                            self.game_map.objects.append(opp_char)
-                            self.game_map.characters.append(self.game_map.objects.__len__() - 1)
-
-                        if self.net.failsafe:
-                            self.net.send_data_pickle("Teeam", self.ownTeam.characters)
-                        self.new_window_target = InGame
-        """
 
         def get_text():
             return "Unready" if self.ready else "Ready!"
@@ -1319,7 +1215,7 @@ class CharacterSelection:  # commit comment
             if button == 3:
                 # sell this character
                 char = self.ownTeam.get_char_by_unique_id(unique_char_id)
-                del self.team_char_btns[self.ownTeam.get_index_by_obj(char)]  # TODO if I reset team_char_btns ...
+                del self.team_char_btns[self.ownTeam.get_index_by_obj(char)]  # TODO if I reset team_char_btns ... WHAT?
                 self.ownTeam.remove_char_by_obj(char)
 
                 if self.ownTeam.characters.__len__() > 0:
@@ -1372,9 +1268,9 @@ class CharacterSelection:  # commit comment
     # </editor-fold>
 
     def update(self):  # TODO for better performance render only things that changed
-        # TODO adjust size of small teamcharbtn dpendent on map oints
+        # TODO adjust size of small teamcharbtn dpendent on map oints <- NO
         if self.ready:
-            if self.ready_checker_counter == 69:  # CHECKER EVERY Secondu
+            if self.ready_checker_counter == 69:  # CHECKER EVERY Seconds
                 team_list = self.client.check_for_game_begin()
                 if team_list is not None:
                     self.game_map = Map.Map.combine_map(self.game_map, team_list[0], team_list[1])
@@ -1825,9 +1721,10 @@ class InGame:
 
         self.new_window_target = None
         self.char_prev_selected = False  # holds whether own team character is already selected
+        self.r_fields = []
 
         self.element_size = int(true_res[0] * 9 / (16 * 30))  # default is 30 elem width
-        self.zoom_factor = 1
+        self.zoom_factor = 0.7
         self.mouse_pos = pg.mouse.get_pos()
         self.zoomed = False
         self.amount = [0, 0]
@@ -1850,6 +1747,7 @@ class InGame:
             # assuming exactly 2 players
             self.game_map.objects.append(char)
             self.game_map.characters.append(self.game_map.objects.__len__() - 1)
+
         for char in self.client.live_data["game_begin"][1].characters:
             # first game objs should always be spawning areas
             self.game_map.objects[1].place_character(char)
@@ -1967,7 +1865,7 @@ class InGame:
 
         self.own_team_stats_back_img = pg.transform.smoothscale(
             pg.image.load("assets/team_char_back.png").convert_alpha(),
-            self.own_team_stats.get_size())  # TODO size from own team stats
+            self.own_team_stats.get_size())
         # </editor-fold>
 
         # <editor-fold desc="right">
@@ -1986,10 +1884,18 @@ class InGame:
         # -------------------------------------------------------------------------------------------------------------
 
         # TODO check if this makes sense, coded when sick
+        # TODO maybe not map surface but content
+        """
         self.zoom_size = [int(((9 * w / 16) / (self.mouse_pos[0] - self.char_detail_back.get_width())) *
-                              # TODO maybe not map surface but content
                               ((1.4142 / 2) * np.abs((self.zoom_factor - 1) * self.map_surface.get_width()))),
-                          int((h / self.mouse_pos[1]) *
+                          int((h / max(self.mouse_pos[1], 1)) *
+                              ((1.4142 / 2) * np.abs((self.zoom_factor - 1) * self.map_surface.get_height())))]
+        """
+                            # mouse pos in % of map surface width
+        self.zoom_size = [int((self.map_surface.get_width() / (self.mouse_pos[0] - self.char_detail_back.get_width())) *
+                            # TODO
+                              ((1.4142 / 2) * np.abs((self.zoom_factor - 1) * self.map_surface.get_width()))),
+                          int((h / max(self.mouse_pos[1], 1)) *
                               ((1.4142 / 2) * np.abs((self.zoom_factor - 1) * self.map_surface.get_height())))]
 
         # set up buttons
@@ -2037,7 +1943,7 @@ class InGame:
 
         self.char_map_buttons = []
 
-        # constants, passt
+        # constants
         self.btn_w = int((5 / 32) * 7 * w / 32)
         self.btn_h = self.btn_w
         # self.inventory_gap_size = int((1 / 32) * 7 * w / 32)
@@ -2088,10 +1994,13 @@ class InGame:
             self.own_team_stat_buttons.append(btn)
 
         # chars on map
-        for index in self.game_map.characters:
-            char = self.game_map.objects[index]  # TODO change real pos (scroll and zoom and so on)
-
-            btn = Button(dim=[self.element_size * self.zoom_factor, self.element_size * self.zoom_factor],
+        v_chars = self.game_map.get_visible_chars_ind(self.own_team.team_num)
+        for index in v_chars:
+            char = self.game_map.objects[index]
+            if not isinstance(char, Character):
+                print("Warning! InGame init: sth that is not a char is returned by get_visible_chars_ind!")
+                continue
+            btn = Button(dim=[int(self.element_size * self.zoom_factor), int(self.element_size * self.zoom_factor)],
                          pos=[char.get_pos(0) * self.element_size + self.zoom_size[0],
                               char.get_pos(1) * self.element_size + self.zoom_size[1]],
                          real_pos=[char.get_pos(0) * self.element_size +
@@ -2101,7 +2010,7 @@ class InGame:
                                    self.zoom_size[1]],
                          # TODO img_uri="assets/char/" + str(char.unit_class) + ".png",
                          img_source=self.map_char_imgs[char.class_id],
-                         action=self.sel_char_binder("map_char_btn_" + str(char.idi), char.idi))
+                         action=self.sel_char_binder("map_char_btn_" + str(char.idi), char))
 
             self.char_map_buttons.append(btn)
 
@@ -2114,15 +2023,23 @@ class InGame:
                                          self.player_banners.get_height() +
                                          self.minimap_surf.get_height()],
                                img_uri="assets/blue_button_menu.jpg",
-                               name="Done Button", action=done_button_action)
+                               name="Done", action=done_button_action)
 
     def sel_char_binder(self, name, char):
 
         def func():
 
-            print("char button clicked")
             if char.team == self.own_team.team_num:  # own char
                 self.selected_own_char = char
+                print("click clack BOOM char was clicked")
+
+                # highlight reachable fields by blitting green transparent stuff over them
+
+                # returns list of tuples
+                self.r_fields = self.game_map.get_reachable_fields(self.selected_own_char.pos[0],
+                                                                   self.selected_own_char.pos[1],
+                                                                   self.selected_own_char.speed//10)
+
                 # tODO highlight field where I can move
                 # TOdo check whether a user clicks on a reachable field on click
                 #  (get vector from map surface upper left to mouse and calc mouse field pos from that)
@@ -2176,7 +2093,7 @@ class InGame:
             if self.game_map.objects[index].render_type is not "blit":
                 continue
 
-            char = self.game_map.objects[index]  # TODO change real pos (scroll and zoom and so on)
+            char = self.game_map.objects[index]
 
             p = [char.get_pos(0) * self.element_size + self.zoom_size[0],
                  char.get_pos(1) * self.element_size + self.zoom_size[1]]
@@ -2314,14 +2231,17 @@ class InGame:
         # </editor-fold>
 
         if self.zoomed:  # if zoom was made since last update, set values
-            real_mouse_pos = [(self.mouse_pos[0] - self.char_detail_back.get_width()), self.mouse_pos[1]]  # was 7/32 * w instead of char detail back
+            # was 7/32 * w instead of char detail back
+            real_mouse_pos = [(self.mouse_pos[0] - self.char_detail_back.get_width()), self.mouse_pos[1]]
             self.amount = [int(real_mouse_pos[0] - (self.zoom_factor * real_mouse_pos[0])),
                            int(real_mouse_pos[1] - (self.zoom_factor * real_mouse_pos[1]))]
             self.zoomed = False
 
+        # draw visible chars
         self.game_map.selective_draw_map(team_num=self.own_team.team_num)
         self.map_content = fit_surf(surf=self.game_map.window, size=self.map_surface.get_size())
 
+        # set destination
         if self.zoom_factor >= 1:
             dest = [self.amount[0] + self.con_shift_offset[0] + shift_offset[0],
                     self.amount[1] + self.con_shift_offset[1] + shift_offset[1]]
@@ -2331,12 +2251,36 @@ class InGame:
             dest = blit_centered_pos(self.map_surface, pg.transform.smoothscale(self.map_content, (s1, s2)))
 
         self.map_surface.fill((0, 0, 10))  # redraw background here
+        self.map_surface.convert_alpha()  # support alpha
 
         var = pg.transform.smoothscale(self.map_content,
                                        (max(0, int(self.map_surface.get_width() * self.zoom_factor)),
                                         max(0, int(self.map_surface.get_height() * self.zoom_factor))))
 
         self.map_surface.blit(var, dest=dest)  # TODO blit only area that is actually visible for better fps
+
+        if self.r_fields:
+            r_surf = pg.Surface(self.game_map.window.get_size(), flags=pg.SRCALPHA)  # same size as map surface before resizing
+
+            # blit green squares to it
+            sq = pg.Surface((self.game_map.elem_size, self.game_map.elem_size))
+            sq.fill((144, 238, 144))  # solid fill, only r_surf is transparent
+            sq.convert_alpha()
+
+            for field in self.r_fields:
+                _pos = (field[0] * self.game_map.elem_size, field[1] * self.game_map.elem_size)
+                r_surf.blit(sq, _pos)
+
+            r_surf.set_alpha(230)  # should make whole surface super trans #transrights #visiblilty #<3
+
+            # now resize
+            r_surf = fit_surf(surf=r_surf, size=self.map_surface.get_size())
+
+            r_surf = pg.transform.smoothscale(r_surf,
+                                              (max(0, int(self.map_surface.get_width() * self.zoom_factor)),
+                                               max(0, int(self.map_surface.get_height() * self.zoom_factor))))
+            # blit transparent surface with half transparent squares onto map
+            self.map_surface.blit(r_surf, dest)
 
         # TODO beware of 0.05 as constant
         self.map_surface.blit(self.own_team_stats, dest=[int(0.05 * self.map_surface.get_width()), 0])
@@ -2360,7 +2304,7 @@ class InGame:
         self.screen.blit(self.item_detail_back, dest=[0, self.char_detail_back.get_height() +
                                                       self.char_inventory_back.get_height()])
 
-        self.screen.blit(self.map_surface, dest=[self.char_detail_back.get_height(), 0])
+        self.screen.blit(self.map_surface, dest=[self.char_detail_back.get_width(), 0])
 
         self.screen.blit(self.player_banners,
                          dest=[self.char_detail_back.get_width() + self.map_surface.get_width(), 0])

@@ -144,15 +144,15 @@ class Character(GameObject):
 
         # torso
         pg.draw.rect(character_surf, mat_colour[self.team],
-                     ( int(character_surf.get_width() * 0.15),
-                       int(character_surf.get_height() * 0.35),
-                       int(character_surf.get_width() * 0.75),
-                       int(character_surf.get_width() * 0.3)))
+                     (int(character_surf.get_width() * 0.15),
+                      int(character_surf.get_height() * 0.35),
+                      int(character_surf.get_width() * 0.75),
+                      int(character_surf.get_width() * 0.3)))
 
         # head
         pg.draw.circle(character_surf, mat_colour[self.team],
                        [int(character_surf.get_width() * 0.5), int(character_surf.get_height() * 0.5)],
-                       int(character_surf.get_width() * 0.25), 0)
+                        int(character_surf.get_width() * 0.25), 0)
 
         if self.is_selected:
             pg.draw.circle(character_surf, (255, 0, 0), [100, 100], 105, 5)
