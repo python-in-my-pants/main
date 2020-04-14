@@ -53,15 +53,16 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
         self.characters = characters[:]     # holds indices of objects[] of characters
 
         # ToDo Texture Stuff, implement flooring for ruined difference
-        self.texture_dump = [pg.transform.scale(pg.image.load("assets/mats/Grass.png"), (self.elem_size, self.elem_size)),
-                             pg.transform.scale(pg.image.load("assets/mats/sandstone.png"), (self.elem_size, self.elem_size)),
-                             pg.transform.scale(pg.image.load("assets/mats/border.png"), (self.elem_size, self.elem_size)),
-                             pg.transform.scale(pg.image.load("assets/mats/dirt.png"), (self.elem_size, self.elem_size)),
-                             pg.transform.scale(pg.image.load("assets/mats/Flooring.png"), (self.elem_size, self.elem_size)),
-                             pg.transform.scale(pg.image.load("assets/mats/bush.png"), (self.elem_size, self.elem_size)),
+        texture_size = (self.elem_size, self.elem_size)
+        self.texture_dump = [pg.transform.scale(pg.image.load("assets/mats/Grass.png"), texture_size),
+                             pg.transform.scale(pg.image.load("assets/mats/sandstone.png"), texture_size),
+                             pg.transform.scale(pg.image.load("assets/mats/border.png"), texture_size),
+                             pg.transform.scale(pg.image.load("assets/mats/dirt.png"), texture_size),
+                             pg.transform.scale(pg.image.load("assets/mats/Flooring.png"), texture_size),
+                             pg.transform.scale(pg.image.load("assets/mats/bush.png"), texture_size),
                              None,
-                             pg.transform.scale(pg.image.load("assets/mats/boulder.png"), (self.elem_size, self.elem_size)),
-                             pg.transform.scale(pg.image.load("assets/mats/sandstone.png"), (self.elem_size, self.elem_size))]
+                             pg.transform.scale(pg.image.load("assets/mats/boulder.png"), texture_size),
+                             pg.transform.scale(pg.image.load("assets/mats/sandstone.png"), texture_size)]
 
     def set_elem_size(self, elem_size):
         self.elem_size = elem_size
@@ -332,26 +333,30 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
         chars = []
         for ind, obj in enumerate(self.objects):
             if self.characters.__contains__(ind):
-                chars.append(obj)
+                chars.append((ind, obj))
 
-        mat = [[[1, 1] for _ in range(chars.__len__())] for _ in range(chars.__len__())]
+        #mat = [[[1, 1] for _ in range(chars.__len__())] for _ in range(chars.__len__())]
+        v_dict = dict()
 
-        for ind1, char1 in enumerate(chars):
-            for ind2, char2 in enumerate(chars):
+        for ind1, char1 in chars:
+            for ind2, char2 in chars:
                 if char1 is not char2:
 
                     line_gr = pg.sprite.Group()  # line group
 
                     # TODO maybe try switching x,y
                     #  AND try line()
-                    y_coord, x_coord, _ = line_aa(char1.pos[1], char1.pos[0], char2.pos[1], char2.pos[0])  # y1, x1, y2, x2
+                    y_coord, x_coord, _ = line_aa(char1.pos[1], char1.pos[0],
+                                                  char2.pos[1], char2.pos[0])  # y1, x1, y2, x2
 
                     for index in range(y_coord.__len__()):
                         CollAtom([x_coord[index], y_coord[index]], name="line").add(line_gr)
 
-                    mat[ind1][ind2] = self.__get_mat_x_y(line_gr, char1, char2)
+                    v_dict[(ind1, ind2)] = self.__get_mat_x_y(line_gr, char1, char2)
+                else:
+                    v_dict[(ind1, ind2)] = [1, 1]
 
-        return mat
+        return v_dict
 
     # tells if line of sight between 2 chars collides with objects in world
     def __get_mat_x_y(self, line_gr, char1, char2):  # line group
@@ -372,20 +377,22 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
         return [1, 1]  # can see & shoot
 
     def get_reachable_fields(self, pos_w, pos_h, mov_range):  # TODO gruesome performance, over think when not sick
-
-        reachable = [[pos_w, pos_h]]
-
+        # TODO does this even make sense??? I hope so...
+        reachable = [(pos_w, pos_h)]
+        checked = set()
         counter = 0
 
         while counter < mov_range:
-            for r in list(set(reachable)):
+            my_set = set(reachable)-checked
+            for r in list(my_set):
                 neigh = self.get_neighbours(r[0], r[1])
                 for n in neigh:
-                    if self.unique_pixs[n[0]][n[1]] is 0:  # TODO switch indices?, ADD other mats
-                        reachable.append(n)
+                    if self.unique_pixs[n[1]][n[0]] in [0, 2, 5]:  # TODO should check for colliders! like "has pixel collider?"
+                        reachable.append(tuple(n))
+                checked.add(r)
             counter += 1
 
-        return list(set(reachable))
+        return list(set(reachable) - {(pos_w, pos_h)})  # own position is not reachable
 
     def get_neighbours(self, x, y):
 
@@ -402,7 +409,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
 
         return to_ret
 
-    def check_valid(self, x, y):
+    def check_valid(self, x, y):  # check if coords are inside map bounds
 
         if 0 <= x <= self.size_x-1 and 0 <= y <= self.size_y-1:
             return True
@@ -447,9 +454,9 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
                 """
         self.__draw_grid()
 
-    def get_visible_chars_ind(self, team_num):
+    def get_visible_chars_ind(self, team_num):  # TODO implement looking direction
 
-        matrix = self.get_vmat()
+        v_dict = self.get_vmat()
 
         own_chars = []  # holds indices of own team in objects
         visible_chars = []  # holds indices of visible chars
@@ -458,9 +465,10 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
             if self.objects[i].team == team_num:
                 own_chars.append(i)
 
-        for own_char_index in range(own_chars.__len__()):
-            for other_char_index in range(self.characters.__len__()):
-                if matrix[own_char_index][other_char_index][0] == 1 and not own_chars.__contains__(other_char_index) \
+        for own_char_index in own_chars:
+            for other_char_index in self.characters:
+                if v_dict[(own_char_index, other_char_index)][0] == 1\
+                        and not own_chars.__contains__(other_char_index) \
                         and not visible_chars.__contains__(other_char_index):
                     visible_chars.append(other_char_index)
 
@@ -520,7 +528,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
 
         for i in range(self.size_x):
             for d in range(self.size_y):
-                pg.draw.rect(self.window, (0, 99, 0), (i * self.elem_size, d * self.elem_size, self.elem_size, self.elem_size), 1)
+                pg.draw.rect(self.window, (30, 30, 20), (i * self.elem_size, d * self.elem_size, self.elem_size, self.elem_size), 1)
 
     def get_map(self):  # return all data from map BUT NOT self.window
 
