@@ -136,7 +136,7 @@ while True:
                                            game_map=game_map,
                                            client=client_var,   # ToDo Network
                                            role=role)  # TODO add after balancing dependent on desired_map_size
-                                                       # cheapest char but full equipped for all team members
+                                                        # cheapest char but full equipped for all team members
 
             elif active_window.role == "unknown":
 

@@ -396,7 +396,7 @@ class SimpleHouse(GameObject):
         #  -------------------------------------------------------------------------------------------------------------
 
         # assign material for door and update mat_ind
-        self.add_elem("oak wood", [door])
+        self.add_elem("dirt", [door])  # TODO was oak wood, door is gone for now
 
         # assign material for floor and update mat_ind
         floor = []

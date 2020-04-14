@@ -8,38 +8,37 @@ class Button:
     def __init__(self, dim=[0, 0], pos=[0, 0], real_pos=[-1, -1], color=(170, 0, 0), font_color=(0, 0, 0), img_uri=0,
                  img_source=None, text="Button", name="Button", use_dim=True, action=(lambda: print("Clicked"))):
 
+        self.dim = [int(d) for d in dim]
+        self.use_dim = use_dim
         if use_dim:
-            self.surf = pg.Surface(dim)
-
+            self.surf = pg.Surface(self.dim)
         self.action = action
         self.name = name
         self.offset = 0
         self.font_color = font_color
-        self.pos = pos[:]  # position relative to surface it is to be blitted on
+        self.pos = [int(p) for p in pos]  # position relative to surface it is to be blitted on
 
         self.real_pos = 0  # real position on screen
         if real_pos[0] == -1 and real_pos[1] == -1:
             self.real_pos = self.pos[:]
         else:
-            self.real_pos = real_pos[:]
+            self.real_pos = [int(p) for p in real_pos]
 
-        self.dim = dim[:]
         self.img_uri = img_uri
-        self.use_dim = use_dim
         self.text = text
         self.color = color
 
         if img_uri or img_source:
 
             if img_uri and not img_source:
-                background_img = pg.image.load(img_uri)#.convert_alpha()  # HAHAHAHA does not work ...
+                background_img = pg.image.load(img_uri).convert_alpha()  # HAHAHAHA does not work ...
             if img_source:
                 background_img = img_source
 
             # background_img.set_colorkey((0, 0, 0))
 
             if use_dim:
-                background_img = pg.transform.scale(background_img, dim)
+                background_img = pg.transform.scale(background_img, self.dim)
             else:
                 dim = [background_img.get_rect()[2], background_img.get_rect()[3]]
                 self.surf = pg.Surface(dim)
