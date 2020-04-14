@@ -61,6 +61,16 @@ character_classes = {
     6: "Commander"       # higher stats than normal but more expensive
 }
 
+class_stats = {
+    #   [stamina, speed, dexterity, strength, weight, cost]
+    0: [50, 40, 35, 35, 70, 14],
+    1: [55, 70, 45, 35, 80, 21],
+    2: [40, 30, 50, 80, 100, 33],
+    3: [70, 50, 35, 50, 60, 28],
+    4: [70, 40, 70, 35, 75, 39],
+    5: [70, 50, 35, 50, 75, 25]
+}
+
 scc = {  # server control codes             message holds the following:
     "Host":                 b'host ',       # (name, game_map, points)
     "cancel hosting":       b'cHost',       # ""

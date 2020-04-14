@@ -61,48 +61,12 @@ class Character(GameObject):
         self.carry = carry
 
     def class_selector(self):
-        if self.class_id == 0:  # Pawn
-            self.stamina = 50
-            self.speed = 40
-            self.dexterity = 35
-            self.strength = 35
-            self.weight = 70
-            self.cost = 14
-        if self.class_id == 1:  # Leichte Truppe
-            self.stamina = 55
-            self.speed = 70
-            self.dexterity = 45
-            self.strength = 35
-            self.weight = 80
-            self.cost = 21
-        if self.class_id == 2:  # Schwere Truppe
-            self.stamina = 40
-            self.speed = 30
-            self.dexterity = 50
-            self.strength = 80
-            self.weight = 100
-            self.cost = 33
-        if self.class_id == 3:  # Sanitäter
-            self.stamina = 70
-            self.speed = 50
-            self.dexterity = 35
-            self.strength = 50
-            self.weight = 60
-            self.cost = 28
-        if self.class_id == 4:  # Scharfschütze
-            self.stamina = 70
-            self.speed = 40
-            self.dexterity = 70
-            self.strength = 35
-            self.weight = 75
-            self.cost = 39
-        if self.class_id == 5:  # Spezialist
-            self.stamina = 70
-            self.speed = 50
-            self.dexterity = 35
-            self.strength = 50
-            self.weight = 75
-            self.cost = 25
+            self.stamina = class_stats[self.class_id][0]
+            self.speed = class_stats[self.class_id][1]
+            self.dexterity = class_stats[self.class_id][2]
+            self.strength = class_stats[self.class_id][3]
+            self.weight = class_stats[self.class_id][4]
+            self.cost = class_stats[self.class_id][5]
 
     def weight_calculator(self):
         return self.strength * 11

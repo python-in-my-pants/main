@@ -32,6 +32,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
         # committed in desired size in elements * elem_size
         self.size_x = x_size
         self.size_y = y_size
+        self.base_map = None
 
         if not window:
             self.window = pg.Surface([x_size*elem_size, y_size*elem_size])
@@ -446,6 +447,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
                              (pix[0] * self.elem_size, pix[1] * self.elem_size, self.elem_size, self.elem_size))
                 """
         self.__draw_grid()
+        self.base_map = self.window.copy
 
     def get_visible_chars_ind(self, team_num):
 
@@ -470,6 +472,8 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
         return visible_chars
 
     def selective_draw_map(self, team_num):
+
+        self.window.blit(self.base_map)
 
         visible_chars = self.get_visible_chars_ind(team_num=team_num)
         # pg.image.load("assets/Teams/Red_Team/"+character_classes[go.class_id]+"/Red_"+character_classes[go.class_id]+
@@ -498,6 +502,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
                         (int(go.pos[0] * self.elem_size), int(go.pos[1] * self.elem_size)))
                     # shit = pg.transform.smoothscale(go_surf, (int(self.elem_size * factor),
                     # int(self.elem_size * factor)))
+        """
             else:  # game object
                 mat_counter = 0
                 for indidex, pix in enumerate(go.get_drawable()):
@@ -506,11 +511,13 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
                             mat_counter += 1
                     self.window.blit(self.texture_dump[material_codes[go.materials[mat_counter]]],
                                      (pix[0] * self.elem_size, pix[1] * self.elem_size))
-                    """
+                    
+                    #kommentar
                     pg.draw.rect(self.window, mat_colour[go.materials[mat_counter]],
-                                 (pix[0] * self.elem_size, pix[1] * self.elem_size, self.elem_size, self.elem_size))
-                    """
+                                 (pix[0] * self.elem_size, pix[1] * self.elem_size, self.elem_size, self.elem_size)) 
+            
         self.__draw_grid()
+        """
 
     def __draw_grid(self):  # maybe static? (but who cares tbh)
 
