@@ -441,6 +441,20 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
                                  (int(go.pos[0] * self.elem_size), int(go.pos[1] * self.elem_size)))
                 #shit = pg.transform.smoothscale(go_surf, (int(self.elem_size * factor), int(self.elem_size * factor)))
                 # print("-"*10+str(shit.get_width()))
+            #print(go.materials)
+            if go.materials == ["bush"]:
+                self.window.blit(pg.transform.scale(pg.image.load(bush_types[go.type]), (go.size_x * self.elem_size,
+                                                                      go.size_y * self.elem_size)),
+                                 (go.pixs[0][0] * self.elem_size, go.pixs[0][1] * self.elem_size))
+            elif go.materials == ["boulder"]:
+                self.window.blit(pg.transform.scale(pg.image.load(boulder_types[go.type]), (go.size_x * self.elem_size,
+                                                                                         go.size_y * self.elem_size)),
+                                 (go.pixs[0][0] * self.elem_size, go.pixs[0][1] * self.elem_size))
+            elif go.materials == ["oak wood"]:
+                self.window.blit(pg.transform.scale(pg.image.load(tree_types[go.type]),
+                                                    ((go.size_x + 2) * self.elem_size,
+                                                     (go.size_y + 2) * self.elem_size)),
+                                 ((go.pixs[0][0] - 1) * self.elem_size, (go.pixs[0][1] - 1) * self.elem_size))
             else:
                 mat_counter = 0
                 for index, pix in enumerate(go.get_drawable()):
@@ -454,7 +468,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
                              (pix[0] * self.elem_size, pix[1] * self.elem_size, self.elem_size, self.elem_size))
                 """
         self.__draw_grid()
-        self.base_map = self.window.copy
+        self.base_map = self.window.copy()
 
     def get_visible_chars_ind(self, team_num):  # TODO implement looking direction
 
@@ -481,7 +495,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
 
     def selective_draw_map(self, team_num):
 
-        self.window.blit(self.base_map)
+        self.window.blit(self.base_map, (0, 0))
 
         visible_chars = self.get_visible_chars_ind(team_num=team_num)
         # pg.image.load("assets/Teams/Red_Team/"+character_classes[go.class_id]+"/Red_"+character_classes[go.class_id]+
@@ -685,7 +699,7 @@ class MapBuilder:
 
             # while there is a house (to add) and it doesn't fit and you didn't try 100 times yet generate a new one
             limit = 0
-            while h != 0 and self.map.add_object(h, border_size=1) != 1 and limit < 100:
+            while h != 0 and self.map.add_object(h, border_size=0) != 1 and limit < 100:
                 h = Tree(name=("Simple tree " + str(tree_counter)), obj_type="default",
                          pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
                 limit += 1

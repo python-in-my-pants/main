@@ -40,6 +40,7 @@ mat_colour = {
 }
 
 material_codes = {
+    "grass": 0,
     "sandstone": 1,
     "border": 2,
     "dirt": 3,
@@ -49,6 +50,29 @@ material_codes = {
     "boulder": 7,
     "ruined_wood": 8,
     "default": -1
+}
+
+bush_types = {
+    0: "assets/mats/Bush/Bush_1x1.png",
+    1: "assets/mats/Bush/Bush_1x2.png",
+    2: "assets/mats/Bush/Bush_2x1.png",
+    3: "assets/mats/Bush/Bush_2x2.png",
+    4: "assets/mats/Bush/Bush_2x3.png",
+    5: "assets/mats/Bush/Bush_3x2.png"
+}
+
+boulder_types = {
+    0: "assets/mats/Boulder/Boulder_1x1.png",
+    1: "assets/mats/Boulder/Boulder_1x2.png",
+    2: "assets/mats/Boulder/Boulder_2x1.png",
+    3: "assets/mats/Boulder/Boulder_2x2.png",
+    4: "assets/mats/Boulder/Boulder_2x3.png",
+    5: "assets/mats/Boulder/Boulder_3x2.png"
+}
+
+tree_types = {
+    0: "assets/mats/Tree/Tree_1x1.png",
+    1: "assets/mats/Tree/Tree_2x2.png"
 }
 
 character_classes = {

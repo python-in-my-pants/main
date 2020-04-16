@@ -151,8 +151,8 @@ class LineOfSight(GameObject):
 
 
 class Border(GameObject):
-
-    def __init__(self, obj_type, size_x_, size_y_, name="Border", materials_=["dirt"], pos=[0, 0], thiccness="1"):
+    # ToDo change material back maybe
+    def __init__(self, obj_type, size_x_, size_y_, name="Border", materials_=["grass"], pos=[0, 0], thiccness="1"):
         super().__init__(obj_type=obj_type, name=name, materials=materials_, pos=pos)
 
         self.pixs = []
@@ -196,16 +196,61 @@ class Bush(GameObject):
         super().__init__(obj_type=obj_type, name=name, materials=materials_, pos=pos)
 
         self.pixs = []
+        self.type = 0
 
-        self.pixs.append([0, 0])
-        self.pixs.append([0, 1])
-        self.pixs.append([1, 0])
-        self.pixs.append([1, 1])
-        self.pixs.append([0, 2])
-        self.pixs.append([1, 2])
+        rando = numpy.random.randint(0, 6)
+        if rando == 0:
+            self.pixs.append([0, 0])
+            self.type = 0
 
-        self.size_x = 2
-        self.size_y = 3
+            self.size_x = 1  #
+            self.size_y = 1
+        if rando == 1:
+            self.pixs.append([0, 0])
+            self.pixs.append([1, 0])
+            self.type = 2
+
+            self.size_x = 2  ##
+            self.size_y = 1
+        if rando == 2:
+            self.pixs.append([0, 0])
+            self.pixs.append([0, 1])
+            self.type = 1
+
+            self.size_x = 1  #
+            self.size_y = 2  #
+        if rando == 3:
+            self.pixs.append([0, 0])
+            self.pixs.append([0, 1])
+            self.pixs.append([1, 0])
+            self.pixs.append([1, 1])
+            self.type = 3
+
+            self.size_x = 2  ##
+            self.size_y = 2  ##
+        if rando == 4:
+            self.pixs.append([0, 0])
+            self.pixs.append([0, 1])
+            self.pixs.append([1, 0])
+            self.pixs.append([1, 1])
+            self.pixs.append([2, 0])
+            self.pixs.append([2, 1])
+            self.type = 5
+
+            self.size_x = 3  ###
+            self.size_y = 2  ###
+        if rando == 5:
+            self.pixs.append([0, 0])
+            self.pixs.append([0, 1])
+            self.pixs.append([1, 0])
+            self.pixs.append([1, 1])
+            self.pixs.append([0, 2])
+            self.pixs.append([1, 2])
+            self.type = 4
+
+            self.size_x = 2  ##
+            self.size_y = 3  ##
+                             ##
 
         for point in self.pixs:
             point[0] += self.pos[0]
@@ -221,44 +266,20 @@ class Tree(GameObject):
         super().__init__(obj_type=obj_type, name=name, materials=materials_, pos=pos)
 
         self.pixs = []
-        rando = numpy.random.randint(0, 3)
+        rando = numpy.random.randint(0, 2)
 
         if rando == 0:
             self.pixs.append([0, 0])
+            self.type = 0
 
             self.size_x = 1             #
             self.size_y = 1
         if rando == 1:
-            randor = numpy.random.randint(0, 4)  # ToDo border einfügen
-            if randor == 0:
-                self.pixs.append([0, 0])    ##
-                self.pixs.append([1, 0])    #
-                self.pixs.append([0, 1])
-                self.size_x = 2
-                self.size_y = 2
-            if randor == 1:
-                self.pixs.append([0, 0])    ##
-                self.pixs.append([0, 1])     #
-                self.pixs.append([1, 1])
-                self.size_x = 2
-                self.size_y = 2
-            if randor == 2:
-                self.pixs.append([0, 0])    #
-                self.pixs.append([0, 1])    ##
-                self.pixs.append([1, 1])
-                self.size_x = 2
-                self.size_y = 2
-            if randor == 3:
-                self.pixs.append([1, 0])     #
-                self.pixs.append([0, 1])    ##
-                self.pixs.append([1, 1])
-                self.size_x = 2
-                self.size_y = 2
-        if rando == 2:
             self.pixs.append([0, 0])
             self.pixs.append([0, 1])
             self.pixs.append([1, 0])
             self.pixs.append([1, 1])
+            self.type = 1
 
             self.size_x = 2  ##
             self.size_y = 2  ##
@@ -287,18 +308,21 @@ class Boulder(GameObject):
         rando = numpy.random.randint(0, 6)
         if rando == 0:
             self.pixs.append([0, 0])
+            self.type = 0
 
             self.size_x = 1             #
             self.size_y = 1
         if rando == 1:
             self.pixs.append([0, 0])
             self.pixs.append([1, 0])
+            self.type = 2
 
             self.size_x = 2             ##
             self.size_y = 1
         if rando == 2:
             self.pixs.append([0, 0])
             self.pixs.append([0, 1])
+            self.type = 1
 
             self.size_x = 1             #
             self.size_y = 2             #
@@ -307,6 +331,7 @@ class Boulder(GameObject):
             self.pixs.append([0, 1])
             self.pixs.append([1, 0])
             self.pixs.append([1, 1])
+            self.type = 3
 
             self.size_x = 2             ##
             self.size_y = 2             ##
@@ -317,6 +342,7 @@ class Boulder(GameObject):
             self.pixs.append([1, 1])
             self.pixs.append([2, 0])
             self.pixs.append([2, 1])
+            self.type = 5
 
             self.size_x = 3             ###
             self.size_y = 2             ###
@@ -327,6 +353,7 @@ class Boulder(GameObject):
             self.pixs.append([1, 1])
             self.pixs.append([0, 2])
             self.pixs.append([1, 2])
+            self.type = 4
 
             self.size_x = 2             ##
             self.size_y = 3             ##
