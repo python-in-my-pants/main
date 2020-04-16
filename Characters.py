@@ -77,7 +77,7 @@ class Character(GameObject):
         self.items = items[:]
         self.gear = gear[:]
         self.weapons = weapons[:]
-        self.active_slot = []
+        self.active_slot = None
         self.orientation = orientation
 
         self.pixs = pos[:]
@@ -244,114 +244,116 @@ class Character(GameObject):
 
     def change_active_slot(self, args):
         # args = [type, index]
+
         if args[0] == "Weapon":
-            if len(self.active_slot) == 1: self.active_slot.pop(0)
-            self.active_slot.append(self.weapons[args[1]])
+            self.active_slot = self.weapons[args[1]]
+            return
         if args[0] == "Item":
-            if len(self.active_slot) == 1: self.active_slot.pop(0)
-            self.active_slot.append(self.items[args[1]])
+            self.active_slot = self.items[args[1]]
+            return
+        print("Warning! Active slot must hold an item or a weapon!")
 
     def range(self, dude):
         return abs(numpy.sqrt(((self.pos[0]-dude.pos[0])**2)+((self.pos[1]-dude.pos[1])**2)))
 
     def shoot(self, dude, partind):
         # Basechance * (0.3 * Dex) - Range + Recoil control
-        if not isinstance(self.active_slot[0], Weapon):
+        if not isinstance(self.active_slot, Weapon):
             return
         c_range = self.range(dude)
         dmg = self.calc_dmg(c_range)
         p_range = self.calc_p_range(c_range)
-        if isinstance(self.active_slot[0], (Maschinenpistole, Sturmgewehr, Maschinengewehr)):
+        if isinstance(self.active_slot, (Maschinenpistole, Sturmgewehr, Maschinengewehr)):
             recoil_acc = self.calc_recoil_acc()
-            chance = int(self.active_slot[0].acc * (0.3 * self.dexterity) - p_range + recoil_acc)
+            chance = int(self.active_slot.acc * (0.3 * self.dexterity) - p_range + recoil_acc)
         else:
-            chance = int(self.active_slot[0].acc * (0.3 * self.dexterity) - p_range)
+            chance = int(self.active_slot.acc * (0.3 * self.dexterity) - p_range)
         print(chance)
-        for s in range(self.active_slot[0].spt):
+        for s in range(self.active_slot.spt):
             if numpy.random.randint(0, 101) <= chance:
                 dude.get_damaged(dmg, partind)
 
     def calc_recoil_acc(self):
-        if isinstance(self.active_slot[0], Maschinenpistole):
+        if isinstance(self.active_slot, Maschinenpistole):
             return int(self.strength / 5)
-        if isinstance(self.active_slot[0], Sturmgewehr):
+        if isinstance(self.active_slot, Sturmgewehr):
             return int(self.strength / 10)
-        if isinstance(self.active_slot[0], Maschinengewehr):
+        if isinstance(self.active_slot, Maschinengewehr):
             return int(self.strength / 4)
 
     def calc_dmg(self, c_range):
-        if isinstance(self.active_slot[0], Pistole):
+        if isinstance(self.active_slot, Pistole):
             if c_range >= 20:
-                return self.active_slot[0].dmg - int((0.2*(c_range-20))+0.5)
+                return self.active_slot.dmg - int((0.2*(c_range-20))+0.5)
             else:
-                return self.active_slot[0].dmg
-        if isinstance(self.active_slot[0], Maschinenpistole):
+                return self.active_slot.dmg
+        if isinstance(self.active_slot, Maschinenpistole):
             if c_range >= 15:
-                return self.active_slot[0].dmg - int((0.3*(c_range-15))+0.5)
+                return self.active_slot.dmg - int((0.3*(c_range-15))+0.5)
             else:
-                return self.active_slot[0].dmg
-        if isinstance(self.active_slot[0], Sturmgewehr):
+                return self.active_slot.dmg
+        if isinstance(self.active_slot, Sturmgewehr):
             if c_range >= 50:
-                return self.active_slot[0].dmg - int((0.2*(c_range-50))+0.5)
+                return self.active_slot.dmg - int((0.2*(c_range-50))+0.5)
             else:
-                return self.active_slot[0].dmg
-        if isinstance(self.active_slot[0], Shotgun):
+                return self.active_slot.dmg
+        if isinstance(self.active_slot, Shotgun):
             if c_range >= 10:
-                return self.active_slot[0].dmg - int((1*(c_range-10))+0.5)
+                return self.active_slot.dmg - int((1*(c_range-10))+0.5)
             else:
-                return self.active_slot[0].dmg
-        if isinstance(self.active_slot[0], Maschinengewehr):
+                return self.active_slot.dmg
+        if isinstance(self.active_slot, Maschinengewehr):
             if c_range >= 40:
-                return self.active_slot[0].dmg - int((0.3*(c_range-40))+0.5)
+                return self.active_slot.dmg - int((0.3*(c_range-40))+0.5)
             else:
-                return self.active_slot[0].dmg
-        if isinstance(self.active_slot[0], Sniper):
+                return self.active_slot.dmg
+        if isinstance(self.active_slot, Sniper):
             if c_range >= 100:
-                return self.active_slot[0].dmg - int((0.2*(c_range-10))+0.5)
+                return self.active_slot.dmg - int((0.2*(c_range-10))+0.5)
             else:
-                return self.active_slot[0].dmg
-        if isinstance(self.active_slot[0], Raketenwerfer):
+                return self.active_slot.dmg
+        if isinstance(self.active_slot, Raketenwerfer):
             if c_range >= 20:
-                return self.active_slot[0].dmg - int((0.1*(c_range-20))+0.5)
+                return self.active_slot.dmg - int((0.1*(c_range-20))+0.5)
             else:
-                return self.active_slot[0].dmg
+                return self.active_slot.dmg
 
     def calc_p_range(self, c_range):
-        if isinstance(self.active_slot[0], Pistole):
+        if isinstance(self.active_slot, Pistole):
             if c_range > 20:
                 return c_range-20
             else:
                 return 0
-        if isinstance(self.active_slot[0], Maschinenpistole):
+        if isinstance(self.active_slot, Maschinenpistole):
             if c_range > 15:
                 return c_range-15
             else:
                 return 0
-        if isinstance(self.active_slot[0], Sturmgewehr):
+        if isinstance(self.active_slot, Sturmgewehr):
             if c_range > 50:
                 return c_range-50
             else:
                 return 0
-        if isinstance(self.active_slot[0], Shotgun):
+        if isinstance(self.active_slot, Shotgun):
             if c_range > 10:
                 return c_range-10
             else:
                 return 0
-        if isinstance(self.active_slot[0], Maschinengewehr):
+        if isinstance(self.active_slot, Maschinengewehr):
             if c_range < 2:
                 return 10
             if c_range > 40:
                 return c_range-40
             else:
                 return 0
-        if isinstance(self.active_slot[0], Sniper):
+        if isinstance(self.active_slot, Sniper):
             if c_range < 5:
                 return c_range*10
             if c_range > 100:
                 return c_range-100
             else:
                 return 0
-        if isinstance(self.active_slot[0], Raketenwerfer):
+        if isinstance(self.active_slot, Raketenwerfer):
             if c_range > 20:
                 return c_range - 20
             else:
