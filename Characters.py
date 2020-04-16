@@ -246,18 +246,12 @@ class Character(GameObject):
         # args = [type, index]
 
         if args[0] == "Weapon":
-            if len(self.active_slot) == 1:
-                self.active_slot.pop(0)
-            self.active_slot.append(self.weapons[args[1]])
+            self.active_slot = self.weapons[args[1]]
             return
         if args[0] == "Item":
-            if len(self.active_slot) == 1:
-                self.active_slot.pop(0)
-            self.active_slot.append(self.items[args[1]])
+            self.active_slot = self.items[args[1]]
             return
-        print("Warning! Active slot must hold an items or a weapon!")
-
-
+        print("Warning! Active slot must hold an item or a weapon!")
 
     def range(self, dude):
         return abs(numpy.sqrt(((self.pos[0]-dude.pos[0])**2)+((self.pos[1]-dude.pos[1])**2)))
