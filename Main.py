@@ -23,10 +23,7 @@ from Render import *
 from Characters import Character
 
 debug = True
-counter = 0
-timee = True
-# TODO throw out
-c = CustomTimer()
+counter = 0  # TODO out
 
 # stuff to beautify rendering
 
@@ -38,29 +35,11 @@ os.environ['SDL_VIDEO_CENTERED'] = '1'  # make so that popping windows are cente
 # obligatory pygame init
 
 pg.init()
-
-# client / server stuff
-# os.startfile("server.py")
-# net = Network(get('https://api.ipify.org').text)
-# start_new_thread(net.routine_threaded_listener, ())
-role = "nobody"
+role = "default role"
 teams = []
 # TODO still up to date?
 map_data = []  # holds data of map received from server PLUS the team number you have
-
-select = False
 clock = pg.time.Clock()
-
-#  --------------------------------------------------------------------------------------------
-
-mon = pg.display.Info()
-screen_h = int(mon.current_h)
-screen_w = int(mon.current_w)
-fields_x = 30  # width
-fields_y = 30  # height
-elem_size = int(screen_w/fields_x) if int(screen_w/fields_x) < int(screen_h/fields_y) else int(screen_h/fields_y)
-x = elem_size * fields_x  # mult of 10
-y = elem_size * fields_y  # mult of 10
 
 active_window = None
 
@@ -111,7 +90,7 @@ while True:
                                            game_map=game_map,
                                            client=client_var,  # ToDo Network
                                            role=role)  # TODO add after balancing dependent on desired_map_size
-                                                       # cheapest char but full equipped for all team members
+                                                       #  cheapest char but full equipped for all team members
 
             elif active_window.role is "client":
 
@@ -119,7 +98,6 @@ while True:
                 map_data = active_window.game_map_string  # ToDo Network
                 game_map = Map.Map(x_size=map_data[3],
                                    y_size=map_data[4],
-                                   elem_size=elem_size,
                                    objects=map_data[1],
                                    characters=map_data[2],
                                    unique_pixels=map_data[0])
@@ -136,7 +114,7 @@ while True:
                                            game_map=game_map,
                                            client=client_var,   # ToDo Network
                                            role=role)  # TODO add after balancing dependent on desired_map_size
-                                                        # cheapest char but full equipped for all team members
+                                                        #  cheapest char but full equipped for all team members
 
             elif active_window.role == "unknown":
 
@@ -183,7 +161,7 @@ while True:
             active_window.update()
 
     clock.tick(60)  # controls max fps
-    # print("FPS: " + str(clock.get_fps()) + "\n\n") if counter % 180 == 0 else (lambda: None)
+    print("FPS: " + str(clock.get_fps()) + "\n\n") if counter % 180 == 0 else (lambda: None)
     counter += 1
     counter %= 180
     pg.display.flip()

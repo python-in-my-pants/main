@@ -2,21 +2,14 @@
 Gives general classes and functions for rendering on screen
 """
 
-import Item
 import Map
-import pygame as pg
-import os
-from pickle import *
-import numpy
-from _thread import *
 from NewClient import *
 from GUI import *
 from Team import *
-from Data import *
 from Characters import *
 from TTimer import *
+import numpy as np
 import time
-import copy
 import ctypes
 
 if sys.platform == "win32":
@@ -1710,7 +1703,6 @@ class InGame:
         self.game_map = game_map
         self.client = client
 
-        #print(self.game_map.objects)
         self.cc_num = 6
         self.gc_num = 4
         self.wc_num = 7
@@ -1723,8 +1715,10 @@ class InGame:
         self.char_prev_selected = False  # holds whether own team character is already selected
         self.r_fields = []
 
-        self.element_size = int(true_res[0] * 9 / (16 * 30))  # default is 30 elem width
-        self.zoom_factor = 0.7
+        self.element_size = int(true_res[0] * 9 / (16 * max(self.game_map.size_y, self.game_map.size_x)))  # TODO has to be adjusted to dynamically
+        self.current_element_size = self.element_size
+        self.char_button_size = self.element_size
+        self.zoom_factor = 1
         self.mouse_pos = pg.mouse.get_pos()
         self.zoomed = False
         self.amount = [0, 0]
@@ -1738,12 +1732,12 @@ class InGame:
 
         self.shifting = False
         self.shift_start = [0, 0]
-        self.con_shift_offset = [0, 0]
+        self.con_shift_offset = [0, 0]  # constant offset from shifting the map
 
         self.screen = pg.display.set_mode(true_res)  # , pg.RESIZABLE | pg.FULLSCREEN)
         # </editor-fold>
 
-        # Place characters on map
+        # <editor-fold desc="Place characters on map">
         for char in self.client.live_data["game_begin"][0].characters:
             # first game objs should always be spawning areas
             self.game_map.objects[0].place_character(char)
@@ -1757,6 +1751,7 @@ class InGame:
             # assuming exactly 2 players
             self.game_map.objects.append(char)
             self.game_map.characters.append(self.game_map.objects.__len__() - 1)
+        # </editor-fold>
 
         # holds selected char of own team
         self.selected_own_char = self.own_team.characters[0]
@@ -1766,9 +1761,9 @@ class InGame:
         # holds selected char (maybe from opponent team)
         self.selected_char = self.selected_own_char
 
-        # -------------------
+        # -------------------------------------------------------------------------------------------------------------
         # render image lists
-        # -------------------
+        # -------------------------------------------------------------------------------------------------------------
 
         # <editor-fold desc="Render image setup">
         self.detail_size = [int((7 / 32) * w - 20), int((4 / 10) * h - 20)]
@@ -1885,24 +1880,7 @@ class InGame:
         # </editor-fold>
 
         # -------------------------------------------------------------------------------------------------------------
-
-        # TODO check if this makes sense, coded when sick
-        # TODO maybe not map surface but content
-        """
-        self.zoom_size = [int(((9 * w / 16) / (self.mouse_pos[0] - self.char_detail_back.get_width())) *
-                              ((1.4142 / 2) * np.abs((self.zoom_factor - 1) * self.map_surface.get_width()))),
-                          int((h / max(self.mouse_pos[1], 1)) *
-                              ((1.4142 / 2) * np.abs((self.zoom_factor - 1) * self.map_surface.get_height())))]
-        """
-                            # mouse pos in % of map surface width
-        self.zoom_size = [int((self.map_surface.get_width() / (self.mouse_pos[0] - self.char_detail_back.get_width())) *
-                            # TODO
-                              ((1.4142 / 2) * np.abs((self.zoom_factor - 1) * self.map_surface.get_width()))),
-                          int((h / max(self.mouse_pos[1], 1)) *
-                              ((1.4142 / 2) * np.abs((self.zoom_factor - 1) * self.map_surface.get_height())))]
-
-        # set up buttons
-        # TODO characters on map must have buttons to select them as sel char
+        # BUTTONS
         # -------------------------------------------------------------------------------------------------------------
 
         # <editor-fold desc="button functions">
@@ -1934,9 +1912,7 @@ class InGame:
                 return
         # </editor-fold>
 
-        # -------------------------------------------------------------------------------------------------------------
-        # buttons and bars
-
+        # <editor-fold desc="button inits">
         self.gear_buttons = []  # TODO buttons
         self.weapon_buttons = []
         self.item_buttons = []
@@ -1952,12 +1928,11 @@ class InGame:
         # self.inventory_gap_size = int((1 / 32) * 7 * w / 32)
         self.inventory_gap_size = int((self.inventory_gear_weapons_surf.get_height() - self.btn_h) / 2)
         self.inventory_line_len = 5
+        # </editor-fold>
 
-        # ----- left -----
+        # left (inventory buttons moved to update)
 
-        # inventory buttons moved to update
-
-        # ----- mid -----
+        # <editor-fold desc="mid">
 
         # hp bars, blit to own team stats
         # TODO update hp bars each tick
@@ -1984,11 +1959,11 @@ class InGame:
             pos_w = self.btn_w + (i % 10) * (self.btn_w + self.inventory_gap_size)
             pos_h = self.inventory_gap_size + int(i / 10) * (self.btn_h + self.inventory_gap_size + self.btn_h * 0.6)
 
-            btn = Button(dim=[self.btn_w, self.btn_h], pos=[pos_w, pos_h], real_pos=[pos_w +
-                                                                                     self.char_detail_back.get_width() +
-                                                                                     int(
-                                                                                         self.map_surface.get_width() * 0.05),
-                                                                                     pos_h],
+            btn = Button(dim=[self.btn_w, self.btn_h], pos=[pos_w, pos_h],
+                         real_pos=[pos_w +
+                                   self.char_detail_back.get_width() +
+                                   int(self.map_surface.get_width() * 0.05),
+                                   pos_h],
                          img_uri=("assets/cc/small/cc_" + str(self.own_team.characters[i].class_id) + ".png"),
                          text="", name="char btn " + str(self.own_team.characters[i].class_id),
                          action=sel_own_char_binder("char_btn_" + str(self.own_team.characters[i].idi),
@@ -2000,24 +1975,25 @@ class InGame:
         v_chars = self.game_map.get_visible_chars_ind(self.own_team.team_num)
         for index in v_chars:
             char = self.game_map.objects[index]
-            if not isinstance(char, Character):
+            if not isinstance(char, Character):  # TODO this is a hotfix7
                 print("Warning! InGame init: sth that is not a char is returned by get_visible_chars_ind!")
                 continue
-            btn = Button(dim=[int(self.element_size * self.zoom_factor), int(self.element_size * self.zoom_factor)],
-                         pos=[char.get_pos(0) * self.element_size + self.zoom_size[0],
-                              char.get_pos(1) * self.element_size + self.zoom_size[1]],
-                         real_pos=[char.get_pos(0) * self.element_size +
-                                   self.char_detail_back.get_width() +
-                                   self.zoom_size[0],
-                                   char.get_pos(1) * self.element_size +
-                                   self.zoom_size[1]],
+            btn = Button(dim=[self.current_element_size, self.current_element_size],
+
+                         pos=[char.get_pos(0) * self.element_size,  # no zoom size or anything bc we're in init
+                              char.get_pos(1) * self.element_size],
+
+                         real_pos=[char.get_pos(0) * self.element_size + self.char_detail_back.get_width(),
+                                   char.get_pos(1) * self.element_size],
+
                          # TODO img_uri="assets/char/" + str(char.unit_class) + ".png",
                          img_source=self.map_char_imgs[char.class_id],
                          action=self.sel_char_binder("map_char_btn_" + str(char.idi), char))
 
             self.char_map_buttons.append(btn)
+        # </editor-fold>
 
-        # ----- right -----
+        # <editor-fold desc="right">
 
         # done button
         self.done_btn = Button(dim=[int(7 * w / 32), int(4 * h / 18)], pos=[0, 0],
@@ -2027,6 +2003,7 @@ class InGame:
                                          self.minimap_surf.get_height()],
                                img_uri="assets/blue_button_menu.jpg",
                                name="Done", action=done_button_action)
+        # </editor-fold>
 
     def sel_char_binder(self, name, char):
 
@@ -2041,7 +2018,7 @@ class InGame:
                 # returns list of tuples
                 self.r_fields = self.game_map.get_reachable_fields(self.selected_own_char.pos[0],
                                                                    self.selected_own_char.pos[1],
-                                                                   self.selected_own_char.speed//10)
+                                                                   self.selected_own_char.speed)
 
                 # tODO highlight field where I can move
                 # TOdo check whether a user clicks on a reachable field on click
@@ -2064,16 +2041,16 @@ class InGame:
         func.__name__ = name
         return func
 
-    def overlay_btn_build(self):
+    def overlay_btn_build(self):  # TODO put this in place where it belongs, keep class methods minimum? is it called in init AND update? -> NO
         self.overlay_btn = []
         for i in range(6):
             btn = Button(dim=self.overlay.btn_dim[i], pos=self.overlay.btn_pos[i],
                          real_pos=self.overlay.btn_pos[i], name=str(i),
                          action=self.attack_that_boi(self.overlay.boi_to_attack, i))
 
-            self.overlay_btn.append(btn)
+            self.overlay_btn.append(btn)  # TODO  # T
 
-    def attack_that_boi(self, char, part):
+    def attack_that_boi(self, char, part):  # TODO remove useless method
         self.selected_own_char.shoot(char, part)
 
     def inventory_function_binder(self, name, _id, item_type):
@@ -2097,52 +2074,35 @@ class InGame:
 
     def update(self):
 
-        w = true_res[0]
-        h = true_res[1]
+        self.mouse_pos = pg.mouse.get_pos()
 
+        # <editor-fold desc="zoom and shift">
         # todo cannot shift when small zoom (<1)
         if self.shifting:
+            # current shift offset of this frame?
             shift_offset = [pg.mouse.get_pos()[0] - self.shift_start[0],
                             pg.mouse.get_pos()[1] - self.shift_start[1]]
         else:
             shift_offset = [0, 0]
 
-        # <editor-fold desc="char ui">
-        # chars on map
+        if self.zoomed:  # if zoom was made since last update, set values
+            # was 7/32 * w instead of char detail back
+            rel_mouse_pos = [(self.mouse_pos[0] - self.char_detail_back.get_width()), self.mouse_pos[1]]
 
-        v_chars = self.game_map.get_visible_chars_ind(self.own_team.team_num)
+            # todo maybe max?
+            self.current_element_size = min(self.map_surface.get_width()  * self.zoom_factor // self.game_map.size_x,
+                                            self.map_surface.get_height() * self.zoom_factor // self.game_map.size_y)
 
-        for index in v_chars:
+            self.amount = [int(rel_mouse_pos[0] - (self.zoom_factor * rel_mouse_pos[0])),
+                           int(rel_mouse_pos[1] - (self.zoom_factor * rel_mouse_pos[1]))]
 
-            if self.game_map.objects[index].render_type is not "blit":
-                continue
+            self.zoomed = False
 
-            char = self.game_map.objects[index]
+        # </editor-fold>
 
-            p = [char.get_pos(0) * self.element_size + self.zoom_size[0],
-                 char.get_pos(1) * self.element_size + self.zoom_size[1]]
+        # <editor-fold desc="char ui left">
 
-            rp = [char.get_pos(0) * self.element_size +
-                  self.char_detail_back.get_width() +
-                  self.zoom_size[0],
-                  char.get_pos(1) * self.element_size +
-                  self.zoom_size[1]]
-
-            btn = Button(dim=[self.element_size * self.zoom_factor, self.element_size * self.zoom_factor],
-                         pos=[char.get_pos(0) * self.element_size + self.zoom_size[0],
-                              char.get_pos(1) * self.element_size + self.zoom_size[1]],
-                         real_pos=[char.get_pos(0) * self.element_size +
-                                   self.char_detail_back.get_width() +
-                                   self.zoom_size[0],
-                                   char.get_pos(1) * self.element_size +
-                                   self.zoom_size[1]],
-                         img_source=self.map_char_imgs[char.class_id],
-                         action=self.sel_char_binder("map_char_btn_" + str(char.idi), char))
-
-            self.char_map_buttons.append(btn)
-
-        # inventory buttons
-
+        # inventory buttons (left side)
         if self.selected_own_char:
 
             self.gear_buttons = []
@@ -2153,12 +2113,10 @@ class InGame:
                     pos_h = self.inventory_gap_size
 
                     btn = Button(dim=[self.btn_w, self.btn_h], pos=[pos_w, pos_h],
-                                 real_pos=[pos_w,
-                                           pos_h +
-                                           self.char_detail_back.get_height()],
+                                 real_pos=[pos_w, pos_h + self.char_detail_back.get_height()],
                                  # img_uri="assets/gc/small/gc_" + str(self.selected_own_char.gear[i].my_id) + ".png",
-                                 img_source=self.small_gear[i],
-                                 text="", name=("gear " + str(self.selected_own_char.gear[i].my_id) + " button"),
+                                 img_source=self.small_gear[i], text="",
+                                 name=("gear " + str(self.selected_own_char.gear[i].my_id) + " button"),
                                  action=(lambda: None))
 
                     self.gear_buttons.append(btn)
@@ -2241,61 +2199,94 @@ class InGame:
         # </editor-fold>
 
         # <editor-fold desc="Mid">
-        # ----- mid -----
 
-        # <editor-fold desc="team stats">
-        self.own_team_stats.blit(self.own_team_stats_back_img, dest=[0, 0])
-
-        for btn in self.own_team_stat_buttons:
-            self.own_team_stats.blit(btn.surf, btn.pos)
-
-        for bar in self.hp_bars:
-            for b in bar:
-                self.own_team_stats.blit(b.surf, b.pos)
-        # </editor-fold>
-
-        if self.zoomed:  # if zoom was made since last update, set values
-            # was 7/32 * w instead of char detail back
-            real_mouse_pos = [(self.mouse_pos[0] - self.char_detail_back.get_width()), self.mouse_pos[1]]
-            self.amount = [int(real_mouse_pos[0] - (self.zoom_factor * real_mouse_pos[0])),
-                           int(real_mouse_pos[1] - (self.zoom_factor * real_mouse_pos[1]))]
-            self.zoomed = False
+        # <editor-fold desc="map blitting">
 
         # draw visible chars
         self.game_map.selective_draw_map(team_num=self.own_team.team_num)
-        self.map_content = fit_surf(surf=self.game_map.window, size=self.map_surface.get_size())
+
+        # fit map content to map surface
+        # self.map_content = fit_surf(surf=self.game_map.window, size=self.map_surface.get_size())
+        self.map_content = self.game_map.window
+
+        # map cannot disappear from zooming out
+        var = pg.transform.smoothscale(self.map_content,
+                                       (max(0, int(self.map_surface.get_width()  * self.zoom_factor)),
+                                        max(0, int(self.map_surface.get_height() * self.zoom_factor))))
 
         # set destination
         if self.zoom_factor >= 1:
             dest = [self.amount[0] + self.con_shift_offset[0] + shift_offset[0],
                     self.amount[1] + self.con_shift_offset[1] + shift_offset[1]]
-        else:
-            s1 = max(0, int(self.map_content.get_width() * self.zoom_factor))
-            s2 = max(0, int(self.map_content.get_height() * self.zoom_factor))
-            dest = blit_centered_pos(self.map_surface, pg.transform.smoothscale(self.map_content, (s1, s2)))
+        else:  # just center map if zoomed out
+            dest = blit_centered_pos(self.map_surface, var)
 
-        self.map_surface.fill((0, 0, 10))  # redraw background here
-        self.map_surface.convert_alpha()  # support alpha
+        # calc (visible) char on map buttons here
+        v_chars = self.game_map.get_visible_chars_ind(self.own_team.team_num)
+        for index in v_chars:
 
-        var = pg.transform.smoothscale(self.map_content,
-                                       (max(0, int(self.map_surface.get_width() * self.zoom_factor)),
-                                        max(0, int(self.map_surface.get_height() * self.zoom_factor))))
+            if self.game_map.objects[index].render_type != "blit":
+                continue
+
+            char = self.game_map.objects[index]
+
+            position = [dest[0] +                                       # upper left map corner pos
+                        char.get_pos(0) * self.current_element_size,    # offset from upper left map corner
+                        dest[1] +
+                        char.get_pos(1) * self.current_element_size]
+
+            real_position = [dest[0] + char.get_pos(0) * self.current_element_size + self.char_detail_back.get_width(),
+                             dest[1] + char.get_pos(1) * self.current_element_size]
+
+            btn = Button(dim=[self.current_element_size, self.current_element_size],
+                         pos=position, real_pos=real_position, img_source=self.map_char_imgs[char.class_id],
+                         action=self.sel_char_binder("map_char_btn_" + str(char.idi), char))
+
+            print("\nchar pos\n",
+                  char.get_pos(0),
+                  char.get_pos(1),
+                  "\nbutton action\n",
+                  btn.action,
+                  "\nbutton pos\n",
+                  position,
+                  "\nbutton real pos\n",
+                  real_position,
+                  "\nbutton size\n",
+                  [self.current_element_size, self.current_element_size],
+                  "\nrel mouse pos\n",
+                  self.mouse_pos[0]-self.char_detail_back.get_width(),
+                  self.mouse_pos[1],
+                  "\nmouse pos\n",
+                  self.mouse_pos[0],
+                  self.mouse_pos[1],
+                  "\ncurr elem size\n",
+                  self.current_element_size,
+                  "\n")
+
+            self.char_map_buttons.append(btn)
+
+        # redraw background here
+        self.map_surface.fill((0, 0, 10))
+
+        # support alpha
+        self.map_surface.convert()  # was convert alpha
 
         self.map_surface.blit(var, dest=dest)  # TODO blit only area that is actually visible for better fps
 
+        # blitting indicator for reachable fields
         if self.r_fields:
-            r_surf = pg.Surface(self.game_map.window.get_size(), flags=pg.SRCALPHA)  # same size as map surface before resizing
+            r_surf = pg.Surface(self.game_map.window.get_size())  # same size as map surface before resizing
+            r_surf.convert()
+            r_surf.set_colorkey((144, 238, 144))
+            r_surf.set_alpha(170)
 
             # blit green squares to it
-            sq = pg.Surface((self.game_map.elem_size, self.game_map.elem_size))
-            sq.fill((144, 238, 144))  # solid fill, only r_surf is transparent
-            sq.convert_alpha()
+            sq = pg.Surface((Data.def_elem_size, Data.def_elem_size))
+            sq.fill((144, 238, 144))
 
             for field in self.r_fields:
-                _pos = (field[0] * self.game_map.elem_size, field[1] * self.game_map.elem_size)
+                _pos = (field[0] * Data.def_elem_size, field[1] * Data.def_elem_size)
                 r_surf.blit(sq, _pos)
-
-            r_surf.set_alpha(230)  # should make whole surface super trans #transrights #visiblilty #<3
 
             # now resize
             r_surf = fit_surf(surf=r_surf, size=self.map_surface.get_size())
@@ -2306,8 +2297,32 @@ class InGame:
             # blit transparent surface with half transparent squares onto map
             self.map_surface.blit(r_surf, dest)
 
+        # </editor-fold>
+
+        # TODO update hp bars
+
+        # <editor-fold desc="blend out team stats">
+        # blend out team stats if mouse is not up
+        mouse_up = self.mouse_pos[1] < self.own_team_stats.get_height()-20
+        self.own_team_stats.blit(self.own_team_stats_back_img, dest=[0, 0])
+        if mouse_up:
+            for btn in self.own_team_stat_buttons:
+                btn.activate()
+                self.own_team_stats.blit(btn.surf, btn.pos)
+
+            for bar in self.hp_bars:
+                for b in bar:
+                    self.own_team_stats.blit(b.surf, b.pos)
+        else:
+            pass
+            for b in self.own_team_stat_buttons:
+                b.deactivate()
+
         # TODO beware of 0.05 as constant
-        self.map_surface.blit(self.own_team_stats, dest=[int(0.05 * self.map_surface.get_width()), 0])
+        self.map_surface.blit(self.own_team_stats, dest=[int(0.05 * self.map_surface.get_width()), 0 if mouse_up else
+                                                                        -self.own_team_stats.get_height()+20])
+        # </editor-fold>
+
         # </editor-fold>
 
         # <editor-fold desc="right side">
@@ -2320,15 +2335,20 @@ class InGame:
         self.done_btn_surf.blit(self.done_btn.surf, self.done_btn.pos)
         # </editor-fold>
 
+        ###################
+
         # <editor-fold desc="all together">
-        # ----- all together -----
 
         self.screen.blit(self.char_detail_back, dest=[0, 0])
         self.screen.blit(self.char_inventory_back, dest=[0, self.char_detail_back.get_height()])
         self.screen.blit(self.item_detail_back, dest=[0, self.char_detail_back.get_height() +
                                                       self.char_inventory_back.get_height()])
 
+        #####
+
         self.screen.blit(self.map_surface, dest=[self.char_detail_back.get_width(), 0])
+
+        #####
 
         self.screen.blit(self.player_banners,
                          dest=[self.char_detail_back.get_width() + self.map_surface.get_width(), 0])
@@ -2386,11 +2406,11 @@ class InGame:
                             if not self.overlay.pos[1]+200 >= p >= self.overlay.pos[1]:
                                 self.overlay = None
 
-                    for button in self.gear_buttons+self.weapon_buttons+self.item_buttons+self.own_team_stat_buttons:
+                    """for button in self.gear_buttons+self.weapon_buttons+self.item_buttons+self.own_team_stat_buttons:
                         if button.is_focused(p):
-                            button.action()
+                            button.action()"""
 
-                    """for button in self.weapon_buttons:
+                    for button in self.weapon_buttons:
                         if button.is_focused(p):
                             button.action()
 
@@ -2400,7 +2420,7 @@ class InGame:
 
                     for button in self.own_team_stat_buttons:
                         if button.is_focused(p):
-                            button.action()"""
+                            button.action()
 
                     if self.done_btn.is_focused(p):
                         self.done_btn.action()

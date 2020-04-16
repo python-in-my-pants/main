@@ -14,19 +14,11 @@ from Characters import Character
 debug = True
 
 
-class Map(GameObject):  # TODO add selective renderer that renders only visible characters from own team
-                        # TODO maybe dont inherit from GObj
+class Map(GameObject):  # TODO maybe dont inherit from GObj
     # container class for all other drawable game objects
 
-    '''
-    # unique_pixs = []  # holds definite pixel(materials) that will be drawn
-    objects = []  # holds list of objects on the map of the form: [id, object]
-    characters = []
-    # window = -1
-    '''
-
-    def __init__(self, x_size, y_size, elem_size, window=None, objects=[], characters=[],
-                 unique_pixels=[]):  # STATUS: working, returns 1 on success, 0 else
+    def __init__(self, x_size, y_size, window=None, objects=[], characters=[],
+                 unique_pixels=[]):
 
         # size_x holds map size in actual drawable pixels coords, x and y are to be
         # committed in desired size in elements * elem_size
@@ -35,7 +27,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
         self.base_map = None
 
         if not window:
-            self.window = pg.Surface([x_size*elem_size, y_size*elem_size])
+            self.window = pg.Surface([x_size*Data.def_elem_size, y_size*Data.def_elem_size])
         else:
             self.window = window
 
@@ -47,14 +39,14 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
         else:
             self.unique_pixs = unique_pixels[:]
 
-        self.elem_size = elem_size
+        Data.def_elem_size = Data.def_elem_size
 
         # just testing stuff 11072019 1511
         self.objects = objects[:]           # holds list of objects on the map of the form: [id, object]
         self.characters = characters[:]     # holds indices of objects[] of characters
 
         # ToDo Texture Stuff, implement flooring for ruined difference
-        texture_size = (self.elem_size, self.elem_size)
+        texture_size = (Data.def_elem_size, Data.def_elem_size)
         self.texture_dump = [pg.transform.scale(pg.image.load("assets/mats/Grass.png"), texture_size),
                              pg.transform.scale(pg.image.load("assets/mats/sandstone.png"), texture_size),
                              pg.transform.scale(pg.image.load("assets/mats/border.png"), texture_size),
@@ -64,9 +56,6 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
                              None,
                              pg.transform.scale(pg.image.load("assets/mats/boulder.png"), texture_size),
                              pg.transform.scale(pg.image.load("assets/mats/sandstone.png"), texture_size)]
-
-    def set_elem_size(self, elem_size):
-        self.elem_size = elem_size
 
     def add_object(self, game_object, border_size=0, recursion_depth=0):  # STATUS: partially working, border
         # stuff not yet, crashes when too deep recursion occurs
@@ -242,7 +231,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
         # check border
         if border_size > 0:
             for go_pix in Border(obj_type="default", size_x_=size_x - 1, size_y_=size_y - 1,
-                                 pos=[game_object.pos[0] - border_size, game_object.pos[1] - border_size], \
+                                 pos=[game_object.pos[0] - border_size, game_object.pos[1] - border_size],
                                  thiccness=border_size).get_drawable():
                 if self.unique_pixs[go_pix[1]][go_pix[0]] is not 0:
                     # simple solution: move in random direction
@@ -425,7 +414,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
 
         for i in range(self.size_x):
             for d in range(self.size_y):
-                self.window.blit(self.texture_dump[0], (i * self.elem_size, d * self.elem_size))
+                self.window.blit(self.texture_dump[0], (i * Data.def_elem_size, d * Data.def_elem_size))
 
         for go in self.objects:
             if go.render_type == "blit":
@@ -437,10 +426,9 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
                 factor = ((numpy.sqrt(2) - 1) / 2) * numpy.sin(3.5 * numpy.pi + 4 * numpy.deg2rad(go.orientation)) + \
                          ((numpy.sqrt(2) - 1) / 2) + 1
                 factor = 1
-                self.window.blit(pg.transform.smoothscale(go_surf, (int(self.elem_size * factor), int(self.elem_size * factor))), \
-                                 (int(go.pos[0] * self.elem_size), int(go.pos[1] * self.elem_size)))
-                #shit = pg.transform.smoothscale(go_surf, (int(self.elem_size * factor), int(self.elem_size * factor)))
-                # print("-"*10+str(shit.get_width()))
+                self.window.blit(pg.transform.smoothscale(go_surf, (int(Data.def_elem_size * factor),
+                                                                    int(Data.def_elem_size * factor))),
+                                 (int(go.pos[0] * Data.def_elem_size), int(go.pos[1] * Data.def_elem_size)))
             else:
                 mat_counter = 0
                 for index, pix in enumerate(go.get_drawable()):
@@ -448,13 +436,13 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
                         if mat_counter < go.mat_ind.__len__() and index > go.mat_ind[mat_counter]:
                             mat_counter += 1
                     self.window.blit(self.texture_dump[material_codes[go.materials[mat_counter]]],
-                                     (pix[0] * self.elem_size, pix[1] * self.elem_size))
+                                     (pix[0] * Data.def_elem_size, pix[1] * Data.def_elem_size))
                 """
                 pg.draw.rect(self.window, mat_colour[go.materials[mat_counter]],
-                             (pix[0] * self.elem_size, pix[1] * self.elem_size, self.elem_size, self.elem_size))
+                             (pix[0] * Data.def_elem_size, pix[1] * Data.def_elem_size, Data.def_elem_size, Data.def_elem_size))
                 """
         self.__draw_grid()
-        self.base_map = self.window.copy
+        self.base_map = self.window.copy()
 
     def get_visible_chars_ind(self, team_num):  # TODO implement looking direction
 
@@ -481,7 +469,7 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
 
     def selective_draw_map(self, team_num):
 
-        self.window.blit(self.base_map)
+        self.window.blit(self.base_map, (0, 0))
 
         visible_chars = self.get_visible_chars_ind(team_num=team_num)
         # pg.image.load("assets/Teams/Red_Team/"+character_classes[go.class_id]+"/Red_"+character_classes[go.class_id]+
@@ -503,13 +491,13 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
                     if go.orientation > 0:
                         go_surf = pg.transform.rotate(go_surf, go.orientation)
                     factor = ((numpy.sqrt(2) - 1) / 2) * numpy.sin(3.5 * numpy.pi + 4 * numpy.deg2rad(go.orientation)) + \
-                             ((numpy.sqrt(2) - 1) / 2) + 1
+                             ((numpy.sqrt(2) - 1) / 2) + 1  # TODO this was for smoothing
                     factor = 1
                     self.window.blit(
-                        pg.transform.smoothscale(go_surf, (int(self.elem_size * factor), int(self.elem_size * factor))),
-                        (int(go.pos[0] * self.elem_size), int(go.pos[1] * self.elem_size)))
-                    # shit = pg.transform.smoothscale(go_surf, (int(self.elem_size * factor),
-                    # int(self.elem_size * factor)))
+                        pg.transform.smoothscale(go_surf, (int(Data.def_elem_size * factor), int(Data.def_elem_size * factor))),
+                        (int(go.pos[0] * Data.def_elem_size), int(go.pos[1] * Data.def_elem_size)))
+                    # shit = pg.transform.smoothscale(go_surf, (int(Data.def_elem_size * factor),
+                    # int(Data.def_elem_size * factor)))
         """
             else:  # game object
                 mat_counter = 0
@@ -518,24 +506,21 @@ class Map(GameObject):  # TODO add selective renderer that renders only visible 
                         if mat_counter < go.mat_ind.__len__() and indidex > go.mat_ind[mat_counter]:
                             mat_counter += 1
                     self.window.blit(self.texture_dump[material_codes[go.materials[mat_counter]]],
-                                     (pix[0] * self.elem_size, pix[1] * self.elem_size))
+                                     (pix[0] * Data.def_elem_size, pix[1] * Data.def_elem_size))
                     
                     #kommentar
                     pg.draw.rect(self.window, mat_colour[go.materials[mat_counter]],
-                                 (pix[0] * self.elem_size, pix[1] * self.elem_size, self.elem_size, self.elem_size)) 
+                                 (pix[0] * Data.def_elem_size, pix[1] * Data.def_elem_size, Data.def_elem_size, Data.def_elem_size)) 
             
         self.__draw_grid()
         """
 
     def __draw_grid(self):  # maybe static? (but who cares tbh)
 
-        '''for i in range(int(self.size_x/elem_size)):
-            for d in range(int(self.size_y/elem_size)):
-                pg.draw.rect(get_window(), (0, 99, 0), (i*elem_size, d*elem_size, elem_size, elem_size), 1)'''
-
         for i in range(self.size_x):
             for d in range(self.size_y):
-                pg.draw.rect(self.window, (30, 30, 20), (i * self.elem_size, d * self.elem_size, self.elem_size, self.elem_size), 1)
+                pg.draw.rect(self.window, (30, 30, 20), (i * Data.def_elem_size, d * Data.def_elem_size,
+                                                         Data.def_elem_size, Data.def_elem_size), 1)
 
     def get_map(self):  # return all data from map BUT NOT self.window
 
@@ -567,30 +552,26 @@ class MapBuilder:
     def build_map(self, size=30, encode_surf=False):
 
         # build map without characters
-        elem_size = 25
 
         fields_x = fields_y = size
-        #fields_x = 10
-        #fields_y = 69
-        self.map = Map(x_size=fields_x, y_size=fields_y, elem_size=elem_size)
+        self.map = Map(x_size=fields_x, y_size=fields_y)
 
         # ------------------------------------------------------------------------------------------------------------
 
         # self.map.window.fill((23, 157, 0))
 
         # add spawns
-
         areas = Spawnarea.create_areals([fields_x, fields_y])  # TODO
 
         # areas are the first game_objects
         for area in areas:
             self.map.add_object(area)
 
-        # add houses
+        # TODO put the "add ..." stuff in a function
 
+        # add houses
         house_limit = 4 #int((size*size) / 25)
         house_counter = 0
-
         for i in range(house_limit):
 
             h = SimpleHouse(name=("Simple house " + str(house_counter)), obj_type="default",
@@ -611,7 +592,6 @@ class MapBuilder:
         # add ruins
         ruins_limit = 3  # int((size*size) / 25)
         ruins_counter = 0
-
         for i in range(ruins_limit):
 
             h = Ruins(name=("Ruins " + str(ruins_counter)), obj_type="default",
@@ -620,7 +600,7 @@ class MapBuilder:
             # while there is a house (to add) and it does not fit and you did not try 100 times yet generate a new one
             limit = 0
             while h != 0 and self.map.add_object(h, border_size=1) != 1 and limit < 100:
-                h = Ruins(name=("Ruins " + str(ruins_counter)), obj_type="default", \
+                h = Ruins(name=("Ruins " + str(ruins_counter)), obj_type="default",
                           pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
                 limit += 1
 
@@ -630,10 +610,8 @@ class MapBuilder:
                 ruins_counter += 1
 
         # add bushes
-
         bush_limit = 5  # int((size*size)/15)
         bush_counter = 0
-
         for i in range(bush_limit):
 
             h = Bush(name=("Simple bush " + str(bush_counter)), obj_type="default",
@@ -652,10 +630,8 @@ class MapBuilder:
                 bush_counter += 1
 
         # add boulder
-
         boulder_limit = 5  # int((size*size)/15)
         boulder_counter = 0
-
         for i in range(boulder_limit):
 
             h = Boulder(name=("Simple boulder " + str(boulder_counter)), obj_type="default",
@@ -674,10 +650,8 @@ class MapBuilder:
                 boulder_counter += 1
 
         # add tree
-
         tree_limit = 3  # int((size*size)/15)
         tree_counter = 0
-
         for i in range(tree_limit):
 
             h = Tree(name=("Simple tree " + str(tree_counter)), obj_type="default",
