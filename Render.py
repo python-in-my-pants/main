@@ -1715,9 +1715,9 @@ class InGame:
         self.char_prev_selected = False  # holds whether own team character is already selected
         self.r_fields = []
 
-        self.element_size = int(true_res[0] * 9 / (16 * max(self.game_map.size_y, self.game_map.size_x)))  # TODO has to be adjusted to dynamically
+        self.element_size = (true_res[0] * 9) / (16 * max(self.game_map.size_y, self.game_map.size_x))  # was int
         self.current_element_size = self.element_size
-        self.char_button_size = self.element_size
+
         self.zoom_factor = 1
         self.mouse_pos = pg.mouse.get_pos()
         self.zoomed = False
@@ -1851,7 +1851,7 @@ class InGame:
                           ((int((1 / 32) * 7 * w / 32) +  # number of lines * gap size
                             int(1.6 * (5 / 32) * 7 * w / 32)))  # button + hp bar
 
-        self.map_surface = pg.Surface([int(9 * w / 16), h])
+        self.map_surface = pg.Surface([int(9*w/16), h])
         self.game_map.selective_draw_map(team_num=self.own_team.team_num)
         self.map_content = fit_surf(surf=self.game_map.window, size=self.map_surface.get_size())
 
@@ -1978,13 +1978,13 @@ class InGame:
             if not isinstance(char, Character):  # TODO this is a hotfix7
                 print("Warning! InGame init: sth that is not a char is returned by get_visible_chars_ind!")
                 continue
-            btn = Button(dim=[self.current_element_size, self.current_element_size],
+            btn = Button(dim=[int(self.current_element_size), int(self.current_element_size)],
 
-                         pos=[char.get_pos(0) * self.element_size,  # no zoom size or anything bc we're in init
-                              char.get_pos(1) * self.element_size],
+                         pos=[char.get_pos(0) * self.current_element_size,  # no zoom size or anything bc we're in init
+                              char.get_pos(1) * self.current_element_size],
 
-                         real_pos=[char.get_pos(0) * self.element_size + self.char_detail_back.get_width(),
-                                   char.get_pos(1) * self.element_size],
+                         real_pos=[int((char.get_pos(0) * self.current_element_size) + self.char_detail_back.get_width()),
+                                   int((char.get_pos(1) * self.current_element_size))],
 
                          # TODO img_uri="assets/char/" + str(char.unit_class) + ".png",
                          img_source=self.map_char_imgs[char.class_id],
@@ -2009,6 +2009,7 @@ class InGame:
 
         def func():
 
+            print("char pos", char.pos)
             if char.team == self.own_team.team_num:  # own char
                 self.selected_own_char = char
                 print("click clack BOOM char was clicked")
@@ -2018,7 +2019,7 @@ class InGame:
                 # returns list of tuples
                 self.r_fields = self.game_map.get_reachable_fields(self.selected_own_char.pos[0],
                                                                    self.selected_own_char.pos[1],
-                                                                   self.selected_own_char.speed)
+                                                                   self.selected_own_char.speed//5)
 
                 # tODO highlight field where I can move
                 # TOdo check whether a user clicks on a reachable field on click
@@ -2076,25 +2077,30 @@ class InGame:
 
         self.mouse_pos = pg.mouse.get_pos()
 
+        # clear list :)
+        self.char_map_buttons = []
+
         # <editor-fold desc="zoom and shift">
         # todo cannot shift when small zoom (<1)
         if self.shifting:
             # current shift offset of this frame?
-            shift_offset = [pg.mouse.get_pos()[0] - self.shift_start[0],
-                            pg.mouse.get_pos()[1] - self.shift_start[1]]
+            shift_offset = [self.mouse_pos[0] - self.shift_start[0],
+                            self.mouse_pos[1] - self.shift_start[1]]
         else:
             shift_offset = [0, 0]
 
         if self.zoomed:  # if zoom was made since last update, set values
             # was 7/32 * w instead of char detail back
-            rel_mouse_pos = [(self.mouse_pos[0] - self.char_detail_back.get_width()), self.mouse_pos[1]]
+            rel_mouse_pos = [self.mouse_pos[0] - self.char_detail_back.get_width(), self.mouse_pos[1]]
 
             # todo maybe max?
-            self.current_element_size = min(self.map_surface.get_width()  * self.zoom_factor // self.game_map.size_x,
-                                            self.map_surface.get_height() * self.zoom_factor // self.game_map.size_y)
+            """self.current_element_size = min((self.map_surface.get_width()  * self.zoom_factor) // self.game_map.size_x,
+                                            (self.map_surface.get_height() * self.zoom_factor) // self.game_map.size_y)"""
 
-            self.amount = [int(rel_mouse_pos[0] - (self.zoom_factor * rel_mouse_pos[0])),
-                           int(rel_mouse_pos[1] - (self.zoom_factor * rel_mouse_pos[1]))]
+            self.current_element_size = self.zoom_factor * self.element_size
+
+            self.amount = [rel_mouse_pos[0] - (self.zoom_factor * rel_mouse_pos[0]),
+                           rel_mouse_pos[1] - (self.zoom_factor * rel_mouse_pos[1])]
 
             self.zoomed = False
 
@@ -2211,8 +2217,8 @@ class InGame:
 
         # map cannot disappear from zooming out
         var = pg.transform.smoothscale(self.map_content,
-                                       (max(0, int(self.map_surface.get_width()  * self.zoom_factor)),
-                                        max(0, int(self.map_surface.get_height() * self.zoom_factor))))
+                                       (max(1, int(self.map_surface.get_width()  * self.zoom_factor)),
+                                        max(1, int(self.map_surface.get_height() * self.zoom_factor))))
 
         # set destination
         if self.zoom_factor >= 1:
@@ -2230,48 +2236,28 @@ class InGame:
 
             char = self.game_map.objects[index]
 
-            position = [dest[0] +                                       # upper left map corner pos
-                        char.get_pos(0) * self.current_element_size,    # offset from upper left map corner
-                        dest[1] +
-                        char.get_pos(1) * self.current_element_size]
+            #           upper left     offset from upper left map corner
+            position = [int(dest[0] + (char.get_pos(0) * self.current_element_size)),
+                        int(dest[1] + (char.get_pos(1) * self.current_element_size))]
 
-            real_position = [dest[0] + char.get_pos(0) * self.current_element_size + self.char_detail_back.get_width(),
-                             dest[1] + char.get_pos(1) * self.current_element_size]
+            real_position = [int(dest[0] + (char.get_pos(0) * self.current_element_size) +
+                                 self.char_detail_back.get_width()),
+                             int(dest[1] + (char.get_pos(1) * self.current_element_size))]
 
-            btn = Button(dim=[self.current_element_size, self.current_element_size],
+            btn = Button(dim=[int(self.current_element_size), int(self.current_element_size)],
                          pos=position, real_pos=real_position, img_source=self.map_char_imgs[char.class_id],
                          action=self.sel_char_binder("map_char_btn_" + str(char.idi), char))
-
-            print("\nchar pos\n",
-                  char.get_pos(0),
-                  char.get_pos(1),
-                  "\nbutton action\n",
-                  btn.action,
-                  "\nbutton pos\n",
-                  position,
-                  "\nbutton real pos\n",
-                  real_position,
-                  "\nbutton size\n",
-                  [self.current_element_size, self.current_element_size],
-                  "\nrel mouse pos\n",
-                  self.mouse_pos[0]-self.char_detail_back.get_width(),
-                  self.mouse_pos[1],
-                  "\nmouse pos\n",
-                  self.mouse_pos[0],
-                  self.mouse_pos[1],
-                  "\ncurr elem size\n",
-                  self.current_element_size,
-                  "\n")
 
             self.char_map_buttons.append(btn)
 
         # redraw background here
-        self.map_surface.fill((0, 0, 10))
+        self.map_surface.fill((0, 0, 17))
 
         # support alpha
-        self.map_surface.convert()  # was convert alpha
+        self.map_surface.convert()
 
-        self.map_surface.blit(var, dest=dest)  # TODO blit only area that is actually visible for better fps
+        # TODO blit only area that is actually visible for better fps
+        self.map_surface.blit(var, dest=[int(x) for x in dest])
 
         # blitting indicator for reachable fields
         if self.r_fields:
@@ -2292,10 +2278,10 @@ class InGame:
             r_surf = fit_surf(surf=r_surf, size=self.map_surface.get_size())
 
             r_surf = pg.transform.smoothscale(r_surf,
-                                              (max(0, int(self.map_surface.get_width() * self.zoom_factor)),
-                                               max(0, int(self.map_surface.get_height() * self.zoom_factor))))
+                                              (max(1, int(self.map_surface.get_width() * self.zoom_factor)),
+                                               max(1, int(self.map_surface.get_height() * self.zoom_factor))))
             # blit transparent surface with half transparent squares onto map
-            self.map_surface.blit(r_surf, dest)
+            self.map_surface.blit(r_surf, [int(x) for x in dest])
 
         # </editor-fold>
 
@@ -2303,7 +2289,7 @@ class InGame:
 
         # <editor-fold desc="blend out team stats">
         # blend out team stats if mouse is not up
-        mouse_up = self.mouse_pos[1] < self.own_team_stats.get_height()-20
+        mouse_up = self.mouse_pos[1] < self.own_team_stats.get_height()-18
         self.own_team_stats.blit(self.own_team_stats_back_img, dest=[0, 0])
         if mouse_up:
             for btn in self.own_team_stat_buttons:
@@ -2320,7 +2306,7 @@ class InGame:
 
         # TODO beware of 0.05 as constant
         self.map_surface.blit(self.own_team_stats, dest=[int(0.05 * self.map_surface.get_width()), 0 if mouse_up else
-                                                                        -self.own_team_stats.get_height()+20])
+                                                                        -self.own_team_stats.get_height()+18])
         # </editor-fold>
 
         # </editor-fold>
@@ -2338,6 +2324,8 @@ class InGame:
         ###################
 
         # <editor-fold desc="all together">
+
+        self.screen.convert()
 
         self.screen.blit(self.char_detail_back, dest=[0, 0])
         self.screen.blit(self.char_inventory_back, dest=[0, self.char_detail_back.get_height()])
@@ -2357,6 +2345,11 @@ class InGame:
         self.screen.blit(self.done_btn_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
                                                    self.player_banners.get_height() + self.minimap_surf.get_height()])
 
+        for btn in self.char_map_buttons:
+            s = pg.Surface((int(self.current_element_size), int(self.current_element_size)))
+            s.fill((255, 0, 0))
+            self.screen.blit(s, btn.real_pos)
+
         if self.overlay:
             for btn in self.overlay_btn:
                 if btn.is_focused(pg.mouse.get_pos()):
@@ -2368,10 +2361,8 @@ class InGame:
 
     def event_handling(self):
 
-        # event handling
         for event in pg.event.get():
 
-            # handle events
             if event.type == pg.QUIT:
                 pg.quit()
                 sys.exit()
@@ -2382,14 +2373,9 @@ class InGame:
                     pg.quit()
                     sys.exit()
 
-            if event.type == pg.KEYDOWN:
-
-                if event.key == ord("q"):
-                    pg.quit()
-                    sys.exit()
-
             if event.type == pg.MOUSEBUTTONUP:
                 p = list(pg.mouse.get_pos())
+                self.mouse_pos = p
 
                 if event.button == 3:  # right button release
                     self.shifting = False
@@ -2398,6 +2384,7 @@ class InGame:
 
             if event.type == pg.MOUSEBUTTONDOWN:
                 p = pg.mouse.get_pos()
+                self.mouse_pos = p
 
                 if event.button == 1:  # on left click
 
@@ -2405,10 +2392,6 @@ class InGame:
                         if not self.overlay.pos[0]+100 >= p >= self.overlay.pos[0]:
                             if not self.overlay.pos[1]+200 >= p >= self.overlay.pos[1]:
                                 self.overlay = None
-
-                    """for button in self.gear_buttons+self.weapon_buttons+self.item_buttons+self.own_team_stat_buttons:
-                        if button.is_focused(p):
-                            button.action()"""
 
                     for button in self.weapon_buttons:
                         if button.is_focused(p):
@@ -2420,12 +2403,13 @@ class InGame:
 
                     for button in self.own_team_stat_buttons:
                         if button.is_focused(p):
+                            print("team stat button clicked")
                             button.action()
 
                     if self.done_btn.is_focused(p):
                         self.done_btn.action()
 
-                    if self.map_surface.get_rect().collidepoint(p[0], p[1]):
+                    if self.map_surface.get_rect().collidepoint(p[0]-self.char_detail_back.get_width(), p[1]):
                         for button in self.char_map_buttons:
                             if button.is_focused(p):
                                 button.action()
@@ -2434,8 +2418,9 @@ class InGame:
                     pass
 
                 if event.button == 3:  # on right click
-                    self.shift_start = p
-                    self.shifting = True
+                    if self.zoom_factor >= 1:
+                        self.shift_start = p
+                        self.shifting = True
 
                 if event.button == 4:  # scroll up
 
@@ -2446,8 +2431,9 @@ class InGame:
 
                 if event.button == 5:  # scroll down
 
-                    self.old_factor = self.zoom_factor
-                    self.zoom_factor -= 0.1
+                    if self.zoom_factor - 0.1 >= 0.5:
+                        self.old_factor = self.zoom_factor
+                        self.zoom_factor -= 0.1
 
                     if self.zoom_factor <= 1:
                         self.shift_start = p

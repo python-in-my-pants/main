@@ -490,30 +490,14 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
                     # go_surf = go.get_drawable_surf()
                     if go.orientation > 0:
                         go_surf = pg.transform.rotate(go_surf, go.orientation)
-                    factor = ((numpy.sqrt(2) - 1) / 2) * numpy.sin(3.5 * numpy.pi + 4 * numpy.deg2rad(go.orientation)) + \
-                             ((numpy.sqrt(2) - 1) / 2) + 1  # TODO this was for smoothing
-                    factor = 1
+
                     self.window.blit(
-                        pg.transform.smoothscale(go_surf, (int(Data.def_elem_size * factor), int(Data.def_elem_size * factor))),
-                        (int(go.pos[0] * Data.def_elem_size), int(go.pos[1] * Data.def_elem_size)))
-                    # shit = pg.transform.smoothscale(go_surf, (int(Data.def_elem_size * factor),
-                    # int(Data.def_elem_size * factor)))
-        """
-            else:  # game object
-                mat_counter = 0
-                for indidex, pix in enumerate(go.get_drawable()):
-                    if go.mat_ind:
-                        if mat_counter < go.mat_ind.__len__() and indidex > go.mat_ind[mat_counter]:
-                            mat_counter += 1
-                    self.window.blit(self.texture_dump[material_codes[go.materials[mat_counter]]],
-                                     (pix[0] * Data.def_elem_size, pix[1] * Data.def_elem_size))
-                    
-                    #kommentar
-                    pg.draw.rect(self.window, mat_colour[go.materials[mat_counter]],
-                                 (pix[0] * Data.def_elem_size, pix[1] * Data.def_elem_size, Data.def_elem_size, Data.def_elem_size)) 
-            
-        self.__draw_grid()
-        """
+                        pg.transform.smoothscale(go_surf,               # surface to blit
+                                                 (Data.def_elem_size,
+                                                  Data.def_elem_size)),
+                        (int(go.pos[0] * Data.def_elem_size),           # destination
+                         int(go.pos[1] * Data.def_elem_size))
+                    )
 
     def __draw_grid(self):  # maybe static? (but who cares tbh)
 
