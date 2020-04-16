@@ -2337,6 +2337,11 @@ class InGame:
         self.screen.blit(self.done_btn_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
                                                    self.player_banners.get_height() + self.minimap_surf.get_height()])
 
+        for btn in self.char_map_buttons:
+            s = pg.Surface((int(self.element_size), int(self.element_size)))
+            s.fill((255, 0, 0))
+            self.screen.blit(s, btn.real_pos)
+
         if self.overlay:
             for btn in self.overlay_btn:
                 if btn.is_focused(pg.mouse.get_pos()):
@@ -2405,7 +2410,7 @@ class InGame:
                     if self.done_btn.is_focused(p):
                         self.done_btn.action()
 
-                    if self.map_surface.get_rect().collidepoint(p[0], p[1]):
+                    if self.map_surface.get_rect().collidepoint(p[0]-self.char_detail_back.get_width(), p[1]):
                         for button in self.char_map_buttons:
                             if button.is_focused(p):
                                 button.action()

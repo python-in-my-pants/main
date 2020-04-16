@@ -601,8 +601,8 @@ class MapBuilder:
             self.map.add_object(area)
 
         # add houses
-
-        house_limit = 4 #int((size*size) / 25)
+        # standard 4
+        house_limit = 0 #int((size*size) / 25)
         house_counter = 0
 
         for i in range(house_limit):
@@ -623,7 +623,8 @@ class MapBuilder:
                 house_counter += 1
 
         # add ruins
-        ruins_limit = 3  # int((size*size) / 25)
+        # standard 3
+        ruins_limit = 0  # int((size*size) / 25)
         ruins_counter = 0
 
         for i in range(ruins_limit):
@@ -644,8 +645,8 @@ class MapBuilder:
                 ruins_counter += 1
 
         # add bushes
-
-        bush_limit = 5  # int((size*size)/15)
+        # standard 5
+        bush_limit = 0  # int((size*size)/15)
         bush_counter = 0
 
         for i in range(bush_limit):
@@ -666,8 +667,8 @@ class MapBuilder:
                 bush_counter += 1
 
         # add boulder
-
-        boulder_limit = 5  # int((size*size)/15)
+        # standard 5
+        boulder_limit = 0  # int((size*size)/15)
         boulder_counter = 0
 
         for i in range(boulder_limit):
@@ -688,8 +689,8 @@ class MapBuilder:
                 boulder_counter += 1
 
         # add tree
-
-        tree_limit = 3  # int((size*size)/15)
+        # standard 3
+        tree_limit = 0  # int((size*size)/15)
         tree_counter = 0
 
         for i in range(tree_limit):
