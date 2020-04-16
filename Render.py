@@ -2344,12 +2344,12 @@ class InGame:
                                                   self.player_banners.get_height()])
         self.screen.blit(self.done_btn_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
                                                    self.player_banners.get_height() + self.minimap_surf.get_height()])
-
+        """
         for btn in self.char_map_buttons:
             s = pg.Surface((int(self.current_element_size), int(self.current_element_size)))
             s.fill((255, 0, 0))
             self.screen.blit(s, btn.real_pos)
-
+        """
         if self.overlay:
             for btn in self.overlay_btn:
                 if btn.is_focused(pg.mouse.get_pos()):
