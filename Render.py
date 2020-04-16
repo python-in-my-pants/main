@@ -1757,6 +1757,7 @@ class InGame:
         self.selected_own_char = self.own_team.characters[0]
         self.selected_item = None if not self.selected_own_char.items else self.selected_own_char.items[0]
         self.selected_weapon = None if not self.selected_own_char.weapons else self.selected_own_char.weapons[0]
+        self.selected_own_char.change_active_slot(["Weapon" if self.selected_weapon else "Item", 0])
 
         # holds selected char (maybe from opponent team)
         self.selected_char = self.selected_own_char
@@ -2345,10 +2346,10 @@ class InGame:
         self.screen.blit(self.done_btn_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
                                                    self.player_banners.get_height() + self.minimap_surf.get_height()])
 
-        for btn in self.char_map_buttons:
+        """for btn in self.char_map_buttons:
             s = pg.Surface((int(self.current_element_size), int(self.current_element_size)))
             s.fill((255, 0, 0))
-            self.screen.blit(s, btn.real_pos)
+            self.screen.blit(s, btn.real_pos)"""
 
         if self.overlay:
             for btn in self.overlay_btn:
