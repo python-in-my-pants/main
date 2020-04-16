@@ -8,7 +8,6 @@ from GUI import *
 from Team import *
 from Characters import *
 from TTimer import *
-import numpy as np
 import time
 import ctypes
 
@@ -915,6 +914,7 @@ class CharacterSelection:  # commit comment
         small_gap_size = int(self.selected_units_box.get_width() / (small_line_len * 9 + 1))
         w_small_card = int(self.selected_units_box.get_width() * 8 / (small_line_len * 9 + 1))
         h_small_card = w_small_card  # int(w_small_card * 1.457)
+
         # </editor-fold>
 
         # -------------------------------------------------------------------------------------------------------------
@@ -1717,6 +1717,7 @@ class InGame:
 
         self.element_size = (true_res[0] * 9) / (16 * max(self.game_map.size_y, self.game_map.size_x))  # was int
         self.current_element_size = self.element_size
+        self.dest = [0, 0]
 
         self.zoom_factor = 1
         self.mouse_pos = pg.mouse.get_pos()
@@ -1754,10 +1755,9 @@ class InGame:
         # </editor-fold>
 
         # holds selected char of own team
-        self.selected_own_char = self.own_team.characters[0]
-        self.selected_item = None if not self.selected_own_char.items else self.selected_own_char.items[0]
-        self.selected_weapon = None if not self.selected_own_char.weapons else self.selected_own_char.weapons[0]
-        self.selected_own_char.change_active_slot(["Weapon" if self.selected_weapon else "Item", 0])
+        self.selected_own_char = None  # self.own_team.characters[0] TODO
+        self.selected_item = None
+        self.selected_weapon = None
 
         # holds selected char (maybe from opponent team)
         self.selected_char = self.selected_own_char
@@ -2010,22 +2010,34 @@ class InGame:
 
         def func():
 
-            print("char pos", char.pos)
+            print("\tself own char:", self.selected_own_char)
+            print("\tr fields:", self.r_fields)
+
             if char.team == self.own_team.team_num:  # own char
+
+                print("\nclick clack BOOM char was clicked\n")
+
+                if char == self.selected_own_char:
+                    self.selected_own_char = None
+                    self.r_fields = []
+                    return
+
                 self.selected_own_char = char
-                print("click clack BOOM char was clicked")
+
+                self.selected_item = None if not self.selected_own_char.items else self.selected_own_char.items[0]
+                self.selected_weapon = None if not self.selected_own_char.weapons else self.selected_own_char.weapons[0]
+                self.selected_own_char.change_active_slot("Weapon" if self.selected_weapon else "Item", 0)
 
                 # highlight reachable fields by blitting green transparent stuff over them
-
                 # returns list of tuples
                 self.r_fields = self.game_map.get_reachable_fields(self.selected_own_char.pos[0],
                                                                    self.selected_own_char.pos[1],
                                                                    self.selected_own_char.speed//5)
 
-                # tODO highlight field where I can move
                 # TOdo check whether a user clicks on a reachable field on click
                 #  (get vector from map surface upper left to mouse and calc mouse field pos from that)
                 # TODO move character to destination (show dotted line for opponent)
+
             if char.team != self.own_team.team_num and self.selected_own_char:  # opp. char
                 # TODO
                 # attack routine
@@ -2223,10 +2235,10 @@ class InGame:
 
         # set destination
         if self.zoom_factor >= 1:
-            dest = [self.amount[0] + self.con_shift_offset[0] + shift_offset[0],
-                    self.amount[1] + self.con_shift_offset[1] + shift_offset[1]]
+            self.dest = [self.amount[0] + self.con_shift_offset[0] + shift_offset[0],
+                         self.amount[1] + self.con_shift_offset[1] + shift_offset[1]]
         else:  # just center map if zoomed out
-            dest = blit_centered_pos(self.map_surface, var)
+            self.dest = blit_centered_pos(self.map_surface, var)
 
         # calc (visible) char on map buttons here
         v_chars = self.game_map.get_visible_chars_ind(self.own_team.team_num)
@@ -2238,12 +2250,12 @@ class InGame:
             char = self.game_map.objects[index]
 
             #           upper left     offset from upper left map corner
-            position = [int(dest[0] + (char.get_pos(0) * self.current_element_size)),
-                        int(dest[1] + (char.get_pos(1) * self.current_element_size))]
+            position = [int(self.dest[0] + (char.get_pos(0) * self.current_element_size)),
+                        int(self.dest[1] + (char.get_pos(1) * self.current_element_size))]
 
-            real_position = [int(dest[0] + (char.get_pos(0) * self.current_element_size) +
+            real_position = [int(self.dest[0] + (char.get_pos(0) * self.current_element_size) +
                                  self.char_detail_back.get_width()),
-                             int(dest[1] + (char.get_pos(1) * self.current_element_size))]
+                             int(self.dest[1] + (char.get_pos(1) * self.current_element_size))]
 
             btn = Button(dim=[int(self.current_element_size), int(self.current_element_size)],
                          pos=position, real_pos=real_position, img_source=self.map_char_imgs[char.class_id],
@@ -2258,7 +2270,7 @@ class InGame:
         self.map_surface.convert()
 
         # TODO blit only area that is actually visible for better fps
-        self.map_surface.blit(var, dest=[int(x) for x in dest])
+        self.map_surface.blit(var, dest=[int(x) for x in self.dest])
 
         # blitting indicator for reachable fields
         if self.r_fields:
@@ -2282,7 +2294,7 @@ class InGame:
                                               (max(1, int(self.map_surface.get_width() * self.zoom_factor)),
                                                max(1, int(self.map_surface.get_height() * self.zoom_factor))))
             # blit transparent surface with half transparent squares onto map
-            self.map_surface.blit(r_surf, [int(x) for x in dest])
+            self.map_surface.blit(r_surf, [int(x) for x in self.dest])
 
         # </editor-fold>
 
@@ -2346,10 +2358,12 @@ class InGame:
         self.screen.blit(self.done_btn_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
                                                    self.player_banners.get_height() + self.minimap_surf.get_height()])
 
-        """for btn in self.char_map_buttons:
+        """
+        for btn in self.char_map_buttons:
             s = pg.Surface((int(self.current_element_size), int(self.current_element_size)))
             s.fill((255, 0, 0))
-            self.screen.blit(s, btn.real_pos)"""
+            self.screen.blit(s, btn.real_pos)
+        #"""
 
         if self.overlay:
             for btn in self.overlay_btn:
@@ -2390,9 +2404,52 @@ class InGame:
                 if event.button == 1:  # on left click
 
                     if self.overlay:
-                        if not self.overlay.pos[0]+100 >= p >= self.overlay.pos[0]:
-                            if not self.overlay.pos[1]+200 >= p >= self.overlay.pos[1]:
+                        if not self.overlay.pos[0]+100 >= p[0] >= self.overlay.pos[0]:
+                            if not self.overlay.pos[1]+200 >= p[1] >= self.overlay.pos[1]:
                                 self.overlay = None
+
+                    if self.r_fields and self.selected_own_char:  # own char is selected and might want to move
+
+                        # move to clicked field if it is reachable
+                        rel_mouse_pos = [self.mouse_pos[0] - self.char_detail_back.get_width(),
+                                         self.mouse_pos[1]]
+
+                        dists_mouse_p_dest = [abs(rel_mouse_pos[0] - self.dest[0]),
+                                              abs(rel_mouse_pos[1] - self.dest[1])]
+
+                        map_len_pixel = self.game_map.size_x * self.zoom_factor * self.element_size
+
+                        percentual_mouse_pos_map_len = [dists_mouse_p_dest[0]/map_len_pixel,
+                                                        dists_mouse_p_dest[1]/map_len_pixel]
+
+                        """print("\nrel_mouse_pos\n",
+                              rel_mouse_pos,
+                              "\ndists_mouse_p_dest\n",
+                              dists_mouse_p_dest,
+                              "\nmap_len_pixel\n",
+                              map_len_pixel,
+                              "\npercentual_mouse_pos_map_len\n",
+                              percentual_mouse_pos_map_len,
+                              "\nself.zoom_factor * self.element_size\n",
+                              self.zoom_factor * self.element_size)"""
+
+                        # coords of clicked field (potential movement target)
+                        clicked_coords = [int(percentual_mouse_pos_map_len[0] * int(self.zoom_factor * map_len_pixel))
+                                          // int(self.zoom_factor * self.element_size),
+                                          int(percentual_mouse_pos_map_len[1] * int(self.zoom_factor * map_len_pixel))
+                                          // int(self.zoom_factor * self.element_size)]
+
+                        # TODO skips weird if lower right is targeted
+                        """print("\nclicked coords\n", clicked_coords)
+                        print("\nr_fields\n", self.r_fields)"""
+
+                        if tuple(clicked_coords) in self.r_fields:
+                            prev_pos = self.selected_own_char.pos
+                            self.selected_own_char.pos = list(clicked_coords)
+                            self.r_fields = []
+                            # TODO draw red dotted line from prev pos to new pos which
+                            #  1) stays until end of own turn
+                            #  2) gets send to opponent
 
                     for button in self.weapon_buttons:
                         if button.is_focused(p):
@@ -2404,12 +2461,12 @@ class InGame:
 
                     for button in self.own_team_stat_buttons:
                         if button.is_focused(p):
-                            print("team stat button clicked")
                             button.action()
 
                     if self.done_btn.is_focused(p):
                         self.done_btn.action()
 
+                    # TODO maybe move this up?
                     if self.map_surface.get_rect().collidepoint(p[0]-self.char_detail_back.get_width(), p[1]):
                         for button in self.char_map_buttons:
                             if button.is_focused(p):

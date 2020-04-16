@@ -242,14 +242,14 @@ class Character(GameObject):
         else:
             print("You can't exchange any weapons!")
 
-    def change_active_slot(self, args):
+    def change_active_slot(self, t, index):
         # args = [type, index]
 
-        if args[0] == "Weapon":
-            self.active_slot = self.weapons[args[1]]
+        if t == "Weapon" and index < len(self.weapons):
+            self.active_slot = self.weapons[index]
             return
-        if args[0] == "Item":
-            self.active_slot = self.items[args[1]]
+        if t == "Item" and index < len(self.items):
+            self.active_slot = self.items[index]
             return
         print("Warning! Active slot must hold an item or a weapon!")
 
