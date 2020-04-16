@@ -1,0 +1,51 @@
+
+--- Prinzipien für erfolgreiche Arbeit an (Code-)Projekten ---
+
+
+genau über den Funktionsumfang der verwendeten Bibliotheken informieren
+
+detailierte Planung (bis hin zu genauer Programm-Architekttur, Datentypen, etc.)
+
+klare Struktur des Codes im Vorfeld erarbeiten
+    (nicht so, dass 1 Datei 2500 Zeilen Code hat :) )
+
+modularere Struktur mit vielen genau definierten Interfaces, z.B. reines Gameplay als 1 Modul, Netzwerk, UI, etc.
+
+sehr deskriptive Variablennamen, wenn nötig auch lang -> tragen enorm zum Verständnis und debugging bei
+
+Arbeitsumfang früh an verfügbare Resourcen anpassen,
+    ggf Auslagerung einzelner Arbeiten an VERLÄSSLICHE Dritte (nicht Steffi lol)
+
+erfahrene Leute nach Einschätzung von Arbeitsaufwand fragen und nach diesen Einschätzungen planen
+
+regelmäßge Arbeitszeiten erarbeiten und einhalten
+
+eigene Repressionen bei Nicht-Einhaltung von Deadlines
+
+ALWAYS comment complex code (especially formulas)
+
+klare Trennung von Arbeit am Projekt und Privatem (sowohl inhaltlich, als auch zeitlich)
+
+Beachtung von Autorität beim Einhalten von Aufgaben
+    (wenn Plan vorsieht, dass Aufgabe zu Termin x fertig sein muss, muss sie das auch sein, keine Ausreden)
+
+umfangreiches Testen von geschriebenem Code (selbst) mit eigens geschriebenen Tests für Funtionalität
+
+genaue Protokollierung von Planabweichungen und Fehlern für alle zugänglich, sodass daraus gelernt werden kann und der Plan nötigenfalls angepasst/verbessert
+
+Aufgabenteilung nach Expertise, Interessen und Fähigkeiten
+
+
+---------------
+
+self.element_size *= self.zoom_factor
+
+            pw = real_mouse_pos[0] / self.map_surface.get_width()  # percentual pos of mouse on map (width)
+            ph = real_mouse_pos[1] / self.map_surface.get_height()  # percentual pos of mouse on map (height)
+
+            c = np.sqrt((self.zoom_factor*self.map_surface.get_height())**2 +
+                        (self.zoom_factor*self.map_surface.get_width())**2) - \
+                np.sqrt(self.map_surface.get_height()**2 + self.map_surface.get_width()**2)
+            d = np.sqrt((c**2) / 2)
+
+            delta = [int(pw * d), int(ph * d)]  # shift of blit destination of map content

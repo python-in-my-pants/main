@@ -13,6 +13,7 @@ class Button:
         if use_dim:
             self.surf = pg.Surface(self.dim)
         self.action = action
+        self.func = action  # holds the action function when button is not active
         self.name = name
         self.offset = 0
         self.font_color = font_color
@@ -70,8 +71,13 @@ class Button:
             self.surf.blit(font_render, (int(self.dim[0] / 2) - int(font_render.get_width() / 2),
                                          int(self.dim[1] / 2) - int(font_render.get_height() / 2)))
 
-    def set_offsets(self, y_offset=0):
+    def activate(self):
+        self.action = self.func
 
+    def deactivate(self):
+        self.action = (lambda: None)
+
+    def set_offsets(self, y_offset=0):
         self.offset = y_offset
 
     def update_real_position(self, y_diff):

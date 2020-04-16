@@ -9,6 +9,7 @@ import Data
 
 class GameObject:
 
+    # TODO this could be deleted???
     name = "Default_name"
     pos = [0, 0]
     pixs = []
@@ -540,7 +541,7 @@ class Ruins(GameObject):
         #  -------------------------------------------------------------------------------------------------------------
 
         # assign material for door and update mat_ind
-        self.add_elem("oak wood", [door])
+        self.add_elem("dirt", [door])  # TODO Was oak wood
 
         # assign material for floor and update mat_ind
         floor = []

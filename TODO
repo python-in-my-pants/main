@@ -1,0 +1,12 @@
+Add animated start screen
+    https://stackoverflow.com/questions/21356439/how-to-load-and-play-a-video-in-pygame
+
+clear all TODOs
+
+join ausgrauen wenn gehostet wird
+
+cancel join automatisch wenn kein game zum joinen ausgewählt war
+
+add custom fields to enter map size and lbby name
+
+walk INTO houses

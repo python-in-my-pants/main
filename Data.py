@@ -21,6 +21,8 @@ font = "comicsansms"
 
 serverIP = "localhost"
 
+def_elem_size = 50
+
 mat_colour = {
     "sandstone": (255, 140, 0),
     "border": (199, 80, 80),
