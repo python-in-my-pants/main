@@ -1725,6 +1725,9 @@ class InGame:
         self.amount = [0, 0]
         self.old_factor = 1
 
+        self.move_char = False  # has a char moved? used for rendering
+        self.used_chars = []  # holds list of chars that already made an action this turn and are not usable anymore
+
         self.turn_wait_counter = 0
         self.turn_get_thread = 0
 
@@ -2010,9 +2013,6 @@ class InGame:
 
         def func():
 
-            print("\tself own char:", self.selected_own_char)
-            print("\tr fields:", self.r_fields)
-
             if char.team == self.own_team.team_num:  # own char
 
                 print("\nclick clack BOOM char was clicked\n")
@@ -2050,22 +2050,16 @@ class InGame:
                     current_pos = [current_pos[0] - 100, current_pos[1]]
 
                 self.overlay = Overlay(current_pos, char)
-                self.overlay_btn_build()
+                self.overlay_btn = []
+                for i in range(6):
+                    btn = Button(dim=self.overlay.btn_dim[i], pos=self.overlay.btn_pos[i],
+                                 real_pos=self.overlay.btn_pos[i], name=str(i),
+                                 action=self.selected_own_char.shoot(self.overlay.boi_to_attack, i))
+
+                    self.overlay_btn.append(btn)  # TODO  # T
 
         func.__name__ = name
         return func
-
-    def overlay_btn_build(self):  # TODO put this in place where it belongs, keep class methods minimum? is it called in init AND update? -> NO
-        self.overlay_btn = []
-        for i in range(6):
-            btn = Button(dim=self.overlay.btn_dim[i], pos=self.overlay.btn_pos[i],
-                         real_pos=self.overlay.btn_pos[i], name=str(i),
-                         action=self.attack_that_boi(self.overlay.boi_to_attack, i))
-
-            self.overlay_btn.append(btn)  # TODO  # T
-
-    def attack_that_boi(self, char, part):  # TODO remove useless method
-        self.selected_own_char.shoot(char, part)
 
     def inventory_function_binder(self, name, _id, item_type):
 
@@ -2088,6 +2082,7 @@ class InGame:
 
     def update(self):
 
+        # <editor-fold desc="Render stuff">
         self.mouse_pos = pg.mouse.get_pos()
 
         # clear list :)
@@ -2181,6 +2176,57 @@ class InGame:
 
                     self.item_buttons.append(btn)
         # </editor-fold>
+
+        if self.move_char:
+
+            self.move_char = False
+
+            # move to clicked field if it is reachable
+            rel_mouse_pos = [self.mouse_pos[0] - self.char_detail_back.get_width(),
+                             self.mouse_pos[1]]
+
+            dists_mouse_p_dest = [abs(rel_mouse_pos[0] - self.dest[0]),
+                                  abs(rel_mouse_pos[1] - self.dest[1])]
+
+            map_len_pixel = self.game_map.size_x * self.zoom_factor * self.element_size
+
+            percentual_mouse_pos_map_len = [dists_mouse_p_dest[0] / map_len_pixel,
+                                            dists_mouse_p_dest[1] / map_len_pixel]
+
+            print("\nrel_mouse_pos\n",
+                          rel_mouse_pos,
+                          "\ndists_mouse_p_dest\n",
+                          dists_mouse_p_dest,
+                          "\nmap_len_pixel\n",
+                          map_len_pixel,
+                          "\npercentual_mouse_pos_map_len\n",
+                          percentual_mouse_pos_map_len,
+                          "\nself.zoom_factor * self.element_size\n",
+                          self.zoom_factor * self.element_size)
+
+            clicked_coords = [  # coords of clicked field (potential movement target)
+                # mouse pos relative to length of map [0 ... 1]
+                int(percentual_mouse_pos_map_len[0] *
+                    # current size of the map content surface (zoomed)
+                    self.zoom_factor * map_len_pixel /
+                    # current element size
+                    (self.zoom_factor * self.element_size)),
+                int(percentual_mouse_pos_map_len[1] *
+                    self.zoom_factor * map_len_pixel /
+                    (self.zoom_factor * self.element_size))
+            ]
+
+            # TODO skips weird if lower right is targeted
+            print("\nclicked coords\n", clicked_coords)
+            print("\nr_fields\n", self.r_fields)
+
+            if tuple(clicked_coords) in self.r_fields:
+                prev_pos = self.selected_own_char.pos
+                self.selected_own_char.pos = list(clicked_coords)
+                self.r_fields = []
+                # TODO draw red dotted line from prev pos to new pos which
+                #  1) stays until end of own turn
+                #  2) gets send to opponent
 
         ##############################################################################################################
         # blit everything to positions
@@ -2336,6 +2382,26 @@ class InGame:
 
         ###################
 
+        # <editor-fold desc="for debugging only">
+        """
+        rel_mouse_pos = [self.mouse_pos[0] - self.char_detail_back.get_width(), self.mouse_pos[1]]
+        dists_mouse_p_dest = [abs(rel_mouse_pos[0] - self.dest[0]), abs(rel_mouse_pos[1] - self.dest[1])]
+        map_len_pixel = self.game_map.size_x * self.zoom_factor * self.element_size
+        percentual_mouse_pos_map_len = [dists_mouse_p_dest[0] / map_len_pixel, dists_mouse_p_dest[1] / map_len_pixel]
+        clicked_coords = [  # coords of clicked field (potential movement target)
+            # mouse pos relative to length of map [0 ... 1]
+            int(percentual_mouse_pos_map_len[0] *
+                # current size of the map content surface (zoomed)
+                self.zoom_factor * map_len_pixel /
+                # current element size
+                (self.zoom_factor * self.element_size)),
+            int(percentual_mouse_pos_map_len[1] *
+                self.zoom_factor * map_len_pixel /
+                (self.zoom_factor * self.element_size))
+        ]
+        #"""
+        # </editor-fold>
+
         # <editor-fold desc="all together">
 
         self.screen.convert()
@@ -2373,6 +2439,7 @@ class InGame:
                     self.overlay.surf = self.overlay.type["6"]
             self.screen.blit(self.overlay.surf, dest=self.overlay.pos)
         # </editor-fold>
+        # </editor-fold>
 
     def event_handling(self):
 
@@ -2403,54 +2470,6 @@ class InGame:
 
                 if event.button == 1:  # on left click
 
-                    if self.overlay:
-                        if not self.overlay.pos[0]+100 >= p[0] >= self.overlay.pos[0]:
-                            if not self.overlay.pos[1]+200 >= p[1] >= self.overlay.pos[1]:
-                                self.overlay = None
-
-                    if self.r_fields and self.selected_own_char:  # own char is selected and might want to move
-
-                        # move to clicked field if it is reachable
-                        rel_mouse_pos = [self.mouse_pos[0] - self.char_detail_back.get_width(),
-                                         self.mouse_pos[1]]
-
-                        dists_mouse_p_dest = [abs(rel_mouse_pos[0] - self.dest[0]),
-                                              abs(rel_mouse_pos[1] - self.dest[1])]
-
-                        map_len_pixel = self.game_map.size_x * self.zoom_factor * self.element_size
-
-                        percentual_mouse_pos_map_len = [dists_mouse_p_dest[0]/map_len_pixel,
-                                                        dists_mouse_p_dest[1]/map_len_pixel]
-
-                        """print("\nrel_mouse_pos\n",
-                              rel_mouse_pos,
-                              "\ndists_mouse_p_dest\n",
-                              dists_mouse_p_dest,
-                              "\nmap_len_pixel\n",
-                              map_len_pixel,
-                              "\npercentual_mouse_pos_map_len\n",
-                              percentual_mouse_pos_map_len,
-                              "\nself.zoom_factor * self.element_size\n",
-                              self.zoom_factor * self.element_size)"""
-
-                        # coords of clicked field (potential movement target)
-                        clicked_coords = [int(percentual_mouse_pos_map_len[0] * int(self.zoom_factor * map_len_pixel))
-                                          // int(self.zoom_factor * self.element_size),
-                                          int(percentual_mouse_pos_map_len[1] * int(self.zoom_factor * map_len_pixel))
-                                          // int(self.zoom_factor * self.element_size)]
-
-                        # TODO skips weird if lower right is targeted
-                        """print("\nclicked coords\n", clicked_coords)
-                        print("\nr_fields\n", self.r_fields)"""
-
-                        if tuple(clicked_coords) in self.r_fields:
-                            prev_pos = self.selected_own_char.pos
-                            self.selected_own_char.pos = list(clicked_coords)
-                            self.r_fields = []
-                            # TODO draw red dotted line from prev pos to new pos which
-                            #  1) stays until end of own turn
-                            #  2) gets send to opponent
-
                     for button in self.weapon_buttons:
                         if button.is_focused(p):
                             button.action()
@@ -2471,6 +2490,14 @@ class InGame:
                         for button in self.char_map_buttons:
                             if button.is_focused(p):
                                 button.action()
+
+                    if self.r_fields and self.selected_own_char:  # own char is selected and might want to move
+                        self.move_char = True
+
+                    if self.overlay:
+                        if not self.overlay.pos[0]+100 >= p[0] >= self.overlay.pos[0]:  # TODO 1 condition, 1 if
+                            if not self.overlay.pos[1]+200 >= p[1] >= self.overlay.pos[1]:
+                                self.overlay = None
 
                 if event.button == 2:  # on mid click
                     pass
