@@ -1,10 +1,7 @@
 import numpy
 import pygame
-import sys
 import copy
 from datetime import datetime
-
-import Data
 
 
 class GameObject:
@@ -21,18 +18,18 @@ class GameObject:
     size_x = 0
     size_y = 0
 
-    def __init__(self, obj_type="default_type", name="default_name", materials=["default_material"], pos=[0, 0],
-                 mat_ind=[]):
+    def __init__(self, obj_type="default_type", name="default_name",
+                 materials=["default_material"], pos=[0, 0], mat_ind=[]):
         self.type = obj_type
         self.name = name
         self.materials = materials[:]  # make a copy because else python reuses old value for another call
         self.pos = pos[:]
         self.class_id = str(datetime.now().time())
-        self.mat_ind = mat_ind[:]
+        self.mat_ind = mat_ind[:]  # holds materials in some mysterious way
         self.render_type = "draw"
         self.orientation = 0  # attribute ONLY for render type "blit", has nothing to do  with "turn" method
         self.special_pixs = []  # array for doors etc. with functionality
-        self.changed = False  # TODO only draw game_objects, if changed is True
+        self.changed = False  # TODO only draw game_objects if changed is True
 
     def __eq__(self, other):
         if not isinstance(other, GameObject):
@@ -50,7 +47,7 @@ class GameObject:
             return True
         return False
 
-    def confirm(self):
+    def confirm(self):  # ABSTRACT METHOD, DO NOT DELETE
         pass
 
     def move(self, direction):
@@ -67,7 +64,7 @@ class GameObject:
 
         return self.mat_ind
 
-    def turn(self, direction):
+    def rotate(self, direction):
 
         # turn
         for p in self.pixs:
@@ -102,7 +99,7 @@ class GameObject:
 
         return self.get_drawable()
 
-    def add_elem(self, material, elem):
+    def add_elem(self, material, elem):  # ABSTRACT METHOD, DO NOT DELETE
         pass
 
     def get_drawable(self):
@@ -116,7 +113,7 @@ class GameObject:
         print()
 
 
-class CollAtom(pygame.sprite.Sprite):
+class CollAtom(pygame.sprite.Sprite):  # this is basically a sprite but it's better because it does more OwO
 
     def __init__(self, pos, w=1, h=1, height=1, name="collAtom", opaque=True):
         """"
@@ -133,9 +130,6 @@ class CollAtom(pygame.sprite.Sprite):
         self.height = height
         self.name = name
         self.opaque = opaque
-
-        # print(type(pygame.Rect(self.pos, (w, h))))
-
         self.rect = pygame.Rect(self.pos, (w, h))
 
 
@@ -151,6 +145,7 @@ class LineOfSight(GameObject):
         return self.pixs
 
 
+# <editor-fold desc="Objects">
 class Border(GameObject):
     # ToDo change material back maybe
     def __init__(self, obj_type, size_x_, size_y_, name="Border", materials_=["grass"], pos=[0, 0], thiccness="1"):
@@ -411,8 +406,11 @@ class SimpleHouse(GameObject):
         # remove door
         door_pos = numpy.random.randint(0, self.pixs.__len__())
 
-        while self.pixs[door_pos] == [0, 0] or self.pixs[door_pos] == [0, self.size_y-1] or \
-                self.pixs[door_pos] == [self.size_x-1, 0] or self.pixs[door_pos] == [self.size_x-1, self.size_y-1]:
+        # place door in wall but not on edge
+        while self.pixs[door_pos] == [0, 0] or \
+              self.pixs[door_pos] == [0, self.size_y-1] or \
+              self.pixs[door_pos] == [self.size_x-1, 0] or \
+              self.pixs[door_pos] == [self.size_x-1, self.size_y-1]:
             door_pos = numpy.random.randint(0, self.pixs.__len__())
 
         door = self.pixs[door_pos]
@@ -428,11 +426,9 @@ class SimpleHouse(GameObject):
 
         # assign material for floor and update mat_ind
         floor = []
-
         for i in range(size_x-2):
             for j in range(size_y-2):
                 floor.append([i+1, j+1])
-
         self.add_elem("dirt", floor)
 
         #  -------------------------------------------------------------------------------------------------------------
@@ -442,7 +438,7 @@ class SimpleHouse(GameObject):
             point[0] += self.pos[0]
             point[1] += self.pos[1]
 
-    def confirm(self):  # is called, when object is put in at final pos on map
+    def confirm(self):  # is called, when object is put in at final pos on map, so definitely before main game loop
 
         # create collider
         wall = []
@@ -678,3 +674,4 @@ class FieldIndicator(GameObject):  # untested
     def get_drawable(self):
 
         return self.pixs  # u
+# </editor-fold>

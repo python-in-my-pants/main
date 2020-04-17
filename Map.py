@@ -27,7 +27,7 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
         self.base_map = None
 
         if not window:
-            self.window = pg.Surface([x_size*Data.def_elem_size, y_size*Data.def_elem_size])
+            self.window = pg.Surface([x_size*def_elem_size, y_size*def_elem_size])
         else:
             self.window = window
 
@@ -39,14 +39,12 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
         else:
             self.unique_pixs = unique_pixels[:]
 
-        Data.def_elem_size = Data.def_elem_size
-
         # just testing stuff 11072019 1511
         self.objects = objects[:]           # holds list of objects on the map of the form: [id, object]
         self.characters = characters[:]     # holds indices of objects[] of characters
 
         # ToDo Texture Stuff, implement flooring for ruined difference
-        texture_size = (Data.def_elem_size, Data.def_elem_size)
+        texture_size = (def_elem_size, def_elem_size)
         self.texture_dump = [pg.transform.scale(pg.image.load("assets/mats/Grass.png"), texture_size),
                              pg.transform.scale(pg.image.load("assets/mats/sandstone.png"), texture_size),
                              pg.transform.scale(pg.image.load("assets/mats/border.png"), texture_size),
@@ -81,7 +79,7 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
         ### check object size ###
         #########################
 
-        # get height of object
+        # get dims of object
         size_x = game_object.size_x + 2 * border_size
         size_y = game_object.size_y + 2 * border_size
 
@@ -140,7 +138,7 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
 
             # if object could fit when turned, do so, else reject
             if size_y <= self.size_x:
-                game_object.turn("cw")
+                game_object.rotate("cw")
                 return self.add_object(game_object, border_size, recursion_depth)
             else:
                 print("Error! Object is too large senpai, this will never fit! >///<")
@@ -150,7 +148,7 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
 
             # if object could fit when turned, do so, else reject
             if size_x <= self.size_y:
-                game_object.turn("ccw")
+                game_object.rotate("ccw")
                 return self.add_object(game_object, border_size, recursion_depth)
             else:
                 print("Error! Object is too large senpai, this will never fit! >///<")
@@ -366,8 +364,7 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
 
         return [1, 1]  # can see & shoot
 
-    def get_reachable_fields(self, pos_w, pos_h, mov_range):  # TODO gruesome performance, over think when not sick
-        # TODO does this even make sense??? I hope so...
+    def get_reachable_fields(self, pos_w, pos_h, mov_range):  # TODO use euclidean dist instead of manhattan
         reachable = [(pos_w, pos_h)]
         checked = set()
         counter = 0
@@ -383,6 +380,16 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
             counter += 1
 
         return list(set(reachable) - {(pos_w, pos_h)})  # own position is not reachable
+
+    def is_solid(self, pix):  # returns whether a certain coordinate on the map contains a solid object or not
+
+        pass
+        # mapping of pixels to objects
+        # mapping of object pixels to mat/collider
+
+    def get_obj_at(self, x, y):
+        pass
+
 
     def get_neighbours(self, x, y):
 
@@ -414,7 +421,7 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
 
         for i in range(self.size_x):
             for d in range(self.size_y):
-                self.window.blit(self.texture_dump[0], (i * Data.def_elem_size, d * Data.def_elem_size))
+                self.window.blit(self.texture_dump[0], (i * def_elem_size, d * def_elem_size))
 
         for go in self.objects:
             if go.render_type == "blit":
@@ -426,9 +433,9 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
                 factor = ((numpy.sqrt(2) - 1) / 2) * numpy.sin(3.5 * numpy.pi + 4 * numpy.deg2rad(go.orientation)) + \
                          ((numpy.sqrt(2) - 1) / 2) + 1
                 factor = 1
-                self.window.blit(pg.transform.smoothscale(go_surf, (int(Data.def_elem_size * factor),
-                                                                    int(Data.def_elem_size * factor))),
-                                 (int(go.pos[0] * Data.def_elem_size), int(go.pos[1] * Data.def_elem_size)))#print(go.materials)
+                self.window.blit(pg.transform.smoothscale(go_surf, (int(def_elem_size * factor),
+                                                                    int(def_elem_size * factor))),
+                                 (int(go.pos[0] * def_elem_size), int(go.pos[1] * def_elem_size)))
             if go.materials == ["bush"]:
                 self.window.blit(pg.transform.scale(pg.image.load(bush_types[go.type]), (go.size_x * self.elem_size,
                                                                       go.size_y * self.elem_size)),
@@ -450,7 +457,7 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
                         if mat_counter < go.mat_ind.__len__() and index > go.mat_ind[mat_counter]:
                             mat_counter += 1
                     self.window.blit(self.texture_dump[material_codes[go.materials[mat_counter]]],
-                                     (pix[0] * Data.def_elem_size, pix[1] * Data.def_elem_size))
+                                     (pix[0] * def_elem_size, pix[1] * def_elem_size))
                 """
                 pg.draw.rect(self.window, mat_colour[go.materials[mat_counter]],
                              (pix[0] * Data.def_elem_size, pix[1] * Data.def_elem_size, Data.def_elem_size, Data.def_elem_size))
@@ -507,18 +514,18 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
 
                     self.window.blit(
                         pg.transform.smoothscale(go_surf,               # surface to blit
-                                                 (Data.def_elem_size,
-                                                  Data.def_elem_size)),
-                        (int(go.pos[0] * Data.def_elem_size),           # destination
-                         int(go.pos[1] * Data.def_elem_size))
+                                                 (def_elem_size,
+                                                  def_elem_size)),
+                        (int(go.pos[0] * def_elem_size),           # destination
+                         int(go.pos[1] * def_elem_size))
                     )
 
     def __draw_grid(self):  # maybe static? (but who cares tbh)
 
         for i in range(self.size_x):
             for d in range(self.size_y):
-                pg.draw.rect(self.window, (30, 30, 20), (i * Data.def_elem_size, d * Data.def_elem_size,
-                                                         Data.def_elem_size, Data.def_elem_size), 1)
+                pg.draw.rect(self.window, (30, 30, 20), (i * def_elem_size, d * def_elem_size,
+                                                         def_elem_size, def_elem_size), 1)
 
     def get_map(self):  # return all data from map BUT NOT self.window
 

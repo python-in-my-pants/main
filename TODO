@@ -14,3 +14,7 @@ walk INTO houses
 adjust default item & weapon in ingame init
 
 server: unhashable type: connection (wenn 1 client crasht)
+
+outline OWN starting area in minimap in char select (or only show own?)
+
+make ruins ruined again
