@@ -1728,6 +1728,9 @@ class InGame:
         self.move_char = False  # has a char moved? used for rendering
         self.used_chars = []  # holds list of chars that already made an action this turn and are not usable anymore
 
+        self.lines = []
+        self.current_line = None
+
         self.turn_wait_counter = 0
         self.turn_get_thread = 0
 
@@ -2015,8 +2018,6 @@ class InGame:
 
             if char.team == self.own_team.team_num:  # own char
 
-                print("\nclick clack BOOM char was clicked\n")
-
                 if char == self.selected_own_char:
                     self.selected_own_char = None
                     self.r_fields = []
@@ -2082,6 +2083,24 @@ class InGame:
 
         # <editor-fold desc="Render stuff">
         self.mouse_pos = pg.mouse.get_pos()
+
+        # build dotted line positions
+        if self.selected_own_char:
+            start_point = self.mouse_pos
+            end_point = [self.current_element_size * self.selected_own_char.pos[0] + self.dest[0],
+                         self.current_element_size * self.selected_own_char.pos[1] + self.dest[1]] \
+                if self.zoom_factor <= 1 else \
+                        [self.current_element_size * self.selected_own_char.pos[0] - self.dest[0],
+                         self.current_element_size * self.selected_own_char.pos[1] - self.dest[1]]
+            end_point = [int(ep + self.current_element_size / 2) for ep in end_point]
+            d = np.sqrt((start_point[0] - end_point[0])**2 + (start_point[1] - end_point[1])**2)
+            line_points = [start_point]
+            num_of_parts = 7
+            for _ in range(num_of_parts):
+                line_points.append([int(line_points[-1][0] + d/7), int(line_points[-1][1] + d/7)])
+            line_points.append(end_point)
+        else:
+            line_points = []
 
         # clear list :)
         self.char_map_buttons = []
@@ -2174,17 +2193,13 @@ class InGame:
                     self.item_buttons.append(btn)
         # </editor-fold>
 
-        if self.move_char:
+        if self.move_char:  # you have to move the char now
 
             self.move_char = False
 
             # move to clicked field if it is reachable
-            rel_mouse_pos = [self.mouse_pos[0] - self.char_detail_back.get_width(),
-                             self.mouse_pos[1]]
-
-            dists_mouse_p_dest = [abs(rel_mouse_pos[0] - self.dest[0]),
-                                  abs(rel_mouse_pos[1] - self.dest[1])]
-
+            rel_mouse_pos = [self.mouse_pos[0] - self.char_detail_back.get_width(), self.mouse_pos[1]]
+            dists_mouse_p_dest = [abs(rel_mouse_pos[0] - self.dest[0]), abs(rel_mouse_pos[1] - self.dest[1])]
             percentual_mouse_pos_map_len = [dmpd / (self.zoom_factor*self.element_size) for dmpd in dists_mouse_p_dest]
 
             """print("\nrel_mouse_pos\n",
@@ -2205,6 +2220,7 @@ class InGame:
                 prev_pos = self.selected_own_char.pos
                 self.selected_own_char.pos = list(clicked_coords)
                 self.r_fields = []
+                self.selected_own_char = None
                 # TODO draw red dotted line from prev pos to new pos which
                 #  1) stays until end of own turn
                 #  2) gets send to opponent
@@ -2401,6 +2417,8 @@ class InGame:
 
         #####
 
+        if self.move_char:
+            pg.draw.aalines(self.map_surface, (255, 0, 0), True, line_points, 1)
         self.screen.blit(self.map_surface, dest=[self.char_detail_back.get_width(), 0])
 
         #####
