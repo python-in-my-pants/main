@@ -2058,13 +2058,8 @@ class InGame:
         for i in range(6):
             btn = Button(dim=self.overlay.btn_dim[i], pos=self.overlay.btn_pos[i],
                          real_pos=[self.overlay.btn_pos[i][0] - self.char_detail_back.get_width(),
-                                   self.overlay.btn_pos[i][1]],
-                         name=str(i), action=self.attack_that_boi(self.overlay.boi_to_attack, i))
-            print(btn.name)
-            self.overlay_btn.append(btn)  # TODO  # T
-
-    def attack_that_boi(self, char, part):  # TODO remove useless method
-        self.selected_own_char.shoot(char, part)
+                                   self.overlay.btn_pos[i][1]], name=str(i))
+            self.overlay_btn.append(btn)
 
     def inventory_function_binder(self, name, _id, item_type):
 
@@ -2364,18 +2359,20 @@ class InGame:
                 s.fill((255, 0, 0))
                 self.screen.blit(s, btn.pos)
             """
-
+            self.overlay.newblit = False
             for btn in self.overlay_btn:
                 if btn.is_focused([self.mouse_pos[0]-self.char_detail_back.get_width(), self.mouse_pos[1]]):
-                    self.overlay.surf.blit(self.overlay.type[btn.name], (0, 0))
-                else:
-                    self.overlay.surf.blit(self.overlay.type["6"], (0, 0))
+                    self.overlay.surf = self.overlay.type[btn.name]
+                    self.overlay.newblit = True
+                if not self.overlay.newblit:
+                    self.overlay.surf = self.overlay.type["6"]
             self.screen.blit(self.overlay.surf, dest=self.overlay.pos)
-
+            """
             print("\nMouse pos and real pos\n",
                   self.mouse_pos, (self.mouse_pos[0]-self.char_detail_back.get_width(), self.mouse_pos[1]),
                   "\nbtn pos and real pos\n",
                   self.overlay_btn[4].pos, self.overlay_btn[4].real_pos)
+            """
         # </editor-fold>
 
     def event_handling(self):
@@ -2406,8 +2403,12 @@ class InGame:
                 self.mouse_pos = p
 
                 if event.button == 1:  # on left click
+                    if self.overlay and self.overlay_btn:
+                        for btn in self.overlay_btn:
+                            if btn.is_focused([self.mouse_pos[0] - self.char_detail_back.get_width(),
+                                               self.mouse_pos[1]]):
+                                self.selected_own_char.shoot(self.overlay.boi_to_attack, int(btn.name))
 
-                    if self.overlay:
                         if not self.overlay.pos[0]+100 >= p[0] >= self.overlay.pos[0]:
                             if not self.overlay.pos[1]+200 >= p[1] >= self.overlay.pos[1]:
                                 self.overlay = None
