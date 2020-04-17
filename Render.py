@@ -295,7 +295,7 @@ class ConnectionSetup:
         self.right_surf.blit(self.join_cancel_btn.surf, self.join_cancel_btn.pos)
         self.right_surf.blit(self.ip_to_join_btn.surf, self.ip_to_join_btn.pos)
 
-        self.left_surf.blit(self.back_btn.surf, self.back_btn.pos)
+        self.screen.blit(pg.transform.scale(pg.image.load("assets/back_btn.png"), (50, 50)), (0, 0))
 
         # put right and left surface to screen
 
@@ -2087,7 +2087,6 @@ class InGame:
         self.char_map_buttons = []
 
         # <editor-fold desc="zoom and shift">
-        # todo cannot shift when small zoom (<1)
         if self.shifting:
             # current shift offset of this frame?
             shift_offset = [self.mouse_pos[0] - self.shift_start[0],
@@ -2186,10 +2185,7 @@ class InGame:
             dists_mouse_p_dest = [abs(rel_mouse_pos[0] - self.dest[0]),
                                   abs(rel_mouse_pos[1] - self.dest[1])]
 
-            map_len_pixel = self.game_map.size_x * self.zoom_factor * self.element_size
-
-            percentual_mouse_pos_map_len = [dists_mouse_p_dest[0] / map_len_pixel,
-                                            dists_mouse_p_dest[1] / map_len_pixel]
+            percentual_mouse_pos_map_len = [dmpd / (self.zoom_factor*self.element_size) for dmpd in dists_mouse_p_dest]
 
             """print("\nrel_mouse_pos\n",
                           rel_mouse_pos,
@@ -2202,21 +2198,8 @@ class InGame:
                           "\nself.zoom_factor * self.element_size\n",
                           self.zoom_factor * self.element_size)"""
 
-            clicked_coords = [  # coords of clicked field (potential movement target)
-                # mouse pos relative to length of map [0 ... 1]
-                int(percentual_mouse_pos_map_len[0] *
-                    # current size of the map content surface (zoomed)
-                    self.zoom_factor * map_len_pixel /
-                    # current element size
-                    (self.zoom_factor * self.element_size)),
-                int(percentual_mouse_pos_map_len[1] *
-                    self.zoom_factor * map_len_pixel /
-                    (self.zoom_factor * self.element_size))
-            ]
-
-            # TODO skips weird if lower right is targeted
-            """print("\nclicked coords\n", clicked_coords)
-            print("\nr_fields\n", self.r_fields)"""
+            # coords of clicked field (potential movement target)
+            clicked_coords = [int(x) for x in percentual_mouse_pos_map_len]
 
             if tuple(clicked_coords) in self.r_fields:
                 prev_pos = self.selected_own_char.pos
@@ -2387,16 +2370,23 @@ class InGame:
         map_len_pixel = self.game_map.size_x * self.zoom_factor * self.element_size
         percentual_mouse_pos_map_len = [dists_mouse_p_dest[0] / map_len_pixel, dists_mouse_p_dest[1] / map_len_pixel]
         clicked_coords = [  # coords of clicked field (potential movement target)
-            # mouse pos relative to length of map [0 ... 1]
-            int(percentual_mouse_pos_map_len[0] *
-                # current size of the map content surface (zoomed)
-                self.zoom_factor * map_len_pixel /
-                # current element size
-                (self.zoom_factor * self.element_size)),
-            int(percentual_mouse_pos_map_len[1] *
-                self.zoom_factor * map_len_pixel /
-                (self.zoom_factor * self.element_size))
+            int(percentual_mouse_pos_map_len[0] * self.game_map.size_x),
+            int(percentual_mouse_pos_map_len[1] * self.game_map.size_y)
         ]
+        print("\nrel_mouse_pos\n",
+              rel_mouse_pos,
+              "\ndists_mouse_p_dest\n",
+              dists_mouse_p_dest,
+              "\nmap_len_pixel\n",
+              map_len_pixel,
+              "\npercentual_mouse_pos_map_len\n",
+              percentual_mouse_pos_map_len,
+              "\nself.zoom_factor * self.element_size\n",
+              self.zoom_factor * self.element_size,
+              "\nself.zoom_factor\n",
+              self.zoom_factor,
+              "\nself.element_size\n",
+              self.element_size)
         #"""
         # </editor-fold>
 
@@ -2458,9 +2448,10 @@ class InGame:
                 self.mouse_pos = p
 
                 if event.button == 3:  # right button release
-                    self.shifting = False
-                    self.con_shift_offset = [self.con_shift_offset[0] + p[0] - self.shift_start[0],
-                                             self.con_shift_offset[1] + p[1] - self.shift_start[1]]
+                    if self.zoom_factor >= 1:
+                        self.shifting = False
+                        self.con_shift_offset = [self.con_shift_offset[0] + p[0] - self.shift_start[0],
+                                                 self.con_shift_offset[1] + p[1] - self.shift_start[1]]
 
             if event.type == pg.MOUSEBUTTONDOWN:
                 p = pg.mouse.get_pos()

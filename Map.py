@@ -339,54 +339,6 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
 
         return [1, 1]  # can see & shoot
 
-    """def get_reachable_fields_old(self, pos_w, pos_h, mov_range):  # TODO use euclidean dist instead of manhattan
-        reachable = [(pos_w, pos_h)]
-        checked = set()
-        counter = 0
-
-        while counter < mov_range:
-            my_set = set(reachable)-checked
-            for r in list(my_set):
-                neigh = self.get_neighbours(r[0], r[1])
-                for n in neigh:
-                    if self.unique_pixs[n[1]][n[0]] in [0, 2, 5]:  # TODO should check for colliders! like "has pixel collider?"
-                        reachable.append(tuple(n))
-                checked.add(r)
-            counter += 1
-
-        return list(set(reachable) - {(pos_w, pos_h)})  # own position is not reachable"""
-
-    """def get_reachable_fields_alt(self, char):  # TODO use euclidean dist instead of manhattan
-        pos_w, pos_h = char.pos
-        mov_range = char.speed//5
-
-        reachable = [(pos_w, pos_h)]
-        checked = set()
-        counter = 0
-
-        while counter < mov_range:
-            my_set = set(reachable)-checked
-            for r in list(my_set):
-                neigh = self.get_neighbours(r[0], r[1])
-                for n in neigh:
-                    atom = self.get_coll_atom([n[1], n[0]])
-                    if atom and not atom.collide:
-                        reachable.append(tuple(n))
-                checked.add(r)
-            counter += 1
-
-        return list(set(reachable) - {(pos_w, pos_h)})  # own position is not reachable"""
-
-    # tODO delete
-    def get_coll_atom(self, pix):  # returns whether a certain coordinate on the map contains a solid object or not
-
-        # mapping of object pixels to mat/collider
-        for o in self.get_objs_at(pix):
-            for atom in o.collider:
-                if atom.pos == pix:
-                    return atom
-        return False
-
     def get_reachable_fields(self, char):  # TODO use euclidean dist instead of manhattan
         pos_w, pos_h = char.pos
         mov_range = char.speed // 5
@@ -405,19 +357,15 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
                 checked.add(r)
             counter += 1
 
-        print("\n\n\n")
         return list(set(reachable) - {(pos_w, pos_h)})  # own position is not reachable
 
     # TODO can I skip through walls?
     def movement_possible(self, char, new_pos):  # returns true or false
 
         if new_pos[0] < 0 or new_pos[0] > self.size_x-1 or new_pos[1] < 0 or new_pos[1] > self.size_y-1:
-            print("out of map")
             return False
 
         objs_at_pos = self.get_objs_at(new_pos)
-        if objs_at_pos:
-            print("\tobj at pos", objs_at_pos, "\n")
         for obj in objs_at_pos:
             if obj.collider and obj is not char:  # it has a collider and is not the moving char
                 # use new sprite group for collision, because using game_objects could result in false results after
@@ -426,7 +374,6 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
                     # TODO: adjust so that laying characters are handled with 2 sprites ... No :)
                     if pg.sprite.spritecollide(collAtom, obj.collider, dokill=0):
                         # collision with other char occurs
-                        print("---------> collision with other collidable object", obj.name, obj.pos)
                         return False
 
         return True
@@ -446,7 +393,6 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
         for o in self.objects:
             if o.collider:  # check only for objects that may collide
                 if pos_in_rect(pos, o.pos, o.size_x, o.size_y):
-                    print("object ", o.name, o.pos, o.size_x, o.size_y, "at", pos)
                     objects_at_pos.append(o)
 
         return objects_at_pos

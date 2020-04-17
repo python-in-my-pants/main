@@ -26,3 +26,5 @@ calc bleed damage every turn
 build complex houses
     generate random graph, nodes are rooms, edges are doors, 1 outdoor node connected to min 1 random node
     put in rooms peu a peu in an intermediate surface
+
+use Bebauungsplan for setting objects on map
