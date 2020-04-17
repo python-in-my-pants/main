@@ -361,7 +361,7 @@ class Character(GameObject):
 
     def get_damaged(self, dmg, partind):
         if partind == 3:
-            if self.gear[0].durability > 0:
+            if self.gear and self.gear[0].durability > 0:
                 dmg *= self.gear[0].reduction
                 self.health[3] -= dmg
                 self.gear[0].durability -= 0

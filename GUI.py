@@ -207,12 +207,12 @@ class Overlay:
             5: (15, 87)
         }
         self.btn_pos = {
-            0: (self.pos[0] + 41, self.pos[1] + 16),
-            1: (self.pos[0] + 16, self.pos[1] + 41),
-            2: (self.pos[0] + 66, self.pos[1] + 41),
-            3: (self.pos[0] + 35, self.pos[1] + 42),
-            4: (self.pos[0] + 35, self.pos[1] + 93),
-            5: (self.pos[0] + 51, self.pos[1] + 93),
+            0: [self.pos[0] + 41, self.pos[1] + 16],
+            1: [self.pos[0] + 16, self.pos[1] + 41],
+            2: [self.pos[0] + 66, self.pos[1] + 41],
+            3: [self.pos[0] + 35, self.pos[1] + 42],
+            4: [self.pos[0] + 35, self.pos[1] + 93],
+            5: [self.pos[0] + 51, self.pos[1] + 93],
         }
 
 
