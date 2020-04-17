@@ -2030,9 +2030,7 @@ class InGame:
 
                 # highlight reachable fields by blitting green transparent stuff over them
                 # returns list of tuples
-                self.r_fields = self.game_map.get_reachable_fields(self.selected_own_char.pos[0],
-                                                                   self.selected_own_char.pos[1],
-                                                                   self.selected_own_char.speed//5)
+                self.r_fields = self.game_map.get_reachable_fields(self.selected_own_char)
 
                 # TOdo check whether a user clicks on a reachable field on click
                 #  (get vector from map surface upper left to mouse and calc mouse field pos from that)
@@ -2193,7 +2191,7 @@ class InGame:
             percentual_mouse_pos_map_len = [dists_mouse_p_dest[0] / map_len_pixel,
                                             dists_mouse_p_dest[1] / map_len_pixel]
 
-            print("\nrel_mouse_pos\n",
+            """print("\nrel_mouse_pos\n",
                           rel_mouse_pos,
                           "\ndists_mouse_p_dest\n",
                           dists_mouse_p_dest,
@@ -2202,7 +2200,7 @@ class InGame:
                           "\npercentual_mouse_pos_map_len\n",
                           percentual_mouse_pos_map_len,
                           "\nself.zoom_factor * self.element_size\n",
-                          self.zoom_factor * self.element_size)
+                          self.zoom_factor * self.element_size)"""
 
             clicked_coords = [  # coords of clicked field (potential movement target)
                 # mouse pos relative to length of map [0 ... 1]
@@ -2217,8 +2215,8 @@ class InGame:
             ]
 
             # TODO skips weird if lower right is targeted
-            print("\nclicked coords\n", clicked_coords)
-            print("\nr_fields\n", self.r_fields)
+            """print("\nclicked coords\n", clicked_coords)
+            print("\nr_fields\n", self.r_fields)"""
 
             if tuple(clicked_coords) in self.r_fields:
                 prev_pos = self.selected_own_char.pos

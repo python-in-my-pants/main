@@ -30,6 +30,7 @@ class GameObject:
         self.orientation = 0  # attribute ONLY for render type "blit", has nothing to do  with "turn" method
         self.special_pixs = []  # array for doors etc. with functionality
         self.changed = False  # TODO only draw game_objects if changed is True
+        self.collider = None
 
     def __eq__(self, other):
         if not isinstance(other, GameObject):
@@ -213,7 +214,7 @@ class Bush(GameObject):
 
 class Tree(GameObject):
 
-    def __init__(self, obj_type, name="Tree_def", materials_=["oak wood"], pos=[0, 0]):
+    def __init__(self, obj_type="Tree", name="Tree_def", materials_=["oak wood"], pos=[0, 0]):
         super().__init__(obj_type=obj_type, name=name, materials=materials_, pos=pos)
 
         self.pixs = []
@@ -262,6 +263,8 @@ class Tree(GameObject):
         for point in self.pixs:
             point[0] += self.pos[0]
             point[1] += self.pos[1]
+
+    def confirm(self):
 
         collAtoms = [CollAtom(p, name="tree") for p in self.pixs]
 
@@ -331,6 +334,8 @@ class Boulder(GameObject):
             point[0] += self.pos[0]
             point[1] += self.pos[1]
 
+    def confirm(self):
+
         collAtoms = [CollAtom(p, name="boulder") for p in self.pixs]
 
         self.collider = pygame.sprite.Group()
@@ -344,14 +349,14 @@ class Boulder(GameObject):
 
 class SimpleHouse(GameObject):
 
-    def __init__(self, obj_type, name="SimpleHouse_def", materials_=["sandstone"], pos=[0, 0]):
+    def __init__(self, obj_type, name="SimpleHouse_def", materials_=["sandstone"], pos=[0, 0], size_contraints=[5, 10]):
         super().__init__(obj_type=obj_type, name=name, materials=materials_, pos=pos)
 
         # set rdm size for the house
         if self.size_x is 0:
-            size_x = numpy.random.randint(5, 10)
+            size_x = numpy.random.randint(size_contraints[0], size_contraints[1])
         if self.size_y is 0:
-            size_y = numpy.random.randint(5, 10)
+            size_y = numpy.random.randint(size_contraints[0], size_contraints[1])
 
         self.size_x = size_x
         self.size_y = size_y
@@ -424,7 +429,7 @@ class SimpleHouse(GameObject):
 
         wall.append([self.size_x-1, self.size_y-1])
 
-        # TODO: this removes door from collider - comment out to make it wall again
+        # TODO: this removes door from collider aka "opens/closes" door - comment out to make it wall again
         door = [self.special_pixs[0][0]-self.pos[0], self.special_pixs[0][1]-self.pos[1]]
         wall.remove(door)
 
@@ -436,6 +441,7 @@ class SimpleHouse(GameObject):
 
         self.collider = pygame.sprite.Group()
 
+        # fill collider with collAtoms
         for atom in collAtoms:
             atom.add(self.collider)
 
@@ -489,8 +495,10 @@ class Ruins(GameObject):
         # remove door
         door_pos = numpy.random.randint(0, self.pixs.__len__())
 
-        while self.pixs[door_pos] == [0, 0] or self.pixs[door_pos] == [0, self.size_y-1] or \
-                self.pixs[door_pos] == [self.size_x-1, 0] or self.pixs[door_pos] == [self.size_x-1, self.size_y-1]:
+        while self.pixs[door_pos] == [0, 0] or \
+                self.pixs[door_pos] == [0, self.size_y-1] or \
+                self.pixs[door_pos] == [self.size_x-1, 0] or \
+                self.pixs[door_pos] == [self.size_x-1, self.size_y-1]:
             door_pos = numpy.random.randint(0, self.pixs.__len__())
 
         door = self.pixs[door_pos]
@@ -500,7 +508,7 @@ class Ruins(GameObject):
         self.special_pixs.append(door)  # holds stuff like doors and windows
 
         # remove random wall pieces
-        rem_counter = numpy.random.randint(1, 2)
+        # rem_counter = numpy.random.randint(1, 2)
         # print(self.pixs.__len__())
         # print(len(self.pixs))
         """

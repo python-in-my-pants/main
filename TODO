@@ -18,3 +18,11 @@ server: unhashable type: connection (wenn 1 client crasht)
 outline OWN starting area in minimap in char select (or only show own?)
 
 make ruins ruined again
+
+show hitchance in ingame overlay
+
+calc bleed damage every turn
+
+build complex houses
+    generate random graph, nodes are rooms, edges are doors, 1 outdoor node connected to min 1 random node
+    put in rooms peu a peu in an intermediate surface
