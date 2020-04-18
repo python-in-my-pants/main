@@ -15,8 +15,6 @@ server: unhashable type: connection (wenn 1 client crasht)
 
 outline OWN starting area in minimap in char select (or only show own?)
 
-make ruins ruined again
-
 show hitchance in ingame overlay
 
 calc bleed damage every turn
@@ -42,3 +40,5 @@ char stat card item stat card ändern
 dont run INTO opponent
 
 differenziere bei inventory buttons zwischen own char (kann switchen mit buttons) und gegner (der kann das nicht lol)
+
+richtige waffe für chars in die hand

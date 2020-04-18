@@ -581,6 +581,7 @@ class MapBuilder:
         bush_limit = int((fields_x*fields_y) / 150)
         boulder_limit = int((fields_x*fields_y) / 150)
         tree_limit = int((fields_x*fields_y) / 150)
+        puddel_limit = int((fields_x*fields_y / 150))
 
         def add_obj(obj_class, obj_limit):
 
@@ -608,6 +609,7 @@ class MapBuilder:
         add_obj(Bush, bush_limit)
         add_obj(Boulder, boulder_limit)
         add_obj(Tree, tree_limit)
+        add_obj(Puddel, puddel_limit)
 
         """# add ruins
         # standard 3
