@@ -48,12 +48,12 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
         self.texture_dump = [pg.transform.scale(pg.image.load("assets/mats/Grass.png"), texture_size),
                              pg.transform.scale(pg.image.load("assets/mats/sandstone.png"), texture_size),
                              pg.transform.scale(pg.image.load("assets/mats/border.png"), texture_size),
-                             pg.transform.scale(pg.image.load("assets/mats/dirt.png"), texture_size),
+                             pg.transform.scale(pg.image.load("assets/mats/House_floor.png"), texture_size),
                              pg.transform.scale(pg.image.load("assets/mats/Flooring.png"), texture_size),
                              pg.transform.scale(pg.image.load("assets/mats/bush.png"), texture_size),
                              None,
                              pg.transform.scale(pg.image.load("assets/mats/boulder.png"), texture_size),
-                             pg.transform.scale(pg.image.load("assets/mats/sandstone.png"), texture_size)]
+                             pg.transform.scale(pg.image.load("assets/mats/Ruin_floor.png"), texture_size)]
 
     def add_object(self, game_object, border_size=0, recursion_depth=0):  # STATUS: partially working, border
         # stuff not yet, crashes when too deep recursion occurs
@@ -437,18 +437,18 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
                                                                     int(def_elem_size * factor))),
                                  (int(go.pos[0] * def_elem_size), int(go.pos[1] * def_elem_size)))
             if go.materials == ["bush"]:
-                self.window.blit(pg.transform.scale(pg.image.load(bush_types[go.type]), (go.size_x * self.elem_size,
-                                                                      go.size_y * self.elem_size)),
-                                 (go.pixs[0][0] * self.elem_size, go.pixs[0][1] * self.elem_size))
+                self.window.blit(pg.transform.scale(pg.image.load(bush_types[go.type]), (go.size_x * def_elem_size,
+                                                                      go.size_y * def_elem_size)),
+                                 (go.pixs[0][0] * def_elem_size, go.pixs[0][1] * def_elem_size))
             elif go.materials == ["boulder"]:
-                self.window.blit(pg.transform.scale(pg.image.load(boulder_types[go.type]), (go.size_x * self.elem_size,
-                                                                                         go.size_y * self.elem_size)),
-                                 (go.pixs[0][0] * self.elem_size, go.pixs[0][1] * self.elem_size))
+                self.window.blit(pg.transform.scale(pg.image.load(boulder_types[go.type]), (go.size_x * def_elem_size,
+                                                                                         go.size_y * def_elem_size)),
+                                 (go.pixs[0][0] * def_elem_size, go.pixs[0][1] * def_elem_size))
             elif go.materials == ["oak wood"]:
                 self.window.blit(pg.transform.scale(pg.image.load(tree_types[go.type]),
-                                                    ((go.size_x + 2) * self.elem_size,
-                                                     (go.size_y + 2) * self.elem_size)),
-                                 ((go.pixs[0][0] - 1) * self.elem_size, (go.pixs[0][1] - 1) * self.elem_size))
+                                                    ((go.size_x + 2) * def_elem_size,
+                                                     (go.size_y + 2) * def_elem_size)),
+                                 ((go.pixs[0][0] - 1) * def_elem_size, (go.pixs[0][1] - 1) * def_elem_size))
 
             else:
                 mat_counter = 0
@@ -576,7 +576,7 @@ class MapBuilder:
 
         # add houses
         # standard 4
-        house_limit = 0 #int((size*size) / 25)
+        house_limit = 4 #int((size*size) / 25)
         house_counter = 0
         for i in range(house_limit):
 
@@ -597,7 +597,7 @@ class MapBuilder:
 
         # add ruins
         # standard 3
-        ruins_limit = 0  # int((size*size) / 25)
+        ruins_limit = 3  # int((size*size) / 25)
         ruins_counter = 0
         for i in range(ruins_limit):
 

@@ -258,20 +258,23 @@ class Character(GameObject):
 
     def shoot(self, dude, partind):
         # Basechance * (0.3 * Dex) - Range + Recoil control
-        if not isinstance(self.active_slot, Weapon):
-            return
-        c_range = self.range(dude)
-        dmg = self.calc_dmg(c_range)
-        p_range = self.calc_p_range(c_range)
-        if isinstance(self.active_slot, (Maschinenpistole, Sturmgewehr, Maschinengewehr)):
-            recoil_acc = self.calc_recoil_acc()
-            chance = int(self.active_slot.acc * (0.3 * self.dexterity) - p_range + recoil_acc)
+        if not dude.is_dead():
+            if not isinstance(self.active_slot, Weapon):
+                return
+            c_range = self.range(dude)
+            dmg = self.calc_dmg(c_range)
+            p_range = self.calc_p_range(c_range)
+            if isinstance(self.active_slot, (Maschinenpistole, Sturmgewehr, Maschinengewehr)):
+                recoil_acc = self.calc_recoil_acc()
+                chance = int(self.active_slot.acc * (0.3 * self.dexterity) - p_range + recoil_acc)
+            else:
+                chance = int(self.active_slot.acc * (0.3 * self.dexterity) - p_range)
+            print(chance)
+            for s in range(self.active_slot.spt):
+                if numpy.random.randint(0, 101) <= chance:
+                    dude.get_damaged(dmg, partind)
         else:
-            chance = int(self.active_slot.acc * (0.3 * self.dexterity) - p_range)
-        print(chance)
-        for s in range(self.active_slot.spt):
-            if numpy.random.randint(0, 101) <= chance:
-                dude.get_damaged(dmg, partind)
+            print("bro he dead yo")
 
     def calc_recoil_acc(self):
         if isinstance(self.active_slot, Maschinenpistole):
@@ -367,9 +370,11 @@ class Character(GameObject):
                 self.gear[0].durability -= 0
                 if self.gear[0].durability <= 0:
                     self.gear[0].durability = 0
+            else:
+                self.health[3] -= dmg
         elif self.health[partind] > 0:
             self.health[partind] -= dmg
-        if self.health[0] <= 0 or self.health[3] <= 0:
+        if self.is_dead():
             self.dead()
         self.hitprint(dmg, partind)
         self.get_bleed(partind)

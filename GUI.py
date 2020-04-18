@@ -1,5 +1,6 @@
 import pygame as pg
 import Data
+import time
 import sys
 
 
@@ -32,11 +33,9 @@ class Button:
         if img_uri or img_source:
 
             if img_uri and not img_source:
-                background_img = pg.image.load(img_uri).convert_alpha()  # HAHAHAHA does not work ...
+                background_img = pg.image.load(img_uri)
             if img_source:
                 background_img = img_source
-
-            # background_img.set_colorkey((0, 0, 0))
 
             if use_dim:
                 background_img = pg.transform.scale(background_img, self.dim)
@@ -44,8 +43,7 @@ class Button:
                 dim = [background_img.get_rect()[2], background_img.get_rect()[3]]
                 self.surf = pg.Surface(dim)
 
-            self.surf.blit(background_img, (0, 0))
-            self.surf.convert_alpha()
+            self.surf = background_img
 
             # TODO make font size dependent on text len
             font_size = int(0.7 * self.dim[1]) if int(0.7*self.dim[1]) < int(0.6*self.dim[0]) else int(0.6*self.dim[0])
@@ -217,7 +215,47 @@ class Overlay:
         }
 
 
+class VisualTimer:
 
+    def __init__(self, amount=0, pos=(0, 0), size=75, action=(lambda: None)):
+        self.amount = amount
+        self.pos = pos
+        self.size = size
+        self.action = action
+
+        self.myfont = pg.font.SysFont('Comic Sans MS', size)
+        self.surf = self.myfont.render("00:00", False, (250, 0, 0))
+        self.pre = 0
+
+    def update_visualtimer(self):
+        if not self.pre:
+            self.pre = int(time.time())
+        if self.amount <= 0:
+            self.action()
+        if self.pre <= int(time.time()) and self.amount > 0:
+            self.amount -= 1
+            minuten = int(self.amount / 60)
+            zwi_zeit = self.amount - (minuten * 60)
+            sekunden = int(zwi_zeit % 60)
+
+            if minuten < 10:
+                minuten_str = "0" + str(minuten)
+            else:
+                minuten_str = str(minuten)
+
+            if sekunden < 10:
+                sekunden_str = "0" + str(sekunden)
+            else:
+                sekunden_str = str(sekunden)
+
+            self.surf = self.myfont.render((minuten_str + ":" + sekunden_str), False, (255, 255, 255))
+            self.pre = int(time.time()) + 1
+
+    def start_timer(self, zeit):
+        self.amount = zeit
+
+    def stop_timer(self):
+        self.amount = 0
 
 
 '''class Textfield:

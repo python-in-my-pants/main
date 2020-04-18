@@ -481,7 +481,7 @@ class SimpleHouse(GameObject):
 
 class Ruins(GameObject):
 
-    def __init__(self, obj_type, name="Ruins_def", materials_=["ruined_wood"], pos=[0, 0]):
+    def __init__(self, obj_type, name="Ruins_def", materials_=["sandstone"], pos=[0, 0]):
         super().__init__(obj_type=obj_type, name=name, materials=materials_, pos=pos)
 
         # set rdm size for the house
@@ -537,7 +537,7 @@ class Ruins(GameObject):
         #  -------------------------------------------------------------------------------------------------------------
 
         # assign material for door and update mat_ind
-        self.add_elem("dirt", [door])  # TODO Was oak wood
+        self.add_elem("ruined_wood", [door])  # TODO Was oak wood
 
         # assign material for floor and update mat_ind
         floor = []
@@ -546,7 +546,7 @@ class Ruins(GameObject):
             for j in range(size_y-2):
                 floor.append([i+1, j+1])
 
-        self.add_elem("dirt", floor)
+        self.add_elem("ruined_wood", floor)
         #  -------------------------------------------------------------------------------------------------------------
 
         # adjust pixels to desired position on map

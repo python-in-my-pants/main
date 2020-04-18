@@ -296,7 +296,6 @@ class ConnectionSetup:
         self.right_surf.blit(self.ip_to_join_btn.surf, self.ip_to_join_btn.pos)
 
         self.left_surf.blit(self.back_btn.surf, self.back_btn.pos)
-
         # put right and left surface to screen
 
         self.screen.blit(self.left_surf, (0, 0))
@@ -1728,6 +1727,7 @@ class InGame:
         self.move_char = False  # has a char moved? used for rendering
         self.used_chars = []  # holds list of chars that already made an action this turn and are not usable anymore
 
+        self.timer = VisualTimer(amount=60, pos=(0, 0))
         self.turn_wait_counter = 0
         self.turn_get_thread = 0
 
@@ -2189,7 +2189,7 @@ class InGame:
 
             percentual_mouse_pos_map_len = [dists_mouse_p_dest[0] / map_len_pixel,
                                             dists_mouse_p_dest[1] / map_len_pixel]
-
+            """
             print("\nrel_mouse_pos\n",
                           rel_mouse_pos,
                           "\ndists_mouse_p_dest\n",
@@ -2200,7 +2200,7 @@ class InGame:
                           percentual_mouse_pos_map_len,
                           "\nself.zoom_factor * self.element_size\n",
                           self.zoom_factor * self.element_size)
-
+            """
             clicked_coords = [  # coords of clicked field (potential movement target)
                 # mouse pos relative to length of map [0 ... 1]
                 int(percentual_mouse_pos_map_len[0] *
@@ -2212,11 +2212,11 @@ class InGame:
                     self.zoom_factor * map_len_pixel /
                     (self.zoom_factor * self.element_size))
             ]
-
+            """
             # TODO skips weird if lower right is targeted
             print("\nclicked coords\n", clicked_coords)
             print("\nr_fields\n", self.r_fields)
-
+            """
             if tuple(clicked_coords) in self.r_fields:
                 prev_pos = self.selected_own_char.pos
                 self.selected_own_char.pos = list(clicked_coords)
@@ -2416,6 +2416,11 @@ class InGame:
 
         self.screen.blit(self.player_banners,
                          dest=[self.char_detail_back.get_width() + self.map_surface.get_width(), 0])
+        if self.timer.amount >= 0:
+            self.timer.update_visualtimer()
+            self.screen.blit(self.timer.surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width()
+                                                    + (self.player_banners.get_width()-206)//2,
+                                                    self.player_banners.get_height()-105])
         self.screen.blit(self.minimap_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
                                                   self.player_banners.get_height()])
         self.screen.blit(self.done_btn_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
@@ -2479,10 +2484,10 @@ class InGame:
                                                self.mouse_pos[1]]):
                                 self.selected_own_char.shoot(self.overlay.boi_to_attack, int(btn.name))
 
-                            if not self.overlay.pos[0] + 100 >= p[0] >= self.overlay.pos[0]:
-                                if not self.overlay.pos[1] + 200 >= p[1] >= self.overlay.pos[1]:
-                                    self.overlay = None
-                                    self.overlay_btn = None
+                        if not self.overlay.pos[0] + 100 >= p[0] >= self.overlay.pos[0]:
+                            if not self.overlay.pos[1] + 200 >= p[1] >= self.overlay.pos[1]:
+                                self.overlay = None
+                                self.overlay_btn = None
 
                     for button in self.weapon_buttons:
                         if button.is_focused(p):
