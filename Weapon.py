@@ -10,9 +10,20 @@ class Weapon:
     # spt = 0             #Schuss per Tick
 
     def __init__(self, class_id=0, name="default", cost=0, weight=0, acc=0, dmg=0, mag=0, spt=0):
-        self.class_id = class_id
+        """
+
+        :param class_id: holds kind of weapon e.g. pistol, sniper, etc.
+        :param name:
+        :param cost:
+        :param weight:
+        :param acc:
+        :param dmg:
+        :param mag:
+        :param spt:
+        """
+        self.class_id = class_id  # class id
         self.name = name
-        self.class_idi = "w" + str(id(self))
+        self.class_idi = "w" + str(id(self))  # unique id
         self.cost = cost
         self.weight = weight
         self.acc = acc
@@ -21,6 +32,7 @@ class Weapon:
         self.spt = spt
 
 
+# <editor-fold desc="weapon classes">
 class Pistole(Weapon):
     def __init__(self, class_id=0, name="Pistole", cost=1, weight=0.7, acc=2.5, dmg=18, mag=10, spt=3):
         super().__init__(class_id, name, cost, weight, acc, dmg, mag, spt)
@@ -54,6 +66,7 @@ class Sniper(Weapon):
 class Raketenwerfer(Weapon):
     def __init__(self, class_id=6, name="Raketenwerfer", cost=5, weight=8, acc=2, dmg=100, mag=1, spt=1):
         super().__init__(class_id, name, cost, weight, acc, dmg, mag, spt)
+# </editor-fold>
 
 
 def make_weapon_by_id(class_id):

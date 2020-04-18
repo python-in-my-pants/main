@@ -94,11 +94,12 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
         #             left   top    right  bottom
         out_of_map = [False, False, False, False]
 
+        border = Border(obj_type="default", size_x_=size_x, size_y_=size_y,
+                        pos=[game_object.pos[0] - border_size, game_object.pos[1] - border_size], thiccness=border_size)
+
         # check if border would be out of map
         if border_size > 0:
-            for pix in Border(obj_type="default", size_x_=size_x, size_y_=size_y,
-                              pos=[game_object.pos[0] - border_size, game_object.pos[1] - border_size],
-                              thiccness=border_size).get_drawable():
+            for pix in border.get_drawable():
                 if pix[0] < 0:
                     out_of_map[0] = True
                 elif pix[1] < 0:
@@ -180,7 +181,7 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
         if game_object.type == "character":
 
             for obj in self.objects:
-                if obj.collider != 0:
+                if obj.collider:
 
                     # use new sprite group for collision, because using game_objects could result in false results after
                     # moving the object (sprites are NOT moved by GameObject methods!)
@@ -228,9 +229,7 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
 
         # check border
         if border_size > 0:
-            for go_pix in Border(obj_type="default", size_x_=size_x - 1, size_y_=size_y - 1,
-                                 pos=[game_object.pos[0] - border_size, game_object.pos[1] - border_size],
-                                 thiccness=border_size).get_drawable():
+            for go_pix in border.get_drawable():
                 if self.unique_pixs[go_pix[1]][go_pix[0]] is not 0:
                     # simple solution: move in random direction
                     # TODO: apply better solution
@@ -253,11 +252,11 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
             self.characters.append(self.objects.__len__() - 1)
 
         if border_size > 0:
-            self.objects.append(Border(obj_type="default", size_x_=size_x - 1, size_y_=size_y - 1,
-                                       pos=[game_object.pos[0] - border_size, game_object.pos[1] - border_size],
-                                       thiccness=border_size))
+            # TODO comment this out to make borders not render
+            pass
+            # self.objects.append(border)
 
-        # modify unique_pixs TODO because new
+        # modify unique_pixs
         for index, go_pix in enumerate(game_object.get_drawable()):
             mat_counter = 0
             if game_object.mat_ind:
@@ -430,25 +429,23 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
                 self.window.blit(self.texture_dump[0], (i * def_elem_size, d * def_elem_size))
 
         for go in self.objects:
-            if go.render_type == "blit":
+            if go.render_type == "blit":  # it is a character
                 if go.is_selected is True:
                     go.orientation = go.orientation  # TODO: look at mouse OR at char to attack
                 go_surf = go.get_drawable_surf()
                 if go.orientation > 0:
                     go_surf = pg.transform.rotate(go_surf, go.orientation)
-                factor = ((numpy.sqrt(2) - 1) / 2) * numpy.sin(3.5 * numpy.pi + 4 * numpy.deg2rad(go.orientation)) + \
-                         ((numpy.sqrt(2) - 1) / 2) + 1
-                factor = 1
-                self.window.blit(pg.transform.smoothscale(go_surf, (int(def_elem_size * factor),
-                                                                    int(def_elem_size * factor))),
+
+                self.window.blit(pg.transform.smoothscale(go_surf, (int(def_elem_size), int(def_elem_size))),
                                  (int(go.pos[0] * def_elem_size), int(go.pos[1] * def_elem_size)))
+
             if go.materials == ["bush"]:
                 self.window.blit(pg.transform.scale(pg.image.load(bush_types[go.type]), (go.size_x * def_elem_size,
-                                                                      go.size_y * def_elem_size)),
+                                                                                         go.size_y * def_elem_size)),
                                  (go.pixs[0][0] * def_elem_size, go.pixs[0][1] * def_elem_size))
             elif go.materials == ["boulder"]:
                 self.window.blit(pg.transform.scale(pg.image.load(boulder_types[go.type]), (go.size_x * def_elem_size,
-                                                                                         go.size_y * def_elem_size)),
+                                                                                            go.size_y * def_elem_size)),
                                  (go.pixs[0][0] * def_elem_size, go.pixs[0][1] * def_elem_size))
             elif go.materials == ["oak wood"]:
                 self.window.blit(pg.transform.scale(pg.image.load(tree_types[go.type]),
@@ -563,48 +560,54 @@ class MapBuilder:
     def build_map(self, size=30, encode_surf=False):
 
         # build map without characters
-
         fields_x = fields_y = size
         self.map = Map(x_size=fields_x, y_size=fields_y)
 
-        # ------------------------------------------------------------------------------------------------------------
-
-        # self.map.window.fill((23, 157, 0))
-
         # add spawns
-        areas = Spawnarea.create_areals([fields_x, fields_y])  # TODO
+        areas = Spawnarea.create_areals([fields_x, fields_y])
 
         # areas are the first game_objects
         for area in areas:
             self.map.add_object(area)
 
-        # TODO put the "add ..." stuff in a function
+        # buildings
+        house_limit = int((fields_x*fields_y) / 250)
+        ruins_limit = int((fields_x*fields_y) / 250)
 
-        # add houses
-        # standard 4
-        house_limit = 4 #int((size*size) / 25)
-        house_counter = 0
-        for i in range(house_limit):
+        # nature
+        bush_limit = int((fields_x*fields_y) / 150)
+        boulder_limit = int((fields_x*fields_y) / 150)
+        tree_limit = int((fields_x*fields_y) / 150)
 
-            h = SimpleHouse(name=("Simple house " + str(house_counter)), obj_type="default",
-                            pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
+        def add_obj(obj_class, obj_limit):
 
-            # while there is a house (to add) and it does not fit and you did not try 100 times yet generate a new one
-            limit = 0
-            while h != 0 and self.map.add_object(h, border_size=1) != 1 and limit < 100:
-                h = SimpleHouse(name=("Simple house " + str(house_counter)), obj_type="default",
-                                pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
-                limit += 1
+            obj_counter = 0
+            for i in range(obj_limit):
 
-            if limit >= 100:
-                print("Could not place another object")
-            else:
-                house_counter += 1
+                h = obj_class(name=(obj_class.__name__ + " " + str(obj_counter)), obj_type=obj_class.__name__,
+                              pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
 
-        # add ruins
+                # while there is a house (to add) and it does not fit and you did not try 100 times yet
+                # generate a new one
+                limit = 0
+                while h != 0 and self.map.add_object(h, border_size=1) != 1 and limit < 100:
+                    h = SimpleHouse(name=(obj_class.__name__ + " " + str(obj_counter)), obj_type=obj_class.__name__,
+                                    pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
+                    limit += 1
+
+                if limit >= 100:
+                    print("Could not place another object")
+                else:
+                    obj_counter += 1
+
+        add_obj(SimpleHouse, house_limit)
+        add_obj(Ruins, ruins_limit)
+        add_obj(Bush, bush_limit)
+        add_obj(Boulder, boulder_limit)
+        add_obj(Tree, tree_limit)
+
+        """# add ruins
         # standard 3
-        ruins_limit = 3  # int((size*size) / 25)
-        ruins_counter = 0
         for i in range(ruins_limit):
 
             h = Ruins(name=("Ruins " + str(ruins_counter)), obj_type="default",
@@ -624,8 +627,6 @@ class MapBuilder:
 
         # add bushes
         # standard 5
-        bush_limit = 0  # int((size*size)/15)
-        bush_counter = 0
         for i in range(bush_limit):
 
             h = Bush(name=("Simple bush " + str(bush_counter)), obj_type="default",
@@ -645,8 +646,6 @@ class MapBuilder:
 
         # add boulder
         # standard 5
-        boulder_limit = 0  # int((size*size)/15)
-        boulder_counter = 0
         for i in range(boulder_limit):
 
             h = Boulder(name=("Simple boulder " + str(boulder_counter)), obj_type="Boulder",
@@ -666,8 +665,6 @@ class MapBuilder:
 
         # add tree
         # standard 3
-        tree_limit = 0  # int((size*size)/15)
-        tree_counter = 0
         for i in range(tree_limit):
 
             h = Tree(name=("Simple tree " + str(tree_counter)), obj_type="Tree",
@@ -683,7 +680,7 @@ class MapBuilder:
             if limit >= 100:
                 print("Could not place another object")
             else:
-                tree_counter += 1
+                tree_counter += 1"""
 
         # draw everything to surf
         # TODO why would I draw this here already?

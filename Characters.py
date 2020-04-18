@@ -52,8 +52,8 @@ class Character(GameObject):
         self.team = team
         self.cost = cost
 
-        self.class_id = class_id
-        self.idi = "c" + str(id(self))
+        self.class_id = class_id  # class id
+        self.idi = "c" + str(id(self))  # unique id
 
         self.health = health[:]
         self.dexterity = dexterity
@@ -88,12 +88,12 @@ class Character(GameObject):
         self.carry = carry
 
     def class_selector(self):
-            self.stamina = class_stats[self.class_id][0]
-            self.speed = class_stats[self.class_id][1]
-            self.dexterity = class_stats[self.class_id][2]
-            self.strength = class_stats[self.class_id][3]
-            self.weight = class_stats[self.class_id][4]
-            self.cost = class_stats[self.class_id][5]
+        self.stamina = class_stats[self.class_id][0]
+        self.speed = class_stats[self.class_id][1]
+        self.dexterity = class_stats[self.class_id][2]
+        self.strength = class_stats[self.class_id][3]
+        self.weight = class_stats[self.class_id][4]
+        self.cost = class_stats[self.class_id][5]
 
     def weight_calculator(self):
         return self.strength * 11
@@ -252,6 +252,18 @@ class Character(GameObject):
             self.active_slot = self.items[index]
             return
         print("Warning! Active slot must hold an item or a weapon!")
+
+    def get_active_slot(self):
+        if self.active_slot:
+            return self.active_slot
+        else:
+            if self.weapons:
+                self.active_slot = self.weapons[0]
+                return self.active_slot
+            if self.items:
+                self.active_slot = self.items[0]
+                return self.active_slot
+            return None
 
     def range(self, dude):
         return abs(numpy.sqrt(((self.pos[0]-dude.pos[0])**2)+((self.pos[1]-dude.pos[1])**2)))

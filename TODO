@@ -9,8 +9,6 @@ cancel join automatisch wenn kein game zum joinen ausgewählt war
 
 add custom fields to enter map size and lbby name
 
-walk INTO houses
-
 adjust default item & weapon in ingame init
 
 server: unhashable type: connection (wenn 1 client crasht)
@@ -29,8 +27,18 @@ build complex houses
 
 use Bebauungsplan for setting objects on map
 
-make chars look at mouse
+make selected char look at mouse
 
 blit only parts that may have changed in main screen (right & left ui are likely to not change most of the frames)
 
 use buffers for blitting in main screen?
+
+attack overlay does not shift yet
+
+update hp bars
+
+char stat card item stat card ändern
+
+dont run INTO opponent
+
+differenziere bei inventory buttons zwischen own char (kann switchen mit buttons) und gegner (der kann das nicht lol)
