@@ -2070,7 +2070,7 @@ class InGame:
                 # TODO
                 # attack routine
                 current_pos = pg.mouse.get_pos()
-                if current_pos[1] >= 700:
+                if current_pos[1] >= 250:
                     current_pos = [current_pos[0], current_pos[1] - 200]
                 if current_pos[0] >= 1300 - self.minimap_surf.get_width():
                     current_pos = [current_pos[0] - 100, current_pos[1]]
@@ -2210,8 +2210,10 @@ class InGame:
                     pos_h = self.inventory_gap_size
 
                     def f(_i):  # just chance image, dont change held item
-                        print("------item stat card was changed")
-                        self.item_stat_card = self.detail_gear[self.selected_char.gear[_i].my_id]
+                        def inner_func():
+                            print("------item stat card was changed")
+                            self.item_stat_card = self.detail_gear[self.selected_char.gear[_i].my_id]
+                        return inner_func
 
                     btn = Button(dim=[self.btn_w, self.btn_h], pos=[pos_w, pos_h],
                                  real_pos=[pos_w, pos_h + self.char_detail_back.get_height()],
@@ -2488,7 +2490,12 @@ class InGame:
                     self.overlay.newblit = True
                 if not self.overlay.newblit:
                     self.overlay.surf = self.overlay.type["6"]
+            if self.selected_own_char:
+                self.overlay.update_info(self.selected_own_char.get_chance(self.overlay.boi_to_attack))
             self.screen.blit(self.overlay.surf, dest=self.overlay.pos)
+            for i in range(len(self.overlay.info_tafel)):
+                self.screen.blit(self.overlay.info_tafel[i], dest=(self.overlay.info_pos[0],
+                                                                   self.overlay.info_pos[1] + (i * 43)))
         #####
         # left
 

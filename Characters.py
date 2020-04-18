@@ -270,23 +270,29 @@ class Character(GameObject):
 
     def shoot(self, dude, partind):
         # Basechance * (0.3 * Dex) - Range + Recoil control
+        chance, dmg, spt = self.get_chance(dude)
+        for s in range(spt):
+            if numpy.random.randint(0, 101) <= chance:
+                dude.get_damaged(dmg, partind)
+
+    def get_chance(self, dude):
         if not dude.is_dead():
             if not isinstance(self.active_slot, Weapon):
-                return
+                return "Bruh equip ne Waffe!"
             c_range = self.range(dude)
             dmg = self.calc_dmg(c_range)
             p_range = self.calc_p_range(c_range)
+            spt = self.active_slot.spt
+
             if isinstance(self.active_slot, (Maschinenpistole, Sturmgewehr, Maschinengewehr)):
                 recoil_acc = self.calc_recoil_acc()
                 chance = int(self.active_slot.acc * (0.3 * self.dexterity) - p_range + recoil_acc)
             else:
                 chance = int(self.active_slot.acc * (0.3 * self.dexterity) - p_range)
-            print(chance)
-            for s in range(self.active_slot.spt):
-                if numpy.random.randint(0, 101) <= chance:
-                    dude.get_damaged(dmg, partind)
+
+            return chance, dmg, spt
         else:
-            print("bro he dead yo")
+            return "Bro, he dead yo!"
 
     def calc_recoil_acc(self):
         if isinstance(self.active_slot, Maschinenpistole):

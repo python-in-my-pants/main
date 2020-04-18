@@ -188,6 +188,11 @@ class Overlay:
         self.pos = pos
         self.boi_to_attack = boi_to_attack
         self.newblit = False
+
+        self.info_pos = self.pos[0], self.pos[1] + 200
+        self.myfont = pg.font.SysFont('Comic Sans MS', 30)
+        self.info_tafel = []
+
         self.type = {
             "0": pg.transform.scale(pg.image.load("assets/Overlay/dude_kopf.png"), (100, 200)),
             "1": pg.transform.scale(pg.image.load("assets/Overlay/dude_larm.png"), (100, 200)),
@@ -197,6 +202,7 @@ class Overlay:
             "5": pg.transform.scale(pg.image.load("assets/Overlay/dude_rbein.png"), (100, 200)),
             "6": pg.transform.scale(pg.image.load("assets/Overlay/dude.png"), (100, 200))
         }
+
         self.btn_dim = {
             0: (20, 25),
             1: (19, 69),
@@ -205,6 +211,7 @@ class Overlay:
             4: (15, 87),
             5: (15, 87)
         }
+
         self.btn_pos = {
             0: [self.pos[0] + 41, self.pos[1] + 16],
             1: [self.pos[0] + 16, self.pos[1] + 41],
@@ -213,6 +220,19 @@ class Overlay:
             4: [self.pos[0] + 35, self.pos[1] + 93],
             5: [self.pos[0] + 51, self.pos[1] + 93],
         }
+
+    def update_info(self, info):
+        self.info_tafel = []
+        if isinstance(info, tuple):
+            self.info_tafel.append(self.myfont.render(("Hitchance: " + str(info[0]) + " %"),
+                                   False, (255, 255, 255), (0, 0, 0)))
+            self.info_tafel.append(self.myfont.render(("Damage: " + str(info[1])),
+                                   False, (255, 255, 255), (0, 0, 0)))
+            self.info_tafel.append(self.myfont.render(("Shots: " + str(info[2])),
+                                   False, (255, 255, 255), (0, 0, 0)))
+
+        elif isinstance(info, str):
+            self.info_tafel.append(self.myfont.render(info, False, (255, 255, 255), (0, 0, 0)))
 
 
 class VisualTimer:
