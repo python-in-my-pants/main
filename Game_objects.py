@@ -257,6 +257,76 @@ class Bush(GameObject):
         return self.pixs
 
 
+class Puddel(GameObject):
+
+    def __init__(self, obj_type, name="Puddel_def", materials_=["puddel"], pos=[0, 0]):
+        super().__init__(obj_type=obj_type, name=name, materials=materials_, pos=pos)
+
+        self.pixs = []
+        self.type = 0
+
+        rando = numpy.random.randint(0, 6)
+        if rando == 0:
+            self.pixs.append([0, 0])
+            self.type = 0
+
+            self.size_x = 1  #
+            self.size_y = 1
+        if rando == 1:
+            self.pixs.append([0, 0])
+            self.pixs.append([1, 0])
+            self.type = 2
+
+            self.size_x = 2  ##
+            self.size_y = 1
+        if rando == 2:
+            self.pixs.append([0, 0])
+            self.pixs.append([0, 1])
+            self.type = 1
+
+            self.size_x = 1  #
+            self.size_y = 2  #
+        if rando == 3:
+            self.pixs.append([0, 0])
+            self.pixs.append([0, 1])
+            self.pixs.append([1, 0])
+            self.pixs.append([1, 1])
+            self.type = 3
+
+            self.size_x = 2  ##
+            self.size_y = 2  ##
+        if rando == 4:
+            self.pixs.append([0, 0])
+            self.pixs.append([0, 1])
+            self.pixs.append([1, 0])
+            self.pixs.append([1, 1])
+            self.pixs.append([2, 0])
+            self.pixs.append([2, 1])
+            self.type = 5
+
+            self.size_x = 3  ###
+            self.size_y = 2  ###
+        if rando == 5:
+            self.pixs.append([0, 0])
+            self.pixs.append([0, 1])
+            self.pixs.append([1, 0])
+            self.pixs.append([1, 1])
+            self.pixs.append([0, 2])
+            self.pixs.append([1, 2])
+            self.type = 4
+
+            self.size_x = 2  ##
+            self.size_y = 3  ##
+                             ##
+
+        for point in self.pixs:
+            point[0] += self.pos[0]
+            point[1] += self.pos[1]
+
+    def get_drawable(self):
+        return self.pixs
+
+
 class Tree(GameObject):
 
     def __init__(self, obj_type="Tree", name="Tree_def", materials_=["oak wood"], pos=[0, 0]):
@@ -520,33 +590,36 @@ class Ruins(GameObject):
                 self.pixs.remove(pix)
 
         # remove door
-        door_pos = numpy.random.randint(0, self.pixs.__len__())
-
-        while self.pixs[door_pos] == [0, 0] or \
-                self.pixs[door_pos] == [0, self.size_y-1] or \
-                self.pixs[door_pos] == [self.size_x-1, 0] or \
-                self.pixs[door_pos] == [self.size_x-1, self.size_y-1]:
+        doors = []
+        for i in range(10):
             door_pos = numpy.random.randint(0, self.pixs.__len__())
 
-        door = self.pixs[door_pos]
+            while self.pixs[door_pos] == [0, 0] or \
+                    self.pixs[door_pos] == [0, self.size_y - 1] or \
+                    self.pixs[door_pos] == [self.size_x - 1, 0] or \
+                    self.pixs[door_pos] == [self.size_x - 1, self.size_y - 1]:
+                door_pos = numpy.random.randint(0, self.pixs.__len__())
 
-        self.pixs.remove(self.pixs[door_pos])
+            if self.pixs[door_pos] not in self.special_pixs:
+                door = self.pixs[door_pos]
 
-        self.special_pixs.append(door)  # holds stuff like doors and windows
 
-        # remove random wall pieces
-        # rem_counter = numpy.random.randint(1, 2)
-        # print(self.pixs.__len__())
-        # print(len(self.pixs))
-        """
-        for _ in range(rem_counter):
-            self.pixs.pop(numpy.random.randint(0, len(self.pixs) + 1))
-            """
-        #  -------------------------------------------------------------------------------------------------------------
+                self.pixs.remove(self.pixs[door_pos])
+                self.special_pixs.append(door)  # holds stuff like doors and windows
+                # remove random wall pieces
+                # rem_counter = numpy.random.randint(1, 2)
+                # print(self.pixs.__len__())
+                # print(len(self.pixs))
+                """
+                for _ in range(rem_counter):
+                        self.pixs.pop(numpy.random.randint(0, len(self.pixs) + 1))
+                        """
+                #  -------------------------------------------------------------------------------------------------------------
 
-        # assign material for door and update mat_ind
-        self.add_elem("ruined_wood", [door])  # TODO Was oak wood
-
+                # assign material for door and update mat_ind
+                #self.add_elem("ruined_wood", [door])  # TODO Was oak wood
+                doors.append(door)
+        self.add_elem("ruined_wood", doors)
         # assign material for floor and update mat_ind
         floor = []
 
@@ -574,10 +647,10 @@ class Ruins(GameObject):
             wall.append([self.size_x-1, i])
 
         wall.append([self.size_x-1, self.size_y-1])
-
         # TODO: this removes door from collider - comment out to make it wall again
-        door = [self.special_pixs[0][0]-self.pos[0], self.special_pixs[0][1]-self.pos[1]]
-        wall.remove(door)
+        for i in range(self.special_pixs.__len__()):
+            door = [self.special_pixs[i][0]-self.pos[0], self.special_pixs[i][1]-self.pos[1]]
+            wall.remove(door)
 
         for point in wall:
             point[0] += self.pos[0]

@@ -446,14 +446,17 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
                 self.window.blit(pg.transform.scale(pg.image.load(bush_types[go.type]), (go.size_x * def_elem_size,
                                                                       go.size_y * def_elem_size)),
                                  (go.pixs[0][0] * def_elem_size, go.pixs[0][1] * def_elem_size))
+            elif go.materials == ["puddel"]:
+                self.window.blit(pg.transform.scale(pg.image.load(puddel_types[go.type]), (go.size_x * def_elem_size,
+                                                                      go.size_y * def_elem_size)),
+                                 (go.pixs[0][0] * def_elem_size, go.pixs[0][1] * def_elem_size))
             elif go.materials == ["boulder"]:
                 self.window.blit(pg.transform.scale(pg.image.load(boulder_types[go.type]), (go.size_x * def_elem_size,
-                                                                                         go.size_y * def_elem_size)),
+                                                                      go.size_y * def_elem_size)),
                                  (go.pixs[0][0] * def_elem_size, go.pixs[0][1] * def_elem_size))
             elif go.materials == ["oak wood"]:
-                self.window.blit(pg.transform.scale(pg.image.load(tree_types[go.type]),
-                                                    ((go.size_x + 2) * def_elem_size,
-                                                     (go.size_y + 2) * def_elem_size)),
+                self.window.blit(pg.transform.scale(pg.image.load(tree_types[go.type]), ((go.size_x + 2) * def_elem_size,
+                                                                     (go.size_y + 2) * def_elem_size)),
                                  ((go.pixs[0][0] - 1) * def_elem_size, (go.pixs[0][1] - 1) * def_elem_size))
 
             else:
@@ -582,7 +585,7 @@ class MapBuilder:
 
         # add houses
         # standard 4
-        house_limit = 4 #int((size*size) / 25)
+        house_limit = 0 #int((size*size) / 25)
         house_counter = 0
         for i in range(house_limit):
 
@@ -603,7 +606,7 @@ class MapBuilder:
 
         # add ruins
         # standard 3
-        ruins_limit = 3  # int((size*size) / 25)
+        ruins_limit = 1  # int((size*size) / 25)
         ruins_counter = 0
         for i in range(ruins_limit):
 
@@ -642,6 +645,27 @@ class MapBuilder:
                 print("Could not place another object")
             else:
                 bush_counter += 1
+
+        # add puddels
+        # standard 5
+        puddel_limit = 0  # int((size*size)/15)
+        puddel_counter = 0
+        for i in range(puddel_limit):
+
+            h = Puddel(name=("Simple puddel " + str(puddel_counter)), obj_type="default",
+                        pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
+
+            # while there is a house (to add) and it doesn't fit and you didn't try 100 times yet generate a new one
+            limit = 0
+            while h != 0 and self.map.add_object(h, border_size=1) != 1 and limit < 100:
+                h = Bush(name=("Simple puddel " + str(puddel_counter)), obj_type="default",
+                          pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
+                limit += 1
+
+            if limit >= 100:
+                print("Could not place another object")
+            else:
+                puddel_counter += 1
 
         # add boulder
         # standard 5

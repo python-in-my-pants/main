@@ -2422,14 +2422,15 @@ class InGame:
                                                                                self.mouse_pos[1]):
             self.draw_dotted_line(self.screen, line_points)
 
-        if self.overlay:
+        if self.overlay and self.overlay_btn:
+            self.overlay.newblit = False
             for btn in self.overlay_btn:
-                if btn.is_focused(pg.mouse.get_pos()):
+                if btn.is_focused([self.mouse_pos[0]-self.char_detail_back.get_width(), self.mouse_pos[1]]):
                     self.overlay.surf = self.overlay.type[btn.name]
-                else:
+                    self.overlay.newblit = True
+                if not self.overlay.newblit:
                     self.overlay.surf = self.overlay.type["6"]
             self.screen.blit(self.overlay.surf, dest=self.overlay.pos)
-
         #####
         # left
 
@@ -2453,27 +2454,6 @@ class InGame:
         self.screen.blit(self.done_btn_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
                                                    self.player_banners.get_height() + self.minimap_surf.get_height()])
 
-        if self.overlay and self.overlay_btn:
-            """
-             for btn in self.overlay_btn:
-                s = pg.Surface((btn.dim[0], btn.dim[1]))
-                s.fill((255, 0, 0))
-                self.screen.blit(s, btn.pos)
-            """
-            self.overlay.newblit = False
-            for btn in self.overlay_btn:
-                if btn.is_focused([self.mouse_pos[0]-self.char_detail_back.get_width(), self.mouse_pos[1]]):
-                    self.overlay.surf = self.overlay.type[btn.name]
-                    self.overlay.newblit = True
-                if not self.overlay.newblit:
-                    self.overlay.surf = self.overlay.type["6"]
-            self.screen.blit(self.overlay.surf, dest=self.overlay.pos)
-            """
-            print("\nMouse pos and real pos\n",
-                  self.mouse_pos, (self.mouse_pos[0]-self.char_detail_back.get_width(), self.mouse_pos[1]),
-                  "\nbtn pos and real pos\n",
-                  self.overlay_btn[4].pos, self.overlay_btn[4].real_pos)
-            """
         # </editor-fold>
         # </editor-fold>
 

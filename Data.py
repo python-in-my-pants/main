@@ -51,6 +51,7 @@ material_codes = {
     "player": 6,
     "boulder": 7,
     "ruined_wood": 8,
+    "puddel": 9,
     "default": -1
 }
 
@@ -61,6 +62,15 @@ bush_types = {
     3: "assets/mats/Bush/Bush_2x2.png",
     4: "assets/mats/Bush/Bush_2x3.png",
     5: "assets/mats/Bush/Bush_3x2.png"
+}
+
+puddel_types = {
+    0: "assets/mats/Puddel/Puddel_1x1.png",
+    1: "assets/mats/Puddel/Puddel_1x2.png",
+    2: "assets/mats/Puddel/Puddel_2x1.png",
+    3: "assets/mats/Puddel/Puddel_2x2.png",
+    4: "assets/mats/Puddel/Puddel_2x3.png",
+    5: "assets/mats/Puddel/Puddel_3x2.png"
 }
 
 boulder_types = {
