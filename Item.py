@@ -7,13 +7,14 @@ TODO Add weight to item classes
 
 class Item:
 	def __init__(self, my_id=0, name="default", cost=1, weight=0):
-		self.my_id = my_id
+		self.my_id = my_id  # class id
 		self.name = name
-		self.idi = "i" + str(id(self))
+		self.idi = "i" + str(id(self))  # unique id
 		self.cost = cost
 		self.weight = weight
 
 
+# <editor-fold desc="Items">
 class Bandage(Item):
 	def __init__(self, my_id=0, name="Bandage", cost=1, value=25, weight=0.5):
 		super().__init__(my_id, name, cost, weight)
@@ -60,6 +61,7 @@ class Defdope(Item):
 	def __init__(self, my_id=6, name="Defence-Dope", cost=3, timer=5, weight=0.1):
 		super().__init__(my_id, name, cost, weight)
 		self.timer = timer
+# </editor-fold>
 
 
 def make_item_by_id(my_id):
@@ -74,12 +76,13 @@ def make_item_by_id(my_id):
 
 class Gear:
 	def __init__(self, my_id=0, cost=1, weight=0):
-		self.my_id = my_id
-		self.idi = id(self)
+		self.my_id = my_id  # class id
+		self.idi = id(self)  # unique id
 		self.cost = cost
 		self.weight = weight
 
 
+# <editor-fold desc="Gear">
 class Helm(Gear):
 	def __init__(self, my_id=0, cost=1, durability=0, reduction=0, weight=0):
 		super().__init__(my_id, cost, weight)
@@ -125,11 +128,12 @@ class Armor(Gear):
 			self.reduction = 0.7
 			self.cost = 10
 			self.weight = 15
+# </editor-fold>
 
 
 def make_gear_by_id(my_id):
-	if my_id == 0 or my_id == 1 or my_id == 2: return Helm(my_id)
-	if my_id == 3 or my_id == 4 or my_id == 5: return Armor(my_id)
+	if my_id in [0, 1, 2]: return Helm(my_id)
+	if my_id in [3, 4, 5]: return Armor(my_id)
 
 '''boi = Bandage()
 print(boi.idi)

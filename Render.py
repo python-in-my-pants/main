@@ -110,7 +110,7 @@ class ConnectionSetup:
         self.get_hosting_list_counter = 0
         self.game_to_join = None
 
-        #self.ip_field_text = ...  # TODO change; this will be a button in a list of games to join marking the game as the game to join
+        # self.ip_field_text = ...  # TODO change; this will be a button in a list of games to join marking the game as the game to join
         self.desi_board_text = "35"  # TODO change; here you should also enter the game name -> GameName, size, e.g. Dungeon, 50
 
         self.game_map_string = None
@@ -200,21 +200,23 @@ class ConnectionSetup:
         self.buttons.append(self.join_btn)
 
         self.join_stat_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
-                               pos=[int((surfs_size[0] / 2) / 2),
-                                    int(surfs_size[1] * 0.43)],
-                               real_pos=[int((self.right_surf.get_width() - (surfs_size[0] / 2)) / 2) +
-                                         self.left_surf.get_width(), int(surfs_size[1] * 0.43)], color=(135, 206, 235),
-                               text="Join a game UwU", name="join_stat", action=(lambda: None))
+                                    pos=[int((surfs_size[0] / 2) / 2),
+                                         int(surfs_size[1] * 0.43)],
+                                    real_pos=[int((self.right_surf.get_width() - (surfs_size[0] / 2)) / 2) +
+                                              self.left_surf.get_width(), int(surfs_size[1] * 0.43)],
+                                    color=(135, 206, 235),
+                                    text="Join a game UwU", name="join_stat", action=(lambda: None))
 
         self.buttons.append(self.join_stat_btn)
 
         # ToDo Rename in Lobby list or create new one
         self.ip_to_join_btn = Button([int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
-                                pos=[int((self.right_surf.get_width() - (surfs_size[0] / 2)) / 2),
-                                     int(surfs_size[1] * 0.7)],
-                                real_pos=[int((self.right_surf.get_width() - (surfs_size[0] / 2)) / 2) +
-                                          self.left_surf.get_width(), int(surfs_size[1] * 0.7)], color=(255, 255, 255),
-                                text="No games hosted", name="ip_to_join_btn", action=self.ip_field_fkt)
+                                     pos=[int((self.right_surf.get_width() - (surfs_size[0] / 2)) / 2),
+                                          int(surfs_size[1] * 0.7)],
+                                     real_pos=[int((self.right_surf.get_width() - (surfs_size[0] / 2)) / 2) +
+                                               self.left_surf.get_width(), int(surfs_size[1] * 0.7)],
+                                     color=(255, 255, 255),
+                                     text="No games hosted", name="ip_to_join_btn", action=self.ip_field_fkt)
 
         self.buttons.append(self.ip_to_join_btn)
         # this is here for a reason, just don't know which that is
@@ -246,7 +248,8 @@ class ConnectionSetup:
             new_list = self.client.get_hosting_list()
 
             # check if hosting list is new
-            if not Data.hostin_list_eq(new_list, self.hosting_list):  # TODO does think that a new list came after reconnecting to server
+            if not Data.hostin_list_eq(new_list,
+                                       self.hosting_list):  # TODO does think that a new list came after reconnecting to server
                 self.hosting_list = new_list
 
                 if bool(self.hosting_list):  # if it is full
@@ -1013,6 +1016,7 @@ class CharacterSelection:  # commit comment
                                             self.scroll_offset], color=(30, 230, 50), text="Gegenstände",
                                   action=item_ban_func)
         self.banners.append(self.item_banner)
+
         # </editor-fold>
 
         # #############################################################################################################
@@ -1171,6 +1175,7 @@ class CharacterSelection:  # commit comment
                               action=item_function_binder("ic_btn_function_" + str(i), i))
 
             self.item_cards.append(card_btn)
+
         # </editor-fold>
 
         #########
@@ -1257,6 +1262,7 @@ class CharacterSelection:  # commit comment
 
         btn_fkt.__name__ = name
         return btn_fkt
+
     # </editor-fold>
 
     def update(self):  # TODO for better performance render only things that changed
@@ -1762,11 +1768,12 @@ class InGame:
 
         # holds selected char of own team
         self.selected_own_char = None  # self.own_team.characters[0] TODO
-        self.selected_item = None
-        self.selected_weapon = None
 
         # holds selected char (maybe from opponent team)
         self.selected_char = self.selected_own_char
+
+        self.selected_item = None
+        self.selected_weapon = None
 
         # -------------------------------------------------------------------------------------------------------------
         # render image lists
@@ -1843,10 +1850,10 @@ class InGame:
             [int(7 * w / 32), int(0.34 * 4 * h / 18)])  # 2 first are gear, last 3 are weapons
         self.inventory_items_surf = pg.Surface([int(7 * w / 32), int(0.66 * 4 * h / 18)])  # 2 rows high
 
-        # TODO make so that actual stats are shown in character card instead of just standard stats
         self.item_detail_back = pg.Surface([int(7 * w / 32), int(7 * h / 18)])
         # self.item_detail_back.fill((77, 98, 219))
         # self.item_detail_back.fill((255, 0, 0))
+        # tODO start empty
         self.item_stat_card = self.detail_item[0]  # just start with this pic bc first team char may not have an item
         # </editor-fold>
 
@@ -1858,7 +1865,7 @@ class InGame:
                           ((int((1 / 32) * 7 * w / 32) +  # number of lines * gap size
                             int(1.6 * (5 / 32) * 7 * w / 32)))  # button + hp bar
 
-        self.map_surface = pg.Surface([int(9*w/16), h])
+        self.map_surface = pg.Surface([int(9 * w / 16), h])
         self.game_map.selective_draw_map(team_num=self.own_team.team_num)
         self.map_content = fit_surf(surf=self.game_map.window, size=self.map_surface.get_size())
 
@@ -1884,6 +1891,7 @@ class InGame:
         # TODO set content of minimap by blitting scaled map to it
         self.minimap_surf = pg.Surface([int(7 * w / 32), int(7 * h / 18)])
         self.done_btn_surf = pg.Surface([int(7 * w / 32), int(4 * h / 18)])
+
         # </editor-fold>
 
         # -------------------------------------------------------------------------------------------------------------
@@ -1896,7 +1904,26 @@ class InGame:
         def sel_own_char_binder(name, _id):
 
             def func():
+
+                if self.selected_own_char and self.selected_own_char.idi == _id:
+                    self.selected_own_char = None
+                    self.selected_char = None
+                    self.r_fields = []
+                    return
+
                 self.selected_own_char = self.own_team.get_char_by_unique_id(_id)
+                self.selected_char = self.selected_own_char
+                slot = self.selected_own_char.get_active_slot()
+
+                self.selected_item = slot if (slot and isinstance(slot, Item)) else None
+                self.selected_weapon = slot if (slot and isinstance(slot, Weapon)) else None
+
+                # highlight reachable fields by blitting green transparent stuff over them, returns list of tuples
+                self.r_fields = self.game_map.get_reachable_fields(self.selected_own_char)
+
+                # TOdo check whether a user clicks on a reachable field on click
+                #  (get vector from map surface upper left to mouse and calc mouse field pos from that)
+                # TODO move character to destination (show dotted line for opponent)
 
             func.__name__ = name
             return func
@@ -1917,6 +1944,7 @@ class InGame:
                         self.turn_wait_counter += 1
                 # ToDo Turn Apply Function?
                 return
+
         # </editor-fold>
 
         # <editor-fold desc="button inits">
@@ -1990,8 +2018,9 @@ class InGame:
                          pos=[char.get_pos(0) * self.current_element_size,  # no zoom size or anything bc we're in init
                               char.get_pos(1) * self.current_element_size],
 
-                         real_pos=[int((char.get_pos(0) * self.current_element_size) + self.char_detail_back.get_width()),
-                                   int((char.get_pos(1) * self.current_element_size))],
+                         real_pos=[
+                             int((char.get_pos(0) * self.current_element_size) + self.char_detail_back.get_width()),
+                             int((char.get_pos(1) * self.current_element_size))],
 
                          # TODO img_uri="assets/char/" + str(char.unit_class) + ".png",
                          img_source=self.map_char_imgs[char.class_id],
@@ -2020,22 +2049,22 @@ class InGame:
 
                 if char == self.selected_own_char:
                     self.selected_own_char = None
+                    self.selected_char = None
                     self.r_fields = []
                     return
 
                 self.selected_own_char = char
+                self.selected_char = self.selected_own_char
 
-                self.selected_item = None if not self.selected_own_char.items else self.selected_own_char.items[0]
-                self.selected_weapon = None if not self.selected_own_char.weapons else self.selected_own_char.weapons[0]
-                self.selected_own_char.change_active_slot("Weapon" if self.selected_weapon else "Item", 0)
+                slot = self.selected_own_char.get_active_slot()
+                self.selected_item = slot if (slot and isinstance(slot, Item)) else None
+                self.selected_weapon = slot if (slot and isinstance(slot, Weapon)) else None
 
                 # highlight reachable fields by blitting green transparent stuff over them
                 # returns list of tuples
                 self.r_fields = self.game_map.get_reachable_fields(self.selected_own_char)
 
-                # TOdo check whether a user clicks on a reachable field on click
-                #  (get vector from map surface upper left to mouse and calc mouse field pos from that)
-                # TODO move character to destination (show dotted line for opponent)
+                # TODO show dotted line for opponent
 
             if char.team != self.own_team.team_num and self.selected_own_char:  # opp. char
                 # TODO
@@ -2054,6 +2083,11 @@ class InGame:
                                            self.overlay.btn_pos[i][1]], name=str(i))
                     self.overlay_btn.append(btn)
 
+            if char.team != self.own_team.team_num and not self.selected_own_char:
+
+                # just select him as selected char
+                self.selected_char = char
+
         func.__name__ = name
         return func
 
@@ -2062,15 +2096,21 @@ class InGame:
         def func():
 
             if item_type == "weapon":
-                for i, weap in enumerate(self.selected_own_char.weapons):
-                    if weap.class_idi == _id:
-                        self.selected_own_char.change_active_slot(["Weapon", i])
+                for i, weapon in enumerate(self.selected_char.weapons):
+                    if weapon.class_idi == _id:
+                        if self.selected_own_char:
+                            self.selected_own_char.change_active_slot("Weapon", i)
+                        self.item_stat_card.fill((255, 43, 65)) #= self.detail_weapon[weapon.class_id]
+                        print("------item stat card was changed")
                         return
 
             if item_type == "item":
-                for i, item in enumerate(self.selected_own_char.items):
+                for i, item in enumerate(self.selected_char.items):
                     if item.idi == _id:
-                        self.selected_own_char.change_active_slot(["Item", i])
+                        if self.selected_own_char:
+                            self.selected_own_char.change_active_slot("Item", i)
+                        self.item_stat_card.fill((18, 39, 80)) #= self.detail_item[item.my_id]
+                        print("------item stat card was changed")
                         return
 
         func.__name__ = name
@@ -2091,6 +2131,16 @@ class InGame:
         # <editor-fold desc="Render stuff">
         self.mouse_pos = pg.mouse.get_pos()
 
+        print("\nself.selected_own_char\n",
+              self.selected_own_char,
+              "\nself.selected_char\n",
+              self.selected_char,
+              "\nself.selected_weapon\n",
+              self.selected_weapon,
+              "\nself.selected_item\n",
+              self.selected_item,
+              "\n")
+
         # build dotted line positions
         if self.selected_own_char:
             start_point = self.mouse_pos
@@ -2099,9 +2149,9 @@ class InGame:
                          self.char_detail_back.get_width(),
                          self.current_element_size * self.selected_own_char.pos[1] + self.dest[1]] \
                 if self.zoom_factor <= 1 else \
-                        [self.current_element_size * self.selected_own_char.pos[0] + self.dest[0] +
-                         self.char_detail_back.get_width(),
-                         self.current_element_size * self.selected_own_char.pos[1] + self.dest[1]]
+                [self.current_element_size * self.selected_own_char.pos[0] + self.dest[0] +
+                 self.char_detail_back.get_width(),
+                 self.current_element_size * self.selected_own_char.pos[1] + self.dest[1]]
 
             # adjust to middle of field instead of upper left
             end_point = [int(ep + (self.current_element_size / 2)) for ep in end_point]
@@ -2111,9 +2161,8 @@ class InGame:
 
             num_of_parts = 8
             for i in range(1, num_of_parts):
-                offset = [int((i/num_of_parts) * x) for x in end_min_start]
+                offset = [int((i / num_of_parts) * x) for x in end_min_start]
                 line_points.append([start_point[i] + offset[i] for i in range(len(start_point))])
-
         else:
             line_points = []
 
@@ -2148,28 +2197,33 @@ class InGame:
         # <editor-fold desc="char ui left">
 
         # inventory buttons (left side)
-        if self.selected_own_char:
+        self.gear_buttons = []
+        self.weapon_buttons = []
+        self.item_buttons = []
 
-            self.gear_buttons = []
-            if self.selected_own_char.gear:  # character has gear
+        if self.selected_char:
+
+            if self.selected_char.gear:  # character has gear
                 # gear buttons
-                for i in range(self.selected_own_char.gear.__len__()):
+                for i in range(self.selected_char.gear.__len__()):
                     pos_w = (i + 1) * self.inventory_gap_size + i * self.btn_w
                     pos_h = self.inventory_gap_size
+
+                    def f(_i):  # just chance image, dont change held item
+                        print("------item stat card was changed")
+                        self.item_stat_card = self.detail_gear[self.selected_char.gear[_i].my_id]
 
                     btn = Button(dim=[self.btn_w, self.btn_h], pos=[pos_w, pos_h],
                                  real_pos=[pos_w, pos_h + self.char_detail_back.get_height()],
                                  # img_uri="assets/gc/small/gc_" + str(self.selected_own_char.gear[i].my_id) + ".png",
                                  img_source=self.small_gear[i], text="",
-                                 name=("gear " + str(self.selected_own_char.gear[i].my_id) + " button"),
-                                 action=(lambda: None))
+                                 name=("gear " + str(self.selected_char.gear[i].my_id) + " button"), action=f(i))
 
                     self.gear_buttons.append(btn)
 
-            self.weapon_buttons = []
-            if self.selected_own_char.weapons:
+            if self.selected_char.weapons:
                 # weapon buttons
-                for i in range(self.selected_own_char.weapons.__len__()):
+                for i in range(self.selected_char.weapons.__len__()):
                     pos_w = 2 * self.btn_w + 4 * self.inventory_gap_size + i * (self.inventory_gap_size + self.btn_w)
                     pos_h = self.inventory_gap_size
 
@@ -2178,17 +2232,16 @@ class InGame:
                                            pos_h +
                                            self.char_detail_back.get_height()],
                                  img_source=self.small_weapon[i],
-                                 text="", name=("weapon " + str(self.selected_own_char.weapons[i].class_id) + ".png"),
+                                 text="", name=("weapon " + str(self.selected_char.weapons[i].class_id) + ".png"),
                                  action=self.inventory_function_binder(
-                                     "weapon " + str(self.selected_own_char.weapons[i].class_idi),
-                                     self.selected_own_char.weapons[i].class_idi, item_type="weapon"))
+                                     "weapon " + str(self.selected_char.weapons[i].class_idi),
+                                     self.selected_char.weapons[i].class_idi, item_type="weapon"))
 
                     self.weapon_buttons.append(btn)
 
-            self.item_buttons = []
-            if self.selected_own_char.items:
+            if self.selected_char.items:
                 # item buttons
-                for i in range(self.selected_own_char.items.__len__()):
+                for i in range(self.selected_char.items.__len__()):
                     pos_w = self.inventory_gap_size + (i % 5) * (self.btn_w + self.inventory_gap_size)
                     pos_h = self.inventory_gap_size + int(i / 5) * (self.btn_h + self.inventory_gap_size)
 
@@ -2200,12 +2253,13 @@ class InGame:
                                  # ="assets/ic/small/ic_" + str(self.selected_own_char.items[i].my_id) + ".png",
                                  img_source=self.small_item[i],
                                  text="",
-                                 name=("item " + str(self.selected_own_char.items[i].my_id) + ".png"),
+                                 name=("item " + str(self.selected_char.items[i].my_id) + ".png"),
                                  action=self.inventory_function_binder(
-                                     "item " + str(self.selected_own_char.items[i].idi),
-                                     self.selected_own_char.items[i].idi, item_type="item"))
+                                     "item " + str(self.selected_char.items[i].idi),
+                                     self.selected_char.items[i].idi, item_type="item"))
 
                     self.item_buttons.append(btn)
+
         # </editor-fold>
 
         if self.move_char:  # you have to move the char now
@@ -2215,7 +2269,8 @@ class InGame:
             # move to clicked field if it is reachable
             rel_mouse_pos = [self.mouse_pos[0] - self.char_detail_back.get_width(), self.mouse_pos[1]]
             dists_mouse_p_dest = [abs(rel_mouse_pos[0] - self.dest[0]), abs(rel_mouse_pos[1] - self.dest[1])]
-            percentual_mouse_pos_map_len = [dmpd / (self.zoom_factor*self.element_size) for dmpd in dists_mouse_p_dest]
+            percentual_mouse_pos_map_len = [dmpd / (self.zoom_factor * self.element_size) for dmpd in
+                                            dists_mouse_p_dest]
 
             # coords of clicked field (potential movement target)
             clicked_coords = [int(x) for x in percentual_mouse_pos_map_len]
@@ -2236,22 +2291,25 @@ class InGame:
         # <editor-fold desc="left side">
         # ----- left -----
 
+        if self.selected_char:
+            self.char_stat_card = self.detail_char[self.selected_char.class_id]
         self.char_detail_back.blit(fit_surf(back=self.char_detail_back, surf=self.detail_back_metall), dest=[0, 0])
         self.char_detail_back.blit(self.char_stat_card, dest=blit_centered_pos(self.char_detail_back,
                                                                                self.char_stat_card))
 
-        # TODO blit back again here
+        """# TODO blit back again here
         self.inventory_items_surf.fill((255, 0, 0))
-        self.inventory_gear_weapons_surf.fill((0, 34, 98))
+        self.inventory_gear_weapons_surf.fill((0, 34, 98))"""
 
-        for btn in self.gear_buttons:
-            self.inventory_gear_weapons_surf.blit(btn.surf, btn.pos)
+        if self.selected_char:
+            for btn in self.gear_buttons:
+                self.inventory_gear_weapons_surf.blit(btn.surf, btn.pos)
 
-        for btn in self.weapon_buttons:
-            self.inventory_gear_weapons_surf.blit(btn.surf, btn.pos)
+            for btn in self.weapon_buttons:
+                self.inventory_gear_weapons_surf.blit(btn.surf, btn.pos)
 
-        for btn in self.item_buttons:
-            self.inventory_items_surf.blit(btn.surf, btn.pos)
+            for btn in self.item_buttons:
+                self.inventory_items_surf.blit(btn.surf, btn.pos)
 
         self.char_inventory_back.blit(fit_surf(back=self.char_inventory_back, surf=self.detail_back_metall),
                                       dest=[0, 0])
@@ -2277,7 +2335,7 @@ class InGame:
 
         # map cannot disappear from zooming out
         var = pg.transform.smoothscale(self.map_content,
-                                       (max(1, int(self.map_surface.get_width()  * self.zoom_factor)),
+                                       (max(1, int(self.map_surface.get_width() * self.zoom_factor)),
                                         max(1, int(self.map_surface.get_height() * self.zoom_factor))))
 
         # set destination
@@ -2349,7 +2407,7 @@ class InGame:
 
         # <editor-fold desc="blend out team stats">
         # blend out team stats if mouse is not up
-        mouse_up = self.mouse_pos[1] < self.own_team_stats.get_height()-15
+        mouse_up = self.mouse_pos[1] < self.own_team_stats.get_height() - 15
         self.own_team_stats.blit(self.own_team_stats_back_img, dest=[0, 0])
         if mouse_up:
             for btn in self.own_team_stat_buttons:
@@ -2366,7 +2424,7 @@ class InGame:
 
         # TODO beware of 0.05 as constant
         self.map_surface.blit(self.own_team_stats, dest=[int(0.05 * self.map_surface.get_width()), 0 if mouse_up else
-                                                                        -self.own_team_stats.get_height()+15])
+        -self.own_team_stats.get_height() + 15])
         # </editor-fold>
 
         # </editor-fold>
@@ -2447,8 +2505,8 @@ class InGame:
         if self.timer.amount >= 0:
             self.timer.update_visualtimer()
             self.screen.blit(self.timer.surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width()
-                                                    + (self.player_banners.get_width()-206)//2,
-                                                    self.player_banners.get_height()-105])
+                                                    + (self.player_banners.get_width() - 206) // 2,
+                                                    self.player_banners.get_height() - 105])
         self.screen.blit(self.minimap_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
                                                   self.player_banners.get_height()])
         self.screen.blit(self.done_btn_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
@@ -2486,6 +2544,7 @@ class InGame:
                 self.mouse_pos = p
 
                 if event.button == 1:  # on left click
+
                     if self.overlay and self.overlay_btn:
                         for btn in self.overlay_btn:
                             if btn.is_focused([self.mouse_pos[0] - self.char_detail_back.get_width(),
@@ -2513,17 +2572,18 @@ class InGame:
                         self.done_btn.action()
 
                     # if map surface is focused
-                    if self.map_surface.get_rect().collidepoint(p[0]-self.char_detail_back.get_width(), p[1]):
+                    if self.map_surface.get_rect().collidepoint(p[0] - self.char_detail_back.get_width(), p[1]):
                         for button in self.char_map_buttons:
                             if button.is_focused(p):
+                                anything_clicked = True
                                 button.action()
 
                     if self.r_fields and self.selected_own_char:  # own char is selected and might want to move
                         self.move_char = True
 
                     if self.overlay:
-                        if not self.overlay.pos[0]+100 >= p[0] >= self.overlay.pos[0]:  # TODO 1 condition, 1 if
-                            if not self.overlay.pos[1]+200 >= p[1] >= self.overlay.pos[1]:
+                        if not self.overlay.pos[0] + 100 >= p[0] >= self.overlay.pos[0]:  # TODO 1 condition, 1 if
+                            if not self.overlay.pos[1] + 200 >= p[1] >= self.overlay.pos[1]:
                                 self.overlay = None
 
                 if event.button == 2:  # on mid click
