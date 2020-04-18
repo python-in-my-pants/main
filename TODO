@@ -30,3 +30,7 @@ build complex houses
 use Bebauungsplan for setting objects on map
 
 make chars look at mouse
+
+blit only parts that may have changed in main screen (right & left ui are likely to not change most of the frames)
+
+use buffers for blitting in main screen?

@@ -295,7 +295,8 @@ class ConnectionSetup:
         self.right_surf.blit(self.join_cancel_btn.surf, self.join_cancel_btn.pos)
         self.right_surf.blit(self.ip_to_join_btn.surf, self.ip_to_join_btn.pos)
 
-        self.screen.blit(pg.transform.scale(pg.image.load("assets/back_btn.png"), (50, 50)), (0, 0))
+        self.screen.blit(self.back_btn.surf, self.back_btn.real_pos)
+        #self.screen.blit(pg.transform.scale(pg.image.load("assets/back_btn.png"), (50, 50)), (0, 0))
 
         # put right and left surface to screen
 
@@ -2079,6 +2080,16 @@ class InGame:
         func.__name__ = name
         return func
 
+    def draw_dotted_line(self, surf, pl):
+        if not len(pl) % 2 == 0:
+            print("Error in Ingame_draw_dotted_line! Number of points must be even")
+            return
+
+        for p in range(0, len(pl), 2):
+            pg.draw.aaline(surf, (255, 0, 0), pl[p], pl[p + 1], 1)
+
+        return surf
+
     def update(self):
 
         # <editor-fold desc="Render stuff">
@@ -2087,18 +2098,26 @@ class InGame:
         # build dotted line positions
         if self.selected_own_char:
             start_point = self.mouse_pos
-            end_point = [self.current_element_size * self.selected_own_char.pos[0] + self.dest[0],
+
+            end_point = [self.current_element_size * self.selected_own_char.pos[0] + self.dest[0] +
+                         self.char_detail_back.get_width(),
                          self.current_element_size * self.selected_own_char.pos[1] + self.dest[1]] \
                 if self.zoom_factor <= 1 else \
-                        [self.current_element_size * self.selected_own_char.pos[0] - self.dest[0],
-                         self.current_element_size * self.selected_own_char.pos[1] - self.dest[1]]
-            end_point = [int(ep + self.current_element_size / 2) for ep in end_point]
-            d = np.sqrt((start_point[0] - end_point[0])**2 + (start_point[1] - end_point[1])**2)
+                        [self.current_element_size * self.selected_own_char.pos[0] + self.dest[0] +
+                         self.char_detail_back.get_width(),
+                         self.current_element_size * self.selected_own_char.pos[1] + self.dest[1]]
+
+            # adjust to middle of field instead of upper left
+            end_point = [int(ep + (self.current_element_size / 2)) for ep in end_point]
+
             line_points = [start_point]
-            num_of_parts = 7
-            for _ in range(num_of_parts):
-                line_points.append([int(line_points[-1][0] + d/7), int(line_points[-1][1] + d/7)])
-            line_points.append(end_point)
+            end_min_start = [end_point[i] - start_point[i] for i in range(start_point.__len__())]
+
+            num_of_parts = 8
+            for i in range(1, num_of_parts):
+                offset = [int((i/num_of_parts) * x) for x in end_min_start]
+                line_points.append([start_point[i] + offset[i] for i in range(len(start_point))])
+
         else:
             line_points = []
 
@@ -2201,17 +2220,6 @@ class InGame:
             rel_mouse_pos = [self.mouse_pos[0] - self.char_detail_back.get_width(), self.mouse_pos[1]]
             dists_mouse_p_dest = [abs(rel_mouse_pos[0] - self.dest[0]), abs(rel_mouse_pos[1] - self.dest[1])]
             percentual_mouse_pos_map_len = [dmpd / (self.zoom_factor*self.element_size) for dmpd in dists_mouse_p_dest]
-
-            """print("\nrel_mouse_pos\n",
-                          rel_mouse_pos,
-                          "\ndists_mouse_p_dest\n",
-                          dists_mouse_p_dest,
-                          "\nmap_len_pixel\n",
-                          map_len_pixel,
-                          "\npercentual_mouse_pos_map_len\n",
-                          percentual_mouse_pos_map_len,
-                          "\nself.zoom_factor * self.element_size\n",
-                          self.zoom_factor * self.element_size)"""
 
             # coords of clicked field (potential movement target)
             clicked_coords = [int(x) for x in percentual_mouse_pos_map_len]
@@ -2345,7 +2353,7 @@ class InGame:
 
         # <editor-fold desc="blend out team stats">
         # blend out team stats if mouse is not up
-        mouse_up = self.mouse_pos[1] < self.own_team_stats.get_height()-18
+        mouse_up = self.mouse_pos[1] < self.own_team_stats.get_height()-15
         self.own_team_stats.blit(self.own_team_stats_back_img, dest=[0, 0])
         if mouse_up:
             for btn in self.own_team_stat_buttons:
@@ -2362,7 +2370,7 @@ class InGame:
 
         # TODO beware of 0.05 as constant
         self.map_surface.blit(self.own_team_stats, dest=[int(0.05 * self.map_surface.get_width()), 0 if mouse_up else
-                                                                        -self.own_team_stats.get_height()+18])
+                                                                        -self.own_team_stats.get_height()+15])
         # </editor-fold>
 
         # </editor-fold>
@@ -2408,7 +2416,26 @@ class InGame:
 
         # <editor-fold desc="all together">
 
-        self.screen.convert()
+        #####
+        # mid
+
+        self.screen.blit(self.map_surface, dest=[self.char_detail_back.get_width(), 0])
+        #   own char is selected       map surface is focused
+        if self.selected_own_char and self.map_surface.get_rect().collidepoint(self.mouse_pos[0] -
+                                                                               self.char_detail_back.get_width(),
+                                                                               self.mouse_pos[1]):
+            self.draw_dotted_line(self.screen, line_points)
+
+        if self.overlay:
+            for btn in self.overlay_btn:
+                if btn.is_focused(pg.mouse.get_pos()):
+                    self.overlay.surf = self.overlay.type[btn.name]
+                else:
+                    self.overlay.surf = self.overlay.type["6"]
+            self.screen.blit(self.overlay.surf, dest=self.overlay.pos)
+
+        #####
+        # left
 
         self.screen.blit(self.char_detail_back, dest=[0, 0])
         self.screen.blit(self.char_inventory_back, dest=[0, self.char_detail_back.get_height()])
@@ -2416,12 +2443,7 @@ class InGame:
                                                       self.char_inventory_back.get_height()])
 
         #####
-
-        if self.move_char:
-            pg.draw.aalines(self.map_surface, (255, 0, 0), True, line_points, 1)
-        self.screen.blit(self.map_surface, dest=[self.char_detail_back.get_width(), 0])
-
-        #####
+        # right
 
         self.screen.blit(self.player_banners,
                          dest=[self.char_detail_back.get_width() + self.map_surface.get_width(), 0])
@@ -2437,13 +2459,6 @@ class InGame:
             self.screen.blit(s, btn.real_pos)
         #"""
 
-        if self.overlay:
-            for btn in self.overlay_btn:
-                if btn.is_focused(pg.mouse.get_pos()):
-                    self.overlay.surf = self.overlay.type[btn.name]
-                else:
-                    self.overlay.surf = self.overlay.type["6"]
-            self.screen.blit(self.overlay.surf, dest=self.overlay.pos)
         # </editor-fold>
         # </editor-fold>
 
@@ -2492,7 +2507,7 @@ class InGame:
                     if self.done_btn.is_focused(p):
                         self.done_btn.action()
 
-                    # TODO maybe move this up?
+                    # if map surface is focused
                     if self.map_surface.get_rect().collidepoint(p[0]-self.char_detail_back.get_width(), p[1]):
                         for button in self.char_map_buttons:
                             if button.is_focused(p):
