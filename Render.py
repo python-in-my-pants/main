@@ -1728,6 +1728,9 @@ class InGame:
         self.used_chars = []  # holds list of chars that already made an action this turn and are not usable anymore
 
         self.timer = VisualTimer(amount=60, pos=(0, 0))
+        self.lines = []
+        self.current_line = None
+
         self.turn_wait_counter = 0
         self.turn_get_thread = 0
 
@@ -2015,8 +2018,6 @@ class InGame:
 
             if char.team == self.own_team.team_num:  # own char
 
-                print("\nclick clack BOOM char was clicked\n")
-
                 if char == self.selected_own_char:
                     self.selected_own_char = None
                     self.r_fields = []
@@ -2030,9 +2031,7 @@ class InGame:
 
                 # highlight reachable fields by blitting green transparent stuff over them
                 # returns list of tuples
-                self.r_fields = self.game_map.get_reachable_fields(self.selected_own_char.pos[0],
-                                                                   self.selected_own_char.pos[1],
-                                                                   self.selected_own_char.speed//5)
+                self.r_fields = self.game_map.get_reachable_fields(self.selected_own_char)
 
                 # TOdo check whether a user clicks on a reachable field on click
                 #  (get vector from map surface upper left to mouse and calc mouse field pos from that)
@@ -2077,16 +2076,51 @@ class InGame:
         func.__name__ = name
         return func
 
+    def draw_dotted_line(self, surf, pl):
+        if not len(pl) % 2 == 0:
+            print("Error in Ingame_draw_dotted_line! Number of points must be even")
+            return
+
+        for p in range(0, len(pl), 2):
+            pg.draw.aaline(surf, (255, 0, 0), pl[p], pl[p + 1], 1)
+
+        return surf
+
     def update(self):
 
         # <editor-fold desc="Render stuff">
         self.mouse_pos = pg.mouse.get_pos()
 
+        # build dotted line positions
+        if self.selected_own_char:
+            start_point = self.mouse_pos
+
+            end_point = [self.current_element_size * self.selected_own_char.pos[0] + self.dest[0] +
+                         self.char_detail_back.get_width(),
+                         self.current_element_size * self.selected_own_char.pos[1] + self.dest[1]] \
+                if self.zoom_factor <= 1 else \
+                        [self.current_element_size * self.selected_own_char.pos[0] + self.dest[0] +
+                         self.char_detail_back.get_width(),
+                         self.current_element_size * self.selected_own_char.pos[1] + self.dest[1]]
+
+            # adjust to middle of field instead of upper left
+            end_point = [int(ep + (self.current_element_size / 2)) for ep in end_point]
+
+            line_points = [start_point]
+            end_min_start = [end_point[i] - start_point[i] for i in range(start_point.__len__())]
+
+            num_of_parts = 8
+            for i in range(1, num_of_parts):
+                offset = [int((i/num_of_parts) * x) for x in end_min_start]
+                line_points.append([start_point[i] + offset[i] for i in range(len(start_point))])
+
+        else:
+            line_points = []
+
         # clear list :)
         self.char_map_buttons = []
 
         # <editor-fold desc="zoom and shift">
-        # todo cannot shift when small zoom (<1)
         if self.shifting:
             # current shift offset of this frame?
             shift_offset = [self.mouse_pos[0] - self.shift_start[0],
@@ -2174,53 +2208,23 @@ class InGame:
                     self.item_buttons.append(btn)
         # </editor-fold>
 
-        if self.move_char:
+        if self.move_char:  # you have to move the char now
 
             self.move_char = False
 
             # move to clicked field if it is reachable
-            rel_mouse_pos = [self.mouse_pos[0] - self.char_detail_back.get_width(),
-                             self.mouse_pos[1]]
+            rel_mouse_pos = [self.mouse_pos[0] - self.char_detail_back.get_width(), self.mouse_pos[1]]
+            dists_mouse_p_dest = [abs(rel_mouse_pos[0] - self.dest[0]), abs(rel_mouse_pos[1] - self.dest[1])]
+            percentual_mouse_pos_map_len = [dmpd / (self.zoom_factor*self.element_size) for dmpd in dists_mouse_p_dest]
 
-            dists_mouse_p_dest = [abs(rel_mouse_pos[0] - self.dest[0]),
-                                  abs(rel_mouse_pos[1] - self.dest[1])]
+            # coords of clicked field (potential movement target)
+            clicked_coords = [int(x) for x in percentual_mouse_pos_map_len]
 
-            map_len_pixel = self.game_map.size_x * self.zoom_factor * self.element_size
-
-            percentual_mouse_pos_map_len = [dists_mouse_p_dest[0] / map_len_pixel,
-                                            dists_mouse_p_dest[1] / map_len_pixel]
-            """
-            print("\nrel_mouse_pos\n",
-                          rel_mouse_pos,
-                          "\ndists_mouse_p_dest\n",
-                          dists_mouse_p_dest,
-                          "\nmap_len_pixel\n",
-                          map_len_pixel,
-                          "\npercentual_mouse_pos_map_len\n",
-                          percentual_mouse_pos_map_len,
-                          "\nself.zoom_factor * self.element_size\n",
-                          self.zoom_factor * self.element_size)
-            """
-            clicked_coords = [  # coords of clicked field (potential movement target)
-                # mouse pos relative to length of map [0 ... 1]
-                int(percentual_mouse_pos_map_len[0] *
-                    # current size of the map content surface (zoomed)
-                    self.zoom_factor * map_len_pixel /
-                    # current element size
-                    (self.zoom_factor * self.element_size)),
-                int(percentual_mouse_pos_map_len[1] *
-                    self.zoom_factor * map_len_pixel /
-                    (self.zoom_factor * self.element_size))
-            ]
-            """
-            # TODO skips weird if lower right is targeted
-            print("\nclicked coords\n", clicked_coords)
-            print("\nr_fields\n", self.r_fields)
-            """
             if tuple(clicked_coords) in self.r_fields:
                 prev_pos = self.selected_own_char.pos
                 self.selected_own_char.pos = list(clicked_coords)
                 self.r_fields = []
+                self.selected_own_char = None
                 # TODO draw red dotted line from prev pos to new pos which
                 #  1) stays until end of own turn
                 #  2) gets send to opponent
@@ -2345,7 +2349,7 @@ class InGame:
 
         # <editor-fold desc="blend out team stats">
         # blend out team stats if mouse is not up
-        mouse_up = self.mouse_pos[1] < self.own_team_stats.get_height()-18
+        mouse_up = self.mouse_pos[1] < self.own_team_stats.get_height()-15
         self.own_team_stats.blit(self.own_team_stats_back_img, dest=[0, 0])
         if mouse_up:
             for btn in self.own_team_stat_buttons:
@@ -2362,7 +2366,7 @@ class InGame:
 
         # TODO beware of 0.05 as constant
         self.map_surface.blit(self.own_team_stats, dest=[int(0.05 * self.map_surface.get_width()), 0 if mouse_up else
-                                                                        -self.own_team_stats.get_height()+18])
+                                                                        -self.own_team_stats.get_height()+15])
         # </editor-fold>
 
         # </editor-fold>
@@ -2386,22 +2390,48 @@ class InGame:
         map_len_pixel = self.game_map.size_x * self.zoom_factor * self.element_size
         percentual_mouse_pos_map_len = [dists_mouse_p_dest[0] / map_len_pixel, dists_mouse_p_dest[1] / map_len_pixel]
         clicked_coords = [  # coords of clicked field (potential movement target)
-            # mouse pos relative to length of map [0 ... 1]
-            int(percentual_mouse_pos_map_len[0] *
-                # current size of the map content surface (zoomed)
-                self.zoom_factor * map_len_pixel /
-                # current element size
-                (self.zoom_factor * self.element_size)),
-            int(percentual_mouse_pos_map_len[1] *
-                self.zoom_factor * map_len_pixel /
-                (self.zoom_factor * self.element_size))
+            int(percentual_mouse_pos_map_len[0] * self.game_map.size_x),
+            int(percentual_mouse_pos_map_len[1] * self.game_map.size_y)
         ]
+        print("\nrel_mouse_pos\n",
+              rel_mouse_pos,
+              "\ndists_mouse_p_dest\n",
+              dists_mouse_p_dest,
+              "\nmap_len_pixel\n",
+              map_len_pixel,
+              "\npercentual_mouse_pos_map_len\n",
+              percentual_mouse_pos_map_len,
+              "\nself.zoom_factor * self.element_size\n",
+              self.zoom_factor * self.element_size,
+              "\nself.zoom_factor\n",
+              self.zoom_factor,
+              "\nself.element_size\n",
+              self.element_size)
         #"""
         # </editor-fold>
 
         # <editor-fold desc="all together">
 
-        self.screen.convert()
+        #####
+        # mid
+
+        self.screen.blit(self.map_surface, dest=[self.char_detail_back.get_width(), 0])
+        #   own char is selected       map surface is focused
+        if self.selected_own_char and self.map_surface.get_rect().collidepoint(self.mouse_pos[0] -
+                                                                               self.char_detail_back.get_width(),
+                                                                               self.mouse_pos[1]):
+            self.draw_dotted_line(self.screen, line_points)
+
+        if self.overlay:
+            for btn in self.overlay_btn:
+                if btn.is_focused(pg.mouse.get_pos()):
+                    self.overlay.surf = self.overlay.type[btn.name]
+                else:
+                    self.overlay.surf = self.overlay.type["6"]
+            self.screen.blit(self.overlay.surf, dest=self.overlay.pos)
+
+        #####
+        # left
 
         self.screen.blit(self.char_detail_back, dest=[0, 0])
         self.screen.blit(self.char_inventory_back, dest=[0, self.char_detail_back.get_height()])
@@ -2409,10 +2439,7 @@ class InGame:
                                                       self.char_inventory_back.get_height()])
 
         #####
-
-        self.screen.blit(self.map_surface, dest=[self.char_detail_back.get_width(), 0])
-
-        #####
+        # right
 
         self.screen.blit(self.player_banners,
                          dest=[self.char_detail_back.get_width() + self.map_surface.get_width(), 0])
@@ -2469,9 +2496,10 @@ class InGame:
                 self.mouse_pos = p
 
                 if event.button == 3:  # right button release
-                    self.shifting = False
-                    self.con_shift_offset = [self.con_shift_offset[0] + p[0] - self.shift_start[0],
-                                             self.con_shift_offset[1] + p[1] - self.shift_start[1]]
+                    if self.zoom_factor >= 1:
+                        self.shifting = False
+                        self.con_shift_offset = [self.con_shift_offset[0] + p[0] - self.shift_start[0],
+                                                 self.con_shift_offset[1] + p[1] - self.shift_start[1]]
 
             if event.type == pg.MOUSEBUTTONDOWN:
                 p = pg.mouse.get_pos()
@@ -2504,7 +2532,7 @@ class InGame:
                     if self.done_btn.is_focused(p):
                         self.done_btn.action()
 
-                    # TODO maybe move this up?
+                    # if map surface is focused
                     if self.map_surface.get_rect().collidepoint(p[0]-self.char_detail_back.get_width(), p[1]):
                         for button in self.char_map_buttons:
                             if button.is_focused(p):

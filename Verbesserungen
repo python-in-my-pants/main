@@ -24,6 +24,7 @@ eigene Repressionen bei Nicht-Einhaltung von Deadlines
 
 ALWAYS comment complex code (especially formulas)
     recherchiere den besten Weg um das gewünschte Ergebnis zu erhalten, zB Distanzvergleich ohne Wurzeln
+    https://stackoverflow.com/questions/32150038/fastest-way-to-calculate-euclidean-distance-in-c
 
 klare Trennung von Arbeit am Projekt und Privatem (sowohl inhaltlich, als auch zeitlich)
 

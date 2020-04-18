@@ -269,30 +269,6 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
 
         return 1
 
-    # TODO can I skip through walls?
-    def movement_possible(self, char, new_pos):  # returns true or false
-
-        if new_pos[0] < 0 or new_pos[0] > self.size_x-1 or new_pos[1] < 0 or new_pos[1] > self.size_y-1:
-            print("out of map")
-            return False
-
-        for obj in self.objects:
-            if obj.collider != 0 and obj is not char:
-                # use new sprite group for collision, because using game_objects could result in false results after
-                # moving the object (sprites are NOT moved by GameObject methods!)
-                for collAtom in pg.sprite.Group(CollAtom(new_pos)).sprites():
-                    # TODO: adjust so that laying characters are handled with 2 sprites
-                    if pg.sprite.spritecollide(collAtom, obj.collider, dokill=0):
-                        # collision with other char occurs
-                        print("collision with other collidable object")
-                        return False
-
-        '''if self.unique_pixs[new_pos[1]][new_pos[0]] != 0:
-            print("coll with some obj")
-            return False'''
-
-        return True
-
     def remove_object_by_id(self, go):  # STATUS: new
 
         self.objects.remove(go)
@@ -323,7 +299,6 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
             if self.characters.__contains__(ind):
                 chars.append((ind, obj))
 
-        #mat = [[[1, 1] for _ in range(chars.__len__())] for _ in range(chars.__len__())]
         v_dict = dict()
 
         for ind1, char1 in chars:
@@ -364,7 +339,10 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
 
         return [1, 1]  # can see & shoot
 
-    def get_reachable_fields(self, pos_w, pos_h, mov_range):  # TODO use euclidean dist instead of manhattan
+    def get_reachable_fields(self, char):  # TODO use euclidean dist instead of manhattan
+        pos_w, pos_h = char.pos
+        mov_range = char.speed // 5
+
         reachable = [(pos_w, pos_h)]
         checked = set()
         counter = 0
@@ -374,22 +352,50 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
             for r in list(my_set):
                 neigh = self.get_neighbours(r[0], r[1])
                 for n in neigh:
-                    if self.unique_pixs[n[1]][n[0]] in [0, 2, 5]:  # TODO should check for colliders! like "has pixel collider?"
+                    if self.movement_possible(char, [n[0], n[1]]):
                         reachable.append(tuple(n))
                 checked.add(r)
             counter += 1
 
         return list(set(reachable) - {(pos_w, pos_h)})  # own position is not reachable
 
-    def is_solid(self, pix):  # returns whether a certain coordinate on the map contains a solid object or not
+    # TODO can I skip through walls?
+    def movement_possible(self, char, new_pos):  # returns true or false
 
-        pass
+        if new_pos[0] < 0 or new_pos[0] > self.size_x-1 or new_pos[1] < 0 or new_pos[1] > self.size_y-1:
+            return False
+
+        objs_at_pos = self.get_objs_at(new_pos)
+        for obj in objs_at_pos:
+            if obj.collider and obj is not char:  # it has a collider and is not the moving char
+                # use new sprite group for collision, because using game_objects could result in false results after
+                # moving the object (sprites are NOT moved by GameObject methods!)
+                for collAtom in pg.sprite.Group(CollAtom(new_pos)).sprites():
+                    # TODO: adjust so that laying characters are handled with 2 sprites ... No :)
+                    if pg.sprite.spritecollide(collAtom, obj.collider, dokill=0):
+                        # collision with other char occurs
+                        return False
+
+        return True
+
+    def get_objs_at(self, pos):
+        # does the sprite group of the object (aka collider)
+        # contain a collision atom (inherits from sprite) with pos=[x,y]?
+
+        def pos_in_rect(_pos, r_start, r_x, r_y):
+            return r_start[0] <= _pos[0] <= r_start[0]+r_x or \
+                   r_start[1] <= _pos[1] <= r_start[1]+r_y
+
         # mapping of pixels to objects
-        # mapping of object pixels to mat/collider
 
-    def get_obj_at(self, x, y):
-        pass
+        objects_at_pos = []
+        # check which object is present at this pos
+        for o in self.objects:
+            if o.collider:  # check only for objects that may collide
+                if pos_in_rect(pos, o.pos, o.size_x, o.size_y):
+                    objects_at_pos.append(o)
 
+        return objects_at_pos
 
     def get_neighbours(self, x, y):
 
@@ -643,13 +649,13 @@ class MapBuilder:
         boulder_counter = 0
         for i in range(boulder_limit):
 
-            h = Boulder(name=("Simple boulder " + str(boulder_counter)), obj_type="default",
+            h = Boulder(name=("Simple boulder " + str(boulder_counter)), obj_type="Boulder",
                         pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
 
             # while there is a house (to add) and it doesn't fit and you didn't try 100 times yet generate a new one
             limit = 0
             while h != 0 and self.map.add_object(h, border_size=1) != 1 and limit < 100:
-                h = Boulder(name=("Simple boulder " + str(boulder_counter)), obj_type="default",
+                h = Boulder(name=("Simple boulder " + str(boulder_counter)), obj_type="Boulder",
                             pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
                 limit += 1
 
@@ -664,13 +670,13 @@ class MapBuilder:
         tree_counter = 0
         for i in range(tree_limit):
 
-            h = Tree(name=("Simple tree " + str(tree_counter)), obj_type="default",
+            h = Tree(name=("Simple tree " + str(tree_counter)), obj_type="Tree",
                      pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
 
             # while there is a house (to add) and it doesn't fit and you didn't try 100 times yet generate a new one
             limit = 0
             while h != 0 and self.map.add_object(h, border_size=0) != 1 and limit < 100:
-                h = Tree(name=("Simple tree " + str(tree_counter)), obj_type="default",
+                h = Tree(name=("Simple tree " + str(tree_counter)), obj_type="Tree",
                          pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
                 limit += 1
 
