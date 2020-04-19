@@ -358,7 +358,74 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
 
         return list(set(reachable) - {(pos_w, pos_h)})  # own position is not reachable
 
-    # TODO can I skip through walls?
+    def get_distance(self, pos1, pos2):  # TODO use euclidean dist instead of manhattan
+        if pos1 == pos2:
+            return 0
+
+        pos_w, pos_h = pos1
+
+        reachable = [(pos_w, pos_h)]
+        checked = set()
+        counter = 0
+
+        while True:
+            my_set = set(reachable)-checked
+            for r in list(my_set):
+                neigh = self.get_neighbours(r[0], r[1])
+                for n in neigh:
+                    if self.movement_possible(pos1, [n[0], n[1]]):
+                        reachable.append(tuple(n))
+                    if n == pos2:
+                        return counter
+                checked.add(r)
+            counter += 1
+
+    def get_path(self, pos1, pos2):
+        pos_w, pos_h = pos1
+
+        #               x       y   prev
+        reachable = [(pos_w, pos_h, pos1)]
+        checked = set()
+        counter = 0
+        max_range = 10000
+
+        while counter <= max_range:
+            my_set = set(reachable) - checked
+            for r in list(my_set):  # only checks "frontier"
+                neigh = self.get_neighbours(r[0], r[1])
+                for n in neigh:
+                    if self.movement_possible(pos1, [n[0], n[1]]):
+                        reachable.append((n[0], n[1], r))
+                        if n == pos2:
+                            # target found, AC-130 incoming
+                            break
+                checked.add(r)
+            counter += 1
+
+        if reachable[-1][0:2] != tuple(pos2):
+            return None
+
+        # backtrack path
+        done = False
+        current_labradoodle = reachable[-1]
+        path = []
+        """while not done:
+            for doodle in reachable:
+                if doodle[0:2] == tuple(pos1):
+                    done = True
+                if doodle[0:2] == tuple(current_labradoodle[2]):
+                    path.append(current_labradoodle[0:2])
+                    current_labradoodle = doodle[0:2]
+                    continue"""
+
+        while not done:
+            path.append(current_labradoodle[-1])
+            if current_labradoodle[-1] == current_labradoodle[0:2]:
+                done = True
+
+        path.reverse()
+        return path
+
     def movement_possible(self, char, new_pos):  # returns true or false
 
         if new_pos[0] < 0 or new_pos[0] > self.size_x-1 or new_pos[1] < 0 or new_pos[1] > self.size_y-1:

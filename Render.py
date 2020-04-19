@@ -8,6 +8,7 @@ from GUI import *
 from Team import *
 from Characters import *
 from TTimer import *
+from Turn import *
 import time
 import ctypes
 
@@ -1733,12 +1734,18 @@ class InGame:
         self.move_char = False  # has a char moved? used for rendering
         self.used_chars = []  # holds list of chars that already made an action this turn and are not usable anymore
 
-        self.timer = VisualTimer(amount=60, pos=(0, 0))
         self.lines = []
         self.current_line = None
 
         self.turn_wait_counter = 0
         self.turn_get_thread = 0
+
+        self.opp_turn_applying = False  # enemy turn is displayed atm
+        self.is_it_my_turn = self.own_team.team_num == 0
+        self.own_turn = Turn()
+        self.opps_turn = None
+        self.moved_chars = dict()
+        self.shot_chars = dict()
 
         self.overlay = None
         self.overlay_btn = []
@@ -1931,15 +1938,15 @@ class InGame:
             func.__name__ = name
             return func
 
-        def done_button_action():  # TODO
+        def done_button_action():  # TODO das muss dafür sorgen, dass get_own_turn den turn zurück gibt
             if self.turn_get_thread == 0:
                 self.turn_get_thread = start_new_thread(done_button_action, ())
                 return
             else:
-                self.client.send_turn()  # ToDo Turn musch da rein
+                self.is_it_my_turn = False
+                self.client.send_turn(self.own_turn)  # ToDo Turn musch da rein
                 time.sleep(1)
-                while not self.client.live_data[
-                    "last_opp_turn"]:  # ToDo implement better later (only first functionality)
+                while not self.client.live_data["last_opp_turn"]:  # ToDo implement better later (only first functionality)
                     if self.turn_wait_counter == 150:
                         self.client.get_turn()
                         self.turn_wait_counter = 0
@@ -1947,6 +1954,9 @@ class InGame:
                         self.turn_wait_counter += 1
                 # ToDo Turn Apply Function?
                 return
+
+        # tODO maybe this does not work and we must use a binder
+        self.timer = VisualTimer(amount=60, pos=(0, 0), action=done_button_action)
 
         # </editor-fold>
 
@@ -2067,9 +2077,7 @@ class InGame:
                 # returns list of tuples
                 self.r_fields = self.game_map.get_reachable_fields(self.selected_own_char)
 
-                # TODO show dotted line for opponent
-
-            if char.team != self.own_team.team_num and self.selected_own_char:  # opp. char
+            elif char.team != self.own_team.team_num and self.selected_own_char:  # opp. char
 
                 slot = self.selected_own_char.get_active_slot()
 
@@ -2089,7 +2097,7 @@ class InGame:
                                            self.overlay.btn_pos[i][1]], name=str(i))
                     self.overlay_btn.append(btn)
 
-            if char.team != self.own_team.team_num and not self.selected_own_char:
+            elif char.team != self.own_team.team_num and not self.selected_own_char:
 
                 # just select him as selected char
                 self.selected_char = char
@@ -2105,7 +2113,7 @@ class InGame:
                 if weapon.class_idi == _id:
 
                     # if you click on the inventory, have an own char selected and not also an enemy char selected
-                    if self.selected_own_char and self.selected_char.team != self.own_team:
+                    if self.selected_own_char and self.selected_char.team != self.own_team and self.is_it_my_turn:
                         self.selected_own_char.change_active_slot("Weapon", i)
                         self.active_slot = self.selected_own_char.get_active_slot()
 
@@ -2117,7 +2125,7 @@ class InGame:
             for i, item in enumerate(self.selected_char.items):
                 if item.idi == _id:
 
-                    if self.selected_own_char and self.selected_char.team != self.own_team:
+                    if self.selected_own_char and self.selected_char.team != self.own_team and self.is_it_my_turn:
                         self.selected_own_char.change_active_slot("Item", i)
                         self.active_slot = self.selected_own_char.get_active_slot()
 
@@ -2131,28 +2139,93 @@ class InGame:
             func_2.__name__ = name
             return func_2
 
-    def draw_dotted_line(self, surf, pl):
-        if not len(pl) % 2 == 0:
-            print("Error in Ingame_draw_dotted_line! Number of points must be even")
+    def shoot(self, where):
+
+        if not self.is_it_my_turn:
             return
 
-        for p in range(0, len(pl), 2):
-            pg.draw.aaline(surf, (255, 0, 0), pl[p], pl[p + 1], 1)
+        if self.selected_own_char.idi not in list(self.shot_chars.keys()):
+            return
 
-        return surf
+        # TODO draw dotted line to signal shooting
 
-    def update(self):
+        dmg_done = self.selected_own_char.shoot(self.overlay.boi_to_attack, where)[1]
+        """path = None
+        if self.selected_own_char.idi in list(self.moved_chars.keys()):
+            path = self.moved_chars[self.selected_own_char.idi]"""
+
+        self.shot_chars[self.selected_own_char.idi] = (self.selected_own_char, self.overlay.boi_to_attack)
+
+        action = Action(self.selected_own_char, self.overlay.boi_to_attack,
+                        dmg2b=dmg_done, pos_a_dmg2b_index=self.selected_own_char.pos)
+
+        self.own_turn.add_action(action)
+
+        # unselect char after shooting
+        self.selected_own_char = None
+
+    def apply_opp_turn(self, opp_turn):  # applies changes from opp turn to own game state
+
+        opp_char_list = self.game_map.characters
+        for c in opp_char_list:
+            if c.team == self.own_team:
+                opp_char_list.remove(c)
+
+        for action in opp_turn.actions:
+
+            opp_char = None
+            for c in opp_char_list:
+                if c.random_id == action.player_a.rand_id:
+                    opp_char = c
+
+            my_char = None
+            for c in self.own_team.characters:
+                if c.random_id == action.player_b.rand_id:
+                    my_char = c
+
+            if action.path:  # TODO use path and draw_linesaa instead
+                opp_char.pos = action.player_a.pos
+                # blit lines indicating movement and shots
+                self._draw_dotted_line(self.map_surface, action.path, (0, 0, 0))
+
+            if action.pos_a_dmg2b:
+                my_char.apply_damage(action.pos_a_dmg2b)
+                # blit lines indicating movement and shots
+                self.draw_line(self.map_surface, my_char, opp_char, (139, 0, 0))
+
+            # TODO implement other action stuff
+
+        # TODO make animated version :-)
+        ...
+
+        # before you're done, check if the sent team from opp is the same as your current representation of the opp team
+        # if that's not the case, set your repres equal to his
+        ...
+
+        # reset stuff
+        self.opp_turn_applying = False
+        self.is_it_my_turn = True
+        self.opps_turn = None
+        self.own_turn = Turn()
+
+    def main_blit(self):
+
+        """if self.moved_chars.__len__() == self.own_team.characters.__len__() and \
+             self.shot_chars.__len__() == self.own_team.characters.__len__() and \
+                self.is_it_my_turn:
+            # own turn seems to be ready
+            return self.own_turn"""
 
         # <editor-fold desc="Render stuff">
         self.mouse_pos = pg.mouse.get_pos()
 
-        print("\nself.selected_own_char\n",
+        """print("\nself.selected_own_char\n",
               self.selected_own_char,
               "\nself.selected_char\n",
               self.selected_char,
               "\nself.active_slot\n",
               self.active_slot,
-              "\n")
+              "\n")"""
 
         # <editor-fold desc="build dotted line">
         # build dotted line positions
@@ -2228,6 +2301,7 @@ class InGame:
                         def inner_func():
                             print("------item stat card was changed to gear")
                             self.item_stat_card = self.detail_gear[self.selected_char.gear[_i].my_id]
+
                         return inner_func
 
                     btn = Button(dim=[self.btn_w, self.btn_h], pos=[pos_w, pos_h],
@@ -2281,24 +2355,39 @@ class InGame:
         if self.move_char:  # you have to move the char now
 
             self.move_char = False
+            if self.selected_own_char not in list(self.moved_chars.keys()) and self.is_it_my_turn:
 
-            # move to clicked field if it is reachable
-            rel_mouse_pos = [self.mouse_pos[0] - self.char_detail_back.get_width(), self.mouse_pos[1]]
-            dists_mouse_p_dest = [abs(rel_mouse_pos[0] - self.dest[0]), abs(rel_mouse_pos[1] - self.dest[1])]
-            percentual_mouse_pos_map_len = [dmpd / (self.zoom_factor * self.element_size) for dmpd in
-                                            dists_mouse_p_dest]
+                # move to clicked field if it is reachable
+                rel_mouse_pos = [self.mouse_pos[0] - self.char_detail_back.get_width(), self.mouse_pos[1]]
+                dists_mouse_p_dest = [abs(rel_mouse_pos[0] - self.dest[0]), abs(rel_mouse_pos[1] - self.dest[1])]
+                percentual_mouse_pos_map_len = [dmpd / (self.zoom_factor * self.element_size) for dmpd in
+                                                dists_mouse_p_dest]
 
-            # coords of clicked field (potential movement target)
-            clicked_coords = [int(x) for x in percentual_mouse_pos_map_len]
+                # coords of clicked field (potential movement target)
+                clicked_coords = [int(x) for x in percentual_mouse_pos_map_len]
 
-            if tuple(clicked_coords) in self.r_fields:
-                prev_pos = self.selected_own_char.pos
-                self.selected_own_char.move(list(clicked_coords))
-                self.r_fields = []
-                self.selected_own_char = None
-                # TODO draw red dotted line from prev pos to new pos which
-                #  1) stays until end of own turn
-                #  2) gets send to opponent
+                if tuple(clicked_coords) in self.r_fields:
+                    prev_pos = self.selected_own_char.pos
+                    self.selected_own_char.move(list(clicked_coords))
+                    self.r_fields = []
+
+                    # TODO draw red dotted line from prev pos to new pos which
+                    #  1) stays until end of own turn
+                    #  2) gets send to opponent
+
+                    # turn stuff
+                    path = self.game_map.get_path(prev_pos, clicked_coords)
+                    self.moved_chars[self.selected_own_char.idi] = path
+                    self.own_turn.add_action(Action(self.selected_own_char, path=path))
+
+            elif self.is_it_my_turn:  # you have already moved this char
+                print("Greed is a sin against God,\n "
+                      "just as all mortal sins,\n "
+                      "in as much as man condemns things\n "
+                      "eternal for the sake of temporal things.")
+
+            # unselect char after movement
+            self.selected_own_char = None
 
         ##############################################################################################################
         # blit everything to positions
@@ -2452,6 +2541,10 @@ class InGame:
 
         self.minimap_surf.blit(fit_surf(back=self.minimap_surf, surf=self.map_content), dest=[0, 0])
 
+        if not self.is_it_my_turn:
+            self.done_btn.deactivate()
+        else:
+            self.done_btn.activate()
         self.done_btn_surf.blit(self.done_btn.surf, self.done_btn.pos)
         # </editor-fold>
 
@@ -2494,12 +2587,12 @@ class InGame:
         if self.selected_own_char and self.map_surface.get_rect().collidepoint(self.mouse_pos[0] -
                                                                                self.char_detail_back.get_width(),
                                                                                self.mouse_pos[1]):
-            self.draw_dotted_line(self.screen, line_points)
+            self._draw_dotted_line(self.screen, line_points)
 
         if self.overlay and self.overlay_btn:
             self.overlay.newblit = False
             for btn in self.overlay_btn:
-                if btn.is_focused([self.mouse_pos[0]-self.char_detail_back.get_width(), self.mouse_pos[1]]):
+                if btn.is_focused([self.mouse_pos[0] - self.char_detail_back.get_width(), self.mouse_pos[1]]):
                     self.overlay.surf = self.overlay.type[btn.name]
                     self.overlay.newblit = True
                 if not self.overlay.newblit:
@@ -2529,13 +2622,34 @@ class InGame:
                                                    self.player_banners.get_height() + self.minimap_surf.get_height()])
 
         # </editor-fold>
+
+        return None
+
         # </editor-fold>
+
+    def update(self):
+
+        if self.opp_turn_applying:
+            self.apply_opp_turn()
+            return
+
+        elif self.is_it_my_turn:
+
+            self.main_blit()
+
+        else:  # opps turn
+
+            self.main_blit()
+
+            # try to receive opps turn
+            opp_turn = None  # TODO call sth here
+            if opp_turn:
+                self.opps_turn = opp_turn
+                self.opp_turn_applying = True
 
     def event_handling(self):
 
-        events = pg.event.get()
-        print("Number of events:", len(events))
-        for event in events:
+        for event in pg.event.get():
 
             if event.type == pg.QUIT:
                 pg.quit()
@@ -2571,7 +2685,7 @@ class InGame:
                         for btn in self.overlay_btn:
                             if btn.is_focused([self.mouse_pos[0] - self.char_detail_back.get_width(),
                                                self.mouse_pos[1]]):
-                                self.selected_own_char.shoot(self.overlay.boi_to_attack, int(btn.name))
+                                self.shoot(int(btn.name))
 
                         if not self.overlay.pos[0] + 100 >= p[0] >= self.overlay.pos[0]:
                             if not self.overlay.pos[1] + 200 >= p[1] >= self.overlay.pos[1]:
@@ -2637,9 +2751,48 @@ class InGame:
 
                     self.zoomed = True
 
+    def draw_line(self, surf, start, end, color):
+        start_point = self._map_to_pix_coord(start)
+        end_point = self._map_to_pix_coord(end)
+
+        # adjust to middle of field instead of upper left
+        end_point = [int(ep + (self.current_element_size / 2)) for ep in end_point]
+
+        line_points = [start_point]
+        end_min_start = [end_point[i] - start_point[i] for i in range(start_point.__len__())]
+
+        num_of_parts = 8
+        for i in range(1, num_of_parts):
+            offset = [int((i / num_of_parts) * x) for x in end_min_start]
+            line_points.append([start_point[i] + offset[i] for i in range(len(start_point))])
+
+        pl = line_points
+        for p in range(0, len(pl), 2):
+            pg.draw.aaline(surf, color, pl[p], pl[p + 1], 1)
+
+        return surf
+
+    def _draw_dotted_line(self, surf, pl, color=(255, 0, 0)):
+        if not len(pl) % 2 == 0:
+            print("Error in Ingame_draw_dotted_line! Number of points must be even")
+            return
+
+        for p in range(0, len(pl), 2):
+            pg.draw.aaline(surf, color, pl[p], pl[p + 1], 1)
+
+        return surf
+
+    def _map_to_pix_coord(self, pos):
+        return [self.current_element_size * pos[0] + self.dest[0] +
+                self.char_detail_back.get_width(),
+                self.current_element_size * pos[1] + self.dest[1]] \
+            if self.zoom_factor <= 1 else \
+               [self.current_element_size * pos[0] + self.dest[0] +
+                self.char_detail_back.get_width(),
+                self.current_element_size * pos[1] + self.dest[1]]
+
     def harakiri(self):
         del self
-
 
 # <editor-fold desc="Helper functions">
 
