@@ -1,44 +1,58 @@
-Add animated start screen
-    https://stackoverflow.com/questions/21356439/how-to-load-and-play-a-video-in-pygame
+1 - calc bleed damage every turn
 
-clear all TODOs
+1 - attack overlay does not shift yet
 
-join ausgrauen wenn gehostet wird
+1 - richtige waffe für chars in die hand
 
-cancel join automatisch wenn kein game zum joinen ausgewählt war
+1 - dont run INTO opponent
 
-add custom fields to enter map size and lbby name
+-----------------------------------------------------------------
 
-adjust default item & weapon in ingame init
+2 - add custom fields to enter map size and lbby name
 
-server: unhashable type: connection (wenn 1 client crasht)
+2 - adjust default item & weapon in ingame init
 
-outline OWN starting area in minimap in char select (or only show own?)
+2 - server: unhashable type: connection (wenn 1 client crasht)
 
-show hitchance in ingame overlay
+2 - outline OWN starting area in minimap in char select (or only show own?)
 
-calc bleed damage every turn
+2 - show hitchance in ingame overlay
 
-build complex houses
+2 - update hp bars
+
+2 - char stat card item stat card ändern
+
+2 - differenziere bei inventory buttons zwischen own char (kann switchen mit buttons) und gegner (der kann das nicht lol)
+
+2 - inventory does not blit correctly after having selected an opponent char (prolly just go for sel_own_char, sel_opp_char)
+
+2 - adjust map 343 (speed)
+
+todo reset 684
+
+clear all TODO
+
+--------------------------------------------------------------------------
+
+3 - zoom + verschieben + zoom skippt
+
+3 - build complex houses
     generate random graph, nodes are rooms, edges are doors, 1 outdoor node connected to min 1 random node
     put in rooms peu a peu in an intermediate surface
 
-use Bebauungsplan for setting objects on map
+3 - use Bebauungsplan for setting objects on map
 
-make selected char look at mouse
+3 - make selected char look at mouse
 
-blit only parts that may have changed in main screen (right & left ui are likely to not change most of the frames)
+3 - blit only parts that may have changed in main screen (right & left ui are likely to not change most of the frames)
 
-use buffers for blitting in main screen?
+3 - use buffers for blitting in main screen?
 
-attack overlay does not shift yet
+3 - Add animated start screen
+    https://stackoverflow.com/questions/21356439/how-to-load-and-play-a-video-in-pygame
 
-update hp bars
+3 - join ausgrauen wenn gehostet wird
 
-char stat card item stat card ändern
+3 - cancel join automatisch wenn kein game zum joinen ausgewählt war
 
-dont run INTO opponent
-
-differenziere bei inventory buttons zwischen own char (kann switchen mit buttons) und gegner (der kann das nicht lol)
-
-richtige waffe für chars in die hand
+3 - use euclidean dist instead of manhattan

@@ -107,6 +107,11 @@ class Character(GameObject):
     def get_drawable(self):
         return self.pixs
 
+    def move(self, dest):
+        # just assume dest is legit
+        self.pos = dest
+        self.confirm()
+
     def confirm(self):
         self.collider = pg.sprite.Group(CollAtom(self.pos))
 

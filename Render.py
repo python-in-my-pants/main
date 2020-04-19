@@ -681,7 +681,7 @@ class CharacterSelection:  # commit comment
         # <editor-fold desc="vars">
         size = true_res
 
-        self.points_to_spend = points_to_spend  # TODO
+        self.points_to_spend = 100 # TODO
         self.game_map = game_map
         self.role = role
         self.client = client
@@ -1756,6 +1756,7 @@ class InGame:
             self.game_map.objects[0].place_character(char)
             # assuming exactly 2 players
             self.game_map.objects.append(char)
+            char.confirm()
             self.game_map.characters.append(self.game_map.objects.__len__() - 1)
 
         for char in self.client.live_data["game_begin"][1].characters:
@@ -1763,6 +1764,7 @@ class InGame:
             self.game_map.objects[1].place_character(char)
             # assuming exactly 2 players
             self.game_map.objects.append(char)
+            char.confirm()
             self.game_map.characters.append(self.game_map.objects.__len__() - 1)
         # </editor-fold>
 
@@ -2097,28 +2099,37 @@ class InGame:
 
     def inventory_function_binder(self, name, _id, item_type):
 
-        def func():
+        def func_1():
 
-            if item_type == "weapon":
-                for i, weapon in enumerate(self.selected_char.weapons):
-                    if weapon.class_idi == _id:
+            for i, weapon in enumerate(self.selected_char.weapons):
+                if weapon.class_idi == _id:
 
-                        if self.selected_own_char:
-                            self.selected_own_char.change_active_slot("Weapon", i)
+                    # if you click on the inventory, have an own char selected and not also an enemy char selected
+                    if self.selected_own_char and self.selected_char.team != self.own_team:
+                        self.selected_own_char.change_active_slot("Weapon", i)
+                        self.active_slot = self.selected_own_char.get_active_slot()
 
-                        self.item_stat_card = self.detail_weapon[weapon.class_id]
-                        return
+                    self.item_stat_card = self.detail_weapon[weapon.class_id]
+                    return
 
-            if item_type == "item":
-                for i, item in enumerate(self.selected_char.items):
-                    if item.idi == _id:
-                        if self.selected_own_char:
-                            self.selected_own_char.change_active_slot("Item", i)
-                        self.item_stat_card = self.detail_item[item.my_id]
-                        return
+        def func_2():
 
-        func.__name__ = name
-        return func
+            for i, item in enumerate(self.selected_char.items):
+                if item.idi == _id:
+
+                    if self.selected_own_char and self.selected_char.team != self.own_team:
+                        self.selected_own_char.change_active_slot("Item", i)
+                        self.active_slot = self.selected_own_char.get_active_slot()
+
+                    self.item_stat_card = self.detail_item[item.my_id]
+                    return
+
+        if item_type == "weapon":
+            func_1.__name__ = name
+            return func_1
+        if item_type == "item":
+            func_2.__name__ = name
+            return func_2
 
     def draw_dotted_line(self, surf, pl):
         if not len(pl) % 2 == 0:
@@ -2143,6 +2154,7 @@ class InGame:
               self.active_slot,
               "\n")
 
+        # <editor-fold desc="build dotted line">
         # build dotted line positions
         if self.selected_own_char:
             start_point = self.mouse_pos
@@ -2167,6 +2179,7 @@ class InGame:
                 line_points.append([start_point[i] + offset[i] for i in range(len(start_point))])
         else:
             line_points = []
+        # </editor-fold>
 
         # clear list :)
         self.char_map_buttons = []
@@ -2213,7 +2226,7 @@ class InGame:
 
                     def f(_i):  # just chance image, dont change held item
                         def inner_func():
-                            print("------item stat card was changed")
+                            print("------item stat card was changed to gear")
                             self.item_stat_card = self.detail_gear[self.selected_char.gear[_i].my_id]
                         return inner_func
 
@@ -2280,7 +2293,7 @@ class InGame:
 
             if tuple(clicked_coords) in self.r_fields:
                 prev_pos = self.selected_own_char.pos
-                self.selected_own_char.pos = list(clicked_coords)
+                self.selected_own_char.move(list(clicked_coords))
                 self.r_fields = []
                 self.selected_own_char = None
                 # TODO draw red dotted line from prev pos to new pos which
@@ -2427,7 +2440,7 @@ class InGame:
 
         # TODO beware of 0.05 as constant
         self.map_surface.blit(self.own_team_stats, dest=[int(0.05 * self.map_surface.get_width()), 0 if mouse_up else
-        -self.own_team_stats.get_height() + 15])
+                                                         -self.own_team_stats.get_height() + 15])
         # </editor-fold>
 
         # </editor-fold>
@@ -2520,7 +2533,9 @@ class InGame:
 
     def event_handling(self):
 
-        for event in pg.event.get():
+        events = pg.event.get()
+        print("Number of events:", len(events))
+        for event in events:
 
             if event.type == pg.QUIT:
                 pg.quit()
@@ -2535,6 +2550,10 @@ class InGame:
             if event.type == pg.MOUSEBUTTONUP:
                 p = list(pg.mouse.get_pos())
                 self.mouse_pos = p
+
+                if event.button == 1:  # TODO maybe put this back to mousebtn down if it doesnt work
+                    if self.r_fields and self.selected_own_char:  # own char is selected and might want to move
+                        self.move_char = True
 
                 if event.button == 3:  # right button release
                     if self.zoom_factor >= 1:
@@ -2559,6 +2578,10 @@ class InGame:
                                 self.overlay = None
                                 self.overlay_btn = None
 
+                    for button in self.gear_buttons:
+                        if button.is_focused(p):
+                            button.action()
+
                     for button in self.weapon_buttons:
                         if button.is_focused(p):
                             button.action()
@@ -2575,13 +2598,12 @@ class InGame:
                         self.done_btn.action()
 
                     # if map surface is focused
+                    r = self.map_surface.get_rect()
+                    x = (p[0] - self.char_detail_back.get_width(), p[1])
                     if self.map_surface.get_rect().collidepoint(p[0] - self.char_detail_back.get_width(), p[1]):
                         for button in self.char_map_buttons:
                             if button.is_focused(p):
                                 button.action()
-
-                    if self.r_fields and self.selected_own_char:  # own char is selected and might want to move
-                        self.move_char = True
 
                     if self.overlay:
                         if not (self.overlay.pos[0] + 100 >= p[0] >= self.overlay.pos[0]) and\
