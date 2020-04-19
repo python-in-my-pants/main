@@ -184,13 +184,13 @@ class HPBar:
 class Overlay:
 
     def __init__(self, pos=(0, 0), boi_to_attack=None):
-        self.surf = pg.transform.scale(pg.image.load("assets/Overlay/dude.png"), (100, 200))
+        self.surf = pg.transform.scale(pg.image.load("assets/Overlay/dude.png"), (150, 200))
         self.pos = pos
         self.boi_to_attack = boi_to_attack
         self.newblit = False
 
-        self.info_pos = self.pos[0], self.pos[1] + 200
-        self.myfont = pg.font.SysFont('Comic Sans MS', 30)
+        self.info_pos = self.pos[0]-25, self.pos[1] + 200
+        self.myfont = pg.font.SysFont('Comic Sans MS', 15)
         self.info_tafel = []
 
         self.type = {
@@ -222,17 +222,17 @@ class Overlay:
         }
 
     def update_info(self, info):
-        self.info_tafel = []
+        self.info_tafel = pg.transform.scale(pg.image.load("assets/deco_banner.png"), (150, 150))
         if isinstance(info, tuple):
-            self.info_tafel.append(self.myfont.render(("Hitchance: " + str(info[0]) + " %"),
-                                   False, (255, 255, 255), (0, 0, 0)))
-            self.info_tafel.append(self.myfont.render(("Damage: " + str(info[1])),
-                                   False, (255, 255, 255), (0, 0, 0)))
-            self.info_tafel.append(self.myfont.render(("Shots: " + str(info[2])),
-                                   False, (255, 255, 255), (0, 0, 0)))
+            self.info_tafel.blit(self.myfont.render(("Hitchance: " + str(info[0]) + " %"),
+                                 False, (255, 255, 255)), (22, 40))
+            self.info_tafel.blit(self.myfont.render(("Damage:     " + str(info[1])),
+                                 False, (255, 255, 255)), (22, 65))
+            self.info_tafel.blit(self.myfont.render(("Shots:         " + str(info[2])),
+                                 False, (255, 255, 255)), (22, 90))
 
         elif isinstance(info, str):
-            self.info_tafel.append(self.myfont.render(info, False, (255, 255, 255), (0, 0, 0)))
+            self.info_tafel.blit(self.myfont.render(info, False, (255, 255, 255), (0, 0, 0)), (0, 40))
 
 
 class VisualTimer:

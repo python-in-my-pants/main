@@ -2070,12 +2070,12 @@ class InGame:
                 # TODO
                 # attack routine
                 current_pos = pg.mouse.get_pos()
-                if current_pos[1] >= 250:
-                    current_pos = [current_pos[0], current_pos[1] - 200]
+                if current_pos[1] >= 400:
+                    current_pos = [current_pos[0], current_pos[1] - 375]
                 if current_pos[0] >= 1300 - self.minimap_surf.get_width():
                     current_pos = [current_pos[0] - 100, current_pos[1]]
 
-                self.overlay = Overlay(current_pos, char)
+                self.overlay = Overlay((current_pos[0], current_pos[1]), char)
                 self.overlay_btn = []
                 for i in range(6):
                     btn = Button(dim=self.overlay.btn_dim[i], pos=self.overlay.btn_pos[i],
@@ -2493,9 +2493,7 @@ class InGame:
             if self.selected_own_char:
                 self.overlay.update_info(self.selected_own_char.get_chance(self.overlay.boi_to_attack))
             self.screen.blit(self.overlay.surf, dest=self.overlay.pos)
-            for i in range(len(self.overlay.info_tafel)):
-                self.screen.blit(self.overlay.info_tafel[i], dest=(self.overlay.info_pos[0],
-                                                                   self.overlay.info_pos[1] + (i * 43)))
+            self.screen.blit(self.overlay.info_tafel, dest=(self.overlay.info_pos, self.overlay.info_pos))
         #####
         # left
 
