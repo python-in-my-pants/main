@@ -358,6 +358,28 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
 
         return list(set(reachable) - {(pos_w, pos_h)})  # own position is not reachable
 
+    def get_distance(self, pos1, pos2):  # TODO use euclidean dist instead of manhattan
+        if pos1 == pos2:
+            return 0
+
+        pos_w, pos_h = pos1
+
+        reachable = [(pos_w, pos_h)]
+        checked = set()
+        counter = 0
+
+        while True:
+            my_set = set(reachable) - checked
+            for r in list(my_set):
+                neigh = self.get_neighbours(r[0], r[1])
+                for n in neigh:
+                    if self.movement_possible(pos1, [n[0], n[1]]):
+                        reachable.append(tuple(n))
+                    if n == pos2:
+                        return counter
+                checked.add(r)
+            counter += 1
+
     # TODO can I skip through walls?
     def movement_possible(self, char, new_pos):  # returns true or false
 
@@ -605,6 +627,7 @@ class MapBuilder:
                 else:
                     obj_counter += 1
 
+        #"""
         add_obj(SimpleHouse, house_limit)
         add_obj(Ruins, ruins_limit)
         add_obj(Bush, bush_limit)
@@ -612,6 +635,7 @@ class MapBuilder:
         add_obj(Boulder, boulder_limit)
         add_obj(Tree, tree_limit)
         add_obj(Puddel, puddel_limit)
+        #"""
 
         """# add ruins
         # standard 3

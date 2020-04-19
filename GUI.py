@@ -168,17 +168,18 @@ class HPBar:
     def update(self, val):
 
         self.curr = val
-        self.bar_surf = pg.Surface([int(self.dim[0]*self.curr / self.end), self.dim[1]])
+        if not int(self.dim[0]*self.curr / self.end) < 0:
+            self.bar_surf = pg.Surface([int(self.dim[0]*self.curr / self.end), self.dim[1]])
 
-        x = 100*self.curr/self.end
+            x = 100*self.curr/self.end
 
-        r = 255 if (x <= 50) else int(255 - 255*(x-50)/50)
-        g = int(255 - 255*(50-x)/50) if x <= 50 else 255
+            r = 255 if (x <= 50) else int(255 - 255*(x-50)/50)
+            g = int(255 - 255*(50-x)/50) if x <= 50 else 255
 
-        self.surf.fill((12, 12, 12))
-        self.surf.set_colorkey((12, 12, 12))
-        self.bar_surf.fill((r, g, 0))
-        self.surf.blit(self.bar_surf, [0, 0])
+            self.surf.fill((12, 12, 12))
+            self.surf.set_colorkey((12, 12, 12))
+            self.bar_surf.fill((r, g, 0))
+            self.surf.blit(self.bar_surf, [0, 0])
 
 
 class Overlay:
@@ -192,6 +193,7 @@ class Overlay:
         self.info_pos = self.pos[0]-25, self.pos[1] + 200
         self.myfont = pg.font.SysFont('Comic Sans MS', 15)
         self.info_tafel = []
+        self.timer = 0
 
         self.type = {
             "0": pg.transform.scale(pg.image.load("assets/Overlay/dude_kopf.png"), (100, 200)),
@@ -222,17 +224,29 @@ class Overlay:
         }
 
     def update_info(self, info):
-        self.info_tafel = pg.transform.scale(pg.image.load("assets/deco_banner.png"), (150, 150))
-        if isinstance(info, tuple):
-            self.info_tafel.blit(self.myfont.render(("Hitchance: " + str(info[0]) + " %"),
-                                 False, (255, 255, 255)), (22, 40))
-            self.info_tafel.blit(self.myfont.render(("Damage:     " + str(info[1])),
-                                 False, (255, 255, 255)), (22, 65))
-            self.info_tafel.blit(self.myfont.render(("Shots:         " + str(info[2])),
-                                 False, (255, 255, 255)), (22, 90))
+        if isinstance(info[0], int) and len(info) == 2:
+            self.timer = time.time() + 2
+            self.info_tafel = pg.transform.scale(pg.image.load("assets/deco_banner.png"), (150, 150))
+            self.info_tafel.blit(self.myfont.render("Damage done: " + str(info[0]), False, (255, 255, 255)), (18, 65))
 
-        elif isinstance(info, str):
-            self.info_tafel.blit(self.myfont.render(info, False, (255, 255, 255), (0, 0, 0)), (0, 40))
+        if self.timer <= time.time():
+            if isinstance(info, tuple) and len(info) == 4:
+
+                self.info_tafel = pg.transform.scale(pg.image.load("assets/deco_banner.png"), (150, 150))
+                self.info_tafel.blit(self.myfont.render(("Hitchance: " + str(info[0]) + " %"),
+                                     False, (255, 255, 255)), (22, 40))
+                if info[3]:
+                    self.info_tafel.blit(self.myfont.render(("Damage:     " + str(info[1]*6)),
+                                         False, (255, 255, 255)), (22, 65))
+                else:
+                    self.info_tafel.blit(self.myfont.render(("Damage:     " + str(info[1])),
+                                         False, (255, 255, 255)), (22, 65))
+                self.info_tafel.blit(self.myfont.render(("Shots:         " + str(info[2])),
+                                     False, (255, 255, 255)), (22, 90))
+
+            if isinstance(info, str):
+                self.info_tafel = pg.transform.scale(pg.image.load("assets/deco_banner.png"), (150, 150))
+                self.info_tafel.blit(self.myfont.render(info, False, (255, 255, 255)), (22, 65))
 
 
 class VisualTimer:

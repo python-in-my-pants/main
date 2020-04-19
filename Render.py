@@ -2145,7 +2145,7 @@ class InGame:
 
         # <editor-fold desc="Render stuff">
         self.mouse_pos = pg.mouse.get_pos()
-
+        """
         print("\nself.selected_own_char\n",
               self.selected_own_char,
               "\nself.selected_char\n",
@@ -2153,7 +2153,7 @@ class InGame:
               "\nself.active_slot\n",
               self.active_slot,
               "\n")
-
+        #"""
         # <editor-fold desc="build dotted line">
         # build dotted line positions
         if self.selected_own_char:
@@ -2293,7 +2293,11 @@ class InGame:
 
             if tuple(clicked_coords) in self.r_fields:
                 prev_pos = self.selected_own_char.pos
+                self.selected_own_char.prev_pos = prev_pos
+                self.selected_own_char.moved = True
+
                 self.selected_own_char.move(list(clicked_coords))
+                self.selected_own_char.dist_moved = self.game_map.get_distance(prev_pos, self.selected_own_char.pos)
                 self.r_fields = []
                 self.selected_own_char = None
                 # TODO draw red dotted line from prev pos to new pos which
@@ -2419,7 +2423,10 @@ class InGame:
 
         # </editor-fold>
 
-        # TODO update hp bars
+        # TODO update hp bar
+        for i in range(self.hp_bars.__len__()):
+            for j in range(6):
+                self.hp_bars[i][j].update(self.own_team.characters[i].health[j])
 
         # <editor-fold desc="blend out team stats">
         # blend out team stats if mouse is not up
@@ -2505,7 +2512,10 @@ class InGame:
                 if not self.overlay.newblit:
                     self.overlay.surf = self.overlay.type["6"]
             if self.selected_own_char:
-                self.overlay.update_info(self.selected_own_char.get_chance(self.overlay.boi_to_attack))
+                if not self.selected_own_char.shot:
+                    self.overlay.update_info(self.selected_own_char.get_chance(self.overlay.boi_to_attack))
+                else:
+                    self.overlay.update_info("You already shot!")
             self.screen.blit(self.overlay.surf, dest=self.overlay.pos)
             self.screen.blit(self.overlay.info_tafel, dest=(self.overlay.info_pos, self.overlay.info_pos))
         #####
@@ -2537,12 +2547,20 @@ class InGame:
     def event_handling(self):
 
         events = pg.event.get()
+        """
         print("Number of events:", len(events))
+        #"""
         for event in events:
 
             if event.type == pg.QUIT:
                 pg.quit()
                 sys.exit()
+
+            if event.type == pg.KEYDOWN:
+                if event.key == ord("k"):
+                    for i in range(len(self.own_team.characters)):
+                        for j in range(6):
+                            self.own_team.characters[i].get_damaged(10, j)
 
             if event.type == pg.KEYDOWN:
 
@@ -2574,7 +2592,10 @@ class InGame:
                         for btn in self.overlay_btn:
                             if btn.is_focused([self.mouse_pos[0] - self.char_detail_back.get_width(),
                                                self.mouse_pos[1]]):
-                                self.selected_own_char.shoot(self.overlay.boi_to_attack, int(btn.name))
+                                if self.selected_own_char:
+                                    self.overlay.update_info(self.selected_own_char.shoot
+                                                             (self.overlay.boi_to_attack, int(btn.name)))
+                                    self.selected_own_char.shot = True
 
                         if not self.overlay.pos[0] + 100 >= p[0] >= self.overlay.pos[0]:
                             if not self.overlay.pos[1] + 200 >= p[1] >= self.overlay.pos[1]:

@@ -87,6 +87,10 @@ class Character(GameObject):
         self.is_selected = False
         self.carry = carry
 
+        self.shot = False
+        self.moved = False
+        self.dist_moved = 0
+
     def class_selector(self):
         self.stamina = class_stats[self.class_id][0]
         self.speed = class_stats[self.class_id][1]
@@ -275,10 +279,23 @@ class Character(GameObject):
 
     def shoot(self, dude, partind):
         # Basechance * (0.3 * Dex) - Range + Recoil control
-        chance, dmg, spt = self.get_chance(dude)
-        for s in range(spt):
-            if numpy.random.randint(0, 101) <= chance:
-                dude.get_damaged(dmg, partind)
+        if isinstance(self.get_chance(dude), tuple):
+            chance, dmg, spt, rpg_bool = self.get_chance(dude)
+            dmg_done = 0
+            dmg_done_list = [0, 0, 0, 0, 0, 0]
+            if rpg_bool:
+                if numpy.random.randint(0, 101) <= chance:
+                    dude.get_damaged(dmg, partind, rpg_bool)
+                    dmg_done_list = [dmg, dmg, dmg, dmg, dmg, dmg]
+            else:
+                for s in range(spt):
+                    if numpy.random.randint(0, 101) <= chance:
+                        dude.get_damaged(dmg, partind, rpg_bool)
+                        dmg_done += dmg
+                        dmg_done_list[partind] = dmg_done
+
+            return dmg_done, dmg_done_list
+        return "BUBBA HAT NEN NICES ASSHOLE"
 
     def get_chance(self, dude):
         if not dude.is_dead():
@@ -288,14 +305,18 @@ class Character(GameObject):
             dmg = self.calc_dmg(c_range)
             p_range = self.calc_p_range(c_range)
             spt = self.active_slot.spt
+            rpg_bool = False
 
             if isinstance(self.active_slot, (Maschinenpistole, Sturmgewehr, Maschinengewehr)):
                 recoil_acc = self.calc_recoil_acc()
-                chance = int(self.active_slot.acc * (0.3 * self.dexterity) - p_range + recoil_acc)
+                chance = int(self.active_slot.acc * (0.3 * self.dexterity) - p_range + recoil_acc - self.dist_moved)
+            elif isinstance(self.active_slot, Raketenwerfer):
+                chance = int(self.active_slot.acc * (0.3 * self.dexterity) - p_range - self.dist_moved)
+                rpg_bool = True
             else:
-                chance = int(self.active_slot.acc * (0.3 * self.dexterity) - p_range)
-
-            return chance, dmg, spt
+                chance = int(self.active_slot.acc * (0.3 * self.dexterity) - p_range - self.dist_moved)
+            
+            return chance, dmg, spt, rpg_bool
         else:
             return "Bro, he dead yo!"
 
@@ -339,10 +360,7 @@ class Character(GameObject):
             else:
                 return self.active_slot.dmg
         if isinstance(self.active_slot, Raketenwerfer):
-            if c_range >= 20:
-                return self.active_slot.dmg - int((0.1*(c_range-20))+0.5)
-            else:
-                return self.active_slot.dmg
+            return self.active_slot.dmg
 
     def calc_p_range(self, c_range):
         if isinstance(self.active_slot, Pistole):
@@ -385,23 +403,30 @@ class Character(GameObject):
             else:
                 return 0
 
-    def get_damaged(self, dmg, partind):
-        if partind == 3:
-            if self.gear and self.gear[0].durability > 0:
-                dmg *= self.gear[0].reduction
-                self.health[3] -= dmg
-                self.gear[0].durability -= 0
-                if self.gear[0].durability <= 0:
-                    self.gear[0].durability = 0
-            else:
-                self.health[3] -= dmg
-        elif self.health[partind] > 0:
-            self.health[partind] -= dmg
-        if self.is_dead():
-            self.dead()
-        self.hitprint(dmg, partind)
-        self.get_bleed(partind)
-        self.statchange()
+    def apply_damaged(self, dmg):
+        for i in range(6):
+            self.health[i] = dmg[i]
+
+    def get_damaged(self, dmg, partind, rpg_bool):
+        if rpg_bool:
+            for i in range(6):
+                self.health[i] -= 100
+        else:
+            if partind == 3:
+                if self.gear and self.gear[0].durability > 0:
+                    dmg *= self.gear[0].reduction
+                    self.health[3] -= dmg
+                    self.gear[0].durability -= 0
+                    if self.gear[0].durability <= 0:
+                        self.gear[0].durability = 0
+                else:
+                    self.health[3] -= dmg
+            elif self.health[partind] > 0:
+                self.health[partind] -= dmg
+            if self.is_dead():
+                self.dead()
+            self.hitprint(dmg, partind)
+            self.statchange()
 
     def status_timer(self):
         if self.burn_t > 0:

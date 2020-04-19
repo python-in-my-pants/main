@@ -39,7 +39,7 @@ class Pistole(Weapon):
 
 
 class Maschinenpistole(Weapon):
-    def __init__(self, class_id=1, name="Maschinenpistole", cost=2, weight=1.9, acc=1.7, dmg=17, mag=20, spt=6):
+    def __init__(self, class_id=1, name="Maschinenpistole", cost=2, weight=1.9, acc=2, dmg=17, mag=20, spt=6):
         super().__init__(class_id, name,  cost, weight, acc, dmg, mag, spt)
 
 
@@ -64,7 +64,7 @@ class Sniper(Weapon):
 
 
 class Raketenwerfer(Weapon):
-    def __init__(self, class_id=6, name="Raketenwerfer", cost=5, weight=8, acc=2, dmg=100, mag=1, spt=1):
+    def __init__(self, class_id=6, name="Raketenwerfer", cost=5, weight=8, acc=1.7, dmg=100, mag=1, spt=1):
         super().__init__(class_id, name, cost, weight, acc, dmg, mag, spt)
 # </editor-fold>
 
