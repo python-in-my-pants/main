@@ -1,10 +1,6 @@
 1 - calc bleed damage every turn
 
-1 - attack overlay does not shift yet
-
 1 - richtige waffe für chars in die hand
-
-1 - dont run INTO opponent
 
 -----------------------------------------------------------------
 
@@ -16,8 +12,6 @@
 
 2 - outline OWN starting area in minimap in char select (or only show own?)
 
-2 - show hitchance in ingame overlay
-
 2 - update hp bars
 
 2 - char stat card item stat card ändern
@@ -27,6 +21,11 @@
 2 - inventory does not blit correctly after having selected an opponent char (prolly just go for sel_own_char, sel_opp_char)
 
 2 - adjust map 343 (speed)
+
+2 - integrate occupied-by-opp-fields into r_fields but dont move to them, just to adjacent field OR
+    move until you can see them and let user decide again what he wants to do
+
+2 - attack overlay does not shift yet (when zoomed)
 
 todo reset 684
 
