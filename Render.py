@@ -2654,6 +2654,16 @@ class InGame:
         self.screen.blit(self.done_btn_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
                                                    self.player_banners.get_height() + self.minimap_surf.get_height()])
 
+        #Host or Client
+        if self.own_team.team_num == 0:
+            self.screen.blit(self.timer.myfont.render("Host", False, (250, 0, 0)),
+                             [self.char_detail_back.get_width() + self.map_surface.get_width(),
+                              self.player_banners.get_height() - 250])
+        else:
+            self.screen.blit(self.timer.myfont.render("Client", False, (250, 0, 0)),
+                             [self.char_detail_back.get_width() + self.map_surface.get_width(),
+                              self.player_banners.get_height() - 250])
+
         # </editor-fold>
 
         return None
