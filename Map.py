@@ -699,7 +699,6 @@ class MapBuilder:
         add_obj(Puddel, puddel_limit)
         add_obj(Boulder, boulder_limit)
         add_obj(Tree, tree_limit)
-        add_obj(Puddel, puddel_limit)
         #"""
 
         """# add ruins

@@ -2372,27 +2372,27 @@ class InGame:
                 # coords of clicked field (potential movement target)
                 clicked_coords = [int(x) for x in percentual_mouse_pos_map_len]
 
-            if tuple(clicked_coords) in self.r_fields:
-                prev_pos = self.selected_own_char.pos
-                self.selected_own_char.prev_pos = prev_pos
-                self.selected_own_char.moved = True
+                if tuple(clicked_coords) in self.r_fields:
+                    prev_pos = self.selected_own_char.pos
+                    self.selected_own_char.prev_pos = prev_pos
+                    self.selected_own_char.moved = True
 
-                self.selected_own_char.move(list(clicked_coords))
-                self.selected_own_char.dist_moved = self.game_map.get_distance(prev_pos, self.selected_own_char.pos)
-                self.r_fields = []
-                # TODO draw red dotted line from prev pos to new pos which
-                #  1) stays until end of own turn
-                #  2) gets send to opponent
+                    self.selected_own_char.move(list(clicked_coords))
+                    self.selected_own_char.dist_moved = self.game_map.get_distance(prev_pos, self.selected_own_char.pos)
+                    self.r_fields = []
+                    # TODO draw red dotted line from prev pos to new pos which
+                    #  1) stays until end of own turn
+                    #  2) gets send to opponent
 
-                # turn stuff
-                # TODO
-                # path = self.game_map.get_path(prev_pos, clicked_coords)
-                path = []
-                self.moved_chars[self.selected_own_char.idi] = path
-                self.own_turn.add_action(Action(self.selected_own_char, path=path))
+                    # turn stuff
+                    # TODO
+                    # path = self.game_map.get_path(prev_pos, clicked_coords)
+                    path = []
+                    self.moved_chars[self.selected_own_char.idi] = path
+                    self.own_turn.add_action(Action(self.selected_own_char, path=path))
 
-                # unselect char after movement
-                self.selected_own_char = None
+                    # unselect char after movement
+                    self.selected_own_char = None
 
             # you have already moved this char
             elif self.is_it_my_turn and \
