@@ -74,7 +74,7 @@ class NetworkClient(metaclass=Singleton):
         self.send_q.put((Data.scc["char select ready"], (ready, team)))
 
     def send_turn(self, turn):
-        self.send_q.put((Data.scc["turn"], (turn, current_milli_time())))
+        self.send_q.put((Data.scc["Turn"], (turn, current_milli_time())))
 
     def send_control(self, msg):
         self.send_q.put((Data.scc["control"], msg))

@@ -381,10 +381,13 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
             counter += 1
 
     def get_path(self, pos1, pos2):
-        pos_w, pos_h = pos1
+        _pos1 = tuple(pos1)
+        _pos2 = tuple(pos2)
+
+        pos_w, pos_h = _pos1
 
         #               x       y   prev
-        reachable = [(pos_w, pos_h, pos1)]
+        reachable = [(pos_w, pos_h, _pos1)]
         checked = set()
         counter = 0
         max_range = 10000
@@ -426,7 +429,7 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
         path.reverse()
         return path
 
-    def movement_possible(self, char, new_pos):  # returns true or false
+    def movement_possible(self, char, new_pos):  # takes a char and the destination as inputs
 
         if new_pos[0] < 0 or new_pos[0] > self.size_x-1 or new_pos[1] < 0 or new_pos[1] > self.size_y-1:
             return False
@@ -434,6 +437,24 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
         objs_at_pos = self.get_objs_at(new_pos)
         for obj in objs_at_pos:
             if obj.collider and obj is not char:  # it has a collider and is not the moving char
+                # use new sprite group for collision, because using game_objects could result in false results after
+                # moving the object (sprites are NOT moved by GameObject methods!)
+                for collAtom in pg.sprite.Group(CollAtom(new_pos)).sprites():
+                    # TODO: adjust so that laying characters are handled with 2 sprites ... No :)
+                    if pg.sprite.spritecollide(collAtom, obj.collider, dokill=0):
+                        # collision with other char occurs
+                        return False
+
+        return True
+
+    def movement_possible_pos(self, old_pos, new_pos):  # takes old and new pos as inputs
+
+        if new_pos[0] < 0 or new_pos[0] > self.size_x-1 or new_pos[1] < 0 or new_pos[1] > self.size_y-1:
+            return False
+
+        objs_at_pos = self.get_objs_at(new_pos)
+        for obj in objs_at_pos:
+            if obj.collider and obj.pos is not old_pos:  # it has a collider and is not the moving char
                 # use new sprite group for collision, because using game_objects could result in false results after
                 # moving the object (sprites are NOT moved by GameObject methods!)
                 for collAtom in pg.sprite.Group(CollAtom(new_pos)).sprites():
