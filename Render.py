@@ -2149,7 +2149,7 @@ class InGame:
 
         # TODO draw dotted line to signal shooting
 
-        dmg_done = self.selected_own_char.shoot(self.overlay.boi_to_attack, where)[1]
+        dmg, dmg_done = self.selected_own_char.shoot(self.overlay.boi_to_attack, where)
         """path = None
         if self.selected_own_char.idi in list(self.moved_chars.keys()):
             path = self.moved_chars[self.selected_own_char.idi]"""
@@ -2163,6 +2163,8 @@ class InGame:
 
         # unselect char after shooting
         self.selected_own_char = None
+
+        return dmg
 
     def apply_opp_turn(self, opp_turn):  # applies changes from opp turn to own game state
 
@@ -2378,10 +2380,10 @@ class InGame:
                 #  1) stays until end of own turn
                 #  2) gets send to opponent
 
-                    # turn stuff
-                    path = self.game_map.get_path(prev_pos, clicked_coords)
-                    self.moved_chars[self.selected_own_char.idi] = path
-                    self.own_turn.add_action(Action(self.selected_own_char, path=path))
+                # turn stuff
+                path = self.game_map.get_path(prev_pos, clicked_coords)
+                self.moved_chars[self.selected_own_char.idi] = path
+                self.own_turn.add_action(Action(self.selected_own_char, path=path))
 
             elif self.is_it_my_turn:  # you have already moved this char
                 print("Greed is a sin against God,\n "
