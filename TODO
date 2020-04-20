@@ -1,10 +1,10 @@
 1 - richtige waffe für chars in die hand
 
+1 - deactivate buttons while waiting for opp turn
+
 -----------------------------------------------------------------
 
-2 - Dmg done im info feld
-
-2 - Different Hitchance for different parts
+2 - calc bleed damage every turn
 
 2 - add custom fields to enter map size and lbby name
 
@@ -27,7 +27,9 @@
 
 2 - attack overlay does not shift yet (when zoomed)
 
-2 - calc bleed damage every turn
+2 - draw red dotted line from prev pos to new pos which
+                #  1) stays until end of own turn
+                #  2) gets send to opponent
 
 todo reset 684
 
@@ -59,3 +61,7 @@ clear all TODO
 3 - cancel join automatisch wenn kein game zum joinen ausgewählt war
 
 3 - use euclidean dist instead of manhattan
+
+3 - (directional) velocity that influences how far you can run in this turn
+
+3 - house interior

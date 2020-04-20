@@ -16,7 +16,9 @@ class Game:  # for actual games
         self.host = host
         self.guest = guest
         self.last_host_turn = None
+        self.last_host_turn_time = 0
         self.last_guest_turn = None
+        self.last_guest_turn_time = 0
         self.over = False
         self.host_ready = False
         self.guest_ready = False
@@ -222,7 +224,7 @@ class Server:
             self.connections[game.host].send(scc["game begins"], teams)
             self.connections[game.guest].send(scc["game begins"], teams)
 
-    def _hturn(self, con, msg):
+    def _hturn(self, con, msg):  # receives turn
 
         try:
             game = self.game_players[con.ident]
@@ -231,14 +233,14 @@ class Server:
             return
         if con.ident == game.host.ident:
             # set last turn and keep it until requested
-            game.last_host_turn = msg
+            game.last_host_turn, game.last_host_turn_time = msg
         elif con.ident == game.guest.ident:
             # set last turn and keep it until requested
-            game.last_guest_turn = msg
+            game.last_guest_turn, game.last_guest_turn_time = msg
         else:
             print("Error in handling 'Turn' message from client by server")
 
-    def _hgturn(self, con, msg):
+    def _hgturn(self, con, msg):  # sends turn
         try:
             game = self.game_players[con.ident]
         except KeyError:

@@ -44,7 +44,7 @@ class Character(GameObject):
                  burn_t=0,
                  poison_t=0,
                  blind_t=0,
-                 bleed_t=[0, 0, 0, 0, 0, 0],
+                 bleed_t=[0, 0, 0, 0, 0, 0]
                  ):
         super().__init__(name=name, obj_type=object_type, pos=pos, materials=["player"])
         self.name = name
@@ -53,7 +53,8 @@ class Character(GameObject):
         self.cost = cost
 
         self.class_id = class_id  # class id
-        self.idi = "c" + str(id(self))  # unique id
+        self.idi = "c" + str(id(self))  # unique id but only per client
+        self.random_id = random.randint(0, 1000000000)
 
         self.health = health[:]
         self.dexterity = dexterity
