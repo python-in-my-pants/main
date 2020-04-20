@@ -1955,8 +1955,8 @@ class InGame:
                 # ToDo Turn Apply Function?
                 return
 
-        # tODO maybe this does not work and we must use a binder
-        self.timer = VisualTimer(amount=60, pos=(0, 0), action=done_button_action)
+        # tODO reset time <3
+        self.timer = VisualTimer(amount=6000000, pos=(0, 0), action=done_button_action)
 
         # </editor-fold>
 
@@ -2355,11 +2355,15 @@ class InGame:
         if self.move_char:  # you have to move the char now
 
             self.move_char = False
-            if self.selected_own_char not in list(self.moved_chars.keys()) and self.is_it_my_turn:
+            if self.is_it_my_turn and \
+                    self.selected_own_char and \
+                    (self.selected_own_char.idi not in self.moved_chars):
 
                 # move to clicked field if it is reachable
-                rel_mouse_pos = [self.mouse_pos[0] - self.char_detail_back.get_width(), self.mouse_pos[1]]
-                dists_mouse_p_dest = [abs(rel_mouse_pos[0] - self.dest[0]), abs(rel_mouse_pos[1] - self.dest[1])]
+                rel_mouse_pos = [self.mouse_pos[0] - self.char_detail_back.get_width(),
+                                 self.mouse_pos[1]]
+                dists_mouse_p_dest = [abs(rel_mouse_pos[0] - self.dest[0]),
+                                      abs(rel_mouse_pos[1] - self.dest[1])]
                 percentual_mouse_pos_map_len = [dmpd / (self.zoom_factor * self.element_size) for dmpd in
                                                 dists_mouse_p_dest]
 
@@ -2376,18 +2380,33 @@ class InGame:
                     #  2) gets send to opponent
 
                     # turn stuff
-                    path = self.game_map.get_path(prev_pos, clicked_coords)
+                    # TODO
+                    # path = self.game_map.get_path(prev_pos, clicked_coords)
+                    path = []
                     self.moved_chars[self.selected_own_char.idi] = path
                     self.own_turn.add_action(Action(self.selected_own_char, path=path))
 
-            elif self.is_it_my_turn:  # you have already moved this char
+                    # unselect char after movement
+                    self.selected_own_char = None
+
+            # you have already moved this char
+            elif self.is_it_my_turn and \
+                    self.selected_own_char and \
+                    (self.selected_own_char.idi in list(self.moved_chars.keys())):
+
+                self.r_fields = []
+                self.selected_own_char = None
+
+                # tODO just for troll, remove later
                 print("Greed is a sin against God,\n "
                       "just as all mortal sins,\n "
                       "in as much as man condemns things\n "
                       "eternal for the sake of temporal things.")
 
-            # unselect char after movement
-            self.selected_own_char = None
+            elif not self.is_it_my_turn and self.selected_own_char:
+
+                self.r_fields = []
+                self.selected_own_char = None
 
         ##############################################################################################################
         # blit everything to positions
@@ -2598,6 +2617,7 @@ class InGame:
                 if not self.overlay.newblit:
                     self.overlay.surf = self.overlay.type["6"]
             self.screen.blit(self.overlay.surf, dest=self.overlay.pos)
+
         #####
         # left
 
@@ -2630,7 +2650,7 @@ class InGame:
     def update(self):
 
         if self.opp_turn_applying:
-            self.apply_opp_turn()
+            self.apply_opp_turn(self.opps_turn)
             return
 
         elif self.is_it_my_turn:
@@ -2665,10 +2685,6 @@ class InGame:
                 p = list(pg.mouse.get_pos())
                 self.mouse_pos = p
 
-                if event.button == 1:  # TODO maybe put this back to mousebtn down if it doesnt work
-                    if self.r_fields and self.selected_own_char:  # own char is selected and might want to move
-                        self.move_char = True
-
                 if event.button == 3:  # right button release
                     if self.zoom_factor >= 1:
                         self.shifting = False
@@ -2692,6 +2708,11 @@ class InGame:
                                 self.overlay = None
                                 self.overlay_btn = None
 
+                    if self.overlay:
+                        if not (self.overlay.pos[0] + 100 >= p[0] >= self.overlay.pos[0]) and\
+                           not (self.overlay.pos[1] + 200 >= p[1] >= self.overlay.pos[1]):
+                            self.overlay = None
+
                     for button in self.gear_buttons:
                         if button.is_focused(p):
                             button.action()
@@ -2711,18 +2732,16 @@ class InGame:
                     if self.done_btn.is_focused(p):
                         self.done_btn.action()
 
+                    # own char is selected and might want to move
+                    if self.r_fields and self.selected_own_char:
+                        self.move_char = True
+
                     # if map surface is focused
-                    r = self.map_surface.get_rect()
-                    x = (p[0] - self.char_detail_back.get_width(), p[1])
                     if self.map_surface.get_rect().collidepoint(p[0] - self.char_detail_back.get_width(), p[1]):
+
                         for button in self.char_map_buttons:
                             if button.is_focused(p):
                                 button.action()
-
-                    if self.overlay:
-                        if not (self.overlay.pos[0] + 100 >= p[0] >= self.overlay.pos[0]) and\
-                           not (self.overlay.pos[1] + 200 >= p[1] >= self.overlay.pos[1]):
-                            self.overlay = None
 
                 if event.button == 2:  # on mid click
                     pass
