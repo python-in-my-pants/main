@@ -1943,16 +1943,10 @@ class InGame:
                 self.turn_get_thread = start_new_thread(done_button_action, ())
                 return
             else:
+                # send the turn out
                 self.is_it_my_turn = False
-                self.client.send_turn(self.own_turn)  # ToDo Turn musch da rein
+                self.client.send_turn(self.own_turn)
                 time.sleep(1)
-                while not self.client.live_data["last_opp_turn"]:  # ToDo implement better later (only first functionality)
-                    if self.turn_wait_counter == 150:
-                        self.client.get_turn()
-                        self.turn_wait_counter = 0
-                    else:
-                        self.turn_wait_counter += 1
-                # ToDo Turn Apply Function?
                 return
 
         # tODO reset time <3
@@ -2381,8 +2375,7 @@ class InGame:
 
                     # turn stuff
                     # TODO
-                    # path = self.game_map.get_path(prev_pos, clicked_coords)
-                    path = []
+                    path = self.game_map.get_path(prev_pos, clicked_coords)
                     self.moved_chars[self.selected_own_char.idi] = path
                     self.own_turn.add_action(Action(self.selected_own_char, path=path))
 
@@ -2631,11 +2624,22 @@ class InGame:
 
         self.screen.blit(self.player_banners,
                          dest=[self.char_detail_back.get_width() + self.map_surface.get_width(), 0])
+
+        if self.own_team.team_num == 0:
+            self.screen.blit(self.timer.myfont.render("Host", False, (250, 0, 0)),
+                             [self.char_detail_back.get_width() + self.map_surface.get_width(),
+                              self.player_banners.get_height() - 250])
+        else:
+            self.screen.blit(self.timer.myfont.render("Client", False, (250, 0, 0)),
+                             [self.char_detail_back.get_width() + self.map_surface.get_width(),
+                              self.player_banners.get_height() - 250])
+
         if self.timer.amount >= 0:
             self.timer.update_visualtimer()
             self.screen.blit(self.timer.surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width()
                                                     + (self.player_banners.get_width() - 206) // 2,
                                                     self.player_banners.get_height() - 105])
+
         self.screen.blit(self.minimap_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
                                                   self.player_banners.get_height()])
         self.screen.blit(self.done_btn_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
@@ -2661,8 +2665,17 @@ class InGame:
 
             self.main_blit()
 
-            # try to receive opps turn
+            # try to receive opps turn here
             opp_turn = None  # TODO call sth here
+
+            if not self.client.live_data["last_opp_turn"]:
+                if self.turn_wait_counter == 150:
+                    opp_turn = self.client.get_turn()
+                    self.turn_wait_counter = 0
+                else:
+                    self.turn_wait_counter += 1
+
+            # apply turn
             if opp_turn:
                 self.opps_turn = opp_turn
                 self.opp_turn_applying = True

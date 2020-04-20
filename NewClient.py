@@ -128,8 +128,8 @@ class NetworkClient(metaclass=Singleton):
     # get turn
     def get_turn(self):
         # TODO this has to be called from main loop each frame while you are awaiting an opponent turn
-        # TODO maybe call this every 1 or 3 sec from main loop
-        self.send_q.put((Data.scc["send turn"], ""))
+        #         # TODO maybe call this every 1 or 3 sec from main loop
+        self.send_q.put((Data.scc["get turn"], ""))  # TODO was "send turn"
 
         log = self.connection.get_rec_log_fast(10)
         for pack in log:

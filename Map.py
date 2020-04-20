@@ -70,7 +70,6 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
 
         # check for too deep recursion, may remove this when better collision handling is in place
         if recursion_depth > 100:
-            print("Cannot fit object")
             return 0
         else:
             recursion_depth += 1
@@ -381,6 +380,42 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
             counter += 1
 
     def get_path(self, pos1, pos2):
+        # this is a set UwU
+        frontier = {tuple(pos1)}
+
+        # we have already seen those fields and know the fastest way to them
+        final_checked_fields = dict()
+        counter = 10000
+
+        while counter > 0:
+
+            #frontier -= set(list(final_checked_fields.keys()))
+            for current_field in list(frontier):
+
+                neighbours = self.get_neighbours(*current_field)
+
+                for n in neighbours:
+
+                    if self.movement_possible(current_field, n):
+                        frontier.add(tuple(n))
+                        final_checked_fields[tuple(n)] = current_field
+
+                        if n == pos2:
+                            break
+
+            counter -= 1
+
+        print(counter)
+        current_field = final_checked_fields[tuple(pos2)]
+        path = [current_field]
+        while True:
+            current_field = final_checked_fields[final_checked_fields[current_field]]
+            path.append(current_field)
+            if path[-1] == tuple(pos1):
+                path.reverse()
+                return path
+
+    def get_path_old(self, pos1, pos2):
         _pos1 = tuple(pos1)
         _pos2 = tuple(pos2)
 
@@ -393,7 +428,15 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
         max_range = 10000
 
         while counter <= max_range:
-            my_set = set(reachable) - checked
+            # TODO use dict with pos as key and prev as value to better the runtime
+
+            # remove checked fields
+            my_set = set(reachable)
+            for elem in tuple(set(reachable)):
+                for c in checked:
+                    if elem[0:2] == c[0:2]:
+                        my_set.remove(elem)
+
             for r in list(my_set):  # only checks "frontier"
                 neigh = self.get_neighbours(r[0], r[1])
                 for n in neigh:
@@ -412,14 +455,6 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
         done = False
         current_labradoodle = reachable[-1]
         path = []
-        """while not done:
-            for doodle in reachable:
-                if doodle[0:2] == tuple(pos1):
-                    done = True
-                if doodle[0:2] == tuple(current_labradoodle[2]):
-                    path.append(current_labradoodle[0:2])
-                    current_labradoodle = doodle[0:2]
-                    continue"""
 
         while not done:
             path.append(current_labradoodle[-1])
@@ -428,6 +463,55 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
 
         path.reverse()
         return path
+
+    """def get_path(self, pos1, pos2):
+        _pos1 = tuple(pos1)
+        _pos2 = tuple(pos2)
+
+        pos_w, pos_h = _pos1
+
+        #               x       y   prev
+        reachable = dict()
+        reachable[(pos_w, pos_h)] = _pos1
+        target = None
+        checked = set()  # set of tuples with checked fields
+        counter = 0
+        max_range = 10000
+
+        while counter <= max_range:
+            # TODO use dict with pos as key and prev as value to better the runtime
+
+            # remove checked fields
+            frontier = set(reachable.keys()) - checked
+
+            for r in list(frontier):  # only checks "frontier"
+                neigh = self.get_neighbours(r[0], r[1])
+                for n in neigh:
+                    if self.movement_possible(pos1, [n[0], n[1]]):
+                        reachable[(n[0], n[1])] = r
+                        if n == pos2:
+                            # target found, AC-130 incoming
+                            target = (n[0], n[1], r)
+                            break
+                checked.add(r)
+            counter += 1
+
+        if target[0:2] != tuple(pos2):
+            return None
+
+        # backtrack path
+        done = False
+        current_labradoodle = target
+        path = [_pos2]
+
+        while not done:
+            path.append(current_labradoodle[-1])
+            current_labradoodle = reachable[current_labradoodle[-1]]
+            if current_labradoodle[-1] == current_labradoodle[0:2]:
+                done = True
+
+        path.reverse()
+        return path"""
 
     def movement_possible(self, char, new_pos):  # takes a char and the destination as inputs
 
@@ -662,14 +746,17 @@ class MapBuilder:
             self.map.add_object(area)
 
         # buildings
-        house_limit = int((fields_x*fields_y) / 250)
-        ruins_limit = int((fields_x*fields_y) / 250)
+        house_limit = int((fields_x*fields_y) / 300)
+        ruins_limit = int((fields_x*fields_y) / 300)
 
         # nature
         bush_limit = int((fields_x*fields_y) / 150)
         boulder_limit = int((fields_x*fields_y) / 150)
         tree_limit = int((fields_x*fields_y) / 150)
         puddel_limit = int((fields_x*fields_y / 150))
+
+        if True:
+            house_limit = ruins_limit = bush_limit = boulder_limit = tree_limit = puddel_limit = 0
 
         def add_obj(obj_class, obj_limit):
 
@@ -698,105 +785,6 @@ class MapBuilder:
         add_obj(Boulder, boulder_limit)
         add_obj(Tree, tree_limit)
         add_obj(Puddel, puddel_limit)
-
-        """# add ruins
-        # standard 3
-        ruins_limit = 1  # int((size*size) / 25)
-        ruins_counter = 0
-        for i in range(ruins_limit):
-
-            h = Ruins(name=("Ruins " + str(ruins_counter)), obj_type="default",
-                      pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
-
-            # while there is a house (to add) and it does not fit and you did not try 100 times yet generate a new one
-            limit = 0
-            while h != 0 and self.map.add_object(h, border_size=1) != 1 and limit < 100:
-                h = Ruins(name=("Ruins " + str(ruins_counter)), obj_type="default",
-                          pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
-                limit += 1
-
-            if limit >= 100:
-                print("Could not place another object")
-            else:
-                ruins_counter += 1
-
-        # add bushes
-        # standard 5
-        for i in range(bush_limit):
-
-            h = Bush(name=("Simple bush " + str(bush_counter)), obj_type="default",
-                     pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
-
-            # while there is a house (to add) and it doesn't fit and you didn't try 100 times yet generate a new one
-            limit = 0
-            while h != 0 and self.map.add_object(h, border_size=1) != 1 and limit < 100:
-                h = Bush(name=("Simple bush " + str(bush_counter)), obj_type="default",
-                         pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
-                limit += 1
-
-            if limit >= 100:
-                print("Could not place another object")
-            else:
-                bush_counter += 1
-
-        # add puddels
-        # standard 5
-        puddel_limit = 0  # int((size*size)/15)
-        puddel_counter = 0
-        for i in range(puddel_limit):
-
-            h = Puddel(name=("Simple puddel " + str(puddel_counter)), obj_type="default",
-                        pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
-
-            # while there is a house (to add) and it doesn't fit and you didn't try 100 times yet generate a new one
-            limit = 0
-            while h != 0 and self.map.add_object(h, border_size=1) != 1 and limit < 100:
-                h = Bush(name=("Simple puddel " + str(puddel_counter)), obj_type="default",
-                          pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
-                limit += 1
-
-            if limit >= 100:
-                print("Could not place another object")
-            else:
-                puddel_counter += 1
-
-        # add boulder
-        # standard 5
-        for i in range(boulder_limit):
-
-            h = Boulder(name=("Simple boulder " + str(boulder_counter)), obj_type="Boulder",
-                        pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
-
-            # while there is a house (to add) and it doesn't fit and you didn't try 100 times yet generate a new one
-            limit = 0
-            while h != 0 and self.map.add_object(h, border_size=1) != 1 and limit < 100:
-                h = Boulder(name=("Simple boulder " + str(boulder_counter)), obj_type="Boulder",
-                            pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
-                limit += 1
-
-            if limit >= 100:
-                print("Could not place another object")
-            else:
-                boulder_counter += 1
-
-        # add tree
-        # standard 3
-        for i in range(tree_limit):
-
-            h = Tree(name=("Simple tree " + str(tree_counter)), obj_type="Tree",
-                     pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
-
-            # while there is a house (to add) and it doesn't fit and you didn't try 100 times yet generate a new one
-            limit = 0
-            while h != 0 and self.map.add_object(h, border_size=0) != 1 and limit < 100:
-                h = Tree(name=("Simple tree " + str(tree_counter)), obj_type="Tree",
-                         pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
-                limit += 1
-
-            if limit >= 100:
-                print("Could not place another object")
-            else:
-                tree_counter += 1"""
 
         # draw everything to surf
         # TODO why would I draw this here already?
