@@ -379,7 +379,7 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
                 checked.add(r)
             counter += 1
 
-    def get_path(self, pos1, pos2):
+    """def get_path(self, pos1, pos2):
         # this is a set UwU
         seen_fields = {tuple(pos1)}
 
@@ -414,7 +414,7 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
             path.append(current_field)
             if path[-1] == tuple(pos1):
                 path.reverse()
-                return path
+                return path"""
 
     def get_path(self, start, end):
 
@@ -480,14 +480,11 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
             for new_position in self.get_neighbours(*current_node.position):  # adjacent squares
 
                 # get node position
-                node_position = new_position
+                node_position = tuple(new_position)
 
                 # make sure within range
-                if not self.check_valid_list(node_position):
-                    continue
-
-                # make sure walkable terrain
-                if not self.movement_possible_pos(current_node.position, node_position):
+                if not self.check_valid_list(node_position) or\
+                   not self.movement_possible_pos(current_node.position, node_position):
                     continue
 
                 # create new node
@@ -572,7 +569,7 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
 
         objs_at_pos = self.get_objs_at(new_pos)
         for obj in objs_at_pos:
-            if obj.collider and obj is not char:  # it has a collider and is not the moving char
+            if obj.collider:  # it has a collider and is not the moving char
                 # use new sprite group for collision, because using game_objects could result in false results after
                 # moving the object (sprites are NOT moved by GameObject methods!)
                 for collAtom in pg.sprite.Group(CollAtom(new_pos)).sprites():
@@ -590,7 +587,7 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
 
         objs_at_pos = self.get_objs_at(new_pos)
         for obj in objs_at_pos:
-            if obj.collider and obj.pos is not old_pos:  # it has a collider and is not the moving char
+            if obj.collider:  # it has a collider and is not the moving char
                 # use new sprite group for collision, because using game_objects could result in false results after
                 # moving the object (sprites are NOT moved by GameObject methods!)
                 for collAtom in pg.sprite.Group(CollAtom(new_pos)).sprites():
@@ -626,25 +623,6 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
                  [x, y+1],
                  [x-1, y],
                  [x+1, y]]
-
-        to_ret = []
-
-        for n in neigh:
-            if self.check_valid_list(n):
-                to_ret.append(n)
-
-        return to_ret
-
-    def get_neighbours_full(self, x, y):
-
-        neigh = [[x, y-1],
-                 [x, y+1],
-                 [x-1, y],
-                 [x+1, y],
-                 [x+1, y+1],
-                 [x+1, y-1],
-                 [x-1, y-1],
-                 [x-1, y+1]]
 
         to_ret = []
 

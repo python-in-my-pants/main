@@ -35,6 +35,8 @@
 
 todo reset 684
 
+todo take out server debug print
+
 clear all TODO
 
 --------------------------------------------------------------------------

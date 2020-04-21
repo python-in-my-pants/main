@@ -38,7 +38,7 @@ class NetworkClient(metaclass=Singleton):
                               "map":            None,
                               "in_game":        False,
                               "game_begin":     None,
-                              "last_opp_turn":  None}
+                              "last_opp_turn":  (None, -1)}
 
         except Exception as e:
             print("\nClient failed to connect to server with exception:\n\n\t{}".format(e).upper())

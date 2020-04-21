@@ -2359,22 +2359,27 @@ class InGame:
                 clicked_coords = [int(x) for x in percentual_mouse_pos_map_len]
 
                 if tuple(clicked_coords) in self.r_fields:
-                    prev_pos = self.selected_own_char.pos
-                    self.selected_own_char.move(list(clicked_coords))
-                    self.r_fields = []
 
                     # TODO draw red dotted line from prev pos to new pos which
                     #  1) stays until end of own turn
                     #  2) gets send to opponent
 
+                    prev_pos = self.selected_own_char.pos
+
                     # turn stuff
-                    print(1)
                     path = self.game_map.get_path(prev_pos, clicked_coords)
+
+                    # move char
+                    self.selected_own_char.move(list(clicked_coords))
+
+                    # remember that he already moved
                     self.moved_chars[self.selected_own_char.idi] = path
+
+                    # build an action for turn
                     self.own_turn.add_action(Action(self.selected_own_char, path=path))
-                    print(2)
 
                     # unselect char after movement
+                    self.r_fields = []
                     self.selected_own_char = None
 
             # you have already moved this char
@@ -2661,17 +2666,16 @@ class InGame:
             self.main_blit()
 
             # try to receive opps turn here
-            opp_turn = None  # TODO call sth here
+            opp_turn, t = self.client.live_data["last_opp_turn"]
 
-            if not self.client.live_data["last_opp_turn"]:
-                if self.turn_wait_counter == 150:
+            if t == self.client.last_opp_turn_time or not opp_turn:
+                if self.turn_wait_counter == 150:  # check for turn every ... frames
                     opp_turn = self.client.get_turn()
                     self.turn_wait_counter = 0
                 else:
                     self.turn_wait_counter += 1
 
-            # apply turn
-            if opp_turn:
+            else:
                 self.opps_turn = opp_turn
                 self.opp_turn_applying = True
 
