@@ -381,7 +381,7 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
 
     def get_path(self, pos1, pos2):
         # this is a set UwU
-        frontier = {tuple(pos1)}
+        seen_fields = {tuple(pos1)}
 
         # we have already seen those fields and know the fastest way to them
         final_checked_fields = dict()
@@ -389,23 +389,24 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
 
         while counter > 0:
 
-            #frontier -= set(list(final_checked_fields.keys()))
-            for current_field in list(frontier):
+            seen_fields -= set(list(final_checked_fields.keys()))
+            for current_field in list(seen_fields):
 
                 neighbours = self.get_neighbours(*current_field)
 
                 for n in neighbours:
 
                     if self.movement_possible(current_field, n):
-                        frontier.add(tuple(n))
-                        final_checked_fields[tuple(n)] = current_field
-
+                        if tuple(n) not in final_checked_fields:
+                            seen_fields.add(tuple(n))
+                            final_checked_fields[tuple(n)] = current_field
                         if n == pos2:
                             break
 
+                seen_fields.add(current_field)
+
             counter -= 1
 
-        print(counter)
         current_field = final_checked_fields[tuple(pos2)]
         path = [current_field]
         while True:
@@ -415,103 +416,154 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
                 path.reverse()
                 return path
 
-    def get_path_old(self, pos1, pos2):
-        _pos1 = tuple(pos1)
-        _pos2 = tuple(pos2)
+    def get_path(self, start, end):
 
-        pos_w, pos_h = _pos1
+        start = tuple(start)
+        end = tuple(end)
 
-        #               x       y   prev
-        reachable = [(pos_w, pos_h, _pos1)]
-        checked = set()
-        counter = 0
-        max_range = 10000
+        class Node:
+            """A node class for A* Pathfinding"""
 
-        while counter <= max_range:
-            # TODO use dict with pos as key and prev as value to better the runtime
+            def __init__(self, parent=None, position=None):
+                self.parent = parent
+                self.position = position
 
-            # remove checked fields
-            my_set = set(reachable)
-            for elem in tuple(set(reachable)):
-                for c in checked:
-                    if elem[0:2] == c[0:2]:
-                        my_set.remove(elem)
+                self.g = 0
+                self.h = 0
+                self.f = 0
 
-            for r in list(my_set):  # only checks "frontier"
-                neigh = self.get_neighbours(r[0], r[1])
-                for n in neigh:
-                    if self.movement_possible(pos1, [n[0], n[1]]):
-                        reachable.append((n[0], n[1], r))
-                        if n == pos2:
-                            # target found, AC-130 incoming
-                            break
-                checked.add(r)
-            counter += 1
+            def __eq__(self, other):
+                return self.position == other.position
 
-        if reachable[-1][0:2] != tuple(pos2):
-            return None
+        """Returns a list of tuples as a path from the given start to the given end in the given maze"""
 
-        # backtrack path
-        done = False
-        current_labradoodle = reachable[-1]
-        path = []
+        # create start and end node
+        start_node = Node(None, start)
+        start_node.g = start_node.h = start_node.f = 0
 
-        while not done:
-            path.append(current_labradoodle[-1])
-            if current_labradoodle[-1] == current_labradoodle[0:2]:
-                done = True
+        end_node = Node(None, end)
+        end_node.g = end_node.h = end_node.f = 0
 
-        path.reverse()
-        return path
+        # initialize both open and closed list
+        open_list = []
+        closed_list = []
 
-    """def get_path(self, pos1, pos2):
-        _pos1 = tuple(pos1)
-        _pos2 = tuple(pos2)
+        # add the start node
+        open_list.append(start_node)
 
-        pos_w, pos_h = _pos1
+        # loop until you find the end
+        while len(open_list) > 0:
 
-        #               x       y   prev
-        reachable = dict()
-        reachable[(pos_w, pos_h)] = _pos1
-        target = None
-        checked = set()  # set of tuples with checked fields
-        counter = 0
-        max_range = 10000
+            # get the current node
+            current_node = open_list[0]
+            current_index = 0
+            for index, item in enumerate(open_list):
+                if item.f < current_node.f:
+                    current_node = item
+                    current_index = index
 
-        while counter <= max_range:
-            # TODO use dict with pos as key and prev as value to better the runtime
+            # pop current off open list, add to closed list
+            open_list.pop(current_index)
+            closed_list.append(current_node)
 
-            # remove checked fields
-            frontier = set(reachable.keys()) - checked
+            # found the goal
+            if current_node == end_node:
+                path = []
+                current = current_node
+                while current is not None:
+                    path.append(current.position)
+                    current = current.parent
+                return path[::-1]  # Return reversed path
 
-            for r in list(frontier):  # only checks "frontier"
-                neigh = self.get_neighbours(r[0], r[1])
-                for n in neigh:
-                    if self.movement_possible(pos1, [n[0], n[1]]):
-                        reachable[(n[0], n[1])] = r
-                        if n == pos2:
-                            # target found, AC-130 incoming
-                            target = (n[0], n[1], r)
-                            break
-                checked.add(r)
-            counter += 1
+            # generate children
+            children = []
+            for new_position in self.get_neighbours(*current_node.position):  # adjacent squares
 
-        if target[0:2] != tuple(pos2):
-            return None
+                # get node position
+                node_position = new_position
 
-        # backtrack path
-        done = False
-        current_labradoodle = target
-        path = [_pos2]
+                # make sure within range
+                if not self.check_valid_list(node_position):
+                    continue
 
-        while not done:
-            path.append(current_labradoodle[-1])
-            current_labradoodle = reachable[current_labradoodle[-1]]
-            if current_labradoodle[-1] == current_labradoodle[0:2]:
-                done = True
+                # make sure walkable terrain
+                if not self.movement_possible_pos(current_node.position, node_position):
+                    continue
 
-        path.reverse()
-        return path"""
+                # create new node
+                new_node = Node(current_node, node_position)
+
+                # append
+                children.append(new_node)
+
+            # loop through children
+            for child in children:
+
+                # child is on the closed list
+                for closed_child in closed_list:
+                    if child == closed_child:
+                        continue
+
+                # create the f, g, and h values
+                child.g = current_node.g + 1
+                child.h = ((child.position[0] - end_node.position[0]) ** 2) + \
+                          ((child.position[1] - end_node.position[1]) ** 2)
+                child.f = child.g + child.h
+
+                # child is already in the open list
+                for open_node in open_list:
+                    if child == open_node and child.g > open_node.g:
+                        continue
+
+                # add the child to the open list
+                open_list.append(child)
+
+    """def a_star(self, start, dest):
+
+        def cost(p1, p2): return (p1[0]+p2[0])**2 + (p2[1]+p2[1])**2
+        def g_cost(x): return cost(start, x)
+        def h_cost(x): return cost(x, dest)
+        def f_cost(x): return cost(start, x) + cost(x, dest)
+
+        class Node:
+
+            _start = start
+            _dest = dest
+
+            def __init__(self, pos):
+                self.pos = pos
+                self.g = g_cost(pos)
+                self.h = h_cost(pos)
+                self.f = self.g + self.h
+
+            def __eq__(self, other):
+                return self.pos == other.pos
+
+        open_list = [Node(start)]
+        closed_list = []
+
+        while open_list:
+
+            l = [x.f for x in open_list]
+            l = l.sort()
+            current_square = l[-1]
+
+            closed_list.append(Node(current_square))
+
+            if current_square.pos == dest:
+                ...
+                # backtrack to get path
+
+            for n in self.get_neighbours_full(*current_square.pos):
+
+                if n not in closed_list and self.movement_possible(current_square.pos, n):
+
+                    neigh = Node(n)
+
+                    if neigh not in [node.pos for node in open_list]:
+                        # if is has a greater g than the node with the same pos from open_list
+                        if neigh.g <= list(filter(lambda x: x.pos == n, open_list))[0]:
+                            open_list.append(neigh)"""
 
     def movement_possible(self, char, new_pos):  # takes a char and the destination as inputs
 
@@ -574,6 +626,25 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
                  [x, y+1],
                  [x-1, y],
                  [x+1, y]]
+
+        to_ret = []
+
+        for n in neigh:
+            if self.check_valid_list(n):
+                to_ret.append(n)
+
+        return to_ret
+
+    def get_neighbours_full(self, x, y):
+
+        neigh = [[x, y-1],
+                 [x, y+1],
+                 [x-1, y],
+                 [x+1, y],
+                 [x+1, y+1],
+                 [x+1, y-1],
+                 [x-1, y-1],
+                 [x-1, y+1]]
 
         to_ret = []
 

@@ -2204,12 +2204,6 @@ class InGame:
 
     def main_blit(self):
 
-        """if self.moved_chars.__len__() == self.own_team.characters.__len__() and \
-             self.shot_chars.__len__() == self.own_team.characters.__len__() and \
-                self.is_it_my_turn:
-            # own turn seems to be ready
-            return self.own_turn"""
-
         # <editor-fold desc="Render stuff">
         self.mouse_pos = pg.mouse.get_pos()
 
@@ -2374,10 +2368,11 @@ class InGame:
                     #  2) gets send to opponent
 
                     # turn stuff
-                    # TODO
+                    print(1)
                     path = self.game_map.get_path(prev_pos, clicked_coords)
                     self.moved_chars[self.selected_own_char.idi] = path
                     self.own_turn.add_action(Action(self.selected_own_char, path=path))
+                    print(2)
 
                     # unselect char after movement
                     self.selected_own_char = None
