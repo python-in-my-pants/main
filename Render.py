@@ -1876,12 +1876,12 @@ class InGame:
                             int(1.6 * (5 / 32) * 7 * w / 32)))  # button + hp bar
 
         self.map_surface = pg.Surface([int(9 * w / 16), h])
-        self.opp_turn_surf = pg.Surface(self.game_map.window.get_size())
         self.game_map.selective_draw_map(team_num=self.own_team.team_num)
         self.map_content = fit_surf(surf=self.game_map.window, size=self.map_surface.get_size())
 
         self.emptiness_of_darkness_of_doom = pg.transform.scale(pg.image.load("assets/empty_as_fuck.png").convert_alpha(),
                                                                 self.game_map.window.get_size())
+        self.opp_turn_surf = self.emptiness_of_darkness_of_doom
 
         self.own_team_stats = pg.Surface([int(self.map_surface.get_width() * 0.9), own_team_height])
 
@@ -2167,8 +2167,7 @@ class InGame:
         print("------------------Applying opponents turn")
 
         # prepare surface
-        self.opp_turn_surf = pg.Surface(self.game_map.window.get_size())
-        self.opp_turn_surf.blit(self.emtiness_of_darkness_of_doom, dest=(0, 0))
+        self.opp_turn_surf = self.opp_turn_surf = self.emptiness_of_darkness_of_doom
 
         opp_char_list = list(filter((lambda a: a.team != self.own_team),
                                     [self.game_map.objects[x] for x in self.game_map.characters]))
