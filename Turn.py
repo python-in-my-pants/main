@@ -1,8 +1,12 @@
+import random
+
+
 class Turn:
 
     def __init__(self, actions=[]):
 
         self.actions = actions[:]
+        self.rand_id = random.randint(0, 100000000)
 
     def add_action(self, action):
 

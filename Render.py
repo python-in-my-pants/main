@@ -1754,7 +1754,8 @@ class InGame:
         self.shift_start = [0, 0]
         self.con_shift_offset = [0, 0]  # constant offset from shifting the map
 
-        self.screen = pg.display.set_mode(true_res)  # , pg.RESIZABLE | pg.FULLSCREEN)
+        # todo convert is new
+        self.screen = pg.display.set_mode(true_res).convert_alpha()  # , pg.RESIZABLE | pg.FULLSCREEN)
         # </editor-fold>
 
         # <editor-fold desc="Place characters on map">
@@ -1876,8 +1877,11 @@ class InGame:
                             int(1.6 * (5 / 32) * 7 * w / 32)))  # button + hp bar
 
         self.map_surface = pg.Surface([int(9 * w / 16), h])
+        self.opp_turn_surf = pg.Surface(self.game_map.window.get_size())
         self.game_map.selective_draw_map(team_num=self.own_team.team_num)
         self.map_content = fit_surf(surf=self.game_map.window, size=self.map_surface.get_size())
+        self.emtiness_of_darkness_of_doom = pg.transform.scale(pg.image.load("assets/empty_as_fuck.png"),
+                                                               self.game_map.window.get_size())
 
         self.own_team_stats = pg.Surface([int(self.map_surface.get_width() * 0.9), own_team_height])
 
@@ -2160,32 +2164,50 @@ class InGame:
 
     def apply_opp_turn(self, opp_turn):  # applies changes from opp turn to own game state
 
-        opp_char_list = self.game_map.characters
-        for c in opp_char_list:
-            if c.team == self.own_team:
-                opp_char_list.remove(c)
+        # tODo put this on an extra surface in self, that is resized, zoomed, etc and blit it above map and below rest?
+
+        print("------------------Applying opponents turn")
+
+        # prepare surface
+        self.opp_turn_surf = pg.Surface(self.game_map.window.get_size())
+        self.opp_turn_surf.blit(self.emtiness_of_darkness_of_doom, dest=(0, 0))
+
+        opp_char_list = list(filter((lambda a: a.team != self.own_team),
+                                    [self.game_map.objects[x] for x in self.game_map.characters]))
 
         for action in opp_turn.actions:
 
             opp_char = None
             for c in opp_char_list:
-                if c.random_id == action.player_a.rand_id:
+                if c.rand_id == action.player_a.rand_id:
                     opp_char = c
-
-            my_char = None
-            for c in self.own_team.characters:
-                if c.random_id == action.player_b.rand_id:
-                    my_char = c
 
             if action.path:  # TODO use path and draw_linesaa instead
                 opp_char.pos = action.player_a.pos
                 # blit lines indicating movement and shots
-                self._draw_dotted_line(self.map_surface, action.path, (0, 0, 0))
 
-            if action.pos_a_dmg2b:
-                my_char.apply_damage(action.pos_a_dmg2b)
-                # blit lines indicating movement and shots
-                self.draw_line(self.map_surface, my_char, opp_char, (139, 0, 0))
+                # old variant
+                # self._draw_dotted_line(self.opp_turn_surf, action.path, (0, 0, 0))
+
+                # new variant
+                pg.draw.circle(self.opp_turn_surf, (255, 170, 160),
+                               list(map((lambda x: x + Data.def_elem_size//2), action.path[0])),
+                               Data.def_elem_size//2)
+                pg.draw.aalines(self.opp_turn_surf, (255, 170, 160), False,
+                                [[x[0]*Data.def_elem_size, x[1]*Data.def_elem_size] for x in action.path], 0)
+
+            if action.player_b:
+                my_char = None
+                for c in self.own_team.characters:
+                    if c.rand_id == action.player_b.rand_id:
+                        my_char = c
+
+                if action.pos_a_dmg2b:
+                    # TODO maybe draw triangle at end of line
+                    my_char.apply_damage(action.pos_a_dmg2b)
+                    # blit lines indicating movement and shots
+                    self.draw_line_map_coords(self.opp_turn_surf, my_char, opp_char, (139, 0, 0))
+
 
             # TODO implement other action stuff
 
@@ -2201,6 +2223,8 @@ class InGame:
         self.is_it_my_turn = True
         self.opps_turn = None
         self.own_turn = Turn()
+
+        print("------------------Done applying opponents turn")
 
     def main_blit(self):
 
@@ -2448,6 +2472,8 @@ class InGame:
 
         # fit map content to map surface
         # self.map_content = fit_surf(surf=self.game_map.window, size=self.map_surface.get_size())
+        self.game_map.window.blit(self.opp_turn_surf, dest=(0, 0))
+
         self.map_content = self.game_map.window
 
         # map cannot disappear from zooming out
@@ -2488,8 +2514,7 @@ class InGame:
         # redraw background here
         self.map_surface.fill((0, 0, 17))
 
-        # support alpha
-        self.map_surface.convert()
+        # TODO map surface convert was here
 
         # TODO blit only area that is actually visible for better fps
         self.map_surface.blit(var, dest=[int(x) for x in self.dest])
@@ -2627,12 +2652,13 @@ class InGame:
 
         if self.own_team.team_num == 0:
             self.screen.blit(self.timer.myfont.render("Host", False, (250, 0, 0)),
-                             [self.char_detail_back.get_width() + self.map_surface.get_width(),
-                              self.player_banners.get_height() - 250])
+                             [self.char_detail_back.get_width() + self.map_surface.get_width(), 0])
         else:
             self.screen.blit(self.timer.myfont.render("Client", False, (250, 0, 0)),
-                             [self.char_detail_back.get_width() + self.map_surface.get_width(),
-                              self.player_banners.get_height() - 250])
+                             [self.char_detail_back.get_width() + self.map_surface.get_width(), 0])
+
+        self.screen.blit(self.timer.myfont.render(str(self.is_it_my_turn), False, (250, 0, 0)),
+                         [self.char_detail_back.get_width() + self.map_surface.get_width(), 250])
 
         if self.timer.amount >= 0:
             self.timer.update_visualtimer()
@@ -2647,15 +2673,12 @@ class InGame:
 
         # </editor-fold>
 
-        return None
-
         # </editor-fold>
 
     def update(self):
 
         if self.opp_turn_applying:
             self.apply_opp_turn(self.opps_turn)
-            return
 
         elif self.is_it_my_turn:
 
@@ -2666,11 +2689,15 @@ class InGame:
             self.main_blit()
 
             # try to receive opps turn here
-            opp_turn, t = self.client.live_data["last_opp_turn"]
+            opp_turn, t = self.client.get_turn()
 
-            if t == self.client.last_opp_turn_time or not opp_turn:
+            print("Render gets turn with time:", t)
+
+            # if turn is not the new turn we're waiting for
+            if not opp_turn or (self.opps_turn and opp_turn.rand_id == self.opps_turn.rand_id):
+
                 if self.turn_wait_counter == 150:  # check for turn every ... frames
-                    opp_turn = self.client.get_turn()
+                    self.client.get_turn_from_server()
                     self.turn_wait_counter = 0
                 else:
                     self.turn_wait_counter += 1
@@ -2782,7 +2809,28 @@ class InGame:
 
                     self.zoomed = True
 
-    def draw_line(self, surf, start, end, color):
+    def draw_line_map_coords(self, surf, start, end, color):  # draws line from start to end on game_map.window
+        start_point = start
+        end_point = end
+
+        # adjust to middle of field instead of upper left
+        end_point = [int(ep + (Data.def_elem_size / 2)) for ep in end_point]
+
+        line_points = [start_point]
+        end_min_start = [end_point[i] - start_point[i] for i in range(start_point.__len__())]
+
+        num_of_parts = 8
+        for i in range(1, num_of_parts):
+            offset = [int((i / num_of_parts) * x) for x in end_min_start]
+            line_points.append([start_point[i] + offset[i] for i in range(len(start_point))])
+
+        pl = line_points
+        for p in range(0, len(pl), 2):
+            pg.draw.aaline(surf, color, pl[p], pl[p + 1], 1)
+
+        return surf
+
+    def draw_line_pix_coords(self, surf, start, end, color):
         start_point = self._map_to_pix_coord(start)
         end_point = self._map_to_pix_coord(end)
 
@@ -2804,6 +2852,12 @@ class InGame:
         return surf
 
     def _draw_dotted_line(self, surf, pl, color=(255, 0, 0)):
+        """
+        :param surf: surf to draw on
+        :param pl: point list for the line
+        :param color: color
+        :return: surface with line
+        """
         if not len(pl) % 2 == 0:
             print("Error in Ingame_draw_dotted_line! Number of points must be even")
             return
@@ -2826,6 +2880,7 @@ class InGame:
         del self
 
 # <editor-fold desc="Helper functions">
+
 
 def resize_surface_height(surf, y_diff=0):
     new = pg.Surface([surf.get_width(), surf.get_height() + y_diff])

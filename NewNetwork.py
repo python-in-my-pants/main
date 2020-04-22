@@ -163,7 +163,6 @@ class Connection:
 
     def get_last_control_type_and_msg(self):
         last_rec = self._get_last_rec()
-        # print("Last receive:", last_rec.to_string())
         if last_rec:
             return last_rec.ctype, last_rec.get_payload()
         else:
@@ -171,21 +170,6 @@ class Connection:
 
     def _get_last_rec(self):
         return self.data.rec_log[-1] if len(self.data.rec_log) > 0 else None
-
-    def old_new_msg_sent(self):  # this now only checks for timestamps
-        # TODO doesn't work bc timestamp of last could be timestamp of third last u know?
-        # # new msg in between doesn't get seen
-        last_rec = self._get_last_rec()
-        if not last_rec:  # no msg was received yet
-            return False
-        if not self.last_chkd_msg:  # is it the first receive on this connection?
-            self.last_chkd_msg = last_rec
-            return True
-        if self.last_chkd_msg.timestamp == last_rec.timestamp:  # compare timestamps
-            return False
-        else:
-            self.last_chkd_msg = last_rec
-            return True
 
     def new_msg_sent(self):  # this now only checks for timestamps
         # TODO doesn't work bc timestamp of last could be timestamp of third last u know?

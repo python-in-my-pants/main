@@ -54,7 +54,7 @@ class Character(GameObject):
 
         self.class_id = class_id  # class id
         self.idi = "c" + str(id(self))  # unique id but only per client
-        self.random_id = random.randint(0, 1000000000)
+        self.rand_id = random.randint(0, 1000000000)
 
         self.health = health[:]
         self.dexterity = dexterity
