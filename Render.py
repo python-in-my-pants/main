@@ -1754,8 +1754,7 @@ class InGame:
         self.shift_start = [0, 0]
         self.con_shift_offset = [0, 0]  # constant offset from shifting the map
 
-        # todo convert is new
-        self.screen = pg.display.set_mode(true_res).convert_alpha()  # , pg.RESIZABLE | pg.FULLSCREEN)
+        self.screen = pg.display.set_mode(true_res)  # , pg.RESIZABLE | pg.FULLSCREEN)
         # </editor-fold>
 
         # <editor-fold desc="Place characters on map">
@@ -2164,8 +2163,6 @@ class InGame:
 
     def apply_opp_turn(self, opp_turn):  # applies changes from opp turn to own game state
 
-        # tODo put this on an extra surface in self, that is resized, zoomed, etc and blit it above map and below rest?
-
         print("------------------Applying opponents turn")
 
         # prepare surface
@@ -2182,7 +2179,7 @@ class InGame:
                 if c.rand_id == action.player_a.rand_id:
                     opp_char = c
 
-            if action.path:  # TODO use path and draw_linesaa instead
+            if action.path:
                 opp_char.pos = action.player_a.pos
                 # blit lines indicating movement and shots
 
@@ -2203,16 +2200,13 @@ class InGame:
                         my_char = c
 
                 if action.pos_a_dmg2b:
-                    # TODO maybe draw triangle at end of line
                     my_char.apply_damage(action.pos_a_dmg2b)
                     # blit lines indicating movement and shots
                     self.draw_line_map_coords(self.opp_turn_surf, my_char, opp_char, (139, 0, 0))
 
-
             # TODO implement other action stuff
 
         # TODO make animated version :-)
-        ...
 
         # before you're done, check if the sent team from opp is the same as your current representation of the opp team
         # if that's not the case, set your repres equal to his
@@ -2264,7 +2258,7 @@ class InGame:
                 line_points.append([start_point[i] + offset[i] for i in range(len(start_point))])
         else:
             line_points = []
-        # </editor-fold>
+        # </editor-fold>der
 
         # clear list :)
         self.char_map_buttons = []
@@ -2514,7 +2508,7 @@ class InGame:
         # redraw background here
         self.map_surface.fill((0, 0, 17))
 
-        # TODO map surface convert was here
+        # self.map_surface.convert()
 
         # TODO blit only area that is actually visible for better fps
         self.map_surface.blit(var, dest=[int(x) for x in self.dest])
@@ -2544,8 +2538,6 @@ class InGame:
             self.map_surface.blit(r_surf, [int(x) for x in self.dest])
 
         # </editor-fold>
-
-        # TODO update hp bars
 
         # <editor-fold desc="blend out team stats">
         # blend out team stats if mouse is not up
@@ -2691,8 +2683,6 @@ class InGame:
             # try to receive opps turn here
             opp_turn, t = self.client.get_turn()
 
-            print("Render gets turn with time:", t)
-
             # if turn is not the new turn we're waiting for
             if not opp_turn or (self.opps_turn and opp_turn.rand_id == self.opps_turn.rand_id):
 
@@ -2809,6 +2799,7 @@ class InGame:
 
                     self.zoomed = True
 
+    # <editor-fold desc="Helper">
     def draw_line_map_coords(self, surf, start, end, color):  # draws line from start to end on game_map.window
         start_point = start
         end_point = end
@@ -2875,6 +2866,7 @@ class InGame:
                [self.current_element_size * pos[0] + self.dest[0] +
                 self.char_detail_back.get_width(),
                 self.current_element_size * pos[1] + self.dest[1]]
+    # </editor-fold>
 
     def harakiri(self):
         del self

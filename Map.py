@@ -17,8 +17,7 @@ debug = True
 class Map(GameObject):  # TODO maybe dont inherit from GObj
     # container class for all other drawable game objects
 
-    def __init__(self, x_size, y_size, window=None, objects=[], characters=[],
-                 unique_pixels=[]):
+    def __init__(self, x_size, y_size, window=None, objects=[], characters=[], unique_pixels=[]):
 
         # size_x holds map size in actual drawable pixels coords, x and y are to be
         # committed in desired size in elements * elem_size
@@ -31,7 +30,8 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
         else:
             self.window = window
 
-        self.window.convert_alpha()
+        self.window.fill((255, 20, 147))
+        self.window.set_colorkey((255, 20, 147))
 
         self.starting_areas = []  # holds lists [a,b,c,d]
 
@@ -729,8 +729,6 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
         for index, go in enumerate(self.objects):
             if go.render_type == "blit":  # character
                 if visible_chars.__contains__(index):
-                    if go.is_selected is True:
-                        go.orientation = go.orientation  # TODO: look at mouse OR at char to attack
                     if go.team == 0:
                         go_surf = pg.image.load("assets/Teams/Blue_Team/" + character_classes[go.class_id] + "/Blue_" +
                                                 character_classes[go.class_id] + "_Pistol.png")
