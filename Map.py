@@ -30,9 +30,6 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
         else:
             self.window = window
 
-        self.window.fill((255, 20, 147))
-        self.window.set_colorkey((255, 20, 147))
-
         self.starting_areas = []  # holds lists [a,b,c,d]
 
         # beware, when using you have to call [y][x]

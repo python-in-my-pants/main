@@ -6,6 +6,8 @@
 
 -----------------------------------------------------------------
 
+2 - doublebuf, hwsurface in set_mode for better performance
+
 2 - make turn turn dependent on max chars that are actually in one of the teams
 
 2 - calc bleed damage every turn
