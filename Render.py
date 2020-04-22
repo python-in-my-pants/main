@@ -2379,13 +2379,6 @@ class InGame:
                 clicked_coords = [int(x) for x in percentual_mouse_pos_map_len]
 
                 if tuple(clicked_coords) in self.r_fields:
-                    #prev_pos = self.selected_own_char.pos
-                    #self.selected_own_char.prev_pos = prev_pos
-                    #self.selected_own_char.moved = True
-
-                    #self.selected_own_char.move(list(clicked_coords))
-                    #self.selected_own_char.dist_moved = self.game_map.get_distance(prev_pos, self.selected_own_char.pos)
-                    #self.r_fields = []
                     # TODO draw red dotted line from prev pos to new pos which
                     #  1) stays until end of own turn
                     #  2) gets send to opponent
@@ -2394,9 +2387,11 @@ class InGame:
 
                     # turn stuff
                     path = self.game_map.get_path(prev_pos, clicked_coords)
+                    self.selected_own_char.dist_moved = len(path) - 1
 
                     # move char
                     self.selected_own_char.move(list(clicked_coords))
+                    self.selected_own_char.moved = True
 
                     # remember that he already moved
                     self.moved_chars[self.selected_own_char.idi] = path

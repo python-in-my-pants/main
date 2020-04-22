@@ -296,7 +296,7 @@ class Character(GameObject):
                         dmg_done_list[partind] = dmg_done
 
             return dmg_done, dmg_done_list
-        return "BUBBA HAT NEN NICES ASSHOLE"
+        return "Bro he is already dead yo"
 
     def get_chance(self, dude):
         if not dude.is_dead():
