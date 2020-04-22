@@ -231,28 +231,30 @@ class Server:
         except KeyError:
             print("Player is not in a game, receiving turn by server failed!")
             return
-        if con.ident == game.host.ident:
+        if con.ident == game.host:
             # set last turn and keep it until requested
             game.last_host_turn, game.last_host_turn_time = msg
-        elif con.ident == game.guest.ident:
+        elif con.ident == game.guest:
             # set last turn and keep it until requested
             game.last_guest_turn, game.last_guest_turn_time = msg
         else:
-            print("Error in handling 'Turn' message from client by server")
+            print("Error in handling 'Turn' message from {} by server".format(con.ident))
 
-    def _hgturn(self, con, msg):  # sends turn
+    def _hgturn(self, con, msg):  # sends back turn
         try:
             game = self.game_players[con.ident]
         except KeyError:
             print("Player is not in a game, receiving turn by server failed!")
             return
-        if con.ident == game.host.ident:
+        if con.ident == game.host:
             # send last opponent turn
-            game.host.send(scc["turn"], game.last_guest_turn)
-        elif con.ident == game.guest.ident:
-            game.host.send(scc["turn"], game.last_host_turn)
+            print("\nturn time", game.last_guest_turn_time, "\n")
+            self.connections[game.host].send(scc["Turn"], (game.last_guest_turn, game.last_guest_turn_time))
+        elif con.ident == game.guest:
+            print("\nturn time", game.last_host_turn_time, "\n")
+            self.connections[game.guest].send(scc["Turn"], (game.last_host_turn, game.last_host_turn_time))
         else:
-            print("Error in handling 'Get turn' request by server")
+            print("Error in handling 'Get turn' request from {} by server".format(con.ident))
 
     # handle game end
     def _hendg(self, con, msg):

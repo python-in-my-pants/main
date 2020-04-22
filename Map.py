@@ -17,8 +17,7 @@ debug = True
 class Map(GameObject):  # TODO maybe dont inherit from GObj
     # container class for all other drawable game objects
 
-    def __init__(self, x_size, y_size, window=None, objects=[], characters=[],
-                 unique_pixels=[]):
+    def __init__(self, x_size, y_size, window=None, objects=[], characters=[], unique_pixels=[]):
 
         # size_x holds map size in actual drawable pixels coords, x and y are to be
         # committed in desired size in elements * elem_size
@@ -70,7 +69,6 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
 
         # check for too deep recursion, may remove this when better collision handling is in place
         if recursion_depth > 100:
-            print("Cannot fit object")
             return 0
         else:
             recursion_depth += 1
@@ -380,54 +378,188 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
                 checked.add(r)
             counter += 1
 
-    def get_path(self, pos1, pos2):
-        _pos1 = tuple(pos1)
-        _pos2 = tuple(pos2)
+    """def get_path(self, pos1, pos2):
+        # this is a set UwU
+        seen_fields = {tuple(pos1)}
 
-        pos_w, pos_h = _pos1
+        # we have already seen those fields and know the fastest way to them
+        final_checked_fields = dict()
+        counter = 10000
 
-        #               x       y   prev
-        reachable = [(pos_w, pos_h, _pos1)]
-        checked = set()
-        counter = 0
-        max_range = 10000
+        while counter > 0:
 
-        while counter <= max_range:
-            my_set = set(reachable) - checked
-            for r in list(my_set):  # only checks "frontier"
-                neigh = self.get_neighbours(r[0], r[1])
-                for n in neigh:
-                    if self.movement_possible(pos1, [n[0], n[1]]):
-                        reachable.append((n[0], n[1], r))
+            seen_fields -= set(list(final_checked_fields.keys()))
+            for current_field in list(seen_fields):
+
+                neighbours = self.get_neighbours(*current_field)
+
+                for n in neighbours:
+
+                    if self.movement_possible(current_field, n):
+                        if tuple(n) not in final_checked_fields:
+                            seen_fields.add(tuple(n))
+                            final_checked_fields[tuple(n)] = current_field
                         if n == pos2:
-                            # target found, AC-130 incoming
                             break
-                checked.add(r)
-            counter += 1
 
-        if reachable[-1][0:2] != tuple(pos2):
-            return None
+                seen_fields.add(current_field)
 
-        # backtrack path
-        done = False
-        current_labradoodle = reachable[-1]
-        path = []
-        """while not done:
-            for doodle in reachable:
-                if doodle[0:2] == tuple(pos1):
-                    done = True
-                if doodle[0:2] == tuple(current_labradoodle[2]):
-                    path.append(current_labradoodle[0:2])
-                    current_labradoodle = doodle[0:2]
-                    continue"""
+            counter -= 1
 
-        while not done:
-            path.append(current_labradoodle[-1])
-            if current_labradoodle[-1] == current_labradoodle[0:2]:
-                done = True
+        current_field = final_checked_fields[tuple(pos2)]
+        path = [current_field]
+        while True:
+            current_field = final_checked_fields[final_checked_fields[current_field]]
+            path.append(current_field)
+            if path[-1] == tuple(pos1):
+                path.reverse()
+                return path"""
 
-        path.reverse()
-        return path
+    def get_path(self, start, end):
+
+        start = tuple(start)
+        end = tuple(end)
+
+        class Node:
+            """A node class for A* Pathfinding"""
+
+            def __init__(self, parent=None, position=None):
+                self.parent = parent
+                self.position = position
+
+                self.g = 0
+                self.h = 0
+                self.f = 0
+
+            def __eq__(self, other):
+                return self.position == other.position
+
+        """Returns a list of tuples as a path from the given start to the given end in the given maze"""
+
+        # create start and end node
+        start_node = Node(None, start)
+        start_node.g = start_node.h = start_node.f = 0
+
+        end_node = Node(None, end)
+        end_node.g = end_node.h = end_node.f = 0
+
+        # initialize both open and closed list
+        open_list = []
+        closed_list = []
+
+        # add the start node
+        open_list.append(start_node)
+
+        # loop until you find the end
+        while len(open_list) > 0:
+
+            # get the current node
+            current_node = open_list[0]
+            current_index = 0
+            for index, item in enumerate(open_list):
+                if item.f < current_node.f:
+                    current_node = item
+                    current_index = index
+
+            # pop current off open list, add to closed list
+            open_list.pop(current_index)
+            closed_list.append(current_node)
+
+            # found the goal
+            if current_node == end_node:
+                path = []
+                current = current_node
+                while current is not None:
+                    path.append(current.position)
+                    current = current.parent
+                return path[::-1]  # Return reversed path
+
+            # generate children
+            children = []
+            for new_position in self.get_neighbours(*current_node.position):  # adjacent squares
+
+                # get node position
+                node_position = tuple(new_position)
+
+                # make sure within range
+                if not self.check_valid_list(node_position) or\
+                   not self.movement_possible_pos(current_node.position, node_position):
+                    continue
+
+                # create new node
+                new_node = Node(current_node, node_position)
+
+                # append
+                children.append(new_node)
+
+            # loop through children
+            for child in children:
+
+                # child is on the closed list
+                for closed_child in closed_list:
+                    if child == closed_child:
+                        continue
+
+                # create the f, g, and h values
+                child.g = current_node.g + 1
+                child.h = ((child.position[0] - end_node.position[0]) ** 2) + \
+                          ((child.position[1] - end_node.position[1]) ** 2)
+                child.f = child.g + child.h
+
+                # child is already in the open list
+                for open_node in open_list:
+                    if child == open_node and child.g > open_node.g:
+                        continue
+
+                # add the child to the open list
+                open_list.append(child)
+
+    """def a_star(self, start, dest):
+
+        def cost(p1, p2): return (p1[0]+p2[0])**2 + (p2[1]+p2[1])**2
+        def g_cost(x): return cost(start, x)
+        def h_cost(x): return cost(x, dest)
+        def f_cost(x): return cost(start, x) + cost(x, dest)
+
+        class Node:
+
+            _start = start
+            _dest = dest
+
+            def __init__(self, pos):
+                self.pos = pos
+                self.g = g_cost(pos)
+                self.h = h_cost(pos)
+                self.f = self.g + self.h
+
+            def __eq__(self, other):
+                return self.pos == other.pos
+
+        open_list = [Node(start)]
+        closed_list = []
+
+        while open_list:
+
+            l = [x.f for x in open_list]
+            l = l.sort()
+            current_square = l[-1]
+
+            closed_list.append(Node(current_square))
+
+            if current_square.pos == dest:
+                ...
+                # backtrack to get path
+
+            for n in self.get_neighbours_full(*current_square.pos):
+
+                if n not in closed_list and self.movement_possible(current_square.pos, n):
+
+                    neigh = Node(n)
+
+                    if neigh not in [node.pos for node in open_list]:
+                        # if is has a greater g than the node with the same pos from open_list
+                        if neigh.g <= list(filter(lambda x: x.pos == n, open_list))[0]:
+                            open_list.append(neigh)"""
 
     def movement_possible(self, char, new_pos):  # takes a char and the destination as inputs
 
@@ -436,7 +568,7 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
 
         objs_at_pos = self.get_objs_at(new_pos)
         for obj in objs_at_pos:
-            if obj.collider and obj is not char:  # it has a collider and is not the moving char
+            if obj.collider:  # it has a collider and is not the moving char
                 # use new sprite group for collision, because using game_objects could result in false results after
                 # moving the object (sprites are NOT moved by GameObject methods!)
                 for collAtom in pg.sprite.Group(CollAtom(new_pos)).sprites():
@@ -454,7 +586,7 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
 
         objs_at_pos = self.get_objs_at(new_pos)
         for obj in objs_at_pos:
-            if obj.collider and obj.pos is not old_pos:  # it has a collider and is not the moving char
+            if obj.collider:  # it has a collider and is not the moving char
                 # use new sprite group for collision, because using game_objects could result in false results after
                 # moving the object (sprites are NOT moved by GameObject methods!)
                 for collAtom in pg.sprite.Group(CollAtom(new_pos)).sprites():
@@ -594,8 +726,6 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
         for index, go in enumerate(self.objects):
             if go.render_type == "blit":  # character
                 if visible_chars.__contains__(index):
-                    if go.is_selected is True:
-                        go.orientation = go.orientation  # TODO: look at mouse OR at char to attack
                     if go.team == 0:
                         go_surf = pg.image.load("assets/Teams/Blue_Team/" + character_classes[go.class_id] + "/Blue_" +
                                                 character_classes[go.class_id] + "_Pistol.png")
@@ -662,14 +792,17 @@ class MapBuilder:
             self.map.add_object(area)
 
         # buildings
-        house_limit = int((fields_x*fields_y) / 250)
-        ruins_limit = int((fields_x*fields_y) / 250)
+        house_limit = int((fields_x*fields_y) / 300)
+        ruins_limit = int((fields_x*fields_y) / 300)
 
         # nature
         bush_limit = int((fields_x*fields_y) / 150)
         boulder_limit = int((fields_x*fields_y) / 150)
         tree_limit = int((fields_x*fields_y) / 150)
         puddel_limit = int((fields_x*fields_y / 150))
+
+        if True:
+            house_limit = ruins_limit = bush_limit = boulder_limit = tree_limit = puddel_limit = 0
 
         def add_obj(obj_class, obj_limit):
 
@@ -700,105 +833,6 @@ class MapBuilder:
         add_obj(Boulder, boulder_limit)
         add_obj(Tree, tree_limit)
         #"""
-
-        """# add ruins
-        # standard 3
-        ruins_limit = 1  # int((size*size) / 25)
-        ruins_counter = 0
-        for i in range(ruins_limit):
-
-            h = Ruins(name=("Ruins " + str(ruins_counter)), obj_type="default",
-                      pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
-
-            # while there is a house (to add) and it does not fit and you did not try 100 times yet generate a new one
-            limit = 0
-            while h != 0 and self.map.add_object(h, border_size=1) != 1 and limit < 100:
-                h = Ruins(name=("Ruins " + str(ruins_counter)), obj_type="default",
-                          pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
-                limit += 1
-
-            if limit >= 100:
-                print("Could not place another object")
-            else:
-                ruins_counter += 1
-
-        # add bushes
-        # standard 5
-        for i in range(bush_limit):
-
-            h = Bush(name=("Simple bush " + str(bush_counter)), obj_type="default",
-                     pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
-
-            # while there is a house (to add) and it doesn't fit and you didn't try 100 times yet generate a new one
-            limit = 0
-            while h != 0 and self.map.add_object(h, border_size=1) != 1 and limit < 100:
-                h = Bush(name=("Simple bush " + str(bush_counter)), obj_type="default",
-                         pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
-                limit += 1
-
-            if limit >= 100:
-                print("Could not place another object")
-            else:
-                bush_counter += 1
-
-        # add puddels
-        # standard 5
-        puddel_limit = 0  # int((size*size)/15)
-        puddel_counter = 0
-        for i in range(puddel_limit):
-
-            h = Puddel(name=("Simple puddel " + str(puddel_counter)), obj_type="default",
-                        pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
-
-            # while there is a house (to add) and it doesn't fit and you didn't try 100 times yet generate a new one
-            limit = 0
-            while h != 0 and self.map.add_object(h, border_size=1) != 1 and limit < 100:
-                h = Bush(name=("Simple puddel " + str(puddel_counter)), obj_type="default",
-                          pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
-                limit += 1
-
-            if limit >= 100:
-                print("Could not place another object")
-            else:
-                puddel_counter += 1
-
-        # add boulder
-        # standard 5
-        for i in range(boulder_limit):
-
-            h = Boulder(name=("Simple boulder " + str(boulder_counter)), obj_type="Boulder",
-                        pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
-
-            # while there is a house (to add) and it doesn't fit and you didn't try 100 times yet generate a new one
-            limit = 0
-            while h != 0 and self.map.add_object(h, border_size=1) != 1 and limit < 100:
-                h = Boulder(name=("Simple boulder " + str(boulder_counter)), obj_type="Boulder",
-                            pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
-                limit += 1
-
-            if limit >= 100:
-                print("Could not place another object")
-            else:
-                boulder_counter += 1
-
-        # add tree
-        # standard 3
-        for i in range(tree_limit):
-
-            h = Tree(name=("Simple tree " + str(tree_counter)), obj_type="Tree",
-                     pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
-
-            # while there is a house (to add) and it doesn't fit and you didn't try 100 times yet generate a new one
-            limit = 0
-            while h != 0 and self.map.add_object(h, border_size=0) != 1 and limit < 100:
-                h = Tree(name=("Simple tree " + str(tree_counter)), obj_type="Tree",
-                         pos=[numpy.random.randint(0, fields_x), numpy.random.randint(0, fields_y)])
-                limit += 1
-
-            if limit >= 100:
-                print("Could not place another object")
-            else:
-                tree_counter += 1"""
 
         # draw everything to surf
         # TODO why would I draw this here already?

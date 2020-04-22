@@ -2,7 +2,13 @@
 
 1 - deactivate buttons while waiting for opp turn
 
+1 - point selection in connection setup
+
 -----------------------------------------------------------------
+
+2 - doublebuf, hwsurface in set_mode for better performance
+
+2 - make turn turn dependent on max chars that are actually in one of the teams
 
 2 - calc bleed damage every turn
 
@@ -32,6 +38,8 @@
                 #  2) gets send to opponent
 
 todo reset 684
+
+todo take out server debug print
 
 clear all TODO
 
@@ -65,3 +73,7 @@ clear all TODO
 3 - (directional) velocity that influences how far you can run in this turn
 
 3 - house interior
+
+3 - find better solution for unique ids than randint
+
+3 - for everything related to blitting on the map: just blit it on self.game_map.surface and resize afterwards

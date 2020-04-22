@@ -38,7 +38,7 @@ class NetworkClient(metaclass=Singleton):
                               "map":            None,
                               "in_game":        False,
                               "game_begin":     None,
-                              "last_opp_turn":  None}
+                              "last_opp_turn":  (None, -1)}
 
         except Exception as e:
             print("\nClient failed to connect to server with exception:\n\n\t{}".format(e).upper())
@@ -125,11 +125,11 @@ class NetworkClient(metaclass=Singleton):
                 return self.live_data["game_begin"]
         return self.live_data["game_begin"]
 
+    def get_turn_from_server(self):
+        self.send_q.put((Data.scc["get turn"], ""))
+
     # get turn
-    def get_turn(self):
-        # TODO this has to be called from main loop each frame while you are awaiting an opponent turn
-        # TODO maybe call this every 1 or 3 sec from main loop
-        self.send_q.put((Data.scc["send turn"], ""))
+    def get_turn(self):  # returns either old turn or new turn
 
         log = self.connection.get_rec_log_fast(10)
         for pack in log:
@@ -137,7 +137,7 @@ class NetworkClient(metaclass=Singleton):
                 turn, turn_time = pack.get_payload()
                 if self.last_opp_turn_time != turn_time:  # turn is new
                     self.last_opp_turn_time = turn_time
-                    self.live_data["last_opp_turn"] = turn
+                    self.live_data["last_opp_turn"] = (turn, self.last_opp_turn_time)
                     return self.live_data["last_opp_turn"]
         return self.live_data["last_opp_turn"]
 
