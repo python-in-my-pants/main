@@ -294,9 +294,7 @@ class Character(GameObject):
                         dude.get_damaged(dmg, partind, rpg_bool)
                         dmg_done += dmg
                         dmg_done_list[partind] = dmg_done
-
             return dmg_done, dmg_done_list
-        return "Bro he is already dead yo"
 
     def get_chance(self, dude):
         if not dude.is_dead():

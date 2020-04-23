@@ -192,7 +192,7 @@ class Overlay:
 
         self.info_pos = self.pos[0]-25, self.pos[1] + 200
         self.myfont = pg.font.SysFont('Comic Sans MS', 15)
-        self.info_tafel = []
+        self.info_tafel = pg.transform.scale(pg.image.load("assets/deco_banner.png"), (150, 150))
         self.timer = 0
 
         self.type = {
@@ -224,10 +224,10 @@ class Overlay:
         }
 
     def update_info(self, info):
-        if isinstance(info[0], int) and len(info) == 2:
+        if isinstance(info, int):
             self.timer = time.time() + 2
             self.info_tafel = pg.transform.scale(pg.image.load("assets/deco_banner.png"), (150, 150))
-            self.info_tafel.blit(self.myfont.render("Damage done: " + str(info[0]), False, (255, 255, 255)), (18, 65))
+            self.info_tafel.blit(self.myfont.render("Damage done: " + str(info), False, (255, 255, 255)), (18, 65))
 
         if self.timer <= time.time():
             if isinstance(info, tuple) and len(info) == 4:

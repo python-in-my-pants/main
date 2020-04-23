@@ -2142,7 +2142,7 @@ class InGame:
         if not self.is_it_my_turn:
             return
 
-        if self.selected_own_char.idi not in list(self.shot_chars.keys()):
+        if (not self.is_it_my_turn) or (self.selected_own_char.idi in self.shot_chars):
             return
 
         # TODO draw dotted line to signal shooting
@@ -2160,6 +2160,7 @@ class InGame:
         self.own_turn.add_action(action)
 
         # unselect char after shooting
+        self.selected_own_char.shot = True
         self.selected_own_char = None
 
         return dmg
@@ -2409,7 +2410,9 @@ class InGame:
                     (self.selected_own_char.idi in list(self.moved_chars.keys())):
 
                 self.r_fields = []
-                self.selected_own_char = None
+                if self.selected_own_char.idi in self.shot_chars:
+                    self.overlay.update_info("You already shot!")
+                    self.selected_own_char = None
 
                 # tODO just for troll, remove later
                 print("Greed is a sin against God,\n "
@@ -2639,7 +2642,7 @@ class InGame:
                 else:
                     self.overlay.update_info("You already shot!")
             self.screen.blit(self.overlay.surf, dest=self.overlay.pos)
-            self.screen.blit(self.overlay.info_tafel, dest=(self.overlay.info_pos, self.overlay.info_pos))
+            self.screen.blit(self.overlay.info_tafel, dest=self.overlay.info_pos)
         #####
         # left
 
@@ -2753,8 +2756,7 @@ class InGame:
                             if btn.is_focused([self.mouse_pos[0] - self.char_detail_back.get_width(),
                                                self.mouse_pos[1]]):
                                 if self.selected_own_char:
-                                    self.overlay.update_info(self.shoot(self.overlay.boi_to_attack, int(btn.name)))
-                                    self.selected_own_char.shot = True
+                                    self.overlay.update_info(self.shoot(int(btn.name)))
 
                         if not self.overlay.pos[0] + 100 >= p[0] >= self.overlay.pos[0]:
                             if not self.overlay.pos[1] + 200 >= p[1] >= self.overlay.pos[1]:
