@@ -73,8 +73,8 @@ class NetworkClient(metaclass=Singleton):
         # this will send until server confirms that he has received it
         self.send_q.put((Data.scc["char select ready"], (ready, team)))
 
-    def send_turn(self, turn):
-        self.send_q.put((Data.scc["Turn"], (turn, current_milli_time())))
+    def send_turn(self, turn, timestamp):
+        self.send_q.put((Data.scc["Turn"], (turn, timestamp)))  # current_milli_time()
 
     def send_control(self, msg):
         self.send_q.put((Data.scc["control"], msg))
@@ -86,7 +86,7 @@ class NetworkClient(metaclass=Singleton):
         """
         Tells server whether to send hosting list every x seconds form now on, should be called once from init
         :param b: should he send it or not?
-        :return: most up to date hosting list object
+        :return: most up to date hosting list object (or nothing apparently?)
         """
         self.send_q.put((Data.scc["get host list"], str(b)))
 
@@ -135,10 +135,11 @@ class NetworkClient(metaclass=Singleton):
         for pack in log:
             if pack.ctype == Data.scc["Turn"]:
                 turn, turn_time = pack.get_payload()
-                if self.last_opp_turn_time != turn_time:  # turn is new
+                if self.last_opp_turn_time < turn_time:  # turn is new
                     self.last_opp_turn_time = turn_time
                     self.live_data["last_opp_turn"] = (turn, self.last_opp_turn_time)
                     return self.live_data["last_opp_turn"]
+
         return self.live_data["last_opp_turn"]
 
     # ----------------- empty send queue -----------------------

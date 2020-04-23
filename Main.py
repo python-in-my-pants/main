@@ -160,6 +160,7 @@ while True:
             active_window.event_handling()
             active_window.update()
 
+    # tODO reset to sth reasonable
     clock.tick(60)  # controls max fps
     # print("FPS: " + str(clock.get_fps()) + "\n\n") if counter % 180 == 0 else (lambda: None)
     counter += 1

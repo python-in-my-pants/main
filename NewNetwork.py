@@ -159,7 +159,7 @@ class Connection:
                     return
 
         except Exception as e:
-            print("Receiving bytes by the {} failed with exception:\n{}".format(self.role, e))
+            print("Receiving bytes by the {} failed with exception:\n{} ... but I'm fine".format(self.role, e))
 
     def get_last_control_type_and_msg(self):
         last_rec = self._get_last_rec()

@@ -4,7 +4,11 @@
 
 1 - point selection in connection setup
 
+1 - besserer sichtbarkeits algo
+
 -----------------------------------------------------------------
+
+2 - server keeps old map if one client crashes/exits during connection setup
 
 2 - doublebuf, hwsurface in set_mode for better performance
 
@@ -47,7 +51,7 @@ clear all TODO
 
 3 - zoom + verschieben + zoom skippt
 
-3 - update hp bars only after new turn
+3 - update hp bars ONLY after new turn (should be done? -> test)
 
 3 - build complex houses
     generate random graph, nodes are rooms, edges are doors, 1 outdoor node connected to min 1 random node
@@ -59,7 +63,7 @@ clear all TODO
 
 3 - blit only parts that may have changed in main screen (right & left ui are likely to not change most of the frames)
 
-3 - use buffers for blitting in main screen?
+3 - use buffers for blitting in main screen? (flags
 
 3 - Add animated start screen
     https://stackoverflow.com/questions/21356439/how-to-load-and-play-a-video-in-pygame
@@ -68,8 +72,6 @@ clear all TODO
 
 3 - cancel join automatisch wenn kein game zum joinen ausgewählt war
 
-3 - use euclidean dist instead of manhattan
-
 3 - (directional) velocity that influences how far you can run in this turn
 
 3 - house interior
@@ -77,3 +79,5 @@ clear all TODO
 3 - find better solution for unique ids than randint
 
 3 - for everything related to blitting on the map: just blit it on self.game_map.surface and resize afterwards
+
+3 - directional looking (shooting/visibility)
