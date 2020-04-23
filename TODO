@@ -4,11 +4,19 @@
 
 1 - point selection in connection setup
 
-1 - besserer sichtbarkeits algo
+1 - remove dead chars
+
+1 - make items usable (heal etc)
+
+1 - mark spawn areas on minimap in char select and ingame
+
+1 - char stat card item stat card ändern
+
+1 - balance speed
 
 -----------------------------------------------------------------
 
-2 - do tree stämme have colliders?
+2 - outline selected char in team selection (red canvas)
 
 2 - server keeps old map if one client crashes/exits during connection setup
 
@@ -24,10 +32,6 @@
 
 2 - server: unhashable type: connection (wenn 1 client crasht)
 
-2 - outline OWN starting area in minimap in char select (or only show own?)
-
-2 - char stat card item stat card ändern
-
 2 - differenziere bei inventory buttons zwischen own char (kann switchen mit buttons) und gegner (der kann das nicht lol)
 
 2 - inventory does not blit correctly after having selected an opponent char (prolly just go for sel_own_char, sel_opp_char)
@@ -41,7 +45,7 @@
 
 2 - draw red dotted line from prev pos to new pos which
                 #  1) stays until end of own turn
-                #  2) gets send to opponent
+                #  2) gets sent to opponent
 
 todo reset 684
 

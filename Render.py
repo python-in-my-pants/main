@@ -2047,7 +2047,7 @@ class InGame:
         # <editor-fold desc="right">
 
         # done button
-        self.done_btn = Button(dim=[int(7 * w / 32), int(4 * h / 18)], pos=[0, 0],
+        self.done_btn = Button(dim=[int(7 * w / 32), int(4 * h / 18)], pos=[0, 0], text="Done",
                                real_pos=[self.char_detail_back.get_width() +
                                          self.map_surface.get_width(),
                                          self.player_banners.get_height() +
@@ -2149,7 +2149,8 @@ class InGame:
         # check if shooter can see target
         shooter_index = self.game_map.get_char_index(self.selected_own_char)
         target_index = self.game_map.get_char_index(self.overlay.boi_to_attack)
-        if not self.v_mat[shooter_index][target_index][1]:
+
+        if not self.v_mat[(shooter_index, target_index)][1]:
             return
 
         # TODO draw dotted line to signal shooting
