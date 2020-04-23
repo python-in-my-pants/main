@@ -8,6 +8,8 @@
 
 -----------------------------------------------------------------
 
+2 - do tree stämme have colliders?
+
 2 - server keeps old map if one client crashes/exits during connection setup
 
 2 - doublebuf, hwsurface in set_mode for better performance

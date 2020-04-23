@@ -1779,14 +1779,14 @@ class InGame:
         # </editor-fold>
 
         # holds selected char of own team
-        self.selected_own_char = None #self.own_team.characters[0]
+        self.selected_own_char = None  # self.own_team.characters[0]
 
         # holds selected char (maybe from opponent team)
         self.selected_char = self.selected_own_char
 
-        """self.selected_item = None
-        self.selected_weapon = None"""
         self.active_slot = None
+
+        self.v_mat = self.game_map.get_vmat()
 
         # -------------------------------------------------------------------------------------------------------------
         # render image lists
@@ -2143,9 +2143,13 @@ class InGame:
 
     def shoot(self, where):
 
-        # todo check if shooting char can see target
-
         if (not self.is_it_my_turn) or (self.selected_own_char.idi in self.shot_chars):
+            return
+
+        # check if shooter can see target
+        shooter_index = self.game_map.get_char_index(self.selected_own_char)
+        target_index = self.game_map.get_char_index(self.overlay.boi_to_attack)
+        if not self.v_mat[shooter_index][target_index][1]:
             return
 
         # TODO draw dotted line to signal shooting
@@ -2170,7 +2174,6 @@ class InGame:
         print("------------------Applying opponents turn")
 
         # prepare surface
-        #self.opp_turn_surf = self.emptiness_of_darkness_of_doom
         pg.transform.scale(self.emptiness_of_darkness_of_doom, self.game_map.window.get_size())
 
         opp_char_list = list(filter((lambda a: a.team != self.own_team),
@@ -2185,15 +2188,11 @@ class InGame:
 
             if action.path:
 
-                opp_char_index = None
                 # get this before moving, only draw line if you could see the char from the beginning of the movement on
-                visible_char_indices = self.game_map.get_visible_chars_ind()
+                visible_char_indices = self.game_map.get_visible_chars_ind(self.own_team.team_num)
                 opp_char.pos = action.player_a.pos
-
-                # get opp char index from characters
-                for char_index in self.game_map.characters:
-                    if self.game_map.characters[char_index].rand_id == opp_char.rand_id:
-                        opp_char_index = char_index
+                # index in game objects
+                opp_char_index = self.game_map.get_char_index(opp_char)
 
                 if opp_char_index in visible_char_indices:
 
@@ -2225,13 +2224,15 @@ class InGame:
         # TODO make animated version :-)
 
         # before you're done, check if the sent team from opp is the same as your current representation of the opp team
-        # if that's not the case, set your repres equal to his
+        # if that's not the case, set your repres equal to his, which should ideally not be needed
         ...
+
+        # now set v_mat bc positions are set and we only need this once per turn
+        self.v_mat = self.game_map.get_vmat()
 
         # reset stuff
         self.opp_turn_applying = False
         self.is_it_my_turn = True
-        #self.opps_turn = None
 
         for own_char in self.own_team.characters:
             own_char.moved = False
@@ -2636,6 +2637,7 @@ class InGame:
             self.screen.blit(self.overlay.surf, dest=self.overlay.pos)
             # TODO crashes: argument 1 must be pygame.Surface, not list
             self.screen.blit(self.overlay.info_tafel, dest=self.overlay.info_pos)
+
         #####
         # left
 
@@ -2662,16 +2664,16 @@ class InGame:
 
         if self.timer.amount >= 0:
             self.timer.update_visualtimer()
-            self.screen.blit(self.timer.surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width()
-                                                    + (self.player_banners.get_width() - 206) // 2,
-                                                    self.player_banners.get_height() - 105])
+            self.screen.blit(self.timer.surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width() +
+                                                    (self.player_banners.get_width() - self.timer.surf.get_width())//2,
+                                                    (self.player_banners.get_height()-self.timer.surf.get_height())//2])
 
         self.screen.blit(self.minimap_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
                                                   self.player_banners.get_height()])
         self.screen.blit(self.done_btn_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
                                                    self.player_banners.get_height() + self.minimap_surf.get_height()])
 
-        #Host or Client
+        # Host or Client
         if self.own_team.team_num == 0:
             self.screen.blit(self.timer.myfont.render("Host", False, (250, 0, 0)),
                              [self.char_detail_back.get_width() + self.map_surface.get_width(),

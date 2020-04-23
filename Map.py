@@ -382,43 +382,6 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
                 checked.add(r)
             counter += 1
 
-    """def get_path(self, pos1, pos2):
-        # this is a set UwU
-        seen_fields = {tuple(pos1)}
-
-        # we have already seen those fields and know the fastest way to them
-        final_checked_fields = dict()
-        counter = 10000
-
-        while counter > 0:
-
-            seen_fields -= set(list(final_checked_fields.keys()))
-            for current_field in list(seen_fields):
-
-                neighbours = self.get_neighbours(*current_field)
-
-                for n in neighbours:
-
-                    if self.movement_possible(current_field, n):
-                        if tuple(n) not in final_checked_fields:
-                            seen_fields.add(tuple(n))
-                            final_checked_fields[tuple(n)] = current_field
-                        if n == pos2:
-                            break
-
-                seen_fields.add(current_field)
-
-            counter -= 1
-
-        current_field = final_checked_fields[tuple(pos2)]
-        path = [current_field]
-        while True:
-            current_field = final_checked_fields[final_checked_fields[current_field]]
-            path.append(current_field)
-            if path[-1] == tuple(pos1):
-                path.reverse()
-                return path"""
-
     def get_path(self, start, end):
 
         start = tuple(start)
@@ -670,6 +633,11 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
             visible_chars.append(c)
 
         return visible_chars
+
+    def get_char_index(self, char):
+        for char_index in self.characters:
+            if self.objects[char_index].rand_id == char.rand_id:
+                return char_index
 
     def selective_draw_map(self, team_num):
 
