@@ -1705,6 +1705,7 @@ class InGame:
     def __init__(self, own_team, game_map, client=None):  # ToDo Turnsystem/Network not implemented yet
 
         # <editor-fold desc="Initialisation">
+
         self.own_team = own_team
         self.game_map = game_map
         self.client = client
@@ -1744,6 +1745,8 @@ class InGame:
         self.is_it_my_turn = self.own_team.team_num == 0
         self.own_turn = Turn()
         self.opps_turn = None
+        self.opp_turn_list = []
+        self.opp_turn_timestamp = -1
         self.moved_chars = dict()
         self.shot_chars = dict()
 
@@ -1879,9 +1882,9 @@ class InGame:
         self.game_map.selective_draw_map(team_num=self.own_team.team_num)
         self.map_content = fit_surf(surf=self.game_map.window, size=self.map_surface.get_size())
 
-        self.emptiness_of_darkness_of_doom = pg.transform.scale(pg.image.load("assets/empty_as_fuck.png").convert_alpha(),
-                                                                self.game_map.window.get_size())
-        self.opp_turn_surf = self.emptiness_of_darkness_of_doom
+        self.emptiness_of_darkness_of_doom = pg.image.load("assets/empty_as_fuck.png").convert_alpha()
+        # convert here, scale returns new copy of emptines, so og remains unchanged and can be reused
+        self.opp_turn_surf = pg.transform.scale(self.emptiness_of_darkness_of_doom, self.game_map.window.get_size())
 
         self.own_team_stats = pg.Surface([int(self.map_surface.get_width() * 0.9), own_team_height])
 
@@ -1949,7 +1952,8 @@ class InGame:
             else:
                 # send the turn out
                 self.is_it_my_turn = False
-                self.client.send_turn(self.own_turn)
+                self.client.send_turn(self.own_turn, int(round(time.time() * 1000)))
+                # todo set own turn to none??
                 time.sleep(1)
                 return
 
@@ -2139,18 +2143,14 @@ class InGame:
 
     def shoot(self, where):
 
-        if not self.is_it_my_turn:
-            return
+        # todo check if shooting char can see target
 
-        if self.selected_own_char.idi not in list(self.shot_chars.keys()):
+        if (not self.is_it_my_turn) or (self.selected_own_char.idi in self.shot_chars):
             return
 
         # TODO draw dotted line to signal shooting
 
         dmg, dmg_done = self.selected_own_char.shoot(self.overlay.boi_to_attack, where)
-        """path = None
-        if self.selected_own_char.idi in list(self.moved_chars.keys()):
-            path = self.moved_chars[self.selected_own_char.idi]"""
 
         self.shot_chars[self.selected_own_char.idi] = (self.selected_own_char, self.overlay.boi_to_attack)
 
@@ -2169,7 +2169,8 @@ class InGame:
         print("------------------Applying opponents turn")
 
         # prepare surface
-        self.opp_turn_surf = self.opp_turn_surf = self.emptiness_of_darkness_of_doom
+        #self.opp_turn_surf = self.emptiness_of_darkness_of_doom
+        pg.transform.scale(self.emptiness_of_darkness_of_doom, self.game_map.window.get_size())
 
         opp_char_list = list(filter((lambda a: a.team != self.own_team),
                                     [self.game_map.objects[x] for x in self.game_map.characters]))
@@ -2182,20 +2183,21 @@ class InGame:
                     opp_char = c
 
             if action.path:
+
                 opp_char.pos = action.player_a.pos
-                # blit lines indicating movement and shots
 
-                # old variant
-                # self._draw_dotted_line(self.opp_turn_surf, action.path, (0, 0, 0))
+                # todo here
+                if True or opp_char in self.game_map.get_visible_chars_ind():
 
-                # new variant
-                pg.draw.circle(self.opp_turn_surf, (255, 170, 160),
-                               list(map((lambda x: x + Data.def_elem_size//2), action.path[0])),
-                               Data.def_elem_size//2)
-                pg.draw.aalines(self.opp_turn_surf, (255, 170, 160), False,
-                                [[x[0]*Data.def_elem_size, x[1]*Data.def_elem_size] for x in action.path], 0)
+                    pg.draw.aalines(self.opp_turn_surf, (0, 230, 230), False,
+                                    [[x[0]*Data.def_elem_size + (Data.def_elem_size//2),
+                                      x[1]*Data.def_elem_size + (Data.def_elem_size//2)] for x in action.path], 0)
+                    pg.draw.circle(self.opp_turn_surf, (0, 230, 230),
+                                   list(
+                                       map((lambda x: x * Data.def_elem_size + (Data.def_elem_size // 2)), action.path[0])),
+                                   Data.def_elem_size // 2 // 2)
 
-            if action.player_b:
+            if action.player_b:  # there is a second player involved
                 my_char = None
                 for c in self.own_team.characters:
                     if c.rand_id == action.player_b.rand_id:
@@ -2205,6 +2207,10 @@ class InGame:
                     my_char.apply_damage(action.pos_a_dmg2b)
                     # blit lines indicating movement and shots
                     self.draw_line_map_coords(self.opp_turn_surf, my_char, opp_char, (139, 0, 0))
+
+            for i in range(self.hp_bars.__len__()):
+                for j in range(6):
+                    self.hp_bars[i][j].update(self.own_team.characters[i].health[j])
 
             # TODO implement other action stuff
 
@@ -2217,7 +2223,13 @@ class InGame:
         # reset stuff
         self.opp_turn_applying = False
         self.is_it_my_turn = True
-        self.opps_turn = None
+        #self.opps_turn = None
+
+        for own_char in self.own_team.characters:
+            own_char.moved = False
+            own_char.shot = False
+        self.moved_chars = dict()
+        self.shot_chars = dict()
         self.own_turn = Turn()
 
         print("------------------Done applying opponents turn")
@@ -2409,9 +2421,10 @@ class InGame:
                     (self.selected_own_char.idi in list(self.moved_chars.keys())):
 
                 self.r_fields = []
-                self.selected_own_char = None
+                if self.selected_own_char.idi in self.shot_chars:
+                    self.selected_own_char = None
 
-                # tODO just for troll, remove later
+                # tODO just for troll, remove later ... but notify user what's up
                 print("Greed is a sin against God,\n "
                       "just as all mortal sins,\n "
                       "in as much as man condemns things\n "
@@ -2542,9 +2555,9 @@ class InGame:
 
         # </editor-fold>
 
-        for i in range(self.hp_bars.__len__()):
+        """for i in range(self.hp_bars.__len__()):
             for j in range(6):
-                self.hp_bars[i][j].update(self.own_team.characters[i].health[j])
+                self.hp_bars[i][j].update(self.own_team.characters[i].health[j])"""
 
         # <editor-fold desc="blend out team stats">
         # blend out team stats if mouse is not up
@@ -2586,33 +2599,6 @@ class InGame:
 
         ###################
 
-        # <editor-fold desc="for debugging only">
-        """
-        rel_mouse_pos = [self.mouse_pos[0] - self.char_detail_back.get_width(), self.mouse_pos[1]]
-        dists_mouse_p_dest = [abs(rel_mouse_pos[0] - self.dest[0]), abs(rel_mouse_pos[1] - self.dest[1])]
-        map_len_pixel = self.game_map.size_x * self.zoom_factor * self.element_size
-        percentual_mouse_pos_map_len = [dists_mouse_p_dest[0] / map_len_pixel, dists_mouse_p_dest[1] / map_len_pixel]
-        clicked_coords = [  # coords of clicked field (potential movement target)
-            int(percentual_mouse_pos_map_len[0] * self.game_map.size_x),
-            int(percentual_mouse_pos_map_len[1] * self.game_map.size_y)
-        ]
-        print("\nrel_mouse_pos\n",
-              rel_mouse_pos,
-              "\ndists_mouse_p_dest\n",
-              dists_mouse_p_dest,
-              "\nmap_len_pixel\n",
-              map_len_pixel,
-              "\npercentual_mouse_pos_map_len\n",
-              percentual_mouse_pos_map_len,
-              "\nself.zoom_factor * self.element_size\n",
-              self.zoom_factor * self.element_size,
-              "\nself.zoom_factor\n",
-              self.zoom_factor,
-              "\nself.element_size\n",
-              self.element_size)
-        #"""
-        # </editor-fold>
-
         # <editor-fold desc="all together">
 
         #####
@@ -2639,6 +2625,7 @@ class InGame:
                 else:
                     self.overlay.update_info("You already shot!")
             self.screen.blit(self.overlay.surf, dest=self.overlay.pos)
+            # TODO crashes: argument 1 must be pygame.Surface, not list
             self.screen.blit(self.overlay.info_tafel, dest=(self.overlay.info_pos, self.overlay.info_pos))
         #####
         # left
@@ -2705,17 +2692,21 @@ class InGame:
             # try to receive opps turn here
             opp_turn, t = self.client.get_turn()
 
-            # if turn is not the new turn we're waiting for
-            if not opp_turn or (self.opps_turn and opp_turn.rand_id == self.opps_turn.rand_id):
+            # if turn is NOT the new turn we're waiting for
+            if (not opp_turn) or (self.opps_turn and (opp_turn.rand_id in self.opp_turn_list)):
 
-                if self.turn_wait_counter == 150:  # check for turn every ... frames
+                # todo this spams network traffic, too many requests for one turn
+                if self.turn_wait_counter >= 300:  # check for turn every ... frames
                     self.client.get_turn_from_server()
                     self.turn_wait_counter = 0
                 else:
                     self.turn_wait_counter += 1
 
             else:
+                self.turn_wait_counter = 0
+                # holds last new opp turn
                 self.opps_turn = opp_turn
+                self.opp_turn_list.append(self.opps_turn.rand_id)
                 self.opp_turn_applying = True
 
     def event_handling(self):

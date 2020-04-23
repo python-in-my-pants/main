@@ -2,7 +2,7 @@
 
 import pygame as pg
 from pygame.locals import *
-from skimage.draw import line_aa
+from skimage.draw import line_aa, line
 import hashlib
 import numpy as np
 import sys
@@ -283,12 +283,12 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
         self.objects = []
         self.unique_pixs = [[0 for _ in range(int(self.size_x))] for _ in range(int(self.size_y))]
 
-    def get_vmat(self):  # TODO: character height, laying characters hitbox etc
+    def get_vmat(self):  # TODO: character height, laying characters hitbox etc ... NO :)
 
-        '''
+        """
         :param self:
         :return: matrix of [a, b]s as the entries where a indicates that char1 can see char2 and b that he can shoot him
-        '''
+        """
 
         # build char list
         chars = []
@@ -304,10 +304,12 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
 
                     line_gr = pg.sprite.Group()  # line group
 
-                    # TODO maybe try switching x,y
-                    #  AND try line()
-                    y_coord, x_coord, _ = line_aa(char1.pos[1], char1.pos[0],
-                                                  char2.pos[1], char2.pos[0])  # y1, x1, y2, x2
+                    # todo try line(), was line aa
+                    """y_coord, x_coord, _ = line_aa(char1.pos[1], char1.pos[0],
+                                                  char2.pos[1], char2.pos[0])  # y1, x1, y2, x2"""
+
+                    y_coord, x_coord = line(char1.pos[1], char1.pos[0],
+                                            char2.pos[1], char2.pos[0])  # y1, x1, y2, x2
 
                     for index in range(y_coord.__len__()):
                         CollAtom([x_coord[index], y_coord[index]], name="line").add(line_gr)
@@ -336,9 +338,10 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
 
         return [1, 1]  # can see & shoot
 
-    def get_reachable_fields(self, char):  # TODO use euclidean dist instead of manhattan
+    def get_reachable_fields(self, char):
         pos_w, pos_h = char.pos
-        mov_range = char.speed // 5
+        max_dist = (char.speed/5)**2
+        mov_range = int((char.speed / 5) * 1.5 + 0.5)
 
         reachable = [(pos_w, pos_h)]
         checked = set()
@@ -349,7 +352,8 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
             for r in list(my_set):
                 neigh = self.get_neighbours(r[0], r[1])
                 for n in neigh:
-                    if self.movement_possible(char, [n[0], n[1]]):
+                    if self.movement_possible(char, [n[0], n[1]]) and \
+                            (n[0]-char.pos[0])**2 + (n[1]-char.pos[1])**2 <= max_dist:
                         reachable.append(tuple(n))
                 checked.add(r)
             counter += 1
@@ -513,53 +517,6 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
 
                 # add the child to the open list
                 open_list.append(child)
-
-    """def a_star(self, start, dest):
-
-        def cost(p1, p2): return (p1[0]+p2[0])**2 + (p2[1]+p2[1])**2
-        def g_cost(x): return cost(start, x)
-        def h_cost(x): return cost(x, dest)
-        def f_cost(x): return cost(start, x) + cost(x, dest)
-
-        class Node:
-
-            _start = start
-            _dest = dest
-
-            def __init__(self, pos):
-                self.pos = pos
-                self.g = g_cost(pos)
-                self.h = h_cost(pos)
-                self.f = self.g + self.h
-
-            def __eq__(self, other):
-                return self.pos == other.pos
-
-        open_list = [Node(start)]
-        closed_list = []
-
-        while open_list:
-
-            l = [x.f for x in open_list]
-            l = l.sort()
-            current_square = l[-1]
-
-            closed_list.append(Node(current_square))
-
-            if current_square.pos == dest:
-                ...
-                # backtrack to get path
-
-            for n in self.get_neighbours_full(*current_square.pos):
-
-                if n not in closed_list and self.movement_possible(current_square.pos, n):
-
-                    neigh = Node(n)
-
-                    if neigh not in [node.pos for node in open_list]:
-                        # if is has a greater g than the node with the same pos from open_list
-                        if neigh.g <= list(filter(lambda x: x.pos == n, open_list))[0]:
-                            open_list.append(neigh)"""
 
     def movement_possible(self, char, new_pos):  # takes a char and the destination as inputs
 
@@ -801,7 +758,7 @@ class MapBuilder:
         tree_limit = int((fields_x*fields_y) / 150)
         puddel_limit = int((fields_x*fields_y / 150))
 
-        if True:
+        if False:
             house_limit = ruins_limit = bush_limit = boulder_limit = tree_limit = puddel_limit = 0
 
         def add_obj(obj_class, obj_limit):
@@ -821,7 +778,8 @@ class MapBuilder:
                     limit += 1
 
                 if limit >= 100:
-                    print("Could not place another object")
+                    # print("Could not place another object")
+                    pass
                 else:
                     obj_counter += 1
 
