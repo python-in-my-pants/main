@@ -2184,10 +2184,17 @@ class InGame:
 
             if action.path:
 
+                opp_char_index = None
+                # get this before moving, only draw line if you could see the char from the beginning of the movement on
+                visible_char_indices = self.game_map.get_visible_chars_ind()
                 opp_char.pos = action.player_a.pos
 
-                # todo here
-                if True or opp_char in self.game_map.get_visible_chars_ind():
+                # get opp char index from characters
+                for char_index in self.game_map.characters:
+                    if self.game_map.characters[char_index].rand_id == opp_char.rand_id:
+                        opp_char_index = char_index
+
+                if opp_char_index in visible_char_indices:
 
                     pg.draw.aalines(self.opp_turn_surf, (0, 230, 230), False,
                                     [[x[0]*Data.def_elem_size + (Data.def_elem_size//2),
