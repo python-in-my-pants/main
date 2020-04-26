@@ -4,7 +4,7 @@
 
 1 - point selection in connection setup
 
-1 - remove dead chars
+1 - blit dead chars differently and make em not usable
 
 1 - make items usable (heal etc)
 
@@ -14,7 +14,21 @@
 
 1 - balance speed
 
+1 - replace small char icons on left side with actual cards
+
+1 - finish item and weapon cards
+
+1 - change font
+
+1 - outline selected item in ingame (red canvas)
+
+1 - eye candy canvas for ingame screen, 1 pic from gimp
+
 -----------------------------------------------------------------
+
+2 - add sick loading screens with 99% loading bars that never actually fill, like in connection setup when opp is joining
+
+2 - click sound for buttons
 
 2 - outline selected char in team selection (red canvas)
 
@@ -26,7 +40,7 @@
 
 2 - calc bleed damage every turn
 
-2 - add custom fields to enter map size and lbby name
+2 - add custom fields to enter map size and lobby name
 
 2 - adjust default item & weapon in ingame init
 
@@ -54,6 +68,8 @@ todo take out server debug print
 clear all TODO
 
 --------------------------------------------------------------------------
+
+3 - add stylish background music in ingame screen
 
 3 - zoom + verschieben + zoom skippt
 
@@ -87,3 +103,5 @@ clear all TODO
 3 - for everything related to blitting on the map: just blit it on self.game_map.surface and resize afterwards
 
 3 - directional looking (shooting/visibility)
+
+3 - time delay between sending turns over (old turns get spammed out and spam the network, preventing this should help)

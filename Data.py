@@ -7,7 +7,7 @@ import time
 if sys.platform == "win32":
     true_res = (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
     # TODO put out, just for debugging
-    true_res = [1600, 900]
+    true_res = [1280, 720]
 else:
     true_res = [1920, 1080]  # just set the res manually for linux, maybe adjust later?
 

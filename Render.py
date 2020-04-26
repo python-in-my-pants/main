@@ -1702,13 +1702,14 @@ class CharacterSelection:  # commit comment
 
 class InGame:
 
-    def __init__(self, own_team, game_map, client=None):  # ToDo Turnsystem/Network not implemented yet
+    def __init__(self, own_team, game_map, client=None, mode="TDM"):  # ToDo Turnsystem/Network not implemented yet
 
         # <editor-fold desc="Initialisation">
 
         self.own_team = own_team
         self.game_map = game_map
         self.client = client
+        self.game_mode = mode
 
         self.cc_num = 6
         self.gc_num = 4
@@ -1843,6 +1844,11 @@ class InGame:
             self.map_char_imgs.append(img)
 
         self.detail_back_metall = pg.image.load("assets/metall.png").convert_alpha()
+
+        # TODO
+        self.win_banner = ...  # add super fancy animated win banner here
+        self.lose_banner = ...  # nya~~
+
         # </editor-fold>
 
         # -------------------------------------------------------------------------------------------------------------
@@ -1945,7 +1951,7 @@ class InGame:
             func.__name__ = name
             return func
 
-        def done_button_action():  # TODO das muss dafür sorgen, dass get_own_turn den turn zurück gibt
+        def done_button_action():
             if self.turn_get_thread == 0:
                 self.turn_get_thread = start_new_thread(done_button_action, ())
                 return
@@ -1958,7 +1964,7 @@ class InGame:
                 return
 
         # tODO reset time <3
-        self.timer = VisualTimer(amount=6000000, pos=(0, 0), action=done_button_action)
+        self.timer = VisualTimer(amount=60, pos=(0, 0), action=done_button_action)
 
         # </editor-fold>
 
@@ -2172,7 +2178,17 @@ class InGame:
 
     def apply_opp_turn(self, opp_turn):  # applies changes from opp turn to own game state
 
-        print("------------------Applying opponents turn")
+        if opp_turn.win:
+            # opp says you win! :)
+            ...  # insert some fancy "You win! UwU here, prolly with sum fluffy cat gurl and cute anime sounds
+
+            # TODO either just blit or insert animated shit here however the fuck that may be done
+            self.screen.blit(self.win_banner, blit_centered_pos(self.screen, self.win_banner))
+
+            time.sleep(5)
+
+            # this exits out of the screen
+            self.new_window_target = MainWindow
 
         # prepare surface
         pg.transform.scale(self.emptiness_of_darkness_of_doom, self.game_map.window.get_size())
@@ -2228,6 +2244,24 @@ class InGame:
         # if that's not the case, set your repres equal to his, which should ideally not be needed
         ...
 
+        # check if game is over
+        if self.own_team.is_dead():
+            # declare win
+            self.own_turn = Turn()
+            self.own_turn.win = True
+
+            # send the turn out
+            start_new_thread(self.client.send_turn(self.own_turn, int(round(time.time() * 1000))), ())
+
+            # prepare showing loss to player or TODO some fancy animated version (aka video)
+            self.screen.blit(self.lose_banner, blit_centered_pos(self.screen, self.lose_banner))
+
+            # let it set
+            time.sleep(5)
+
+            # exit out
+            self.new_window_target = MainWindow
+
         # now set v_mat bc positions are set and we only need this once per turn
         self.v_mat = self.game_map.get_vmat()
 
@@ -2241,8 +2275,6 @@ class InGame:
         self.moved_chars = dict()
         self.shot_chars = dict()
         self.own_turn = Turn()
-
-        print("------------------Done applying opponents turn")
 
     def main_blit(self):
 
@@ -2660,21 +2692,23 @@ class InGame:
             self.screen.blit(self.timer.myfont.render("Client", False, (250, 0, 0)),
                              [self.char_detail_back.get_width() + self.map_surface.get_width(), 0])
 
+        # todo replace this with button
         self.screen.blit(self.timer.myfont.render(str(self.is_it_my_turn), False, (250, 0, 0)),
                          [self.char_detail_back.get_width() + self.map_surface.get_width(), 250])
+
 
         if self.timer.amount >= 0:
             self.timer.update_visualtimer()
             self.screen.blit(self.timer.surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width() +
                                                     (self.player_banners.get_width() - self.timer.surf.get_width())//2,
-                                                    (self.player_banners.get_height()-self.timer.surf.get_height())//2])
+                                                    (self.player_banners.get_height() - self.timer.surf.get_height())])
 
         self.screen.blit(self.minimap_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
                                                   self.player_banners.get_height()])
         self.screen.blit(self.done_btn_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
                                                    self.player_banners.get_height() + self.minimap_surf.get_height()])
 
-        # Host or Client
+        """"# Host or Client
         if self.own_team.team_num == 0:
             self.screen.blit(self.timer.myfont.render("Host", False, (250, 0, 0)),
                              [self.char_detail_back.get_width() + self.map_surface.get_width(),
@@ -2682,7 +2716,7 @@ class InGame:
         else:
             self.screen.blit(self.timer.myfont.render("Client", False, (250, 0, 0)),
                              [self.char_detail_back.get_width() + self.map_surface.get_width(),
-                              self.player_banners.get_height() - 250])
+                              self.player_banners.get_height() - 250])"""
 
         # </editor-fold>
 

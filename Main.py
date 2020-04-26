@@ -140,7 +140,7 @@ while True:
             team = active_window.ownTeam
             _map = active_window.game_map
             active_window.harakiri()
-            active_window = new_target(own_team=team, game_map=_map, client=client_var)
+            active_window = new_target(own_team=team, game_map=_map, client=client_var, mode="TDM")
 
         else:
 
