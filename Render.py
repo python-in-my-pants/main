@@ -2663,7 +2663,7 @@ class InGame:
 
 
         if self.timer.amount >= 0:
-            self.timer.update_visualtimer()
+            self.timer.update()
             self.screen.blit(self.timer.surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width() +
                                                     (self.player_banners.get_width() - self.timer.surf.get_width())//2,
                                                     (self.player_banners.get_height() - self.timer.surf.get_height())])

@@ -257,7 +257,7 @@ class Bush(GameObject):
         return self.pixs
 
 
-class Puddel(GameObject):
+class Puddle(GameObject):
 
     def __init__(self, obj_type, name="Puddel_def", materials_=["puddel"], pos=[0, 0]):
         super().__init__(obj_type=obj_type, name=name, materials=materials_, pos=pos)
@@ -322,6 +322,9 @@ class Puddel(GameObject):
         for point in self.pixs:
             point[0] += self.pos[0]
             point[1] += self.pos[1]
+
+    def confirm(self):
+        self.collider = pygame.sprite.Group(*[CollAtom(p, opaque=False) for p in self.pixs])
 
     def get_drawable(self):
         return self.pixs

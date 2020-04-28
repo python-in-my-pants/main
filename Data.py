@@ -12,6 +12,7 @@ else:
     true_res = [1920, 1080]  # just set the res manually for linux, maybe adjust later?
 
 font = "comicsansms"
+master_volume = 0.0
 
 #serverIP = "88.150.32.237"
 
@@ -150,6 +151,7 @@ back_btn = "assets/textures/buttons/back_btn.png"
 metal_btn = "assets/textures/background_images/metall.png"
 rem_points = "assets/textures/background_images/remaining_points.png"
 team_char_backgr = "assets/textures/background_images/team_char_back.png"
+deco_banner = "assets/textures/background_images/deco_banner.png"
 
 #   cards
 # <editor-fold desc="cards">
@@ -179,6 +181,14 @@ flooring_texture = "assets/textures/mats/Flooring.png"
 bush_texture = "assets/textures/mats/bush.png"
 boulder_texture = "assets/textures/mats/boulder.png"
 ruin_floor_texture = "assets/textures/mats/Ruin_floor.png"
+
+overlay_base = "assets/textures/overlay/dude.png"
+head = "assets/textures/overlay/dude_kopf.png"
+r_arm = "assets/textures/overlay/dude_rarm.png"
+l_arm = "assets/textures/overlay/dude_larm.png"
+torso = "assets/textures/overlay/dude_torso.png"
+r_leg = "assets/textures/overlay/dude_rleg.png"
+l_leg = "assets/textures/overlay/dude_lleg.png"
 
 # <editor-fold desc="types">
 bush_types = {

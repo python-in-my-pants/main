@@ -494,7 +494,7 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
                 for collAtom in pg.sprite.Group(CollAtom(new_pos)).sprites():
                     # TODO: adjust so that laying characters are handled with 2 sprites ... No :)
                     if pg.sprite.spritecollide(collAtom, obj.collider, dokill=0):
-                        # collision with other char occurs
+                        # collision occurs
                         return False
 
         return True
@@ -748,14 +748,12 @@ class MapBuilder:
                 else:
                     obj_counter += 1
 
-        """
         add_obj(SimpleHouse, house_limit)
         add_obj(Ruins, ruins_limit)
         add_obj(Bush, bush_limit)
-        add_obj(Puddel, puddel_limit)
+        add_obj(Puddle, puddel_limit)
         add_obj(Boulder, boulder_limit)
         add_obj(Tree, tree_limit)
-        #"""
 
         # draw everything to surf
         self.map.draw_map()
