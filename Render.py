@@ -2244,8 +2244,7 @@ class InGame:
         self.own_turn = Turn()
 
         self.timer.action_done = False
-        self.timer.start_timer(100000)
-
+        self.timer.start_timer(60)
 
     def main_blit(self):
 
