@@ -4,9 +4,19 @@ import time
 import sys
 
 
-def play_click_sound(path):
-    pg.mixer.music.load(path)
-    pg.mixer.music.play(0)
+def play_sound(path, chan=None):
+    if chan is None:
+        chan = pg.mixer.find_channel()
+        chan.play(pg.mixer.Sound(file=path))
+        return chan
+    else:
+        pg.mixer.Channel(chan).play(pg.mixer.Sound(file=path))
+    """pg.mixer.music.load(path)
+    pg.mixer.music.play()"""
+
+
+def stop_sound(channel, duration=3):
+    channel.fadeout(duration)
 
 
 class Button:
@@ -20,7 +30,7 @@ class Button:
             self.surf = pg.Surface(self.dim)
 
         def _action(*args):
-            play_click_sound(Data.button_click)
+            play_sound(Data.button_click)
             if args:
                 action(*args)
             else:
