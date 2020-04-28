@@ -28,7 +28,7 @@ class MainWindow:
         self.new_window_target = None
         self.screen = pg.display.set_mode(true_res)  # , pg.RESIZABLE | pg.FULLSCREEN)  # TODO put back in
 
-        main_background_img = pg.image.load("assets/rose.png")
+        main_background_img = pg.image.load(Data.main_background)
 
         # set window name
         pg.display.set_caption("nAme;Rain - Mainscreen")
@@ -55,7 +55,7 @@ class MainWindow:
 
         btn = Button([int(0.2 * size[0]), int(0.069 * size[1])], pos=[size[0] / 2 - int(0.2 * size[0]) / 2,
                                                                       size[1] / 2 - int(0.069 * size[1]) / 2 + 200],
-                     img_uri="assets/blue_button_menu.jpg", text="Play", name="Button 1", action=button_fkt)
+                     img_uri=Data.blue_btn_menu, text="Play", name="Button 1", action=button_fkt)
 
         # render Button to screen
         self.screen.blit(btn.surf, btn.pos)
@@ -116,7 +116,7 @@ class ConnectionSetup:
 
         self.game_map_string = None
 
-        self.main_background_img = pg.image.load("assets/notmikan02.jpg").convert_alpha()
+        self.main_background_img = pg.image.load(Data.connection_setup_background).convert_alpha()
         self.main_background_img = fit_surf(pg.Surface(true_res), self.main_background_img)
 
         # create window
@@ -182,7 +182,7 @@ class ConnectionSetup:
         self.buttons.append(self.host_cancel_btn)
 
         self.back_btn = Button(dim=[int(true_res[0] * 0.03), int(true_res[0] * 0.03)], pos=[0, 0],
-                               img_uri="assets/back_btn.png", text="", name="back_btn",
+                               img_uri=Data.back_btn, text="", name="back_btn",
                                use_dim=True, action=self.back_fkt)
 
         self.buttons.append(self.back_btn)
@@ -727,23 +727,23 @@ class CharacterSelection:  # commit comment
         self.cc_small_images = []
         for i in range(self.cc_num):
             # load small preview pics for buttons
-            img = pg.image.load("assets/cc/small/cc_" + str(i) + ".png").convert_alpha()
+            img = pg.image.load(Data.cc_smol_prefix + str(i) + ".png").convert_alpha()
             self.cc_small_images.append(img)
 
         self.gc_small_images = []
         for i in range(self.gc_num):
             # load small preview pics for buttons
-            img = pg.image.load("assets/gc/small/gc_" + str(i) + ".png").convert_alpha()
+            img = pg.image.load(Data.gc_smol_prefix + str(i) + ".png").convert_alpha()
             self.gc_small_images.append(img)
 
         self.wc_small_images = []
         for i in range(self.wc_num):
-            img = pg.image.load("assets/wc/small/wc_" + str(i) + ".png").convert_alpha()
+            img = pg.image.load(Data.wc_smol_prefix + str(i) + ".png").convert_alpha()
             self.wc_small_images.append(img)
 
         self.ic_small_images = []
         for i in range(self.ic_num):
-            img = pg.image.load("assets/ic/small/ic_" + str(i) + ".png").convert_alpha()
+            img = pg.image.load(Data.ic_smol_prefix + str(i) + ".png").convert_alpha()
             self.ic_small_images.append(img)
         # </editor-fold>
 
@@ -758,13 +758,6 @@ class CharacterSelection:  # commit comment
         # <editor-fold desc="left side">
         # character cards go here as buttons
         self.troop_overview = pg.Surface([int(0.7 * size[0]), size[1] * 10])  # make very long for scroll stuff
-
-        '''
-        # NEWWW
-        troop_overview_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert_alpha(),
-                                                           self.troop_overview.get_size())
-        self.troop_overview.blit(troop_overview_back_img, [0, 0])
-        '''
 
         self.player_overview = pg.Surface([int(0.3 * size[0]), size[1]])
 
@@ -798,26 +791,12 @@ class CharacterSelection:  # commit comment
         self.character_content = pg.Surface(
             [self.character_back.get_width(), self.character_back.get_height() - int(self.card_h / 2)])
 
-        '''
-        # NEWWW
-        c_con_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert_alpha(),
-                                                  self.character_content.get_size())
-        self.character_content.blit(c_con_back_img, [0, 0])
-        '''
-
         self.gear_back = pg.Surface([self.troop_overview.get_width(),
                                      int(2 * self.gap_size +
                                          int(math.ceil(self.gc_num / self.line_len) * self.card_h) +
                                          int(self.gc_num / self.line_len) * self.gap_size +
                                          int(self.card_h * 0.5))])
         self.gear_content = pg.Surface([self.gear_back.get_width(), self.gear_back.get_height() - int(self.card_h / 2)])
-
-        '''
-        # NEWWW
-        g_con_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert_alpha(),
-                                                  self.gear_content.get_size())
-        self.gear_content.blit(g_con_back_img, [0, 0])
-        '''
 
         self.weapon_back = pg.Surface([self.troop_overview.get_width(),
                                        int(2 * self.gap_size +
@@ -827,13 +806,6 @@ class CharacterSelection:  # commit comment
         self.weapon_content = pg.Surface(
             [self.weapon_back.get_width(), self.weapon_back.get_height() - int(self.card_h / 2)])
 
-        '''
-        # NEWWW
-        w_con_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert_alpha(),
-                                                  self.weapon_content.get_size())
-        self.weapon_content.blit(w_con_back_img, [0, 0])
-        '''
-
         self.item_back = pg.Surface([self.troop_overview.get_width(),
                                      int(2 * self.gap_size +
                                          int(math.ceil(self.ic_num / self.line_len) * self.card_h) +
@@ -841,12 +813,6 @@ class CharacterSelection:  # commit comment
                                          int(self.card_h * 0.5))])
         self.item_content = pg.Surface([self.item_back.get_width(), self.item_back.get_height() - int(self.card_h / 2)])
 
-        '''
-        # NEWWW
-        i_con_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert_alpha(),
-                                                  self.item_content.get_size())
-        self.item_content.blit(i_con_back_img, [0, 0])
-        '''
         # </editor-fold>
 
         ##############
@@ -858,12 +824,6 @@ class CharacterSelection:  # commit comment
         self.minimap_surf = pg.Surface([mini, mini])
         if debug:
             self.minimap_surf.fill((10, 11, 12))
-        '''
-        # NEWWW
-        minimap_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert_alpha(),
-                                                    self.minimap_surf.get_size())
-        self.minimap_surf.blit(minimap_back_img, [0, 0])
-        '''
 
         self.game_map.draw_map()
         self.map_surf = fit_surf(pg.Surface([self.minimap_surf.get_width(), int(self.minimap_surf.get_height() * 0.8)]),
@@ -885,7 +845,7 @@ class CharacterSelection:  # commit comment
             [self.selected_units_back.get_width() - 10, self.selected_units_back.get_height() - 10])
 
         # NEWWW
-        sel_uni_box_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert_alpha(),
+        sel_uni_box_back_img = pg.transform.smoothscale(pg.image.load(Data.metal_btn).convert_alpha(),
                                                         self.selected_units_box.get_size())
         self.selected_units_box.blit(sel_uni_box_back_img, [0, 0])
 
@@ -895,18 +855,12 @@ class CharacterSelection:  # commit comment
             [int(0.3 * size[0]), int((size[1] - self.minimap_surf.get_height()) / 2)])
         if debug:
             self.selected_weapons_back.fill((0, 255, 0))
-        '''
-        # NEWWW
-        sel_weap_back_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert_alpha(),
-                                                          self.selected_weapons_back.get_size())
-        self.selected_weapons_back.blit(sel_weap_back_back_img, [0, 0])
-        '''
 
         self.selected_weapons_box = pg.Surface([self.selected_weapons_back.get_width() - 10,
                                                 self.selected_weapons_back.get_height() - 10])
 
         # NEWWW
-        sel_weap_box_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert_alpha(),
+        sel_weap_box_back_img = pg.transform.smoothscale(pg.image.load(Data.metal_btn).convert_alpha(),
                                                          self.selected_weapons_box.get_size())
         self.selected_weapons_box.blit(sel_weap_box_back_img, [0, 0])
 
@@ -934,7 +888,7 @@ class CharacterSelection:  # commit comment
         # don't have to add scroll offset 'cause it's blitted to background
         self.points_btn = Button(dim=[int(self.troop_overview.get_width() * 0.21), int(size[1] * 0.05)], pos=[
             int((self.troop_overview.get_width() - int(self.troop_overview.get_width() * 0.21)) / 2), 0],
-                                 font_color=(255, 255, 255), img_uri="assets/remaining_points.png",
+                                 font_color=(255, 255, 255), img_uri=Data.rem_points,
                                  text=get_points(), use_dim=True,
                                  action=(lambda: None))
 
@@ -1057,7 +1011,7 @@ class CharacterSelection:  # commit comment
                                         self.rem_points_back.get_height() +
                                         self.character_banner.dim[1] +
                                         self.scroll_offset],
-                              img_uri=("assets/cc/cc_" + str(i) + ".png"), use_dim=True, text="",
+                              img_uri=(Data.cc_big_prefix + str(i) + ".png"), use_dim=True, text="",
                               action=character_function_binder("cc_btn_function_" + str(i), i))
 
             self.character_cards.append(card_btn)
@@ -1094,7 +1048,7 @@ class CharacterSelection:  # commit comment
                                                                                             self.character_back.get_height() +
                                                                                             self.gear_banner.dim[1],
                                                                                             self.scroll_offset],
-                              img_uri=("assets/gc/gc_" + str(i) + ".png"), use_dim=True, text="",
+                              img_uri=(Data.gc_big_prefix + str(i) + ".png"), use_dim=True, text="",
                               action=gear_function_binder("gc_btn_function_" + str(i), i))
 
             self.gear_cards.append(card_btn)
@@ -1132,7 +1086,7 @@ class CharacterSelection:  # commit comment
                                                                                             self.gear_back.get_height() +
                                                                                             self.weapon_banner.dim[1] +
                                                                                             self.scroll_offset],
-                              img_uri=("assets/wc/wc_" + str(i) + ".png"), use_dim=True, text="",
+                              img_uri=(Data.wc_big_prefix + str(i) + ".png"), use_dim=True, text="",
                               action=weapon_function_binder("wc_btn_function_" + str(i), i))
 
             self.weapon_cards.append(card_btn)
@@ -1172,7 +1126,7 @@ class CharacterSelection:  # commit comment
                                                                                             self.weapon_back.get_height() +
                                                                                             self.item_banner.dim[1] +
                                                                                             self.scroll_offset],
-                              img_uri=("assets/ic/ic_" + str(i) + ".png"), use_dim=True, text="",
+                              img_uri=(Data.ic_big_prefix + str(i) + ".png"), use_dim=True, text="",
                               action=item_function_binder("ic_btn_function_" + str(i), i))
 
             self.item_cards.append(card_btn)
@@ -1195,7 +1149,7 @@ class CharacterSelection:  # commit comment
             pos=[int(self.minimap_surf.get_size()[0] * 0.05), int(self.minimap_surf.get_size()[1] * 0.8)],
             real_pos=[int(self.minimap_surf.get_size()[0] * 0.05) +
                       self.troop_overview.get_size()[0],
-                      int(self.minimap_surf.get_size()[1] * 0.8)], img_uri="assets/blue_button_menu.jpg",
+                      int(self.minimap_surf.get_size()[1] * 0.8)], img_uri=Data.blue_btn_menu,
             text=get_text(), action=ready_up)
 
         # rest has to be handled in update
@@ -1400,8 +1354,8 @@ class CharacterSelection:  # commit comment
              self.troop_overview.get_width(),
              pos_h + int((self.selected_units_back.get_height() - self.selected_units_box.get_height()) / 2) +
              self.minimap_surf.get_height()],
-                         img_uri=("assets/cc/small/cc_" + str(class_num) + ".png"), use_dim=True, text="",
-                         action=self.cc_function_binder("assets/cc/cc_small_btn_func" + str(i),
+                         img_uri=(Data.cc_smol_prefix + str(class_num) + ".png"), use_dim=True, text="",
+                         action=self.cc_function_binder("cc_small_btn_func" + str(i),
                                                         self.ownTeam.characters[i].idi))
 
             self.team_char_btns.append(btn)
@@ -1565,7 +1519,7 @@ class CharacterSelection:  # commit comment
 
         # self.selected_units_box.fill((0, 0, 0))
         # NEWWW
-        sel_uni_box_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert_alpha(),
+        sel_uni_box_back_img = pg.transform.smoothscale(pg.image.load(Data.metal_btn).convert_alpha(),
                                                         self.selected_units_box.get_size())
         self.selected_units_box.blit(sel_uni_box_back_img, [0, 0])
 
@@ -1585,7 +1539,7 @@ class CharacterSelection:  # commit comment
         # self.selected_weapons_box.fill((0, 0, 0))
 
         # NEWWW
-        sel_weap_box_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert_alpha(),
+        sel_weap_box_back_img = pg.transform.smoothscale(pg.image.load(Data.metal_btn).convert_alpha(),
                                                          self.selected_weapons_box.get_size())
         self.selected_weapons_box.blit(sel_weap_box_back_img, [0, 0])
 
@@ -1702,13 +1656,14 @@ class CharacterSelection:  # commit comment
 
 class InGame:
 
-    def __init__(self, own_team, game_map, client=None):  # ToDo Turnsystem/Network not implemented yet
+    def __init__(self, own_team, game_map, client=None, mode="TDM"):  # ToDo Turnsystem/Network not implemented yet
 
         # <editor-fold desc="Initialisation">
 
         self.own_team = own_team
         self.game_map = game_map
         self.client = client
+        self.game_mode = mode
 
         self.cc_num = 6
         self.gc_num = 4
@@ -1741,7 +1696,6 @@ class InGame:
         self.turn_wait_counter = 0
         self.turn_get_thread = 0
 
-        self.dmg = 0
         self.opp_turn_applying = False  # enemy turn is displayed atm
         self.is_it_my_turn = self.own_team.team_num == 0
         self.own_turn = Turn()
@@ -1801,50 +1755,55 @@ class InGame:
         self.detail_char = []
         self.small_char = []
         for i in range(self.cc_num):
-            img = pg.transform.smoothscale(pg.image.load("assets/cc/detail/cc_" + str(i) + ".png").convert_alpha(),
+            img = pg.transform.smoothscale(pg.image.load(Data.cc_detail_prefix + str(i) + ".png").convert_alpha(),
                                            self.detail_size)
             self.detail_char.append(img)
-            img = pg.transform.smoothscale(pg.image.load("assets/cc/small/cc_" + str(i) + ".png").convert_alpha(),
+            img = pg.transform.smoothscale(pg.image.load(Data.cc_smol_prefix + str(i) + ".png").convert_alpha(),
                                            self.small_size)
             self.small_char.append(img)
 
         self.detail_gear = []
         self.small_gear = []
         for i in range(self.gc_num):
-            img = pg.transform.smoothscale(pg.image.load("assets/gc/detail/gc_" + str(i) + ".png").convert_alpha(),
+            img = pg.transform.smoothscale(pg.image.load(Data.gc_detail_prefix + str(i) + ".png").convert_alpha(),
                                            self.detail_size)
             self.detail_gear.append(img)
-            img = pg.transform.smoothscale(pg.image.load("assets/gc/small/gc_" + str(i) + ".png").convert_alpha(),
+            img = pg.transform.smoothscale(pg.image.load(Data.gc_smol_prefix + str(i) + ".png").convert_alpha(),
                                            self.small_size)
             self.small_gear.append(img)
 
         self.detail_weapon = []
         self.small_weapon = []
         for i in range(self.wc_num):
-            img = pg.transform.smoothscale(pg.image.load("assets/wc/detail/wc_" + str(i) + ".png").convert_alpha(),
+            img = pg.transform.smoothscale(pg.image.load(Data.wc_detail_prefix + str(i) + ".png").convert_alpha(),
                                            self.detail_size)
             self.detail_weapon.append(img)
-            img = pg.transform.smoothscale(pg.image.load("assets/wc/small/wc_" + str(i) + ".png").convert_alpha(),
+            img = pg.transform.smoothscale(pg.image.load(Data.wc_smol_prefix + str(i) + ".png").convert_alpha(),
                                            self.small_size)
             self.small_weapon.append(img)
 
         self.detail_item = []
         self.small_item = []
         for i in range(self.ic_num):
-            img = pg.transform.smoothscale(pg.image.load("assets/ic/detail/ic_" + str(i) + ".png").convert_alpha(),
+            img = pg.transform.smoothscale(pg.image.load(Data.ic_detail_prefix + str(i) + ".png").convert_alpha(),
                                            self.detail_size)
             self.detail_item.append(img)
-            img = pg.transform.smoothscale(pg.image.load("assets/ic/small/ic_" + str(i) + ".png").convert_alpha(),
+            img = pg.transform.smoothscale(pg.image.load(Data.ic_smol_prefix + str(i) + ".png").convert_alpha(),
                                            self.small_size)
             self.small_item.append(img)
 
         self.map_char_imgs = []
         for i in range(self.cc_num):
             img = pg.image.load(
-                "assets/cc/small/cc_" + str(i) + ".png").convert_alpha()  # TODO change to actual right images
+                Data.cc_smol_prefix + str(i) + ".png").convert_alpha()  # TODO change to actual right images
             self.map_char_imgs.append(img)
 
-        self.detail_back_metall = pg.image.load("assets/metall.png").convert_alpha()
+        self.detail_back_metall = pg.image.load(Data.metal_btn).convert_alpha()
+
+        # TODO
+        self.win_banner = ...  # add super fancy animated win banner here
+        self.lose_banner = ...  # nya~~
+
         # </editor-fold>
 
         # -------------------------------------------------------------------------------------------------------------
@@ -1884,7 +1843,7 @@ class InGame:
         self.game_map.selective_draw_map(team_num=self.own_team.team_num)
         self.map_content = fit_surf(surf=self.game_map.window, size=self.map_surface.get_size())
 
-        self.emptiness_of_darkness_of_doom = pg.image.load("assets/empty_as_fuck.png").convert_alpha()
+        self.emptiness_of_darkness_of_doom = pg.image.load(Data.empty_af).convert_alpha()
         # convert here, scale returns new copy of emptines, so og remains unchanged and can be reused
         self.opp_turn_surf = pg.transform.scale(self.emptiness_of_darkness_of_doom, self.game_map.window.get_size())
 
@@ -1895,7 +1854,7 @@ class InGame:
         self.own_team_stats.set_colorkey((255, 0, 0))
 
         self.own_team_stats_back_img = pg.transform.smoothscale(
-            pg.image.load("assets/team_char_back.png").convert_alpha(),
+            pg.image.load(Data.team_char_backgr).convert_alpha(),
             self.own_team_stats.get_size())
         # </editor-fold>
 
@@ -1947,7 +1906,7 @@ class InGame:
             func.__name__ = name
             return func
 
-        def done_button_action():  # TODO das muss dafür sorgen, dass get_own_turn den turn zurück gibt
+        def done_button_action():
             if self.turn_get_thread == 0:
                 self.turn_get_thread = start_new_thread(done_button_action, ())
                 return
@@ -1960,7 +1919,7 @@ class InGame:
                 return
 
         # tODO reset time <3
-        self.timer = VisualTimer(amount=6000000, pos=(0, 0), action=done_button_action)
+        self.timer = VisualTimer(amount=60, pos=(0, 0), action=done_button_action)
 
         # </editor-fold>
 
@@ -2016,7 +1975,7 @@ class InGame:
                                    self.char_detail_back.get_width() +
                                    int(self.map_surface.get_width() * 0.05),
                                    pos_h],
-                         img_uri=("assets/cc/small/cc_" + str(self.own_team.characters[i].class_id) + ".png"),
+                         img_uri=(Data.cc_smol_prefix + str(self.own_team.characters[i].class_id) + ".png"),
                          text="", name="char btn " + str(self.own_team.characters[i].class_id),
                          action=sel_own_char_binder("char_btn_" + str(self.own_team.characters[i].idi),
                                                     self.own_team.characters[i].idi))
@@ -2049,12 +2008,12 @@ class InGame:
         # <editor-fold desc="right">
 
         # done button
-        self.done_btn = Button(dim=[int(7 * w / 32), int(4 * h / 18)], pos=[0, 0],
+        self.done_btn = Button(dim=[int(7 * w / 32), int(4 * h / 18)], pos=[0, 0], text="Done",
                                real_pos=[self.char_detail_back.get_width() +
                                          self.map_surface.get_width(),
                                          self.player_banners.get_height() +
                                          self.minimap_surf.get_height()],
-                               img_uri="assets/blue_button_menu.jpg",
+                               img_uri=Data.blue_btn_menu,
                                name="Done", action=done_button_action)
         # </editor-fold>
 
@@ -2176,7 +2135,17 @@ class InGame:
 
     def apply_opp_turn(self, opp_turn):  # applies changes from opp turn to own game state
 
-        print("------------------Applying opponents turn")
+        if opp_turn.win:
+            # opp says you win! :)
+            ...  # insert some fancy "You win! UwU here, prolly with sum fluffy cat gurl and cute anime sounds
+
+            # TODO either just blit or insert animated shit here however the fuck that may be done
+            self.screen.blit(self.win_banner, blit_centered_pos(self.screen, self.win_banner))
+
+            time.sleep(5)
+
+            # this exits out of the screen
+            self.new_window_target = MainWindow
 
         # prepare surface
         pg.transform.scale(self.emptiness_of_darkness_of_doom, self.game_map.window.get_size())
@@ -2232,6 +2201,24 @@ class InGame:
         # if that's not the case, set your repres equal to his, which should ideally not be needed
         ...
 
+        # check if game is over
+        if self.own_team.all_dead():
+            # declare win
+            self.own_turn = Turn()
+            self.own_turn.win = True
+
+            # send the turn out
+            start_new_thread(self.client.send_turn(self.own_turn, int(round(time.time() * 1000))), ())
+
+            # prepare showing loss to player or TODO some fancy animated version (aka video)
+            self.screen.blit(self.lose_banner, blit_centered_pos(self.screen, self.lose_banner))
+
+            # let it set
+            time.sleep(5)
+
+            # exit out
+            self.new_window_target = MainWindow
+
         # now set v_mat bc positions are set and we only need this once per turn
         self.v_mat = self.game_map.get_vmat()
 
@@ -2245,8 +2232,6 @@ class InGame:
         self.moved_chars = dict()
         self.shot_chars = dict()
         self.own_turn = Turn()
-
-        print("------------------Done applying opponents turn")
 
     def main_blit(self):
 
@@ -2290,6 +2275,7 @@ class InGame:
 
         # clear list :)
         self.char_map_buttons = []
+        self.gear_buttons = self.item_buttons = self.weapon_buttons = []
 
         # <editor-fold desc="zoom and shift">
         if self.shifting:
@@ -2462,9 +2448,9 @@ class InGame:
         self.char_detail_back.blit(self.char_stat_card, dest=blit_centered_pos(self.char_detail_back,
                                                                                self.char_stat_card))
 
-        """# TODO blit back again here
+       # TODO blit back again here
         self.inventory_items_surf.fill((255, 0, 0))
-        self.inventory_gear_weapons_surf.fill((0, 34, 98))"""
+        self.inventory_gear_weapons_surf.fill((0, 34, 98))
 
         if self.selected_char:
             for btn in self.gear_buttons:
@@ -2662,21 +2648,23 @@ class InGame:
             self.screen.blit(self.timer.myfont.render("Client", False, (250, 0, 0)),
                              [self.char_detail_back.get_width() + self.map_surface.get_width(), 0])
 
+        # todo replace this with button
         self.screen.blit(self.timer.myfont.render(str(self.is_it_my_turn), False, (250, 0, 0)),
                          [self.char_detail_back.get_width() + self.map_surface.get_width(), 250])
+
 
         if self.timer.amount >= 0:
             self.timer.update_visualtimer()
             self.screen.blit(self.timer.surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width() +
                                                     (self.player_banners.get_width() - self.timer.surf.get_width())//2,
-                                                    (self.player_banners.get_height()-self.timer.surf.get_height())//2])
+                                                    (self.player_banners.get_height() - self.timer.surf.get_height())])
 
         self.screen.blit(self.minimap_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
                                                   self.player_banners.get_height()])
         self.screen.blit(self.done_btn_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
                                                    self.player_banners.get_height() + self.minimap_surf.get_height()])
 
-        # Host or Client
+        """"# Host or Client
         if self.own_team.team_num == 0:
             self.screen.blit(self.timer.myfont.render("Host", False, (250, 0, 0)),
                              [self.char_detail_back.get_width() + self.map_surface.get_width(),
@@ -2684,7 +2672,7 @@ class InGame:
         else:
             self.screen.blit(self.timer.myfont.render("Client", False, (250, 0, 0)),
                              [self.char_detail_back.get_width() + self.map_surface.get_width(),
-                              self.player_banners.get_height() - 250])
+                              self.player_banners.get_height() - 250])"""
 
         # </editor-fold>
 

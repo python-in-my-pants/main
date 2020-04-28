@@ -3,10 +3,11 @@ import random
 
 class Turn:
 
-    def __init__(self, actions=[]):
+    def __init__(self, actions=[], win=False):
 
         self.actions = actions[:]
         self.rand_id = random.randint(0, 100000000)
+        self.win = win
 
     def add_action(self, action):
 

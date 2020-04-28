@@ -7,7 +7,7 @@ import time
 if sys.platform == "win32":
     true_res = (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
     # TODO put out, just for debugging
-    true_res = [1600, 900]
+    true_res = [1280, 720]
 else:
     true_res = [1920, 1080]  # just set the res manually for linux, maybe adjust later?
 
@@ -53,38 +53,6 @@ material_codes = {
     "ruined_wood": 8,
     "puddel": 9,
     "default": -1
-}
-
-bush_types = {
-    0: "assets/mats/Bush/Bush_1x1.png",
-    1: "assets/mats/Bush/Bush_1x2.png",
-    2: "assets/mats/Bush/Bush_2x1.png",
-    3: "assets/mats/Bush/Bush_2x2.png",
-    4: "assets/mats/Bush/Bush_2x3.png",
-    5: "assets/mats/Bush/Bush_3x2.png"
-}
-
-puddel_types = {
-    0: "assets/mats/Puddel/Puddel_1x1.png",
-    1: "assets/mats/Puddel/Puddel_1x2.png",
-    2: "assets/mats/Puddel/Puddel_2x1.png",
-    3: "assets/mats/Puddel/Puddel_2x2.png",
-    4: "assets/mats/Puddel/Puddel_2x3.png",
-    5: "assets/mats/Puddel/Puddel_3x2.png"
-}
-
-boulder_types = {
-    0: "assets/mats/Boulder/Boulder_1x1.png",
-    1: "assets/mats/Boulder/Boulder_1x2.png",
-    2: "assets/mats/Boulder/Boulder_2x1.png",
-    3: "assets/mats/Boulder/Boulder_2x2.png",
-    4: "assets/mats/Boulder/Boulder_2x3.png",
-    5: "assets/mats/Boulder/Boulder_3x2.png"
-}
-
-tree_types = {
-    0: "assets/mats/Tree/Tree_1x1.png",
-    1: "assets/mats/Tree/Tree_2x2.png"
 }
 
 character_classes = {
@@ -161,6 +129,96 @@ unwrap_as_str = [scc["control"],
                  scc["get in game stat"],
                  scc["in game stat"],
                  scc["cancel hosting"]]
+
+##############
+# paths ######
+##############
+
+# <editor-fold desc="paths">
+
+# visuals #
+
+#   images
+main_background = "assets/textures/background_art/main_background_02.png"
+connection_setup_background = "assets/textures/background_art/notmikan02.jpg"
+empty_af = "assets/empty_as_fuck.png"
+
+#   buttons
+blue_btn_menu = "assets/textures/buttons/blue_button_menu.jpg"
+back_btn = "assets/textures/buttons/back_btn.png"
+
+metal_btn = "assets/textures/background_images/metall.png"
+rem_points = "assets/textures/background_images/remaining_points.png"
+team_char_backgr = "assets/textures/background_images/team_char_back.png"
+
+#   cards
+# <editor-fold desc="cards">
+cc_smol_prefix = "assets/textures/cards/cc/small/cc_"
+wc_smol_prefix = "assets/textures/cards/wc/small/wc_"
+gc_smol_prefix = "assets/textures/cards/gc/small/gc_"
+ic_smol_prefix = "assets/textures/cards/ic/small/ic_"
+
+cc_big_prefix = "assets/textures/cards/cc/cc_"
+gc_big_prefix = "assets/textures/cards/gc/gc_"
+wc_big_prefix = "assets/textures/cards/wc/wc_"
+ic_big_prefix = "assets/textures/cards/ic/ic_"
+
+cc_detail_prefix = "assets/textures/cards/cc/detail/cc_"
+gc_detail_prefix = "assets/textures/cards/gc/detail/gc_"
+wc_detail_prefix = "assets/textures/cards/wc/detail/wc_"
+ic_detail_prefix = "assets/textures/cards/ic/detail/ic_"
+# </editor-fold>
+
+#   textures
+
+grass_texture = "assets/textures/mats/Grass.png"
+sandstone_texture = "assets/textures/mats/sandstone.png"
+border_texture = "assets/textures/mats/border.png"
+house_floor_texture = "assets/textures/mats/House_floor.png"
+flooring_texture = "assets/textures/mats/Flooring.png"
+bush_texture = "assets/textures/mats/bush.png"
+boulder_texture = "assets/textures/mats/boulder.png"
+ruin_floor_texture = "assets/textures/mats/Ruin_floor.png"
+
+# <editor-fold desc="types">
+bush_types = {
+    0: "assets/textures/mats/Bush/Bush_1x1.png",
+    1: "assets/textures/mats/Bush/Bush_1x2.png",
+    2: "assets/textures/mats/Bush/Bush_2x1.png",
+    3: "assets/textures/mats/Bush/Bush_2x2.png",
+    4: "assets/textures/mats/Bush/Bush_2x3.png",
+    5: "assets/textures/mats/Bush/Bush_3x2.png"
+}
+
+puddel_types = {
+    0: "assets/textures/mats/Puddel/Puddel_1x1.png",
+    1: "assets/textures/mats/Puddel/Puddel_1x2.png",
+    2: "assets/textures/mats/Puddel/Puddel_2x1.png",
+    3: "assets/textures/mats/Puddel/Puddel_2x2.png",
+    4: "assets/textures/mats/Puddel/Puddel_2x3.png",
+    5: "assets/textures/mats/Puddel/Puddel_3x2.png"
+}
+
+boulder_types = {
+    0: "assets/textures/mats/Boulder/Boulder_1x1.png",
+    1: "assets/textures/mats/Boulder/Boulder_1x2.png",
+    2: "assets/textures/mats/Boulder/Boulder_2x1.png",
+    3: "assets/textures/mats/Boulder/Boulder_2x2.png",
+    4: "assets/textures/mats/Boulder/Boulder_2x3.png",
+    5: "assets/textures/mats/Boulder/Boulder_3x2.png"
+}
+
+tree_types = {
+    0: "assets/textures/mats/Tree/Tree_1x1.png",
+    1: "assets/textures/mats/Tree/Tree_2x2.png"
+}
+
+# </editor-fold>
+
+# audio #
+
+button_click = "assets/sound/button_lick.mp3"
+# </editor-fold>
 
 
 def hostin_list_eq(dict1, dict2):
