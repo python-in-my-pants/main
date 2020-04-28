@@ -2629,12 +2629,14 @@ class InGame:
             for btn in self.overlay_btn:
                 if btn.is_focused([self.mouse_pos[0] - self.char_detail_back.get_width(), self.mouse_pos[1]]):
                     self.overlay.surf = self.overlay.type[btn.name]
+                    self.overlay.part_to_attack = int(btn.name)
                     self.overlay.newblit = True
                 if not self.overlay.newblit:
                     self.overlay.surf = self.overlay.type["6"]
             if self.selected_own_char_overlay:
                 if not self.selected_own_char_overlay.shot:
-                    self.overlay.update_info(self.selected_own_char_overlay.get_chance(self.overlay.boi_to_attack))
+                    self.overlay.update_info(self.selected_own_char_overlay.get_chance(self.overlay.boi_to_attack,
+                                                                                       self.overlay.part_to_attack))
                 else:
                     self.overlay.update_info("You already shot!")
             self.screen.blit(self.overlay.surf, dest=self.overlay.pos)

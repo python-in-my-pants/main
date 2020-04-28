@@ -211,6 +211,7 @@ class Overlay:
         self.surf = pg.transform.scale(pg.image.load("assets/Overlay/dude.png"), (150, 200))
         self.pos = pos
         self.boi_to_attack = boi_to_attack
+        self.part_to_attack = 0
         self.newblit = False
 
         self.info_pos = self.pos[0]-25, self.pos[1] + 200
