@@ -44,15 +44,15 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
 
         # ToDo Texture Stuff, implement flooring for ruined difference
         texture_size = (def_elem_size, def_elem_size)
-        self.texture_dump = [pg.transform.scale(pg.image.load("assets/mats/Grass.png"), texture_size),
-                             pg.transform.scale(pg.image.load("assets/mats/sandstone.png"), texture_size),
-                             pg.transform.scale(pg.image.load("assets/mats/border.png"), texture_size),
-                             pg.transform.scale(pg.image.load("assets/mats/House_floor.png"), texture_size),
-                             pg.transform.scale(pg.image.load("assets/mats/Flooring.png"), texture_size),
-                             pg.transform.scale(pg.image.load("assets/mats/bush.png"), texture_size),
+        self.texture_dump = [pg.transform.scale(pg.image.load(grass_texture), texture_size),
+                             pg.transform.scale(pg.image.load(sandstone_texture), texture_size),
+                             pg.transform.scale(pg.image.load(border_texture), texture_size),
+                             pg.transform.scale(pg.image.load(house_floor_texture), texture_size),
+                             pg.transform.scale(pg.image.load(flooring_texture), texture_size),
+                             pg.transform.scale(pg.image.load(bush_texture), texture_size),
                              None,
-                             pg.transform.scale(pg.image.load("assets/mats/boulder.png"), texture_size),
-                             pg.transform.scale(pg.image.load("assets/mats/Ruin_floor.png"), texture_size)]
+                             pg.transform.scale(pg.image.load(boulder_texture), texture_size),
+                             pg.transform.scale(pg.image.load(ruin_floor_texture), texture_size)]
 
     def add_object(self, game_object, border_size=0, recursion_depth=0):  # STATUS: partially working, border
         # stuff not yet, crashes when too deep recursion occurs
@@ -604,10 +604,7 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
                             mat_counter += 1
                     self.window.blit(self.texture_dump[material_codes[go.materials[mat_counter]]],
                                      (pix[0] * def_elem_size, pix[1] * def_elem_size))
-                """
-                pg.draw.rect(self.window, mat_colour[go.materials[mat_counter]],
-                             (pix[0] * Data.def_elem_size, pix[1] * Data.def_elem_size, Data.def_elem_size, Data.def_elem_size))
-                """
+
         self.__draw_grid()
         self.base_map = self.window.copy()
 
@@ -652,10 +649,10 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
             if go.render_type == "blit":  # character
                 if visible_chars.__contains__(index):
                     if go.team == 0:
-                        go_surf = pg.image.load("assets/Teams/Blue_Team/" + character_classes[go.class_id] + "/Blue_" +
+                        go_surf = pg.image.load("assets/textures/Teams/Blue_Team/" + character_classes[go.class_id] + "/Blue_" +
                                                 character_classes[go.class_id] + "_Pistol.png")
                     if go.team == 1:
-                        go_surf = pg.image.load("assets/Teams/Red_Team/"+character_classes[go.class_id]+"/Red_"+
+                        go_surf = pg.image.load("assets/textures/Teams/Red_Team/"+character_classes[go.class_id]+"/Red_"+
                                                 character_classes[go.class_id]+"_Pistol.png")
                     # go_surf = go.get_drawable_surf()
                     if go.orientation > 0:
@@ -710,7 +707,7 @@ class MapBuilder:
         self.map = Map(x_size=fields_x, y_size=fields_y)
 
         # add spawns
-        areas = Spawnarea.create_areals([fields_x, fields_y])
+        areas = Spawnarea.create_areas([fields_x, fields_y])
 
         # areas are the first game_objects
         for area in areas:
@@ -761,7 +758,6 @@ class MapBuilder:
         #"""
 
         # draw everything to surf
-        # TODO why would I draw this here already?
         self.map.draw_map()
         return self.map
 

@@ -714,7 +714,7 @@ class Spawnarea(GameObject):
         print("Spawnareal Voll Boi :D")
 
     @staticmethod
-    def create_areals(map_size):
+    def create_areas(map_size):
         # Assign Area1 and Area2 to the corners randomly
         p = int((map_size[0]*map_size[1]/250)/2)
         Spawnarea.seitenlaenge = int(numpy.sqrt(p))

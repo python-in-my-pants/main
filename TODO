@@ -10,9 +10,11 @@
 
 1 - mark spawn areas on minimap in char select and ingame
 
-1 - char stat card item stat card ändern
+1 - char stat cardm, item stat card ändern
 
 1 - balance speed
+
+1 - man kann noch durch büsche kucken und über wasser laufen
 
 1 - replace small char icons on left side with actual cards
 
@@ -22,7 +24,11 @@
 
 1 - outline selected item in ingame (red canvas)
 
-1 - eye candy canvas for ingame screen, 1 pic from gimp
+1 - eye candy canvas for ingame screen, 1 pic from gimp ???
+
+1 - make chars not usable if dead
+
+1 - timer darf nur laufen wenn man dran ist
 
 -----------------------------------------------------------------
 
@@ -69,7 +75,9 @@ clear all TODO
 
 --------------------------------------------------------------------------
 
-3 - add stylish background music in ingame screen
+3 - add stylish background music in ingame screen and everywhere, prolly control this from main
+        https://www.youtube.com/watch?v=Lp6XlsBm_Lw
+        https://www.youtube.com/watch?v=RQqt7I3f4wU
 
 3 - zoom + verschieben + zoom skippt
 
