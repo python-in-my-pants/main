@@ -1914,6 +1914,7 @@ class InGame:
                 self.is_it_my_turn = False
                 self.client.send_turn(self.own_turn, int(round(time.time() * 1000)))
                 # todo set own turn to none??
+                self.timer.stop_timer()
                 time.sleep(1)
                 return
 
@@ -2241,6 +2242,9 @@ class InGame:
         self.moved_chars = dict()
         self.shot_chars = dict()
         self.own_turn = Turn()
+
+        self.timer.action_done = False
+        self.timer.start_timer(60)
 
     def main_blit(self):
 
@@ -2660,7 +2664,6 @@ class InGame:
         # todo replace this with button
         self.screen.blit(self.timer.myfont.render(str(self.is_it_my_turn), False, (250, 0, 0)),
                          [self.char_detail_back.get_width() + self.map_surface.get_width(), 250])
-
 
         if self.timer.amount >= 0:
             self.timer.update()
