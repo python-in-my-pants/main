@@ -187,8 +187,8 @@ head = "assets/textures/overlay/dude_kopf.png"
 r_arm = "assets/textures/overlay/dude_rarm.png"
 l_arm = "assets/textures/overlay/dude_larm.png"
 torso = "assets/textures/overlay/dude_torso.png"
-r_leg = "assets/textures/overlay/dude_rleg.png"
-l_leg = "assets/textures/overlay/dude_lleg.png"
+r_leg = "assets/textures/overlay/dude_rbein.png"
+l_leg = "assets/textures/overlay/dude_lbein.png"
 
 # <editor-fold desc="types">
 bush_types = {

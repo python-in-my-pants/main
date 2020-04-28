@@ -312,6 +312,7 @@ class VisualTimer:
             self.pre = int(time.time()) + 1
 
     def start_timer(self, zeit):
+        self.action_done = False
         self.amount = zeit
 
     def stop_timer(self):
