@@ -1167,7 +1167,7 @@ class CharacterSelection:  # commit comment
             if button == 3:
                 # sell this character
                 char = self.ownTeam.get_char_by_unique_id(unique_char_id)
-                del self.team_char_btns[self.ownTeam.get_index_by_obj(char)]  # TODO if I reset team_char_btns ... WHAT?
+                del self.team_char_btns[self.ownTeam.get_index_by_obj(char)]
                 self.ownTeam.remove_char_by_obj(char)
 
                 if self.ownTeam.characters.__len__() > 0:
@@ -1355,8 +1355,7 @@ class CharacterSelection:  # commit comment
              pos_h + int((self.selected_units_back.get_height() - self.selected_units_box.get_height()) / 2) +
              self.minimap_surf.get_height()],
                          img_uri=(Data.cc_smol_prefix + str(class_num) + ".png"), use_dim=True, text="",
-                         action=self.cc_function_binder("cc_small_btn_func" + str(i),
-                                                        self.ownTeam.characters[i].idi))
+                         action=self.cc_function_binder("cc_small_btn_func" + str(i), self.ownTeam.characters[i].idi))
 
             self.team_char_btns.append(btn)
 
@@ -2091,8 +2090,18 @@ class InGame:
                 if item.idi == _id:
 
                     if self.selected_own_char and self.selected_char.team != self.own_team and self.is_it_my_turn:
-                        self.selected_own_char.change_active_slot("Item", i)
-                        self.active_slot = self.selected_own_char.get_active_slot()
+
+                        # no need to change active slot here if all items only need 1 turn for usage,
+                        # DON'T TAKE THIS COMMENT OUT
+                        #   self.selected_own_char.change_active_slot("Item", i)
+                        #   self.active_slot = self.selected_own_char.get_active_slot()
+
+                        if self.selected_own_char.idi not in self.moved_chars and \
+                                self.selected_own_char.idi not in self.shot_chars:
+
+                            self.selected_own_char.use_item(i)
+                            self.moved_chars[self.selected_own_char.idi] = True
+                            self.shot_chars[self.selected_own_char.idi] = True
 
                     self.item_stat_card = self.detail_item[item.my_id]
                     return

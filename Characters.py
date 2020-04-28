@@ -7,6 +7,7 @@ from Weapon import *
 from Game_objects import GameObject, CollAtom
 from Data import *
 import pygame as pg
+import functools
 
 Debug = True
 
@@ -469,73 +470,23 @@ class Character(GameObject):
     def crouch(self):
         self.height = 0.5
 
-    def laydown(self):
-        self.height = 0.2
+    def lay_down(self):
+        self.height = 0.3
 
-    def use_item(self, itemind, partind):
-        if self.items[itemind].name == "Medkit":
-            self.i_need_healing(self.items[itemind].value, partind)
+    def use_item(self, itemind, partind=-1):
 
-    def i_need_healing(self, amount, partind):
-        if self.health[partind] <= 0 and self.bleed[partind] is True:
-            self.bleed[partind] = False
-            print("Bleeding has stopped")
-        elif self.health[partind] == 100:
-            print("This part is full on health!")
-            return
-        elif self.health[partind] + amount >= 100:
+        self.items[itemind].use(self, partind)
+
+    def regenerate_hp(self, amount, partind):
+        self.health[partind] *= amount
+        if self.health[partind] > 100:
             self.health[partind] = 100
-        else:
-            self.health[partind] += amount
-        if self.bleed[partind]:
-            self.bleed[partind] = False
-            print("Bleeding has stopped")
+
+    def stop_bleeding(self, partind):  # stops bleeding of body part with this index
+        self.bleed[partind] = False
 
 
 def create_character(_id, team):  # team holds only name/number of team
     boi = Character(class_id=_id, team=team)
     boi.class_selector()
     return boi
-
-if Debug:
-    #boi = create_character(0, [0, 0])
-    #boii = create_character(0, [0, 10])
-    #boi.weapon_add(make_weapon_by_id(4))
-    #boi.change_active_slot(["Weapon", 0])
-    #boi.shoot(boii, 2)
-    #print(boii.health[2])
-    #print(boi.range(boii))
-
-    #boi.add_item(Medkit())
-    #boi.get_damaged(15, 2)
-    #print(boi.health[2])
-    #boi.use_item(0, 2)
-    #print(boi.health[2])
-    #print(boi.dexterity)
-    #print(boi.strength)
-    #print(50*2*35*0.18)
-    #boi = Character()
-    #boi2 = Character()
-    #boi.get_damaged(150, 4)
-    #boi.get_damaged(150, 5)
-    #boi.get_damaged(150, 1)
-    #boi.get_damaged(150, 2)
-    #boi.i_need_healing(25, 1)
-    #print(boi.health)
-    #print(boi.speed)
-    #print(boi.strength)
-    #print(boi.dexterity)
-    #boi.item_add(Armor(typ=3))
-    #boi.item_add(Bandage())
-    #boi.item_add(Defdope())
-    #boi.item_add(Healstation())
-    #boi.item_drop(2)
-    #boi.item_change(Medkit(), 2)
-    #print(boi.items)
-
-
-    '''wep = Pistole()
-    boi.weapon_add(wep)
-    print(boi.weapons[0].name)
-    boi.shoot(boi2, wep, 0)
-    print(boi2.health[0])'''

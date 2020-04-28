@@ -30,6 +30,8 @@
 
 1 - timer darf nur laufen wenn man dran ist
 
+1 - cant shoot or move if heal item used
+
 -----------------------------------------------------------------
 
 2 - add sick loading screens with 99% loading bars that never actually fill, like in connection setup when opp is joining

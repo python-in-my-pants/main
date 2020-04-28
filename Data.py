@@ -217,7 +217,7 @@ tree_types = {
 
 # audio #
 
-button_click = "assets/sound/button_lick.mp3"
+button_click = "assets/sound/button_lick_02.mp3"
 # </editor-fold>
 
 
