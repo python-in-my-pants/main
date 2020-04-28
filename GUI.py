@@ -257,6 +257,7 @@ class VisualTimer:
         self.pos = pos
         self.size = size
         self.action = action
+        self.action_done = False
 
         self.myfont = pg.font.SysFont('Comic Sans MS', size)
         self.surf = self.myfont.render("00:00", False, (250, 0, 0))
@@ -265,8 +266,10 @@ class VisualTimer:
     def update_visualtimer(self):
         if not self.pre:
             self.pre = int(time.time())
-        if self.amount <= 0:
+        if self.amount <= 0 and not self.action_done:
+            self.action_done = True
             self.action()
+
         if self.pre <= int(time.time()) and self.amount > 0:
             self.amount -= 1
             minuten = int(self.amount / 60)
