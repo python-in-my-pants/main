@@ -1,26 +1,8 @@
 # encoding: UTF-8
 
-import pygame as pg
-from pygame.locals import *
-from skimage.draw import line_aa
-from threading import Timer
-import numpy as np
-import sys
-import pickle
-import time
-import subprocess
 import os
-import ctypes
-
-from _thread import *
-from network import *
-from Game_objects import *
-from GUI import *
-from Data import *
-from GUI import *
-from Map import *
+import GUI
 from Render import *
-from Characters import Character
 
 debug = True
 counter = 0  # TODO out
@@ -35,6 +17,8 @@ os.environ['SDL_VIDEO_CENTERED'] = '1'  # make so that popping windows are cente
 # obligatory pygame init
 
 pg.init()
+pg.mixer.find_channel()
+
 role = "default role"
 teams = []
 # TODO still up to date?
@@ -42,6 +26,7 @@ map_data = []  # holds data of map received from server PLUS the team number you
 clock = pg.time.Clock()
 
 active_window = None
+main_sound_chan = None
 
 main_window = MainWindow
 connection_setup = ConnectionSetup
@@ -54,6 +39,7 @@ while True:
     if not active_window:
 
         active_window = main_window()
+        main_sound_chan = GUI.play_sound(Data.menu_background_music)
 
     if isinstance(active_window, main_window):
 
@@ -141,6 +127,7 @@ while True:
             _map = active_window.game_map
             active_window.harakiri()
             active_window = new_target(own_team=team, game_map=_map, client=client_var, mode="TDM")
+            GUI.play_sound(Data.ingame_background_music)
 
         else:
 
@@ -154,13 +141,13 @@ while True:
             new_target = active_window.new_window_target  # should be in_game
             active_window.harakiri()
             active_window = new_target()
+            GUI.play_sound(Data.menu_background_music)
 
         else:
 
             active_window.event_handling()
             active_window.update()
 
-    # tODO reset to sth reasonable
     clock.tick(60)  # controls max fps
     # print("FPS: " + str(clock.get_fps()) + "\n\n") if counter % 180 == 0 else (lambda: None)
     counter += 1

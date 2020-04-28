@@ -217,7 +217,13 @@ tree_types = {
 
 # audio #
 
+#   sounds
 button_click = "assets/sound/button_lick_02.mp3"
+
+#   music
+menu_background_music = "assets/sound/ophelia.mp3"  # Music: www.bensound.com
+ingame_background_music = "assets/sound/epic.mp3"   # Music: www.bensound.com
+
 # </editor-fold>
 
 
