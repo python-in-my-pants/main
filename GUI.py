@@ -224,6 +224,7 @@ class Overlay:
         }
 
     def update_info(self, info):
+        print(info)
         if isinstance(info, int):
             self.timer = time.time() + 2
             self.info_tafel = pg.transform.scale(pg.image.load("assets/deco_banner.png"), (150, 150))

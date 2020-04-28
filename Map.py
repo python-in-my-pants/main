@@ -751,7 +751,7 @@ class MapBuilder:
                 else:
                     obj_counter += 1
 
-        #"""
+        """
         add_obj(SimpleHouse, house_limit)
         add_obj(Ruins, ruins_limit)
         add_obj(Bush, bush_limit)

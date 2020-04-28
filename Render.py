@@ -1741,6 +1741,7 @@ class InGame:
         self.turn_wait_counter = 0
         self.turn_get_thread = 0
 
+        self.dmg = 0
         self.opp_turn_applying = False  # enemy turn is displayed atm
         self.is_it_my_turn = self.own_team.team_num == 0
         self.own_turn = Turn()
@@ -1780,6 +1781,7 @@ class InGame:
 
         # holds selected char of own team
         self.selected_own_char = None  # self.own_team.characters[0]
+        self.selected_own_char_overlay = None
 
         # holds selected char (maybe from opponent team)
         self.selected_char = self.selected_own_char
@@ -2069,6 +2071,7 @@ class InGame:
                     return
 
                 self.selected_own_char = char
+                self.selected_own_char_overlay = char
                 self.selected_char = self.selected_own_char
 
                 self.active_slot = self.selected_own_char.get_active_slot()
@@ -2143,29 +2146,31 @@ class InGame:
 
     def shoot(self, where):
 
-        if (not self.is_it_my_turn) or (self.selected_own_char.idi in self.shot_chars):
-            return
+        if (not self.is_it_my_turn) or (self.selected_own_char_overlay.idi in self.shot_chars):
+            return "You already shot bro"
 
         # check if shooter can see target
-        shooter_index = self.game_map.get_char_index(self.selected_own_char)
+        shooter_index = self.game_map.get_char_index(self.selected_own_char_overlay)
         target_index = self.game_map.get_char_index(self.overlay.boi_to_attack)
-        if not self.v_mat[shooter_index][target_index][1]:
-            return
+        if not self.v_mat[(shooter_index, target_index)][1]:
+            return "Bro he ain't sein shit"
 
         # TODO draw dotted line to signal shooting
 
-        dmg, dmg_done = self.selected_own_char.shoot(self.overlay.boi_to_attack, where)
+        dmg, dmg_done = self.selected_own_char_overlay.shoot(self.overlay.boi_to_attack, where)
 
-        self.shot_chars[self.selected_own_char.idi] = (self.selected_own_char, self.overlay.boi_to_attack)
+        self.shot_chars[self.selected_own_char_overlay.idi] = (self.selected_own_char_overlay, self.overlay.boi_to_attack)
 
-        action = Action(self.selected_own_char, self.overlay.boi_to_attack,
-                        dmg2b=dmg_done, pos_a_dmg2b_index=self.selected_own_char.pos)
+        action = Action(self.selected_own_char_overlay, self.overlay.boi_to_attack,
+                        dmg2b=dmg_done, pos_a_dmg2b_index=self.selected_own_char_overlay.pos)
 
         self.own_turn.add_action(action)
 
         # unselect char after shooting
-        self.selected_own_char.shot = True
-        self.selected_own_char = None
+        self.selected_own_char_overlay.shot = True
+        self.selected_own_char_overlay = None
+        self.overlay = None
+        self.overlay_btn = None
 
         return dmg
 
@@ -2433,7 +2438,6 @@ class InGame:
                 if self.selected_own_char.idi in self.shot_chars:
                     self.overlay.update_info("You already shot!")
                     self.selected_own_char = None
-
                 # tODO just for troll, remove later ... but notify user what's up
                 print("Greed is a sin against God,\n "
                       "just as all mortal sins,\n "
@@ -2629,13 +2633,12 @@ class InGame:
                     self.overlay.newblit = True
                 if not self.overlay.newblit:
                     self.overlay.surf = self.overlay.type["6"]
-            if self.selected_own_char:
-                if not self.selected_own_char.shot:
-                    self.overlay.update_info(self.selected_own_char.get_chance(self.overlay.boi_to_attack))
+            if self.selected_own_char_overlay:
+                if not self.selected_own_char_overlay.shot:
+                    self.overlay.update_info(self.selected_own_char_overlay.get_chance(self.overlay.boi_to_attack))
                 else:
                     self.overlay.update_info("You already shot!")
             self.screen.blit(self.overlay.surf, dest=self.overlay.pos)
-            # TODO crashes: argument 1 must be pygame.Surface, not list
             self.screen.blit(self.overlay.info_tafel, dest=self.overlay.info_pos)
 
         #####
@@ -2754,18 +2757,20 @@ class InGame:
                         for btn in self.overlay_btn:
                             if btn.is_focused([self.mouse_pos[0] - self.char_detail_back.get_width(),
                                                self.mouse_pos[1]]):
-                                if self.selected_own_char:
+                                if self.selected_own_char_overlay:
                                     self.overlay.update_info(self.shoot(int(btn.name)))
-
-                        if not self.overlay.pos[0] + 100 >= p[0] >= self.overlay.pos[0]:
-                            if not self.overlay.pos[1] + 200 >= p[1] >= self.overlay.pos[1]:
-                                self.overlay = None
-                                self.overlay_btn = None
+                        if self.overlay:
+                            if not self.overlay.pos[0] + 100 >= p[0] >= self.overlay.pos[0]:
+                                if not self.overlay.pos[1] + 200 >= p[1] >= self.overlay.pos[1]:
+                                    self.overlay = None
+                                    self.overlay_btn = None
 
                     if self.overlay:
                         if not (self.overlay.pos[0] + 100 >= p[0] >= self.overlay.pos[0]) and\
                            not (self.overlay.pos[1] + 200 >= p[1] >= self.overlay.pos[1]):
                             self.overlay = None
+                            self.selected_own_char = None
+                            self.selected_own_char_overlay = None
 
                     for button in self.gear_buttons:
                         if button.is_focused(p):

@@ -402,7 +402,7 @@ class Character(GameObject):
             else:
                 return 0
 
-    def apply_damaged(self, dmg):
+    def apply_damage(self, dmg):
         for i in range(6):
             self.health[i] = dmg[i]
 
