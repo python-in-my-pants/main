@@ -20,7 +20,12 @@ class Button:
         self.use_dim = use_dim
         if use_dim:
             self.surf = pg.Surface(self.dim)
-        self.action = action  # TODO make all buttons have a sound
+
+        def _action():
+            play_click_sound(Data.button_click)
+            action()
+
+        self.action = _action
         self.func = action  # holds the action function when button is not active
         self.name = name
         self.offset = 0

@@ -2090,8 +2090,12 @@ class InGame:
                 if item.idi == _id:
 
                     if self.selected_own_char and self.selected_char.team != self.own_team and self.is_it_my_turn:
-                        self.selected_own_char.change_active_slot("Item", i)
-                        self.active_slot = self.selected_own_char.get_active_slot()
+                        #self.selected_own_char.change_active_slot("Item", i)
+                        #self.active_slot = self.selected_own_char.get_active_slot()
+                        if self.selected_own_char.idi not in self.moved_chars and \
+                            self.selected_own_char.idi not in self.shot_chars:
+                            pass
+
 
                     self.item_stat_card = self.detail_item[item.my_id]
                     return

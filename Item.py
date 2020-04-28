@@ -1,4 +1,5 @@
 import random
+import functools
 
 '''
 TODO Add weight to item classes
@@ -6,32 +7,85 @@ TODO Add weight to item classes
 
 
 class Item:
-	def __init__(self, my_id=0, name="default", cost=1, weight=0):
+
+	def __init__(self, my_id=0, name="default", cost=1, weight=0, stop_bleed=False, hp_regen=False):
 		self.my_id = my_id  # class id
 		self.name = name
 		self.idi = "i" + str(id(self))  # unique id
 		self.cost = cost
 		self.weight = weight
+		self.stop_bleed = stop_bleed
+		self.hp_regen = hp_regen
+
+	def use(self, char, bodypart):  # abstract method
+		pass
 
 
 # <editor-fold desc="Items">
 class Bandage(Item):
-	def __init__(self, my_id=0, name="Bandage", cost=1, value=25, weight=0.5):
-		super().__init__(my_id, name, cost, weight)
-		self.value = value
+	"""
+	heals selected body part and stops bleeding
+	"""
+
+	def __init__(self, my_id=0, name="Bandage", cost=1, value=1.2, weight=0.5):
+		super().__init__(my_id, name, cost, weight, stop_bleed=True, hp_regen=True)
+		self.heal_multiplier = value
+
+	def use(self, char, bodypart=-1):
+
+		# TODO  should a bandage even be able to heal hp? if not we must assure that each occurring battle can be
+		#  foreseen or prevented, e.g. you cannot just be rushed inside a building and be killed, without being able
+		#  to defend yourself
+
+		# select part automatically if none was given
+		if bodypart == -1:
+			if self.hp_regen:
+				char.health.index(functools.reduce(lambda a, b: a if 0 < a < b else b, char.health))
+			else:
+				if self.stop_bleed:
+					bodypart = next(ind for ind, val in enumerate(char.bleed) if val)
+				else:
+					bodypart = 3  # use on torso
+
+		char.regenerate_hp(self.heal_multiplier, bodypart)
+		char.stop_bleeding(bodypart)
 
 
 class Medkit(Item):
-	def __init__(self, my_id=1, name="Medkit", cost=2, value=75, weight=1):
-		super().__init__(my_id, name, cost, weight)
-		self.value = value
+
+	def __init__(self, my_id=1, name="Medkit", cost=2, value=1.5, weight=1):
+		super().__init__(my_id, name, cost, weight, stop_bleed=True, hp_regen=True)
+		self.heal_multiplier = value
+
+	def use(self, char, bodypart=-1):
+
+		# select part automatically if none was given
+		if bodypart == -1:
+			if self.hp_regen:
+				char.health.index(functools.reduce(lambda a, b: a if 0 < a < b else b, char.health))
+			else:
+				if self.stop_bleed:
+					bodypart = next(ind for ind, val in enumerate(char.bleed) if val)
+				else:
+					bodypart = 3  # use on torso
+
+		char.regenerate_hp(self.heal_multiplier, bodypart)
+		char.stop_bleeding(bodypart)
 
 
-class Pillen(Item):
-	# TODO Implement heal on more than one bodypart
-	def __init__(self, my_id=2, name="Healstation", cost=2, value=50, weight=0.1):
-		super().__init__(my_id, name, cost, weight)
-		self.value = value
+class Pills(Item):
+	"""
+	heals whole body hp by 20% but not dead parts
+	"""
+	def __init__(self, my_id=2, name="Pills", cost=2, value=1.2, weight=0.1):
+		super().__init__(my_id, name, cost, weight, hp_regen=True)
+		self.heal_multiplier = value
+
+	def use(self, char, bodypart=-1):
+
+		for i in range(6):
+			if char.health[i] > 0:
+				char.regenerate_hp(self.heal_multiplier, i)
 
 
 class Accudope(Item):
@@ -67,7 +121,7 @@ class Defdope(Item):
 def make_item_by_id(my_id):
 	if my_id == 0: return Bandage()
 	if my_id == 1: return Medkit()
-	if my_id == 2: return Pillen()
+	if my_id == 2: return Pills()
 	if my_id == 3: return Accudope()
 	if my_id == 4: return Stredope()
 	if my_id == 5: return Speeddope()
@@ -132,12 +186,7 @@ class Armor(Gear):
 
 
 def make_gear_by_id(my_id):
-	if my_id in [0, 1, 2]: return Helm(my_id)
-	if my_id in [3, 4, 5]: return Armor(my_id)
-
-'''boi = Bandage()
-print(boi.idi)
-print(boi.name)
-boii = Healstation()
-print(boii.idi)
-print(boii.name)'''
+	if my_id in [0, 1, 2]:
+		return Helm(my_id)
+	if my_id in [3, 4, 5]:
+		return Armor(my_id)
