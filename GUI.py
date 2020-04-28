@@ -4,7 +4,6 @@ import time
 import sys
 
 
-@staticmethod
 def play_click_sound(path):
     pg.mixer.music.load(path)
     pg.mixer.music.play(0)
@@ -13,17 +12,19 @@ def play_click_sound(path):
 class Button:
 
     def __init__(self, dim=[0, 0], pos=[0, 0], real_pos=[-1, -1], color=(170, 0, 0), font_color=(0, 0, 0), img_uri=0,
-                 img_source=None, text="Button", name="Button", use_dim=True,
-                 action=(lambda: play_click_sound(Data.button_click))):
+                 img_source=None, text="Button", name="Button", use_dim=True, action=None):
 
         self.dim = [int(d) for d in dim]
         self.use_dim = use_dim
         if use_dim:
             self.surf = pg.Surface(self.dim)
 
-        def _action():
+        def _action(*args):
             play_click_sound(Data.button_click)
-            action()
+            if args:
+                action(*args)
+            else:
+                action()
 
         self.action = _action
         self.func = action  # holds the action function when button is not active

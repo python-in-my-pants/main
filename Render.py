@@ -1167,7 +1167,7 @@ class CharacterSelection:  # commit comment
             if button == 3:
                 # sell this character
                 char = self.ownTeam.get_char_by_unique_id(unique_char_id)
-                del self.team_char_btns[self.ownTeam.get_index_by_obj(char)]  # TODO if I reset team_char_btns ... WHAT?
+                del self.team_char_btns[self.ownTeam.get_index_by_obj(char)]
                 self.ownTeam.remove_char_by_obj(char)
 
                 if self.ownTeam.characters.__len__() > 0:
@@ -1355,8 +1355,7 @@ class CharacterSelection:  # commit comment
              pos_h + int((self.selected_units_back.get_height() - self.selected_units_box.get_height()) / 2) +
              self.minimap_surf.get_height()],
                          img_uri=(Data.cc_smol_prefix + str(class_num) + ".png"), use_dim=True, text="",
-                         action=self.cc_function_binder("cc_small_btn_func" + str(i),
-                                                        self.ownTeam.characters[i].idi))
+                         action=self.cc_function_binder("cc_small_btn_func" + str(i), self.ownTeam.characters[i].idi))
 
             self.team_char_btns.append(btn)
 
