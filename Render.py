@@ -1912,13 +1912,11 @@ class InGame:
             else:
                 # send the turn out
                 self.is_it_my_turn = False
-                self.client.send_turn(self.own_turn, int(round(time.time() * 1000)))
-                # todo set own turn to none??
                 self.timer.stop_timer()
+                self.client.send_turn(self.own_turn, int(round(time.time() * 1000)))
                 time.sleep(1)
                 return
 
-        # tODO reset time <3
         self.timer = VisualTimer(amount=60, pos=(0, 0), action=done_button_action)
 
         # </editor-fold>
@@ -2147,7 +2145,7 @@ class InGame:
 
         if opp_turn.win:
             # opp says you win! :)
-            ...  # insert some fancy "You win! UwU here, prolly with sum fluffy cat gurl and cute anime sounds
+            pass  # insert some fancy "You win! UwU here, prolly with sum fluffy cat gurl and cute anime sounds
 
             # TODO either just blit or insert animated shit here however the fuck that may be done
             self.screen.blit(self.win_banner, blit_centered_pos(self.screen, self.win_banner))
@@ -2185,7 +2183,8 @@ class InGame:
                                       x[1]*Data.def_elem_size + (Data.def_elem_size//2)] for x in action.path], 0)
                     pg.draw.circle(self.opp_turn_surf, (0, 230, 230),
                                    list(
-                                       map((lambda x: x * Data.def_elem_size + (Data.def_elem_size // 2)), action.path[0])),
+                                       map((lambda x: x * Data.def_elem_size + (Data.def_elem_size // 2)),
+                                           action.path[0])),
                                    Data.def_elem_size // 2 // 2)
 
             if action.player_b:  # there is a second player involved
@@ -2243,7 +2242,6 @@ class InGame:
         self.shot_chars = dict()
         self.own_turn = Turn()
 
-        self.timer.action_done = False
         self.timer.start_timer(60)
 
     def main_blit(self):
@@ -2619,9 +2617,8 @@ class InGame:
 
         self.screen.blit(self.map_surface, dest=[self.char_detail_back.get_width(), 0])
         #   own char is selected       map surface is focused
-        if self.selected_own_char and self.map_surface.get_rect().collidepoint(self.mouse_pos[0] -
-                                                                               self.char_detail_back.get_width(),
-                                                                               self.mouse_pos[1]):
+        if self.selected_own_char and self.map_surface.get_rect().collidepoint(
+                self.mouse_pos[0] - self.char_detail_back.get_width(), self.mouse_pos[1]):
             self._draw_dotted_line(self.screen, line_points)
 
         if self.overlay and self.overlay_btn:
@@ -2665,10 +2662,10 @@ class InGame:
 
         # todo replace this with button
         self.screen.blit(self.timer.myfont.render(str(self.is_it_my_turn), False, (250, 0, 0)),
-                         [self.char_detail_back.get_width() + self.map_surface.get_width(), 250])
+                         [self.char_detail_back.get_width() + self.map_surface.get_width(), 100])
 
-        if self.timer.amount >= 0:
-            self.timer.update_visualtimer()
+        if self.timer.amount >= 0 and self.is_it_my_turn:
+            self.timer.update()
             self.screen.blit(self.timer.surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width() +
                                                     (self.player_banners.get_width() - self.timer.surf.get_width())//2,
                                                     (self.player_banners.get_height() - self.timer.surf.get_height())])
@@ -2677,16 +2674,6 @@ class InGame:
                                                   self.player_banners.get_height()])
         self.screen.blit(self.done_btn_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
                                                    self.player_banners.get_height() + self.minimap_surf.get_height()])
-
-        """"# Host or Client
-        if self.own_team.team_num == 0:
-            self.screen.blit(self.timer.myfont.render("Host", False, (250, 0, 0)),
-                             [self.char_detail_back.get_width() + self.map_surface.get_width(),
-                              self.player_banners.get_height() - 250])
-        else:
-            self.screen.blit(self.timer.myfont.render("Client", False, (250, 0, 0)),
-                             [self.char_detail_back.get_width() + self.map_surface.get_width(),
-                              self.player_banners.get_height() - 250])"""
 
         # </editor-fold>
 

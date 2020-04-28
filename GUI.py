@@ -8,11 +8,10 @@ def play_sound(path, chan=None):
     if chan is None:
         chan = pg.mixer.find_channel()
         chan.play(pg.mixer.Sound(file=path))
+        chan.set_volume(Data.master_volume)
         return chan
     else:
         pg.mixer.Channel(chan).play(pg.mixer.Sound(file=path))
-    """pg.mixer.music.load(path)
-    pg.mixer.music.play()"""
 
 
 def stop_sound(channel, duration=3):
@@ -208,7 +207,7 @@ class HPBar:
 class Overlay:
 
     def __init__(self, pos=(0, 0), boi_to_attack=None):
-        self.surf = pg.transform.scale(pg.image.load("assets/Overlay/dude.png"), (150, 200))
+        self.surf = pg.transform.scale(pg.image.load(Data.overlay_base), (150, 200))
         self.pos = pos
         self.boi_to_attack = boi_to_attack
         self.part_to_attack = 0
@@ -216,17 +215,17 @@ class Overlay:
 
         self.info_pos = self.pos[0]-25, self.pos[1] + 200
         self.myfont = pg.font.SysFont('Comic Sans MS', 15)
-        self.info_tafel = pg.transform.scale(pg.image.load("assets/deco_banner.png"), (150, 150))
+        self.info_tafel = pg.transform.scale(pg.image.load(Data.deco_banner), (150, 150))
         self.timer = 0
 
         self.type = {
-            "0": pg.transform.scale(pg.image.load("assets/Overlay/dude_kopf.png"), (100, 200)),
-            "1": pg.transform.scale(pg.image.load("assets/Overlay/dude_larm.png"), (100, 200)),
-            "2": pg.transform.scale(pg.image.load("assets/Overlay/dude_rarm.png"), (100, 200)),
-            "3": pg.transform.scale(pg.image.load("assets/Overlay/dude_torso.png"), (100, 200)),
-            "4": pg.transform.scale(pg.image.load("assets/Overlay/dude_lbein.png"), (100, 200)),
-            "5": pg.transform.scale(pg.image.load("assets/Overlay/dude_rbein.png"), (100, 200)),
-            "6": pg.transform.scale(pg.image.load("assets/Overlay/dude.png"), (100, 200))
+            "0": pg.transform.scale(pg.image.load(Data.head), (100, 200)),
+            "1": pg.transform.scale(pg.image.load(Data.l_arm), (100, 200)),
+            "2": pg.transform.scale(pg.image.load(Data.r_arm), (100, 200)),
+            "3": pg.transform.scale(pg.image.load(Data.torso), (100, 200)),
+            "4": pg.transform.scale(pg.image.load(Data.l_leg), (100, 200)),
+            "5": pg.transform.scale(pg.image.load(Data.r_leg), (100, 200)),
+            "6": pg.transform.scale(pg.image.load(Data.overlay_base), (100, 200))
         }
 
         self.btn_dim = {
@@ -251,13 +250,13 @@ class Overlay:
         print(info)
         if isinstance(info, int):
             self.timer = time.time() + 2
-            self.info_tafel = pg.transform.scale(pg.image.load("assets/deco_banner.png"), (150, 150))
+            self.info_tafel = pg.transform.scale(pg.image.load(Data.deco_banner), (150, 150))
             self.info_tafel.blit(self.myfont.render("Damage done: " + str(info), False, (255, 255, 255)), (18, 65))
 
         if self.timer <= time.time():
             if isinstance(info, tuple) and len(info) == 4:
 
-                self.info_tafel = pg.transform.scale(pg.image.load("assets/deco_banner.png"), (150, 150))
+                self.info_tafel = pg.transform.scale(pg.image.load(Data.deco_banner), (150, 150))
                 self.info_tafel.blit(self.myfont.render(("Hitchance: " + str(info[0]) + " %"),
                                      False, (255, 255, 255)), (22, 40))
                 if info[3]:
@@ -270,7 +269,7 @@ class Overlay:
                                      False, (255, 255, 255)), (22, 90))
 
             if isinstance(info, str):
-                self.info_tafel = pg.transform.scale(pg.image.load("assets/deco_banner.png"), (150, 150))
+                self.info_tafel = pg.transform.scale(pg.image.load(Data.deco_banner), (150, 150))
                 self.info_tafel.blit(self.myfont.render(info, False, (255, 255, 255)), (22, 65))
 
 
@@ -287,7 +286,7 @@ class VisualTimer:
         self.surf = self.myfont.render("00:00", False, (250, 0, 0))
         self.pre = 0
 
-    def update_visualtimer(self):
+    def update(self):
         if not self.pre:
             self.pre = int(time.time())
         if self.amount <= 0 and not self.action_done:
@@ -314,6 +313,7 @@ class VisualTimer:
             self.pre = int(time.time()) + 1
 
     def start_timer(self, zeit):
+        self.action_done = False
         self.amount = zeit
 
     def stop_timer(self):
