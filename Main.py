@@ -127,6 +127,7 @@ while True:
             _map = active_window.game_map
             active_window.harakiri()
             active_window = new_target(own_team=team, game_map=_map, client=client_var, mode="TDM")
+            GUI.stop_sound(main_sound_chan)
             GUI.play_sound(Data.ingame_background_music)
 
         else:
@@ -141,6 +142,7 @@ while True:
             new_target = active_window.new_window_target  # should be in_game
             active_window.harakiri()
             active_window = new_target()
+            GUI.stop_sound(main_sound_chan)
             GUI.play_sound(Data.menu_background_music)
 
         else:

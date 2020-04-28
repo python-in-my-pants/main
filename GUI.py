@@ -5,16 +5,18 @@ import sys
 
 
 def play_sound(path, chan=None):
-    if not chan:
+    if chan is None:
         chan = pg.mixer.find_channel()
-    pg.mixer.Channel(chan.play(pg.mixer.Sound(file=path)))
-    return chan
+        chan.play(pg.mixer.Sound(file=path))
+        return chan
+    else:
+        pg.mixer.Channel(chan).play(pg.mixer.Sound(file=path))
     """pg.mixer.music.load(path)
     pg.mixer.music.play()"""
 
 
-def stop_sound(channel):
-    pg.mixer.Channel(channel).fadeout(3)
+def stop_sound(channel, duration=3):
+    channel.fadeout(duration)
 
 
 class Button:
