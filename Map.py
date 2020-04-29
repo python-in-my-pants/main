@@ -330,9 +330,15 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
 
                 if colliding_objs:
 
+                    # todo check here why puddles are boulders
+
+                    """for key in colliding_objs:
+                        print("colliding_objs[{}]: {}".format(str(key), [str(x) for x in colliding_objs[key]]))"""
+
                     for key in colliding_objs:
-                        if key.opaque or colliding_objs[key].opaque:
-                            return [0, 0]  # cannot see, cannot shoot
+                        for atom in colliding_objs[key]:
+                            if atom.opaque:
+                                return [0, 0]  # cannot see, cannot shoot
 
                     return [1, 0]  # can see, cannot shoot
 

@@ -133,6 +133,8 @@ class CollAtom(pygame.sprite.Sprite):  # this is basically a sprite but it's bet
         self.opaque = opaque
         self.rect = pygame.Rect(self.pos, (w, h))
 
+    def __str__(self):
+        return "CollAtom: ({}, {}, Opaque: {})".format(self.name, self.pos, self.opaque)
 
 class LineOfSight(GameObject):
 
@@ -719,10 +721,12 @@ class Spawnarea(GameObject):
     @staticmethod
     def create_areas(map_size):
         # Assign Area1 and Area2 to the corners randomly
-        p = int((map_size[0]*map_size[1]/250)/2)
-        Spawnarea.seitenlaenge = int(numpy.sqrt(p))
-        if Spawnarea.seitenlaenge.__pow__(2) < p:
+        max_number_of_characters = int(map_size[0]*map_size[1]/500)
+        Spawnarea.seitenlaenge = int(numpy.sqrt(max_number_of_characters))
+
+        while Spawnarea.seitenlaenge.__pow__(2) < max_number_of_characters:
             Spawnarea.seitenlaenge += 1
+
         areas = []
         if numpy.random.randint(0, 2) == 1:
             areas.append(Spawnarea.create_spawn(map_size, 1, "L"))
