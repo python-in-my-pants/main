@@ -152,6 +152,7 @@ metal_btn = "assets/textures/background_images/metall.png"
 rem_points = "assets/textures/background_images/remaining_points.png"
 team_char_backgr = "assets/textures/background_images/team_char_back.png"
 deco_banner = "assets/textures/background_images/deco_banner.png"
+rusty_metal = "assets/textures/background_images/rusty_metal.jpg"
 
 #   cards
 # <editor-fold desc="cards">

@@ -745,6 +745,7 @@ class CharacterSelection:  # commit comment
         for i in range(self.ic_num):
             img = pg.image.load(Data.ic_smol_prefix + str(i) + ".png").convert_alpha()
             self.ic_small_images.append(img)
+
         # </editor-fold>
 
         # -------------------------------------------------------------------------------------------------------------
@@ -782,6 +783,12 @@ class CharacterSelection:  # commit comment
         self.card_w = int(self.troop_overview.get_width() * 8 / (self.line_len * 9 + 1))
         self.card_h = int(self.card_w * 1.457)
         self.gap_size = int(self.troop_overview.get_width() / (self.line_len * 9 + 1))
+
+        # sneaky asset loading here bc now we know everything
+        rusty_metal_img = pg.transform.smoothscale(
+            pg.image.load(Data.rusty_metal),
+            [int(self.troop_overview.get_width() * 0.9), int(self.card_h / 2)]
+        )
 
         self.character_back = pg.Surface([self.troop_overview.get_width(),
                                           int(2 * self.gap_size +
@@ -912,7 +919,8 @@ class CharacterSelection:  # commit comment
                                        pos=[int(self.troop_overview.get_width() * 0.05), 0],
                                        real_pos=[int(self.troop_overview.get_width() * 0.05),
                                                  self.rem_points_back.get_height() + self.scroll_offset],
-                                       color=(50, 30, 230), text="Einheiten", action=char_ban_func)
+                                       #color=(50, 30, 230),
+                                       img_source=rusty_metal_img, text="Einheiten", action=char_ban_func)
         self.banners.append(self.character_banner)
 
         def gear_ban_func():
@@ -931,8 +939,8 @@ class CharacterSelection:  # commit comment
                                   pos=[int(self.troop_overview.get_width() * 0.05), 0],
                                   real_pos=[int(self.troop_overview.get_width() * 0.05),
                                             self.rem_points_back.get_height() + self.character_back.get_height() +
-                                            self.scroll_offset], color=(50, 80, 230), text="Rüstung",
-                                  action=gear_ban_func)
+                                            self.scroll_offset], #color=(50, 80, 230),
+                                  img_source=rusty_metal_img, text="Armor", action=gear_ban_func)
         self.banners.append(self.gear_banner)
 
         def weap_ban_func():
@@ -949,8 +957,8 @@ class CharacterSelection:  # commit comment
                                     pos=[int(self.troop_overview.get_width() * 0.05), 0],
                                     real_pos=[int(self.troop_overview.get_width() * 0.05),
                                               self.rem_points_back.get_height() + self.character_back.get_height() +
-                                              self.gear_back.get_height() + self.scroll_offset], color=(230, 50, 30),
-                                    text="Waffen", action=weap_ban_func)
+                                              self.gear_back.get_height() + self.scroll_offset], #color=(230, 50, 30),
+                                    img_source=rusty_metal_img, text="Weapons", action=weap_ban_func)
         self.banners.append(self.weapon_banner)
 
         def item_ban_func():
@@ -968,8 +976,8 @@ class CharacterSelection:  # commit comment
                                   real_pos=[int(self.troop_overview.get_width() * 0.05),
                                             self.rem_points_back.get_height() + self.character_back.get_height() +
                                             self.gear_back.get_height() + self.weapon_back.get_height() +
-                                            self.scroll_offset], color=(30, 230, 50), text="Gegenstände",
-                                  action=item_ban_func)
+                                            self.scroll_offset], #color=(30, 230, 50),
+                                  img_source=rusty_metal_img, text="Items", action=item_ban_func)
         self.banners.append(self.item_banner)
 
         # </editor-fold>
@@ -978,7 +986,7 @@ class CharacterSelection:  # commit comment
         # character cards big
         # #############################################################################################################
 
-        # <editor-fold desc="Peaky Binders">
+        # <editor-fold desc="Peaky Binders and their buttons">
         def character_function_binder(name, card_num):
 
             def butn_fkt():
@@ -1431,6 +1439,7 @@ class CharacterSelection:  # commit comment
         # or maybe not 'cause you'd have to rework button positions again
 
         # cards and banners
+        # <editor-fold desc="cards and banners">
         self.character_back.blit(self.character_banner.surf, self.character_banner.pos)
         if self.render_char_ban:
             if debug:
@@ -1462,15 +1471,11 @@ class CharacterSelection:  # commit comment
             for item_btn in self.item_cards:
                 self.item_content.blit(item_btn.surf, item_btn.pos)
             self.item_back.blit(self.item_content, [0, self.item_banner.dim[1]])
+        # </editor-fold>
 
         # TODO fill here with background image
-        '''
-        # NEWWW
-        troop_overview_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert_alpha(),
-                                                           self.troop_overview.get_size())
-        self.troop_overview.blit(troop_overview_back_img, [0, 0])
-        '''
-        self.troop_overview.fill((0, 0, 0))
+
+        # self.troop_overview.fill((0, 0, 0))
 
         self.troop_overview.blit(self.character_back, dest=[0, self.rem_points_back.get_height()])
         self.troop_overview.blit(self.gear_back, dest=[0, self.rem_points_back.get_height() +
