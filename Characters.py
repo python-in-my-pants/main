@@ -412,7 +412,7 @@ class Character(GameObject):
 
     def apply_damage(self, dmg):
         for i in range(6):
-            self.health[i] = dmg[i]
+            self.health[i] -= dmg[i]
 
     def get_damaged(self, dmg, partind, rpg_bool):
         if rpg_bool:

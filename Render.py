@@ -2048,8 +2048,8 @@ class InGame:
                 current_pos = pg.mouse.get_pos()
                 if current_pos[1] >= 400:
                     current_pos = [current_pos[0], current_pos[1] - 375]
-                if current_pos[0] >= 1300 - self.minimap_surf.get_width():
-                    current_pos = [current_pos[0] - 100, current_pos[1]]
+                if current_pos[0] >= true_res[0] - self.minimap_surf.get_width() - 150:
+                    current_pos = [current_pos[0] - 150, current_pos[1]]
 
                 self.overlay = Overlay((current_pos[0], current_pos[1]), char)
                 self.overlay_btn = []
@@ -2129,15 +2129,14 @@ class InGame:
         self.shot_chars[self.selected_own_char_overlay.idi] = (self.selected_own_char_overlay, self.overlay.boi_to_attack)
 
         action = Action(self.selected_own_char_overlay, self.overlay.boi_to_attack,
-                        dmg2b=dmg_done, pos_a_dmg2b_index=self.selected_own_char_overlay.pos)
+                        dmg2b=dmg_done)
 
         self.own_turn.add_action(action)
 
         # unselect char after shooting
         self.selected_own_char_overlay.shot = True
         self.selected_own_char_overlay = None
-        self.overlay = None
-        self.overlay_btn = None
+        print(self.shot_chars)
 
         return dmg
 
@@ -2193,14 +2192,15 @@ class InGame:
                     if c.rand_id == action.player_b.rand_id:
                         my_char = c
 
-                if action.pos_a_dmg2b:
-                    my_char.apply_damage(action.pos_a_dmg2b)
+                if action.dmg2b:
+                    my_char.apply_damage(action.dmg2b)
                     # blit lines indicating movement and shots
-                    self.draw_line_map_coords(self.opp_turn_surf, my_char, opp_char, (139, 0, 0))
+                    self.draw_line_map_coords(self.opp_turn_surf, my_char.pos, opp_char.pos, (139, 0, 0))
 
             for i in range(self.hp_bars.__len__()):
                 for j in range(6):
                     self.hp_bars[i][j].update(self.own_team.characters[i].health[j])
+                self.own_team.characters[i].shot = False
 
             # TODO implement other action stuff
 
@@ -2434,7 +2434,7 @@ class InGame:
                 self.r_fields = []
                 if self.selected_own_char.idi in self.shot_chars:
                     self.overlay.update_info("You already shot!")
-                    self.selected_own_char = None
+                    #self.selected_own_char = None
                 # tODO just for troll, remove later ... but notify user what's up
                 print("Greed is a sin against God,\n "
                       "just as all mortal sins,\n "
@@ -2748,17 +2748,11 @@ class InGame:
                                                self.mouse_pos[1]]):
                                 if self.selected_own_char_overlay:
                                     self.overlay.update_info(self.shoot(int(btn.name)))
-                        if self.overlay:
-                            if not self.overlay.pos[0] + 100 >= p[0] >= self.overlay.pos[0]:
-                                if not self.overlay.pos[1] + 200 >= p[1] >= self.overlay.pos[1]:
-                                    self.overlay = None
-                                    self.overlay_btn = None
 
                     if self.overlay:
                         if not (self.overlay.pos[0] + 100 >= p[0] >= self.overlay.pos[0]) and\
                            not (self.overlay.pos[1] + 200 >= p[1] >= self.overlay.pos[1]):
                             self.overlay = None
-                            self.selected_own_char = None
                             self.selected_own_char_overlay = None
 
                     for button in self.gear_buttons:
