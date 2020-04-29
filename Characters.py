@@ -284,10 +284,11 @@ class Character(GameObject):
 
     def shoot(self, dude, partind):
         # Basechance * (0.3 * Dex) - Range + Recoil control
-        if isinstance(self.get_chance(dude), tuple):
-            chance, dmg, spt, rpg_bool = self.get_chance(dude)
+        if isinstance(self.get_chance(dude, partind), tuple):
+            chance, dmg, spt, rpg_bool = self.get_chance(dude, partind)
             dmg_done = 0
             dmg_done_list = [0, 0, 0, 0, 0, 0]
+
             if rpg_bool:
                 if numpy.random.randint(0, 101) <= chance:
                     dude.get_damaged(dmg, partind, rpg_bool)
@@ -300,10 +301,11 @@ class Character(GameObject):
                         dmg_done_list[partind] = dmg_done
             return dmg_done, dmg_done_list
 
-    def get_chance(self, dude):
+    def get_chance(self, dude, partind):
         if not dude.is_dead():
             if not isinstance(self.active_slot, Weapon):
                 return "Bruh equip ne Waffe!"
+            chance_mod = [15, 10, 10, 2, 7, 7]
             c_range = self.range(dude)
             dmg = self.calc_dmg(c_range)
             p_range = self.calc_p_range(c_range)
@@ -318,7 +320,12 @@ class Character(GameObject):
                 rpg_bool = True
             else:
                 chance = int(self.active_slot.acc * (0.3 * self.dexterity) - p_range - self.dist_moved)
-            
+
+            if chance > 0:
+                chance -= chance_mod[partind]
+            if chance < 0:
+                chance = 0
+
             return chance, dmg, spt, rpg_bool
         else:
             return "Bro, he dead yo!"
@@ -408,7 +415,7 @@ class Character(GameObject):
 
     def apply_damage(self, dmg):
         for i in range(6):
-            self.health[i] = dmg[i]
+            self.health[i] -= dmg[i]
 
     def get_damaged(self, dmg, partind, rpg_bool):
         if rpg_bool:

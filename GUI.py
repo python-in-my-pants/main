@@ -210,6 +210,7 @@ class Overlay:
         self.surf = pg.transform.scale(pg.image.load(Data.overlay_base), (150, 200))
         self.pos = pos
         self.boi_to_attack = boi_to_attack
+        self.part_to_attack = 0
         self.newblit = False
 
         self.info_pos = self.pos[0]-25, self.pos[1] + 200
@@ -246,7 +247,6 @@ class Overlay:
         }
 
     def update_info(self, info):
-        print(info)
         if isinstance(info, int):
             self.timer = time.time() + 2
             self.info_tafel = pg.transform.scale(pg.image.load(Data.deco_banner), (150, 150))
