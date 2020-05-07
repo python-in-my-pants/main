@@ -1913,8 +1913,8 @@ class InGame:
 
         def sel_own_char_binder(name, _id):
 
-            # TODO use func again if doesn't work
             def other_func():
+
                 if char == self.selected_own_char:  # unselect if he was selected
                     self.selected_own_char = None
                     self.selected_char = None
@@ -1936,28 +1936,6 @@ class InGame:
                 # highlight reachable fields by blitting green transparent stuff over them
                 # returns list of tuples
                 self.r_fields = self.game_map.get_reachable_fields(self.selected_own_char)
-
-            def func():
-
-                if self.selected_own_char and self.selected_own_char.idi == _id:
-                    self.selected_own_char = None
-                    self.selected_char = None
-                    self.r_fields = []
-                    return
-
-                self.selected_own_char = self.own_team.get_char_by_unique_id(_id)
-                self.selected_char = self.selected_own_char
-                self.active_slot = self.selected_own_char.get_active_slot()
-
-                """self.selected_item = slot if (slot and isinstance(slot, Item)) else None
-                self.selected_weapon = slot if (slot and isinstance(slot, Weapon)) else None"""
-
-                # highlight reachable fields by blitting green transparent stuff over them, returns list of tuples
-                self.r_fields = self.game_map.get_reachable_fields(self.selected_own_char)
-
-                # TOdo check whether a user clicks on a reachable field on click
-                #  (get vector from map surface upper left to mouse and calc mouse field pos from that)
-                # TODO move character to destination (show dotted line for opponent)
 
             other_func.__name__ = name
             return other_func
@@ -2148,17 +2126,19 @@ class InGame:
             for i, item in enumerate(self.selected_char.items):
                 if item.idi == _id:
 
-                    if self.selected_own_char and self.selected_char.team != self.own_team and self.is_it_my_turn:
+                    if self.selected_own_char and self.is_it_my_turn: # and self.selected_char.team != self.own_team
 
                         # no need to change active slot here if all items only need 1 turn for usage,
                         # DON'T TAKE THIS COMMENT OUT
                         #   self.selected_own_char.change_active_slot("Item", i)
                         #   self.active_slot = self.selected_own_char.get_active_slot()
 
+                        # you can only use bandage if you did not move and did not shoot
                         if self.selected_own_char.idi not in self.moved_chars and \
                                 self.selected_own_char.idi not in self.shot_chars:
 
                             self.selected_own_char.use_item(i)
+                            # TODO use up item here, aka remove it from char.items
                             self.moved_chars[self.selected_own_char.idi] = True
                             self.shot_chars[self.selected_own_char.idi] = True
 
@@ -2447,9 +2427,7 @@ class InGame:
         if self.move_char:  # you have to move the char now
 
             self.move_char = False
-            if self.is_it_my_turn and \
-                    self.selected_own_char and \
-                    (self.selected_own_char.idi not in self.moved_chars):
+            if self.is_it_my_turn and self.selected_own_char and (self.selected_own_char.idi not in self.moved_chars):
 
                 # move to clicked field if it is reachable
                 rel_mouse_pos = [self.mouse_pos[0] - self.char_detail_back.get_width(),
@@ -2488,14 +2466,16 @@ class InGame:
                     self.selected_own_char = None
 
             # you have already moved this char
-            elif self.is_it_my_turn and \
-                    self.selected_own_char and \
+            elif self.is_it_my_turn and self.selected_own_char and \
                     (self.selected_own_char.idi in list(self.moved_chars.keys())):
 
                 self.r_fields = []
+
+                """# todo why the fuck is this HERE???
                 if self.selected_own_char.idi in self.shot_chars:
                     self.overlay.update_info("You already shot!")
-                    #self.selected_own_char = None
+                    #self.selected_own_char = None"""
+
                 # tODO just for troll, remove later ... but notify user what's up
                 print("Greed is a sin against God,\n "
                       "just as all mortal sins,\n "
