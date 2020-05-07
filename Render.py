@@ -1727,6 +1727,8 @@ class InGame:
 
         self.overlay = None
         self.overlay_btn = []
+        self.dmg_done_timer = 0
+        self.dmg_done_ = None
 
         self.shifting = False
         self.shift_start = [0, 0]
@@ -2242,7 +2244,6 @@ class InGame:
             for i in range(self.hp_bars.__len__()):
                 for j in range(6):
                     self.hp_bars[i][j].update(self.own_team.characters[i].health[j])
-                self.own_team.characters[i].shot = False
 
             # TODO implement other action stuff
 
@@ -2665,21 +2666,31 @@ class InGame:
 
         if self.overlay and self.overlay_btn:
             self.overlay.newblit = False
-            for btn in self.overlay_btn:
-                if btn.is_focused([self.mouse_pos[0] - self.char_detail_back.get_width(), self.mouse_pos[1]]):
-                    self.overlay.surf = self.overlay.type[btn.name]
-                    self.overlay.part_to_attack = int(btn.name)
-                    self.overlay.newblit = True
-                if not self.overlay.newblit:
-                    self.overlay.surf = self.overlay.type["6"]
-            if self.selected_own_char_overlay:
-                if not self.selected_own_char_overlay.shot:
-                    self.overlay.update_info(self.selected_own_char_overlay.get_chance(self.overlay.boi_to_attack,
-                                                                                       self.overlay.part_to_attack))
-                else:
-                    self.overlay.update_info("You already shot!")
-            self.screen.blit(self.overlay.surf, dest=self.overlay.pos)
-            self.screen.blit(self.overlay.info_tafel, dest=self.overlay.info_pos)
+            if self.dmg_done_timer < time.time() and self.dmg_done_ is not None:
+                self.overlay = None
+                self.overlay_btn = None
+                self.dmg_done_ = None
+            else:
+                self.overlay.update_info(self.dmg_done_)
+
+            if self.overlay and self.overlay_btn:
+                for btn in self.overlay_btn:
+                    if btn.is_focused([self.mouse_pos[0] - self.char_detail_back.get_width(), self.mouse_pos[1]]):
+                        self.overlay.surf = self.overlay.type[btn.name]
+                        self.overlay.part_to_attack = int(btn.name)
+                        self.overlay.newblit = True
+                    if not self.overlay.newblit:
+                        self.overlay.surf = self.overlay.type["6"]
+                if self.selected_own_char_overlay:
+                    if self.selected_own_char_overlay.idi in self.shot_chars:
+                        self.overlay.update_info("You already shot!")
+                    else:
+                        self.overlay.update_info(self.selected_own_char_overlay.get_chance(self.overlay.boi_to_attack,
+                                                                                           self.overlay.part_to_attack))
+                self.screen.blit(self.overlay.surf, dest=self.overlay.pos)
+                self.screen.blit(self.overlay.info_tafel, dest=self.overlay.info_pos)
+
+
 
         #####
         # left
@@ -2794,10 +2805,12 @@ class InGame:
                             if btn.is_focused([self.mouse_pos[0] - self.char_detail_back.get_width(),
                                                self.mouse_pos[1]]):
                                 if self.selected_own_char_overlay:
-                                    self.overlay.update_info(self.shoot(int(btn.name)))
+                                    self.dmg_done_ = self.shoot(int(btn.name))
+                                    self.dmg_done_timer = time.time() + 3
+                                    self.selected_own_char = None
 
                     if self.overlay:
-                        if not (self.overlay.pos[0] + 100 >= p[0] >= self.overlay.pos[0]) and\
+                        if not (self.overlay.pos[0] + 100 >= p[0] >= self.overlay.pos[0]) or\
                            not (self.overlay.pos[1] + 200 >= p[1] >= self.overlay.pos[1]):
                             self.overlay = None
                             self.selected_own_char_overlay = None
