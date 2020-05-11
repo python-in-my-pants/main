@@ -9,6 +9,7 @@ import sys
 
 from Game_objects import *
 from Data import *
+from Weapon import *
 from Characters import Character
 
 debug = True
@@ -648,23 +649,32 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
         for index, go in enumerate(self.objects):
             if go.render_type == "blit":  # character
                 if visible_chars.__contains__(index):
-                    if go.team == 0:
-                        go_surf = pg.image.load("assets/textures/Teams/Blue_Team/" + character_classes[go.class_id] + "/Blue_" +
-                                                character_classes[go.class_id] + "_Pistol.png")
-                    if go.team == 1:
-                        go_surf = pg.image.load("assets/textures/Teams/Red_Team/"+character_classes[go.class_id]+"/Red_"+
-                                                character_classes[go.class_id]+"_Pistol.png")
-                    # go_surf = go.get_drawable_surf()
-                    if go.orientation > 0:
-                        go_surf = pg.transform.rotate(go_surf, go.orientation)
+                    if go.is_dead():
+                        go_surf = pg.image.load("assets/textures/Teams/dead_char.png")
+                    else:
+                        if go.team == 0:
+                            if isinstance(go.active_slot, Weapon):
+                                go_surf = pg.image.load("assets/textures/teams/Blue_Team/" + character_classes[go.class_id] + "/Blue_" +
+                                                        character_classes[go.class_id] + "_" + go.active_slot.name + ".png")
+                            else:
+                                go_surf = pg.image.load("assets/textures/teams/Blue_Team/" + character_classes[go.class_id] + "/Blue_" +
+                                                        character_classes[go.class_id] + ".png")
+                        if go.team == 1:
+                            if isinstance(go.active_slot, Weapon):
+                                go_surf = pg.image.load("assets/textures/teams/Red_Team/" + character_classes[go.class_id] + "/Red_" +
+                                                        character_classes[go.class_id] + "_" + go.active_slot.name + ".png")
+                            else:
+                                go_surf = pg.image.load("assets/textures/teams/Red_Team/" + character_classes[go.class_id] + "/Red_" +
+                                                        character_classes[go.class_id] + ".png")
+                        # go_surf = go.get_drawable_surf()
+                        if go.orientation > 0:
+                            go_surf = pg.transform.rotate(go_surf, go.orientation)
 
                     self.window.blit(
                         pg.transform.smoothscale(go_surf,               # surface to blit
-                                                 (def_elem_size,
-                                                  def_elem_size)),
-                        (int(go.pos[0] * def_elem_size),           # destination
-                         int(go.pos[1] * def_elem_size))
-                    )
+                                                 (def_elem_size, def_elem_size)),
+                                                (int(go.pos[0] * def_elem_size),           # destination
+                                                 int(go.pos[1] * def_elem_size)))
 
     def __draw_grid(self):  # maybe static? (but who cares tbh)
 
