@@ -1,8 +1,6 @@
 1 - deactivate buttons while waiting for opp turn
 
-1 - point selection in connection setup
-
-1 - blit dead chars differently and make em not usable
+1 - blit dead chars differently
 
 1 - make items usable (heal etc)
 
@@ -10,21 +8,13 @@
 
 1 - balance speed
 
-1 - man kann noch durch büsche kucken und über wasser laufen
-
-1 - replace small char icons on left side with actual cards
+1 - man kann noch durch büsche kucken
 
 1 - finish item and weapon card artworks
 
 1 - change font
 
-1 - outline selected item in ingame (red canvas)
-
-1 - eye candy canvas for ingame screen, 1 pic from gimp ???
-
-1 - make chars not usable if dead
-
-1 - timer darf nur laufen wenn man dran ist
+1 - eye candy canvas for ingame screen, 1 single pic with alpha as background???
 
 -----------------------------------------------------------------
 
@@ -46,7 +36,7 @@
 
 2 - adjust default item & weapon in ingame init
 
-2 - server: unhashable type: connection (wenn 1 client crasht)
+2 - server: unhashable type: connection (wenn 1 client crasht) -> bist du noch da? msg
 
 2 - differenziere bei inventory buttons zwischen own char (kann switchen mit buttons) und gegner (der kann das nicht lol)
 

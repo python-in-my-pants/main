@@ -13,6 +13,7 @@ else:
 
 font = "comicsansms"
 master_volume = 0.0
+char_cap_divisor = 500
 
 #serverIP = "88.150.32.237"
 

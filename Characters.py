@@ -107,6 +107,9 @@ class Character(GameObject):
     def is_dead(self):  # returns if dead
         return self.health[0] <= 0 or self.health[3] <= 0
 
+    def can_shoot(self):
+        return self.health[1] > 0 or self.health[2] > 0
+
     def get_pos(self, i):
         return self.pos[i]
 
