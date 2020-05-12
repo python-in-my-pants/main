@@ -14,6 +14,12 @@ else:
 font = "comicsansms"
 master_volume = 0.03
 char_cap_divisor = 500
+points_per_field = 0.245
+
+
+def board_size(x, y):
+    return int(x * y * points_per_field * 0.5)
+
 
 #serverIP = "88.150.32.237"
 
