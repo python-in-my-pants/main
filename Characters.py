@@ -323,8 +323,8 @@ class Character(GameObject):
 
             if chance > 0:
                 chance -= chance_mod[partind]
-            if chance < 0:
-                chance = 0
+            if chance <= 0:
+                chance = 1
 
             return chance, dmg, spt, rpg_bool
         else:

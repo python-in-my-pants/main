@@ -1757,7 +1757,6 @@ class InGame:
 
         # holds selected char of own team
         self.selected_own_char = None  # self.own_team.characters[0]
-        self.selected_own_char_overlay = None
 
         # holds selected char (maybe from opponent team)
         self.selected_char = self.selected_own_char
@@ -2164,7 +2163,7 @@ class InGame:
             return "You already shot"
 
         # check if shooter can see target
-        shooter_index = self.game_map.get_char_index(self.selected_own_char_overlay)
+        shooter_index = self.game_map.get_char_index(self.selected_own_char)
         target_index = self.game_map.get_char_index(self.overlay.boi_to_attack)
 
         if not self.v_mat[(shooter_index, target_index)][1]:
@@ -2172,18 +2171,16 @@ class InGame:
 
         # TODO draw dotted line to signal shooting
 
-        dmg, dmg_done = self.selected_own_char_overlay.shoot(self.overlay.boi_to_attack, where)
+        dmg, dmg_done = self.selected_own_char.shoot(self.overlay.boi_to_attack, where)
 
-        self.shot_chars[self.selected_own_char_overlay.idi] = (self.selected_own_char_overlay, self.overlay.boi_to_attack)
+        self.shot_chars[self.selected_own_char.idi] = (self.selected_own_char, self.overlay.boi_to_attack)
 
-        action = Action(self.selected_own_char_overlay, self.overlay.boi_to_attack,
+        action = Action(self.selected_own_char, self.overlay.boi_to_attack,
                         dmg2b=dmg_done)
 
         self.own_turn.add_action(action)
 
         # unselect char after shooting
-        self.selected_own_char_overlay.shot = True
-        self.selected_own_char_overlay = None
         print(self.shot_chars)
 
         return dmg
@@ -2682,11 +2679,11 @@ class InGame:
                         self.overlay.newblit = True
                     if not self.overlay.newblit:
                         self.overlay.surf = self.overlay.type["6"]
-                if self.selected_own_char_overlay:
-                    if self.selected_own_char_overlay.idi in self.shot_chars:
+                if self.selected_own_char:
+                    if self.selected_own_char.idi in self.shot_chars:
                         self.overlay.update_info("You already shot!")
                     else:
-                        self.overlay.update_info(self.selected_own_char_overlay.get_chance(self.overlay.boi_to_attack,
+                        self.overlay.update_info(self.selected_own_char.get_chance(self.overlay.boi_to_attack,
                                                                                            self.overlay.part_to_attack))
                 self.screen.blit(self.overlay.surf, dest=self.overlay.pos)
                 self.screen.blit(self.overlay.info_tafel, dest=self.overlay.info_pos)
@@ -2805,7 +2802,7 @@ class InGame:
                         for btn in self.overlay_btn:
                             if btn.is_focused([self.mouse_pos[0] - self.char_detail_back.get_width(),
                                                self.mouse_pos[1]]):
-                                if self.selected_own_char_overlay:
+                                if self.selected_own_char:
                                     self.dmg_done_ = self.shoot(int(btn.name))
                                     self.dmg_done_timer = time.time() + 3
                                     self.selected_own_char = None
@@ -2814,7 +2811,7 @@ class InGame:
                         if not (self.overlay.pos[0] + 100 >= p[0] >= self.overlay.pos[0]) or\
                            not (self.overlay.pos[1] + 200 >= p[1] >= self.overlay.pos[1]):
                             self.overlay = None
-                            self.selected_own_char_overlay = None
+                            self.selected_own_char = None
 
                     for button in self.gear_buttons:
                         if button.is_focused(p):
