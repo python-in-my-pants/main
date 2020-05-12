@@ -985,6 +985,7 @@ class CharacterSelection:  # commit comment
         # #############################################################################################################
 
         # <editor-fold desc="Peaky Binders and their buttons">
+        # for push
         def character_function_binder(name, card_num):
 
             def butn_fkt():
