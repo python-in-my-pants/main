@@ -2156,15 +2156,19 @@ class InGame:
 
     def shoot(self, where):
 
-        if (not self.is_it_my_turn) or (self.selected_own_char_overlay.idi in self.shot_chars) or \
-                (self.selected_own_char.is_dead()) or (not self.selected_own_char.can_shoot()):
-            return "You already shot bro"
+        if not self.selected_own_char or\
+                (not self.is_it_my_turn) or \
+                (self.selected_own_char_overlay.idi in self.shot_chars) or \
+                (self.selected_own_char.is_dead()) or \
+                (not self.selected_own_char.can_shoot()):
+            return "You already shot"
 
         # check if shooter can see target
         shooter_index = self.game_map.get_char_index(self.selected_own_char_overlay)
         target_index = self.game_map.get_char_index(self.overlay.boi_to_attack)
+
         if not self.v_mat[(shooter_index, target_index)][1]:
-            return "Bro he ain't sein shit"
+            return "Cannot see character" #"Bro he ain't sein shit"
 
         # TODO draw dotted line to signal shooting
 
@@ -2468,14 +2472,11 @@ class InGame:
 
             # you have already moved this char
             elif self.is_it_my_turn and self.selected_own_char and \
-                    (self.selected_own_char.idi in list(self.moved_chars.keys())):
+                    (self.selected_own_char.idi in self.moved_chars):
 
                 self.r_fields = []
-
-                """# todo why the fuck is this HERE???
                 if self.selected_own_char.idi in self.shot_chars:
-                    self.overlay.update_info("You already shot!")
-                    #self.selected_own_char = None"""
+                    self.selected_own_char = None
 
                 # tODO just for troll, remove later ... but notify user what's up
                 print("Greed is a sin against God,\n "

@@ -12,7 +12,7 @@ else:
     true_res = [1920, 1080]  # just set the res manually for linux, maybe adjust later?
 
 font = "comicsansms"
-master_volume = 0.1
+master_volume = 0.03
 char_cap_divisor = 500
 
 #serverIP = "88.150.32.237"
