@@ -15,6 +15,7 @@ font = "comicsansms"
 master_volume = 0.03
 char_cap_divisor = 500
 points_per_field = 0.245
+speed_multiplier = 0.2
 
 
 def board_size(x, y):

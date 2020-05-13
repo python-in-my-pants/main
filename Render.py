@@ -985,7 +985,7 @@ class CharacterSelection:  # commit comment
         # #############################################################################################################
 
         # <editor-fold desc="Peaky Binders and their buttons">
-        # for push
+        # for push-
         def character_function_binder(name, card_num):
 
             def butn_fkt():
@@ -1239,9 +1239,9 @@ class CharacterSelection:  # commit comment
     # </editor-fold>
 
     def update(self):  # TODO for better performance render only things that changed
-        # TODO adjust size of small teamcharbtn dpendent on map oints <- NO
+        # TODO adjust size of small teamcharbtn dpendent on map points <- NO
         if self.ready:
-            if self.ready_checker_counter == 69:  # CHECKER EVERY Seconds
+            if self.ready_checker_counter == 69:  # CHECK EVERY n Seconds
                 team_list = self.client.check_for_game_begin()
                 if team_list is not None:
                     self.game_map = Map.Map.combine_map(self.game_map, team_list[0], team_list[1])
@@ -1677,14 +1677,14 @@ class CharacterSelection:  # commit comment
 
 class InGame:
 
-    def __init__(self, own_team, game_map, client=None, mode="TDM"):  # ToDo Turnsystem/Network not implemented yet
+    def __init__(self, own_team, game_map, client=None, mode="TDM"):
 
         # <editor-fold desc="Initialisation">
 
-        self.own_team = own_team
         self.game_map = game_map
         self.client = client
         self.game_mode = mode
+        self.own_team = Team(self.client.live_data["game_begin"][own_team.team_num].characters, own_team.team_num)
 
         self.cc_num = 6
         self.gc_num = 4
@@ -2208,6 +2208,8 @@ class InGame:
 
         for action in opp_turn.actions:
 
+            # opp_char = action.player_a  # TODO if we do this, do we even need to move???
+
             opp_char = None
             for c in opp_char_list:
                 if c.rand_id == action.player_a.rand_id:
@@ -2215,9 +2217,11 @@ class InGame:
 
             if action.path:
 
-                # get this before moving, only draw line if you could see the char from the beginning of the movement on
+                # get this before moving, only draw line if you could see the char from the beginning of the movement
                 visible_char_indices = self.game_map.get_visible_chars_ind(self.own_team.team_num)
-                opp_char.pos = action.player_a.pos
+
+                opp_char.move(action.player_a.pos)
+
                 # index in game objects
                 opp_char_index = self.game_map.get_char_index(opp_char)
 
@@ -2233,10 +2237,15 @@ class InGame:
                                    Data.def_elem_size // 2 // 2)
 
             if action.player_b:  # there is a second player involved
+
+                #my_char = action.player_b
+
                 my_char = None
                 for c in self.own_team.characters:
                     if c.rand_id == action.player_b.rand_id:
                         my_char = c
+
+                print("I'm finding the player b")
 
                 if action.dmg2b:
                     my_char.apply_damage(action.dmg2b)
@@ -2807,6 +2816,7 @@ class InGame:
                                     self.dmg_done_ = self.shoot(int(btn.name))
                                     self.dmg_done_timer = time.time() + 3
                                     self.selected_own_char = None
+                                    self.r_fields = []
 
                     if self.overlay:
                         if not (self.overlay.pos[0] + 100 >= p[0] >= self.overlay.pos[0]) or\

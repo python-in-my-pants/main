@@ -41,5 +41,5 @@ class Action:
         self.dmg2a = dmg2a  # has value if player A damaged himself (eg rocket launcher) OR he healed himself, in
                             # this case the dmg is <0, holds LIST for bodyparts
         self.pos_a_dmg2b = pos_a_dmg2b_index  # holds index of pos in path of player A when the damage to B was inflicted
-                                              #  OR the pos from where the dmg was done (is this used?)
+                                              # OR the pos from where the dmg was done (is this used?)
         self.pos_a_dmg2a = pos_a_dmg2a_index  # holds index of pos of player a when he healed or damaged himself

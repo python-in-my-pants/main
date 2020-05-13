@@ -345,10 +345,17 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
 
         return [1, 1]  # can see & shoot
 
+    @staticmethod
+    def speed_conversion(speed):  # returns max_dist and mov_range
+
+        # this is set up so that we use euclidean metric
+        return (speed * speed_multiplier) ** 2, \
+               int(speed * speed_multiplier * 1.5 + 0.5)
+
     def get_reachable_fields(self, char):
         pos_w, pos_h = char.pos
-        max_dist = (char.speed/5)**2
-        mov_range = int((char.speed / 5) * 1.5 + 0.5)
+        # this is set up so that we use euclidean metric
+        max_dist, mov_range = self.speed_conversion(char.speed)
 
         reachable = [(pos_w, pos_h)]
         checked = set()
@@ -529,7 +536,7 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
         # contain a collision atom (inherits from sprite) with pos=[x,y]?
 
         def pos_in_rect(_pos, r_start, r_x, r_y):
-            return r_start[0] <= _pos[0] <= r_start[0]+r_x or \
+            return r_start[0] <= _pos[0] <= r_start[0]+r_x and \
                    r_start[1] <= _pos[1] <= r_start[1]+r_y
 
         # mapping of pixels to objects
