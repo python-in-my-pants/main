@@ -303,8 +303,10 @@ class Character(GameObject):
 
     def get_chance(self, dude, partind):
         if not dude.is_dead():
+            if self.health[1] <= 0 and self.health[2] <= 0:
+                return "Du hast keine Arme mehr!"
             if not isinstance(self.active_slot, Weapon):
-                return "Bruh equip ne Waffe!"
+                return "Rüste eine Waffe aus!"
             chance_mod = [15, 10, 10, 2, 7, 7]
             c_range = self.range(dude)
             dmg = self.calc_dmg(c_range)
@@ -328,7 +330,7 @@ class Character(GameObject):
 
             return chance, dmg, spt, rpg_bool
         else:
-            return "Bro, he dead yo!"
+            return "Das Ziel ist tot!"
 
     def calc_recoil_acc(self):
         if isinstance(self.active_slot, Maschinenpistole):
