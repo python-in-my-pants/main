@@ -84,7 +84,7 @@ class Server:
 
     def kill_all_connections(self):  # TODO
         for con in self.connections:
-            con.kill_connection()
+            con.target_socket.kill_connection()
         self.connections = dict()
 
     @staticmethod
