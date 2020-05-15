@@ -141,7 +141,8 @@ unwrap_as_str = [scc["control"],
                  scc["confirm"],
                  scc["get in game stat"],
                  scc["in game stat"],
-                 scc["cancel hosting"]]
+                 scc["cancel hosting"],
+                 scc["Join"]]
 
 ##############
 # paths ######

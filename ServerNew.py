@@ -80,6 +80,8 @@ class Server:
             if con.ident == sock.getsockname():  # todo this does not work
                 self.connections.pop(con)
 
+        self.serversocket.close()
+
     def kill_all_connections(self):  # TODO
         for con in self.connections:
             con.kill_connection()
@@ -150,7 +152,7 @@ class Server:
     def _hjoin(self, con, msg):
         # TODO multiple join attempts result in error as player is already in a game then and the hosted game is not
         # in the hosting list anymore
-        game_to_join_name = Connection.bytes_to_string(msg)
+        game_to_join_name = msg  # Connection.bytes_to_string(msg)
         try:
             # remove host from hosting list (2 player scenario)
             match_data = copy.deepcopy(self.hosting_list[game_to_join_name])
@@ -284,7 +286,7 @@ class Server:
         return
     # </editor-fold>
 
-    def requeue(self, t, func, params):  # todo client 2 doesnt receive host list and is not in enq dict
+    def requeue(self, t, func, params):
         self.enqueueing_dict[(params[0].__name__, params[1].ident)] = True
         time.sleep(t)
         func(params)
@@ -326,57 +328,61 @@ def main_routine():
     - put incoming messages of connections in a server.queue
     :return: nothing
     """
+    server = None
+    try:
+        server = Server()
+        th.start_new_thread(server.start_listening, ())
+        th.start_new_thread(server.empty_q, ())
 
-    server = Server()
-    th.start_new_thread(server.start_listening, ())
-    th.start_new_thread(server.empty_q, ())
+        while True:
 
-    while True:
+            # check rec buffer of all connections and handle accordingly
+            for con in list(server.connections.values()):
+                try:
 
-        # check rec buffer of all connections and handle accordingly
-        for con in list(server.connections.values()):
-            try:
+                    # if client is gone remove his stuff
+                    if not con.connection_alive:
+                        # remove from connections
+                        server.connections.pop(con)
+                        # remove from hosting list
+                        for key, val in server.hosting_list.items():
+                            if server.hosting_list[key].hosting_player == con.ident:
+                                server.hosting_list.pop(key)
+                        # remove from game players
+                        for key, val in server.game_players.items():
+                            if server.game_players[key].hosting_player == con.ident:
+                                server.game_players.pop(key)
 
-                # if client is gone remove his stuff
-                if not con.connection_alive:
-                    # remove from connections
-                    server.connections.pop(con)
-                    # remove from hosting list
-                    for key, val in server.hosting_list.items():
-                        if server.hosting_list[key].hosting_player == con.ident:
-                            server.hosting_list.pop(key)
-                    # remove from game players
-                    for key, val in server.game_players.items():
-                        if server.game_players[key].hosting_player == con.ident:
-                            server.game_players.pop(key)
+                        for elem in list(server.q.queue):
+                            if elem[1] == con.ident:
+                                server.q.queue.remove(elem)
 
-                    for elem in list(server.q.queue):
-                        if elem[1] == con.ident:
-                            server.q.queue.remove(elem)
+                        for elem in [(name, con) for name in server.loop_funcs]:
+                            if elem in server.enqueueing_dict:
+                                server.enqueueing_dict.pop(elem)
 
-                    for elem in [(name, con) for name in server.loop_funcs]:
-                        if elem in server.enqueueing_dict:
-                            server.enqueueing_dict.pop(elem)
+                    # handle incoming messages
+                    if con.new_msg_sent():
 
-                # handle incoming messages
-                if con.new_msg_sent():
+                        print("-" * 30 + "\nRec log len:", con.get_rec_log_len())
+                        for elem in con.get_rec_log_fast(5):
+                            print("\n", elem.to_string())
+                        print()
 
-                    print("-" * 30 + "\nRec log len:", con.get_rec_log_len())
-                    for elem in con.get_rec_log_fast(5):
-                        print("\n", elem.to_string())
-                    print()
+                        ctype, msg = con.get_last_control_type_and_msg()
+                        server.q.put([server.ctype_dict[ctype], con, msg])
 
-                    ctype, msg = con.get_last_control_type_and_msg()
-                    server.q.put([server.ctype_dict[ctype], con, msg])
+                except KeyError as e:
+                    print("KeyError! {}".format(e))
+                except RuntimeError:
+                    continue
+                except Exception as e:
+                    print(e)
 
-            except KeyError as e:
-                print("KeyError! {}".format(e))
-            except RuntimeError:
-                continue
-            except Exception as e:
-                print(e)
-
-        time.sleep(0.005)
+            time.sleep(0.005)
+    except KeyboardInterrupt:
+        if server:
+            server.kill_all_connections()
 
 
 if __name__ == "__main__":
