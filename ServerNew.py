@@ -383,6 +383,8 @@ def main_routine():
     except KeyboardInterrupt:
         if server:
             server.kill_all_connections()
+    except Exception as e:
+        print(e)
 
 
 if __name__ == "__main__":
