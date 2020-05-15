@@ -15,9 +15,14 @@ font = "comicsansms"
 master_volume = 0.03
 char_cap_divisor = 500
 points_per_field = 0.245
+speed_multiplier = 0.2
 
 
-def board_size(x, y):
+def get_max_chars_per_team(x, y):
+    return int(points_to_spend_per_team(x, y) / (class_stats[0][-1]) + 1)  # plus pistol cost of 1
+
+
+def points_to_spend_per_team(x, y):
     return int(x * y * points_per_field * 0.5)
 
 

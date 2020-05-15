@@ -1,6 +1,7 @@
 import numpy
 import pygame
 import copy
+from Data import *
 from datetime import datetime
 
 
@@ -721,7 +722,7 @@ class Spawnarea(GameObject):
     @staticmethod
     def create_areas(map_size):
         # Assign Area1 and Area2 to the corners randomly
-        max_number_of_characters = int(map_size[0]*map_size[1]/500)
+        max_number_of_characters = get_max_chars_per_team(map_size[0], map_size[1])
         Spawnarea.seitenlaenge = int(numpy.sqrt(max_number_of_characters))
 
         while Spawnarea.seitenlaenge.__pow__(2) < max_number_of_characters:

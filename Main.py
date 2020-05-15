@@ -88,7 +88,7 @@ while True:
                                    characters=map_data[2],
                                    unique_pixels=map_data[0])
 
-                points_to_spend = Data.board_size(game_map.size_x, game_map.size_y)
+                points_to_spend = Data.points_to_spend_per_team(game_map.size_x, game_map.size_y)
 
                 new_target = active_window.new_window_target
                 active_window.harakiri()
