@@ -12,10 +12,11 @@ else:
     true_res = [1920, 1080]  # just set the res manually for linux, maybe adjust later?
 
 font = "comicsansms"
-master_volume = 0.03
+master_volume = 0.0
 char_cap_divisor = 500
 points_per_field = 0.245
 speed_multiplier = 0.2
+def_elem_size = 50
 
 
 def get_max_chars_per_team(x, y):
@@ -34,7 +35,6 @@ serverIP = "78.47.178.105"
 
 #serverIP = "localhost"
 
-def_elem_size = 50
 
 mat_colour = {
     "sandstone": (255, 140, 0),
