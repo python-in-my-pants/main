@@ -188,8 +188,10 @@ class HPBar:
         self.surf.blit(self.bar_surf, [0, 0])
 
     def update(self, val):
-
-        self.curr = val
+        if val > 0:
+            self.curr = val
+        else:
+            self.curr = 0
         if not int(self.dim[0]*self.curr / self.end) < 0:
             self.bar_surf = pg.Surface([int(self.dim[0]*self.curr / self.end), self.dim[1]])
 

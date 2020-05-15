@@ -529,7 +529,7 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
         # contain a collision atom (inherits from sprite) with pos=[x,y]?
 
         def pos_in_rect(_pos, r_start, r_x, r_y):
-            return r_start[0] <= _pos[0] <= r_start[0]+r_x or \
+            return r_start[0] <= _pos[0] <= r_start[0]+r_x and \
                    r_start[1] <= _pos[1] <= r_start[1]+r_y
 
         # mapping of pixels to objects
