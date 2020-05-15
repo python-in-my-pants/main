@@ -561,7 +561,7 @@ class ConnectionSetup:
             # generate Map for the game
             # TODO generate map png and attach it to map for better rendering performance
             self.game_map_string = Map.MapBuilder().build_map(self.field_size)
-            self.map_points = Data.board_size(self.game_map_string.size_x, self.game_map_string.size_y)
+            self.map_points = Data.points_to_spend_per_team(self.game_map_string.size_x, self.game_map_string.size_y)
 
             self.change_btn_text(self.host_stat_btn, "Hosting ...")
 
@@ -993,7 +993,7 @@ class CharacterSelection:  # commit comment
                 if not self.ready:
                     char = create_character(card_num, self.team_numberr)
                     if self.spent_points + char.cost <= self.points_to_spend and len(self.ownTeam.characters) < \
-                            Data.board_size(self.game_map.size_x, self.game_map.size_y) / (Data.class_stats[0][-1]):  # /2*cheapest char
+                            Data.get_max_chars_per_team(self.game_map.size_x, self.game_map.size_y):
                         self.ownTeam.add_char(char)
                         self.spent_points += char.cost
                         self.selectedChar = char
