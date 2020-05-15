@@ -102,7 +102,8 @@ class Server:
     def _hhost(self, con, msg):  # works
         name, game_map, points = msg
         match_data = MatchData(name, con.ident, game_map, points)
-        if match_data not in self.hosting_list.values() and name not in self.hosting_list.keys():
+        if match_data not in self.hosting_list.values() and \
+                 name not in self.hosting_list.keys():
             self.hosting_list[name] = match_data
 
     # handle cancel hosting
@@ -369,6 +370,7 @@ def main_routine():
                         for elem in con.get_rec_log_fast(5):
                             print("\n", elem.to_string())
                         print()
+                        print("+++++++++++++++++++++++", server.hosting_list.keys(), "\n")
 
                         ctype, msg = con.get_last_control_type_and_msg()
                         server.q.put([server.ctype_dict[ctype], con, msg])
