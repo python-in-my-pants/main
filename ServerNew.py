@@ -152,7 +152,8 @@ class Server:
     def _hjoin(self, con, msg):
         # TODO multiple join attempts result in error as player is already in a game then and the hosted game is not
         # in the hosting list anymore
-        game_to_join_name = msg  # Connection.bytes_to_string(msg)
+        print(msg)
+        game_to_join_name = Connection.bytes_to_string(msg)
         try:
             # remove host from hosting list (2 player scenario)
             match_data = copy.deepcopy(self.hosting_list[game_to_join_name])
