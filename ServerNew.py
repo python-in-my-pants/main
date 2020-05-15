@@ -76,16 +76,17 @@ class Server:
                                                  "Server"))
 
     def kill_connection(self, sock):  # TODO fix reconnecting to server
-        for con in self.connections:
+        for con in self.connections.values():
             if con.ident == sock.getsockname():  # todo this does not work
                 self.connections.pop(con)
 
         self.serversocket.close()
 
     def kill_all_connections(self):  # TODO
-        for con in self.connections:
-            con.target_socket.kill_connection()
+        for con in self.connections.values():
+            con.kill_connection()
         self.connections = dict()
+        self.serversocket.close()
 
     @staticmethod
     def ip2long(ip):
