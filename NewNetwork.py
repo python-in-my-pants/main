@@ -63,13 +63,17 @@ class Packet:
 
     def get_payload(self):  # TODO look after data types of confirm message!!!
         """returns unwrapped payload, object or string or byte array if no unwrapping type was defined in Data.py"""
-        if self.ctype in Data.unwrap_as_str:
-            return self._payload.decode("UTF-8")
-        if self.ctype in Data.unwrap_as_obj:
-            return pickle.loads(self._payload)
-        else:
-            print("Warning! Unwrapping type for", self.ctype.decode("UTF-8"), "is not defined!")
-            return self._payload
+        try:
+            if self.ctype in Data.unwrap_as_str:
+                return self._payload.decode("UTF-8")
+            if self.ctype in Data.unwrap_as_obj:
+                return pickle.loads(self._payload)
+            else:
+                print("Warning! Unwrapping type for", self.ctype.decode("UTF-8"), "is not defined!")
+                return self._payload
+        except Exception as e:
+            print("Error in get_payload!")
+            print(e)
 
     def to_string(self, n=0):
         return ("\t" * n + "Ctype:\t\t{}\n" +
@@ -123,7 +127,7 @@ class Connection:
         time.sleep(2)
 
         # now kill the socket (listening should be dead)
-        self.target_socket.shutdown(socket.SHUT_RDWR)
+        # self.target_socket.shutdown(socket.SHUT_RDWR)  # TODO gave a gub
         self.target_socket.close()
         del self
 
