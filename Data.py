@@ -26,8 +26,10 @@ def get_max_chars_per_team(x, y):
 def points_to_spend_per_team(x, y):
     return int(x * y * points_per_field * 0.5)
 
+#serverIP = "25.68.211.167"
 
-#serverIP = "88.150.32.237"
+
+#serverIP = "88.130.48.19"
 
 
 serverIP = "78.47.178.105"
