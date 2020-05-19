@@ -103,8 +103,7 @@ class Server:
         try:
             name, game_map, points = msg
             match_data = MatchData(name, con.ident, game_map, points)
-            if match_data not in self.hosting_list.values() and \
-                     name not in self.hosting_list.keys():
+            if match_data not in self.hosting_list.values() and name not in self.hosting_list.keys():
                 self.hosting_list[name] = match_data
         except Exception as e:
             print("Handling hosting message by server failed with error:", e)

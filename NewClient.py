@@ -59,6 +59,7 @@ class NetworkClient(metaclass=Singleton):
     # matchmaking, sends
 
     def host_game(self, name, game_map, points):
+        print("host game is executed:", name, game_map, points)
         # send relevant data to the server
         self.send_q.put((Data.scc["Host"], (name, game_map, points)))
 

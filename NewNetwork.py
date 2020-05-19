@@ -152,10 +152,11 @@ class Connection:
                         - ends not in xxxxx and len < size   ... xxxxx got cut apart, this is the second part of it
                         '''
                         pack = Packet.from_buffer(buf)
-                        self.data.rec_log.append(pack)
-                        # check if msg needs confirm
-                        if Data.needs_confirm[Data.iscc[pack.ctype]]:
-                            th.start_new_thread(self._send_rec_confirmation, tuple([Packet.from_buffer(buf)]))
+                        if pack.ctype in Data.iscc:
+                            self.data.rec_log.append(pack)
+                            # check if msg needs confirm
+                            if Data.needs_confirm[Data.iscc[pack.ctype]]:
+                                th.start_new_thread(self._send_rec_confirmation, tuple([Packet.from_buffer(buf)]))
                         buf = b''
                     time.sleep(0.005)
                 else:
