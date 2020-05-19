@@ -77,7 +77,7 @@ class Server:
 
     def kill_connection(self, sock):  # TODO fix reconnecting to server
         for con in self.connections.values():
-            if con.ident == sock.getsockname():  # todo this does not work
+            if con.ident == sock.getsockname():
                 self.connections.pop(con)
 
         self.serversocket.close()
@@ -100,11 +100,14 @@ class Server:
     # <editor-fold desc="Handle incoming msgs">
     # handle hosting
     def _hhost(self, con, msg):  # works
-        name, game_map, points = msg
-        match_data = MatchData(name, con.ident, game_map, points)
-        if match_data not in self.hosting_list.values() and \
-                 name not in self.hosting_list.keys():
-            self.hosting_list[name] = match_data
+        try:
+            name, game_map, points = msg
+            match_data = MatchData(name, con.ident, game_map, points)
+            if match_data not in self.hosting_list.values() and \
+                     name not in self.hosting_list.keys():
+                self.hosting_list[name] = match_data
+        except Exception as e:
+            print("Handling hosting message by server failed with error:", e)
 
     # handle cancel hosting
     def _hchost(self, con, msg):  # works
