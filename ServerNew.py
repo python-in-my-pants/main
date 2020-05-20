@@ -368,7 +368,7 @@ def main_routine():
                     # handle incoming messages
                     if con.new_msg_sent():
 
-                        print("---" + con.ident + "-" * 30 + "Rec log len:", con.get_rec_log_len())
+                        print("---" + con.ident + ("-" * 30) + "Rec log len:", con.get_rec_log_len())
                         for elem in con.get_rec_log_fast(5):
                             print("\n", elem.to_string())
                         print()
