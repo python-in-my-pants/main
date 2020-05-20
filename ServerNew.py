@@ -368,7 +368,8 @@ def main_routine():
                     # handle incoming messages
                     if con.new_msg_sent():
 
-                        print("-" * 30 + "\nRec log len:", con.get_rec_log_len())
+                        print(con.ident)
+                        print("-"*30 + "Rec log len:", con.get_rec_log_len())
                         for elem in con.get_rec_log_fast(5):
                             print("\n", elem.to_string())
                         print()
@@ -382,6 +383,7 @@ def main_routine():
                 except RuntimeError:
                     continue
                 except Exception as e:
+                    print("Exception n server main loop over connections:")
                     print(e)
 
             time.sleep(0.005)
@@ -389,6 +391,7 @@ def main_routine():
         if server:
             server.kill_all_connections()
     except Exception as e:
+        print("Exception n server outer main loop:")
         print(e)
 
 
