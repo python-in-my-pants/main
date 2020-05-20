@@ -72,7 +72,7 @@ class Packet:
                 print("Warning! Unwrapping type for", self.ctype.decode("UTF-8"), "is not defined!")
                 return self._payload
         except Exception as e:
-            print("Error in get_payload!")
+            print("Error in get_payload while getting payload of {}-type packet!".format(self.ctype))
             print(e)
 
     def to_string(self, n=0):
