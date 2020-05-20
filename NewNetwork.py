@@ -74,6 +74,7 @@ class Packet:
         except Exception as e:
             print("Error in get_payload while getting payload of {}-type packet!".format(self.ctype))
             print(e)
+            return self._payload
 
     def to_string(self, n=0):
         return ("\t" * n + "Ctype:\t\t{}\n" +
