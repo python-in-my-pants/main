@@ -209,7 +209,6 @@ class Connection:
         except Exception as e:
             print("Sending confirmation failed! Error: {}".format(e))
 
-    # TODO implement unconfirmed UDP style messages
     def send(self, ctype, msg):
 
         """Universal send method, just give the ctype and the payload"""
@@ -241,6 +240,8 @@ class Connection:
             return
 
         packet = Packet(ctype, Connection.prep(msg))
+        # TODO debug only
+        print(packet.to_string(), "\n")
 
         confirmation_received = False
         msg_hash = packet.bytes_hash
@@ -265,8 +266,10 @@ class Connection:
                 time.sleep(0.5)
 
         try:
+            # just print if you are server
             if self.role == "Server":
                 print("\t" * 30 + "Sending:\n{}\n".format(packet.to_string(n=30)))
+
             self.target_socket.send(packet.bytes)
         except Exception as e:
             print(e)
