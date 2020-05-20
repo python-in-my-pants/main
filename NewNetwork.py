@@ -143,6 +143,7 @@ class Connection:
                     # always glue together
                     buf += last_rec
                     # check if its the last piece of the message
+                    print(last_rec)
                     if len(last_rec) < size or last_rec[-5:] == Data.scc["message end"]:
                         '''
                         It is the last piece of the message if:
@@ -241,6 +242,8 @@ class Connection:
             return
 
         packet = Packet(ctype, Connection.prep(msg))
+
+        print(packet.to_string())
 
         confirmation_received = False
         msg_hash = packet.bytes_hash
