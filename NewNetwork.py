@@ -44,6 +44,7 @@ class Packet:
     def __init__(self, ctype, payload, timestamp=None):
         self.ctype = ctype
         self._payload = payload
+        self.timestamp = 1500000000000
         timestamp_padding = 30
         if timestamp:
             if isinstance(timestamp, bytes) and len(timestamp) == timestamp_padding:
@@ -72,8 +73,10 @@ class Packet:
                 print("Warning! Unwrapping type for", self.ctype.decode("UTF-8"), "is not defined!")
                 return self._payload
         except Exception as e:
-            print("Error in get_payload!")
+            print("Exception in NewNetwork in line 76!")
+            print("Error in get_payload while getting payload of {}-type packet!".format(self.ctype))
             print(e)
+            return self._payload
 
     def to_string(self, n=0):
         return ("\t" * n + "Ctype:\t\t{}\n" +
@@ -109,6 +112,7 @@ class Connection:
             else:
                 print("Connection from {} to server at {} established successfully!".format(self.role, target_addr))
         except Exception as e:
+            print("Exception in NewNetwork in line 114!")
             print("Starting new thread to receive bytes failed by {}, error:\n{}".format(self.role, e))
 
     def __eq__(self, other):
@@ -143,7 +147,6 @@ class Connection:
                     # always glue together
                     buf += last_rec
                     # check if its the last piece of the message
-                    print(last_rec)
                     if len(last_rec) < size or last_rec[-5:] == Data.scc["message end"]:
                         '''
                         It is the last piece of the message if:
@@ -165,6 +168,7 @@ class Connection:
                     return
 
         except Exception as e:
+            print("Exception in NewNetwork in line 169!")
             print("Receiving bytes by the {} failed with exception:\n{} ... but I'm fine".format(self.role, e))
 
     def get_last_control_type_and_msg(self):
@@ -208,6 +212,7 @@ class Connection:
         try:
             self.send(Data.scc["confirm"], packet.bytes_hash)
         except Exception as e:
+            print("Exception in NewNetwork in line 213!")
             print("Sending confirmation failed! Error: {}".format(e))
 
     def send(self, ctype, msg):
@@ -232,6 +237,7 @@ class Connection:
                         print("\t"*30 + "Sending:\n{}\n".format(p.to_string(n=30)))
                     self.target_socket.send(p.bytes)
             except Exception as e:
+                print("Exception in NewNetwork in line 238!")
                 print("Sending confirmation failed! Error: {}".format(e))
                 self.fail_counter += 1
                 if self.fail_counter >= 3:
@@ -243,8 +249,6 @@ class Connection:
         packet = Packet(ctype, Connection.prep(msg))
         # TODO debug only
         print(packet.to_string(), "\n")
-
-        print(packet.to_string())
 
         confirmation_received = False
         msg_hash = packet.bytes_hash
@@ -275,6 +279,7 @@ class Connection:
 
             self.target_socket.send(packet.bytes)
         except Exception as e:
+            print("Exception in NewNetwork in line 280!")
             print(e)
 
         th.start_new_thread(_check_for_confirm, ())
@@ -291,6 +296,7 @@ class Connection:
                 self.target_socket.send(packet.bytes)
                 counter += 1
             except Exception as e:
+                print("Exception in NewNetwork in line 297!")
                 print("Resending message failed! Error: {}".format(e))
 
     @staticmethod
@@ -304,6 +310,7 @@ class Connection:
             else:
                 return Connection.object_to_bytes(to_send)
         except Exception as e:
+            print("Exception in NewNetwork in line 311!")
             print("Could not convert the message '{}' to bytes, error:\n{}\n".format(to_send, e))
 
     @staticmethod

@@ -136,7 +136,8 @@ unwrap_as_obj = [scc["Turn"],
                  scc["hosting list"],
                  scc["char select ready"],
                  scc["Host"],
-                 scc["game begins"]]
+                 scc["game begins"],
+                 scc["get turn"]]
 unwrap_as_str = [scc["control"],
                  scc["close connection"],
                  scc["get host list"],

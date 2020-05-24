@@ -553,6 +553,7 @@ class ConnectionSetup:
                     self.field_size = max(int(self.desi_board_text), 23)  # TODO split by ", " and get name too
                     invalid_map_size = False
                 except ValueError:
+                    print("Exception in Render in line 556!")
                     self.change_btn_text(self.host_stat_btn, "Enter map size!")
                     return
 
