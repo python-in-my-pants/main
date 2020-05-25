@@ -6,6 +6,8 @@ import hashlib
 import Data
 import socket
 
+pickle.DEFAULT_PROTOCOL = 4
+
 '''
 Important note:
 
