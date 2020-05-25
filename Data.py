@@ -118,7 +118,7 @@ arg_len = {
     b'turn ': 2,  # turn data object and time
     b'csRdy': 2,  # (ready, team)
     b'hostl': 1,  # hosting list object
-    b'gbegi': 1,  # final map, team 1, team 2
+    b'gbegi': 2,  # final map, team 1, team 2
 }
 
 needs_confirm = {
