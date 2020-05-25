@@ -160,10 +160,13 @@ class Connection:
                         '''
                         pack = Packet.from_buffer(buf)
                         if pack.ctype in Data.iscc:
-                            self.data.rec_log.append(pack)
-                            # check if msg needs confirm
-                            if Data.needs_confirm[Data.iscc[pack.ctype]]:
-                                th.start_new_thread(self._send_rec_confirmation, tuple([Packet.from_buffer(buf)]))
+                            # check if payload could be valid
+                            proxy_payload = pack.get_payload()
+                            if pack.ctype in Data.unwrap_as_obj and len(proxy_payload) == Data.arg_len[pack.ctype]:
+                                self.data.rec_log.append(pack)
+                                # check if msg needs confirm
+                                if Data.needs_confirm[Data.iscc[pack.ctype]]:
+                                    th.start_new_thread(self._send_rec_confirmation, tuple([Packet.from_buffer(buf)]))
                         buf = b''
                     time.sleep(0.005)
                 else:

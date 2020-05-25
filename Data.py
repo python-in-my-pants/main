@@ -113,6 +113,14 @@ scc = {  # server control codes             message holds the following:
     "message end":          b'XXXXX'        # not a control type but here anyway
 }
 
+arg_len = {
+    b'host ': 3,  # (name, game_map, points)
+    b'turn ': 2,  # turn data object and time
+    b'csRdy': 2,  # (ready, team)
+    b'hostl': 1,  # hosting list object
+    b'gbegi': 3,  # final map, team 1, team 2
+}
+
 needs_confirm = {
     "Host":             True,
     "cancel hosting":   True,

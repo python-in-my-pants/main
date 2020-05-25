@@ -97,7 +97,8 @@ class NetworkClient(metaclass=Singleton):
         log = self.connection.get_rec_log_fast(10)
         for pack in log:
             if pack.ctype == Data.scc["hosting list"]:
-                self.live_data["hosting_list"] = pack.get_payload()
+                p = pack.get_payload()
+                self.live_data["hosting_list"] = p
                 return self.live_data["hosting_list"]
 
     def get_in_game_stat_from_server(self, b=True):
