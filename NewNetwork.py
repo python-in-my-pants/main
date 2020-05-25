@@ -162,7 +162,9 @@ class Connection:
                         if pack.ctype in Data.iscc:
                             # check if payload could be valid
                             proxy_payload = pack.get_payload()
-                            if pack.ctype in Data.unwrap_as_obj and len(proxy_payload) == Data.arg_len[pack.ctype]:
+                            if ((pack.ctype in Data.unwrap_as_obj) and len(proxy_payload) == Data.arg_len[pack.ctype]) \
+                                or pack.ctype in Data.unwrap_as_str:
+
                                 self.data.rec_log.append(pack)
                                 # check if msg needs confirm
                                 if Data.needs_confirm[Data.iscc[pack.ctype]]:
