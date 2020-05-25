@@ -138,7 +138,7 @@ class Connection:
         self.target_socket.close()
         del self
 
-    def receive_bytes(self, size=2048):
+    def receive_bytes(self, size=4096):
         # first 5 bytes of the msg are control bytes defined in Data.py
         try:
             buf = b''
