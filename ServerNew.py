@@ -259,10 +259,10 @@ class Server:
             return
         if con.ident == game.host:
             # send last opponent turn
-            print("\nturn time", game.last_guest_turn_time, "\n")
+            #print("\nturn time", game.last_guest_turn_time, "\n")
             self.connections[game.host].send(scc["Turn"], (game.last_guest_turn, game.last_guest_turn_time))
         elif con.ident == game.guest:
-            print("\nturn time", game.last_host_turn_time, "\n")
+            #print("\nturn time", game.last_host_turn_time, "\n")
             self.connections[game.guest].send(scc["Turn"], (game.last_host_turn, game.last_host_turn_time))
         else:
             print("Error in handling 'Get turn' request from {} by server".format(con.ident))

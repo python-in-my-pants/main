@@ -127,7 +127,7 @@ class NetworkClient(metaclass=Singleton):
                 return self.live_data["game_begin"]
         return self.live_data["game_begin"]
 
-    def get_turn_from_server(self):
+    def get_turn_from_server(self):  # TODO make "no" version
         self.send_q.put((Data.scc["get turn"], ""))
 
     # get turn
@@ -150,3 +150,4 @@ class NetworkClient(metaclass=Singleton):
         while True:
             ctype, msg = self.send_q.get()
             self.connection.send(ctype, msg)
+            time.sleep(0.2)
