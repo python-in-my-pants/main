@@ -76,6 +76,7 @@ class Packet:
             print("Exception in NewNetwork in line 76!")
             print("Error in get_payload while getting payload of {}-type packet!".format(self.ctype))
             print(e)
+            print(self.to_string())
             return self._payload
 
     def to_string(self, n=0):
