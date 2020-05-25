@@ -162,6 +162,10 @@ class Connection:
                         if pack.ctype in Data.iscc:
                             # check if payload could be valid
                             proxy_payload = pack.get_payload()
+
+                            if pack.ctype == Data.scc["gbegi"]:
+                                print("gbegin payload len is:", len(proxy_payload))
+
                             if ((pack.ctype in Data.unwrap_as_obj) and len(proxy_payload) == Data.arg_len[pack.ctype]) \
                                 or pack.ctype in Data.unwrap_as_str:
 
