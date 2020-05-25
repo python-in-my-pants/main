@@ -303,7 +303,7 @@ class Connection:
             time.sleep(3)
             try:
                 if self.role == "Server":
-                    print("\t" * 30 + "... for the", counter, "th time:")
+                    print("\t" * 30 + "... for the", counter, ". time:")
                     print("\t" * 30 + "Sending:\n\n{}".format(packet.to_string(n=30)))
                 self.target_socket.send(packet.bytes)
                 counter += 1
