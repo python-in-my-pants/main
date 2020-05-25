@@ -136,7 +136,10 @@ class NetworkClient(metaclass=Singleton):
         log = self.connection.get_rec_log_fast(10)
         for pack in log:
             if pack.ctype == Data.scc["Turn"]:
-                turn, turn_time = pack.get_payload()
+                p = pack.get_payload()
+                if len(p) != 2:
+                    return self.live_data["last_opp_turn"]
+                turn, turn_time = p
                 if self.last_opp_turn_time < turn_time:  # turn is new
                     self.last_opp_turn_time = turn_time
                     self.live_data["last_opp_turn"] = (turn, self.last_opp_turn_time)
