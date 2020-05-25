@@ -1835,8 +1835,8 @@ class InGame:
         self.detail_back_metall = pg.image.load(Data.metal_btn).convert_alpha()
 
         # TODO
-        self.win_banner = ...  # add super fancy animated win banner here
-        self.lose_banner = ...  # nya~~
+        self.win_banner = pg.image.load(Data.win_banner_text).convert_alpha()  # add super fancy animated win banner here
+        self.lose_banner = pg.image.load(Data.lose_banner_text).convert_alpha()  # nya~~
 
         # </editor-fold>
 

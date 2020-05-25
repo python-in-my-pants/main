@@ -11,6 +11,8 @@ if sys.platform == "win32":
 else:
     true_res = [1920, 1080]  # just set the res manually for linux, maybe adjust later?
 
+
+
 font = "comicsansms"
 master_volume = 0.0
 char_cap_divisor = 500
@@ -30,10 +32,10 @@ def points_to_spend_per_team(x, y):
 #serverIP = "88.130.48.88"
 
 
-#serverIP = "78.47.178.105"
+serverIP = "78.47.178.105"
 
 
-serverIP = "localhost"
+#serverIP = "localhost"
 
 
 #serverIP = "25.68.211.167"
@@ -170,6 +172,9 @@ rem_points = "assets/textures/background_images/remaining_points.png"
 team_char_backgr = "assets/textures/background_images/team_char_back.png"
 deco_banner = "assets/textures/background_images/deco_banner.png"
 rusty_metal = "assets/textures/background_images/rusty_metal.jpg"
+
+lose_banner_text = "assets/textures/buttons/lose_banner_text.png"
+win_banner_text = "assets/textures/buttons/win_banner_text.png"
 
 #   cards
 # <editor-fold desc="cards">
