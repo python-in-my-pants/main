@@ -310,9 +310,9 @@ class Connection:
             except Exception as e:
                 print("Exception in NewNetwork in line 297!")
                 print("Resending message failed! Error: {}".format(e))
-                if counter >= 5:
-                    print("Jz geb ich's auf ...")
-                    return
+            if counter >= 5:
+                print("Jz geb ich's auf ...")
+                return
 
     @staticmethod
     def prep(to_send):
