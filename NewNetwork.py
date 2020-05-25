@@ -163,7 +163,7 @@ class Connection:
                             # check if payload could be valid
                             proxy_payload = pack.get_payload()
 
-                            if pack.ctype == Data.scc["gbegi"]:
+                            if pack.ctype == Data.scc["game begins"]:
                                 print("gbegin payload len is:", len(proxy_payload))
 
                             if ((pack.ctype in Data.unwrap_as_obj) and len(proxy_payload) == Data.arg_len[pack.ctype]) \
