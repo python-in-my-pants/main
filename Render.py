@@ -2196,8 +2196,6 @@ class InGame:
             # TODO either just blit or insert animated shit here however the fuck that may be done
             self.screen.blit(self.win_banner, blit_centered_pos(self.screen, self.win_banner))
 
-            time.sleep(5)
-
             # this exits out of the screen
             self.new_window_target = MainWindow
 
@@ -2276,9 +2274,6 @@ class InGame:
 
             # prepare showing loss to player or TODO some fancy animated version (aka video)
             self.screen.blit(self.lose_banner, blit_centered_pos(self.screen, self.lose_banner))
-
-            # let it set
-            time.sleep(5)
 
             # exit out
             self.new_window_target = MainWindow
@@ -2745,6 +2740,8 @@ class InGame:
 
         if self.opp_turn_applying:
             self.apply_opp_turn(self.opps_turn)
+            if self.own_turn.win or self.opps_turn.win:
+                return
 
         elif self.is_it_my_turn:
 

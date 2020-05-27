@@ -303,16 +303,16 @@ class Connection:
             time.sleep(3)
             try:
                 if self.role == "Server":
-                    print("\t" * 30 + "... for the", counter, "th time:")
+                    print("\t" * 30 + "... for the", counter, ". time:")
                     print("\t" * 30 + "Sending:\n\n{}".format(packet.to_string(n=30)))
                 self.target_socket.send(packet.bytes)
                 counter += 1
             except Exception as e:
                 print("Exception in NewNetwork in line 297!")
                 print("Resending message failed! Error: {}".format(e))
-                if counter >= 5:
-                    print("Jz geb ich's auf ...")
-                    return
+            if counter >= 5:
+                print("Jz geb ich's auf ...")
+                return
 
     @staticmethod
     def prep(to_send):
