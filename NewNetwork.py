@@ -250,7 +250,7 @@ class Connection:
                         """
 
                         # check if the packet is OK
-                        if pack.bytes[:40] == pack.get_hash():
+                        if buf[:40] == pack.get_hash():
 
                             print("all good: {}\n{}\n{}\n".format(pack.ctype, pack.bytes[:40], pack.get_hash()))
                             self.data.rec_log.append(pack)
@@ -413,7 +413,7 @@ class Connection:
                 print("Exception in NewNetwork in line 297!")
                 print("Resending message failed! Error: {}".format(e))
             if counter >= 5:
-                print("Jz geb ich's auf, resending abgebrochen...")
+                print("Jz geb ich's auf, resending von {} abgebrochen...".format(packet.ctype))
                 return
 
     @staticmethod
