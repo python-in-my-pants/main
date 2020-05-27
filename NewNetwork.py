@@ -244,8 +244,9 @@ class Connection:
                     p = Packet(ctype, Connection.prep(msg))
 
                 if self.role == "Server":
-                    print("\t" * 30 + "Sending:\t" + self.ident + "\n{}\n".format(p.to_string(n=30)))
-                    self.target_socket.send(p.bytes)
+                    print(("\t" * 30 + "Sending:\t" + self.ident + "\n{}\n").format(p.to_string(n=30)))
+
+                self.target_socket.send(p.bytes)
 
             except Exception as e:
                 print("Exception in NewNetwork in line 238!")
