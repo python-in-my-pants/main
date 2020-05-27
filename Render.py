@@ -11,6 +11,7 @@ from TTimer import *
 from Turn import *
 import time
 import ctypes
+import traceback
 
 if sys.platform == "win32":
     ctypes.windll.user32.SetProcessDPIAware()
@@ -553,6 +554,8 @@ class ConnectionSetup:
                     self.field_size = max(int(self.desi_board_text), 23)  # TODO split by ", " and get name too
                     invalid_map_size = False
                 except ValueError:
+                    print("")
+                    traceback.print_exc()
                     print("Exception in Render in line 556!")
                     self.change_btn_text(self.host_stat_btn, "Enter map size!")
                     return
@@ -2198,6 +2201,7 @@ class InGame:
 
             # this exits out of the screen
             self.new_window_target = MainWindow
+            return
 
         # prepare surface
         pg.transform.scale(self.emptiness_of_darkness_of_doom, self.game_map.window.get_size())
@@ -2277,6 +2281,7 @@ class InGame:
 
             # exit out
             self.new_window_target = MainWindow
+            return
 
         # now set v_mat bc positions are set and we only need this once per turn
         self.v_mat = self.game_map.get_vmat()

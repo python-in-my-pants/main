@@ -5,6 +5,7 @@ import copy
 import hashlib
 import Data
 import socket
+import traceback
 
 pickle.DEFAULT_PROTOCOL = 4
 
@@ -75,6 +76,8 @@ class Packet:
                 print("Warning! Unwrapping type for", self.ctype.decode("UTF-8"), "is not defined!")
                 return self._payload
         except Exception as e:
+            print("")
+            traceback.print_exc()
             print("Exception in NewNetwork in line 76!")
             print("Error in get_payload while getting payload of {}-type packet!".format(self.ctype))
             print(e)
@@ -115,6 +118,8 @@ class Connection:
             else:
                 print("Connection from {} to server at {} established successfully!".format(self.role, target_addr))
         except Exception as e:
+            print("")
+            traceback.print_exc()
             print("Exception in NewNetwork in line 114!")
             print("Starting new thread to receive bytes failed by {}, error:\n{}".format(self.role, e))
 
@@ -180,6 +185,8 @@ class Connection:
                     return
 
         except Exception as e:
+            print("")
+            traceback.print_exc()
             print("Exception in NewNetwork in line 169!")
             print("Receiving bytes by the {} failed with exception:\n{} ... but I'm fine".format(self.role, e))
 
@@ -224,6 +231,8 @@ class Connection:
         try:
             self.send(Data.scc["confirm"], packet.bytes_hash)
         except Exception as e:
+            print("")
+            traceback.print_exc()
             print("Exception in NewNetwork in line 213!")
             print("Sending confirmation failed! Error: {}".format(e))
 
@@ -249,6 +258,8 @@ class Connection:
                         print("\t"*30 + "Sending:\n{}\n".format(p.to_string(n=30)))
                     self.target_socket.send(p.bytes)
             except Exception as e:
+                print("")
+                traceback.print_exc()
                 print("Exception in NewNetwork in line 238!")
                 print("Sending confirmation failed! Error: {}".format(e))
                 self.fail_counter += 1
@@ -291,6 +302,8 @@ class Connection:
 
             self.target_socket.send(packet.bytes)
         except Exception as e:
+            print("")
+            traceback.print_exc()
             print("Exception in NewNetwork in line 280!")
             print(e)
 
@@ -308,6 +321,8 @@ class Connection:
                 self.target_socket.send(packet.bytes)
                 counter += 1
             except Exception as e:
+                print("")
+                traceback.print_exc()
                 print("Exception in NewNetwork in line 297!")
                 print("Resending message failed! Error: {}".format(e))
             if counter >= 5:
@@ -325,6 +340,8 @@ class Connection:
             else:
                 return Connection.object_to_bytes(to_send)
         except Exception as e:
+            print("")
+            traceback.print_exc()
             print("Exception in NewNetwork in line 311!")
             print("Could not convert the message '{}' to bytes, error:\n{}\n".format(to_send, e))
 

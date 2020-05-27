@@ -106,6 +106,8 @@ class Server:
             if match_data not in self.hosting_list.values() and name not in self.hosting_list.keys():
                 self.hosting_list[name] = match_data
         except Exception as e:
+            print("")
+            traceback.print_exc()
             print("Exception in ServerNew in line 109!")
             print("Handling hosting message by server failed with error:", e)
 
@@ -170,6 +172,8 @@ class Server:
             self.game_players[match_data.hosting_player] = game
             self.game_players[con.ident] = game
         except Exception as e:
+            print("")
+            traceback.print_exc()
             print("Exception in ServerNew in line 173!")
             print("Error! Something in _hjoin went wrong! (Player might be already in a game or hosting name is wrong)")
             print(e)
@@ -214,6 +218,8 @@ class Server:
             # check if player is in a game already (should be the case)
             game = self.game_players[con.ident]
         except KeyError:
+            print("")
+            traceback.print_exc()
             print("Exception in ServerNew in line 217!")
             print("Player is not in a game, sending 'ready' failed!")
             return
@@ -238,6 +244,8 @@ class Server:
         try:
             game = self.game_players[con.ident]
         except KeyError:
+            print("")
+            traceback.print_exc()
             print("Exception in ServerNew in line 241!")
             print("Player is not in a game, receiving turn by server failed!")
             return
@@ -254,6 +262,8 @@ class Server:
         try:
             game = self.game_players[con.ident]
         except KeyError:
+            print("")
+            traceback.print_exc()
             print("Exception in ServerNew in line 257!")
             print("Player is not in a game, receiving turn by server failed!")
             return
@@ -323,6 +333,8 @@ class Server:
                     # unpack the rest of the list to use them as parameters
                     params[0](params[1], *params[2:])
             except Exception as e:
+                print("")
+                traceback.print_exc()
                 print("Exception in ServerNew in line 326!")
                 print("Error in emptying server queue!")
                 print(e)
@@ -385,20 +397,30 @@ def main_routine():
                         server.q.put([server.ctype_dict[ctype], con, msg])
 
                 except KeyError as e:
+                    print("")
+                    traceback.print_exc()
                     print("Exception in ServerNew in line 388!")
                     print("KeyError! {}".format(e))
                 except RuntimeError:
+                    print("")
+                    traceback.print_exc()
                     continue
                 except Exception as e:
+                    print("")
+                    traceback.print_exc()
                     print("Exception in ServerNew in line 353!")
                     print("Exception n server main loop over connections:")
                     print(e)
 
             time.sleep(0.005)
     except KeyboardInterrupt:
+        print("")
+        traceback.print_exc()
         if server:
             server.kill_all_connections()
     except Exception as e:
+        print("")
+        traceback.print_exc()
         print("Exception in ServerNew in line 402!")
         print("Exception n server outer main loop:")
         print(e)

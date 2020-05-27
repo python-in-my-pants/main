@@ -1,7 +1,7 @@
 import queue
 import sys
 from NewNetwork import *
-
+import traceback
 
 def current_milli_time():
     return int(round(time.time() * 1000))
@@ -41,6 +41,8 @@ class NetworkClient(metaclass=Singleton):
                               "last_opp_turn":  (None, -1)}
 
         except Exception as e:
+            print("")
+            traceback.print_exc()
             print("Exception in NewClient in line 44!")
             print("\nClient failed to connect to server with exception:\n\n\t{}".format(e).upper())
             sys.exit()
@@ -113,6 +115,8 @@ class NetworkClient(metaclass=Singleton):
                     self.live_data["in_game"] = True if (pack.get_payload() == "yes") else False
                     return self.live_data["in_game"]
             except Exception as e:
+                print("")
+                traceback.print_exc()
                 print("Exception in NewClient in line 115!")
                 print("Something in NetworkClients get_in_game_stat went wrong!")
                 print(e)
