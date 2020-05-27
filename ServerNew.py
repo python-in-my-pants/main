@@ -1,9 +1,8 @@
 import struct
 import queue
-import traceback  # TODO
 from Data import *
 from NewNetwork import *
-
+import traceback
 
 """
 You could easily transform this into a generic client/server network framework ...
@@ -76,14 +75,14 @@ class Server:
                                                  "Server"))
 
     def kill_connection(self, sock):  # TODO fix reconnecting to server
-        for con in self.connections.values():
+        for con in list(self.connections.values()):
             if con.ident == sock.getsockname():
-                self.connections.pop(con)
+                list(self.connections.values()).remove(con)
 
         self.serversocket.close()
 
     def kill_all_connections(self):  # TODO
-        for con in self.connections.values():
+        for con in list(self.connections.values()):
             con.kill_connection()
         self.connections = dict()
         self.serversocket.close()
@@ -338,6 +337,32 @@ def main_routine():
     - put incoming messages of connections in a server.queue
     :return: nothing
     """
+
+    def del_connection(con):
+
+        # remove from connections
+        if con.ident not in server.connections:
+            return
+        del server.connections[con.ident]
+
+        # remove from hosting list
+        for key, val in server.hosting_list.items():
+            if server.hosting_list[key].hosting_player == con.ident:
+                server.hosting_list.pop(key)
+
+        # remove from game players
+        for key, val in server.game_players.items():
+            if server.game_players[key].hosting_player == con.ident:
+                server.game_players.pop(key)
+
+        for elem in list(server.q.queue):
+            if elem[1] == con.ident:
+                server.q.queue.remove(elem)
+
+        for elem in [(name, con.ident) for name in server.loop_funcs]:
+            if elem in server.enqueueing_dict:
+                server.enqueueing_dict.pop(elem)
+
     server = None
     try:
         server = Server()
@@ -352,32 +377,12 @@ def main_routine():
 
                     # if client is gone remove his stuff
                     if not con.connection_alive:
-
-                        # remove from connections
-                        server.connections.pop(con)
-
-                        # remove from hosting list
-                        for key, val in server.hosting_list.items():
-                            if server.hosting_list[key].hosting_player == con.ident:
-                                server.hosting_list.pop(key)
-
-                        # remove from game players
-                        for key, val in server.game_players.items():
-                            if server.game_players[key].hosting_player == con.ident:
-                                server.game_players.pop(key)
-
-                        for elem in list(server.q.queue):
-                            if elem[1] == con.ident:
-                                server.q.queue.remove(elem)
-
-                        for elem in [(name, con) for name in server.loop_funcs]:
-                            if elem in server.enqueueing_dict:
-                                server.enqueueing_dict.pop(elem)
+                        del_connection(con)
 
                     # handle incoming messages
                     if con.new_msg_sent():
 
-                        print(con.ident)
+                        print(str(con.ident))
                         print("-"*30 + "Rec log len:", con.get_rec_log_len())
                         for elem in con.get_rec_log_fast(5):
                             print("\n", elem.to_string())
@@ -389,13 +394,18 @@ def main_routine():
 
                 except KeyError as e:
                     print("Exception in ServerNew in line 388!")
-                    print("KeyError! {}".format(e))
+                    print("KeyError! {}\n".format(e))
                 except RuntimeError:
                     continue
                 except Exception as e:
                     print("Exception in ServerNew in line 353!")
-                    print("Exception n server main loop over connections:")
+                    print("Exception in server main loop over connections:")
                     print(e)
+                    traceback.print_exc()
+                    print("Killing connection ...")
+                    del_connection(con)
+                    con.kill_connection()
+                    print("Connection killed!\n")
 
             time.sleep(0.005)
     except KeyboardInterrupt:
@@ -403,7 +413,7 @@ def main_routine():
             server.kill_all_connections()
     except Exception as e:
         print("Exception in ServerNew in line 402!")
-        print("Exception n server outer main loop:")
+        print("Exception in server outer main loop:")
         print(e)
 
 

@@ -163,9 +163,6 @@ class Connection:
                             # check if payload could be valid
                             proxy_payload = pack.get_payload()
 
-                            if pack.ctype == Data.scc["game begins"]:
-                                print("gbegin payload len is:", len(proxy_payload))
-
                             if ((pack.ctype in Data.unwrap_as_obj) and len(proxy_payload) == Data.arg_len[pack.ctype]) \
                                 or pack.ctype in Data.unwrap_as_str:
 
@@ -244,8 +241,7 @@ class Connection:
                     p = Packet(ctype, Connection.prep(msg))
 
                 if self.role == "Server":
-                    print(("\t" * 30 + "Sending:\t" + self.ident + "\n{}\n").format(p.to_string(n=30)))
-
+                    print(("\t" * 30 + "Sending:\t" + str(self.ident) + "\n{}\n").format(p.to_string(n=30)))
                 self.target_socket.send(p.bytes)
 
             except Exception as e:
