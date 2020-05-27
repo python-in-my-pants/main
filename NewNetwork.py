@@ -252,6 +252,7 @@ class Connection:
                         # check if the packet is OK
                         if pack.bytes_hash == pack.get_hash():
 
+                            print("all good: \n{}\n{}\n".format(pack.bytes_hash, pack.get_hash()))
                             self.data.rec_log.append(pack)
 
                             # check if msg needs confirm
