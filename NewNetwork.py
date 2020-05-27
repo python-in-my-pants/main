@@ -262,7 +262,7 @@ class Connection:
                         else:
                             print("Packet is trash!")
                             print(pack.to_string())
-                            print(str(pack.get_hash()), "\n")
+                            print(buf[:40], "\n")
 
                         buf = b''
 
@@ -402,8 +402,9 @@ class Connection:
         while not confirmation_received:
             time.sleep(3)
             try:
+                counter += 1
                 if self.role == "Server":
-                    print("\t" * 30 + "... for the", counter, ". time:")
+                    print("\t" * 30 + "... for the", counter-1, ". time:")
                     print("\t" * 30 + "Sending:\n\n{}".format(packet.to_string(n=30)))
                 self.target_socket.send(packet.bytes)
                 counter += 1
@@ -412,6 +413,7 @@ class Connection:
                 traceback.print_exc()
                 print("Exception in NewNetwork in line 297!")
                 print("Resending message failed! Error: {}".format(e))
+
             if counter >= 5:
                 print("Jz geb ich's auf, resending von {} abgebrochen...".format(packet.ctype))
                 return
