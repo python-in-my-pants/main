@@ -33,7 +33,7 @@ def points_to_spend_per_team(x, y):
 
 
 serverIP = "78.47.178.105"
-
+#kawaii
 
 #serverIP = "localhost"
 
