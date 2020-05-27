@@ -2194,6 +2194,7 @@ class InGame:
 
         if opp_turn.win:
             # opp says you win! :)
+            print("opp says you win! UwU")
             pass  # insert some fancy "You win! UwU here, prolly with sum fluffy cat gurl and cute anime sounds
 
             # TODO either just blit or insert animated shit here however the fuck that may be done
@@ -2248,8 +2249,6 @@ class InGame:
                     if c.rand_id == action.player_b.rand_id:
                         my_char = c
 
-                print("I'm finding the player b")
-
                 if action.dmg2b:
                     my_char.apply_damage(action.dmg2b)
                     # blit lines indicating movement and shots
@@ -2272,9 +2271,10 @@ class InGame:
             # declare win
             self.own_turn = Turn()
             self.own_turn.win = True
+            print("Telling the opp I win")
 
             # send the turn out
-            start_new_thread(self.client.send_turn(self.own_turn, int(round(time.time() * 1000))), ())
+            start_new_thread(self.client.send_turn, (self.own_turn, int(round(time.time() * 1000))))
 
             # prepare showing loss to player or TODO some fancy animated version (aka video)
             self.screen.blit(self.lose_banner, blit_centered_pos(self.screen, self.lose_banner))
@@ -2746,6 +2746,7 @@ class InGame:
         if self.opp_turn_applying:
             self.apply_opp_turn(self.opps_turn)
             if self.own_turn.win or self.opps_turn.win:
+                print("sum11")
                 return
 
         elif self.is_it_my_turn:

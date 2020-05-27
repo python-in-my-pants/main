@@ -52,6 +52,7 @@ class Team:
         for char in self.characters:
             if not char.is_dead():
                 return False
+        return True
 
     def calc_val(self):  # TODO: calculate value by adding cost of all units
         val = 0

@@ -14,7 +14,7 @@ def play_sound(path, chan=None):
         pg.mixer.Channel(chan).play(pg.mixer.Sound(file=path))
 
 
-def stop_sound(channel, duration=3):
+def stop_sound(channel, duration=1):
     channel.fadeout(duration)
 
 
