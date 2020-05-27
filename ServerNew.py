@@ -352,12 +352,15 @@ def main_routine():
 
                     # if client is gone remove his stuff
                     if not con.connection_alive:
+
                         # remove from connections
                         server.connections.pop(con)
+
                         # remove from hosting list
                         for key, val in server.hosting_list.items():
                             if server.hosting_list[key].hosting_player == con.ident:
                                 server.hosting_list.pop(key)
+
                         # remove from game players
                         for key, val in server.game_players.items():
                             if server.game_players[key].hosting_player == con.ident:

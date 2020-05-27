@@ -2198,6 +2198,7 @@ class InGame:
 
             # this exits out of the screen
             self.new_window_target = MainWindow
+            return
 
         # prepare surface
         pg.transform.scale(self.emptiness_of_darkness_of_doom, self.game_map.window.get_size())
@@ -2277,6 +2278,7 @@ class InGame:
 
             # exit out
             self.new_window_target = MainWindow
+            return
 
         # now set v_mat bc positions are set and we only need this once per turn
         self.v_mat = self.game_map.get_vmat()

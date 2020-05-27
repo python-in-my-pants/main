@@ -240,14 +240,13 @@ class Connection:
             try:
                 if ctype == Data.scc["confirm"]:
                     p = Packet(ctype, msg)
-                    if self.role == "Server":
-                        print("\t"*30 + "Sending:\n{}\n".format(p.to_string(n=30)))
-                    self.target_socket.send(p.bytes)
                 else:
                     p = Packet(ctype, Connection.prep(msg))
-                    if self.role == "Server":
-                        print("\t"*30 + "Sending:\n{}\n".format(p.to_string(n=30)))
-                    self.target_socket.send(p.bytes)
+
+                if self.role == "Server":
+                    print("\t" * 30 + "Sending:\t" + self.ident + "\n{}\n".format(p.to_string(n=30)))
+                self.target_socket.send(p.bytes)
+
             except Exception as e:
                 print("Exception in NewNetwork in line 238!")
                 print("Sending confirmation failed! Error: {}".format(e))
