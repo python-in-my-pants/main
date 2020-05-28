@@ -61,6 +61,9 @@ class Packet:
 
         self.bytes_hash = hashlib.sha1(self.bytes).hexdigest().encode("UTF-8")  # this is a string a byte array
 
+        self.bytes = self.bytes_hash + self.bytes
+        self.confirmed = False
+
         if byte_hash and byte_hash != self.bytes_hash:
             # packet is trash ALARM
             print("Packet is trash!")
@@ -68,9 +71,6 @@ class Packet:
             print("\tGiven checksum: ", byte_hash)
             print("\tCalculated one: ", self.bytes_hash, "\n")
             raise Exception
-
-        self.bytes = self.bytes_hash + self.bytes
-        self.confirmed = False
 
     def get_hash(self):
         return self.bytes_hash
@@ -114,9 +114,10 @@ class Packet:
         return ("\t" * n + "Ctype:\t\t{}\n" +
                 "\t" * n + "Length:\t\t{}\n" +
                 "\t" * n + "Timestamp:\t{}\n" +
-                "\t" * n + "Payload:\t{}...\n" +
+                "\t" * n + "Payload:\t{} ... {}\n" +
                 "\t" * n + "Hash:\t\t{}").\
-            format(self.ctype, str(len(self.bytes)), self.timestamp, self._payload[:40], self.bytes_hash)
+            format(self.ctype, str(len(self.bytes)), self.timestamp, self._payload[:20], self._payload[-20:],
+                   self.bytes_hash)
 
 
 class Packet_old:
