@@ -31,10 +31,10 @@ def points_to_spend_per_team(x, y):
 #serverIP = "88.130.48.88"
 
 
-serverIP = "78.47.178.105"
+#serverIP = "78.47.178.105"
 
 
-#serverIP = "localhost"
+serverIP = "localhost"
 
 
 #serverIP = "25.68.211.167"
