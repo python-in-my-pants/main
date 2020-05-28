@@ -12,9 +12,8 @@ else:
     true_res = [1920, 1080]  # just set the res manually for linux, maybe adjust later?
 
 
-
 font = "comicsansms"
-master_volume = 0.0
+master_volume = 0.1
 char_cap_divisor = 500
 points_per_field = 0.245
 speed_multiplier = 0.2
@@ -33,7 +32,7 @@ def points_to_spend_per_team(x, y):
 
 
 serverIP = "78.47.178.105"
-#kawaii
+
 
 #serverIP = "localhost"
 
@@ -41,6 +40,7 @@ serverIP = "78.47.178.105"
 #serverIP = "25.68.211.167"
 
 
+# <editor-fold desc="material">
 mat_colour = {
     "sandstone": (255, 140, 0),
     "border": (199, 80, 80),
@@ -72,7 +72,9 @@ material_codes = {
     "puddel": 9,
     "default": -1
 }
+# </editor-fold>
 
+# <editor-fold desc="characters">
 character_classes = {
     0: "Pawn",           # basic stats
     1: "Light",    # fast and nimble
@@ -92,7 +94,9 @@ class_stats = {
     4: [70, 40, 70, 35, 75, 39],
     5: [70, 50, 35, 50, 75, 25]
 }
+# </editor-fold>
 
+# <editor-fold desc="network">
 scc = {  # server control codes             message holds the following:
     "Host":                 b'host ',       # (name, game_map, points)
     "cancel hosting":       b'cHost',       # ""
@@ -157,6 +161,7 @@ unwrap_as_str = [scc["control"],
                  scc["cancel hosting"],
                  scc["Join"],
                  scc["get turn"]]
+# </editor-fold>
 
 ##############
 # paths ######

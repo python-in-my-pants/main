@@ -49,6 +49,62 @@ class Packet:
         self._payload = payload
         self.timestamp = 1500000000000
         timestamp_padding = 30
+
+        if timestamp:
+            if isinstance(timestamp, bytes) and len(timestamp) == timestamp_padding:
+                self.timestamp = timestamp
+        else:
+            t = str(current_milli_time())
+            self.timestamp = ("0"*(timestamp_padding-len(t)) + t).encode("UTF-8")  # zero padding to 30 symbols
+
+        self.bytes = self.ctype + self.timestamp + self._payload + Data.scc["message end"]
+        self.bytes_hash = hashlib.sha1(self.bytes).hexdigest().encode("UTF-8")  # this is a string a byte array
+        self.bytes = self.bytes_hash + self.bytes
+        self.confirmed = False
+
+    def get_hash(self):
+        return hashlib.sha1(self.bytes[40:]).hexdigest().encode("UTF-8")
+
+    @classmethod
+    def from_buffer(cls, buffer):
+        """Construct a packet from a byte array"""
+        return cls(buffer[40:45], buffer[75:-5], timestamp=buffer[45:75])
+
+    def get_payload(self):  # TODO look after data types of confirm message!!!
+        """returns unwrapped payload, object or string or byte array if no unwrapping type was defined in Data.py"""
+        try:
+            if self.ctype in Data.unwrap_as_str:
+                return self._payload.decode("UTF-8")
+            if self.ctype in Data.unwrap_as_obj:
+                return pickle.loads(self._payload)
+            else:
+                print("Warning! Unwrapping type for", self.ctype.decode("UTF-8"), "is not defined!")
+                return self._payload
+        except Exception as e:
+            print("")
+            traceback.print_exc()
+            print("Exception in NewNetwork in line 76!")
+            print("Error in get_payload while getting payload of {}-type packet!".format(self.ctype))
+            print(e)
+            print(self.to_string())
+            return self._payload
+
+    def to_string(self, n=0):
+        return ("\t" * n + "Ctype:\t\t{}\n" +
+                "\t" * n + "Length:\t\t{}\n" +
+                "\t" * n + "Timestamp:\t{}\n" +
+                "\t" * n + "Payload:\t{}...\n" +
+                "\t" * n + "Hash:\t\t{}").\
+            format(self.ctype, str(len(self.bytes)), self.timestamp, self._payload[:40], self.bytes_hash)
+
+
+class Packet_old:
+
+    def __init__(self, ctype, payload, timestamp=None):
+        self.ctype = ctype
+        self._payload = payload
+        self.timestamp = 1500000000000
+        timestamp_padding = 30
         if timestamp:
             if isinstance(timestamp, bytes) and len(timestamp) == timestamp_padding:
                 self.timestamp = timestamp
@@ -149,11 +205,14 @@ class Connection:
             buf = b''
             while True:
                 if self.connection_alive:
+
                     # print(self.role, "is receiving bytes ...")
                     # print("buffer input size:", len(buf))
                     last_rec = self.target_socket.recv(size)
+
                     # always glue together
                     buf += last_rec
+
                     # check if its the last piece of the message
                     if len(last_rec) < size or last_rec[-5:] == Data.scc["message end"]:
                         '''
@@ -164,10 +223,13 @@ class Connection:
                         - ends not in xxxxx and len < size   ... xxxxx got cut apart, this is the second part of it
                         '''
                         pack = Packet.from_buffer(buf)
+                        """
                         if pack.ctype in Data.iscc:
+
                             # check if payload could be valid
                             proxy_payload = pack.get_payload()
 
+                            
                             if ((pack.ctype in Data.unwrap_as_obj) and len(proxy_payload) == Data.arg_len[pack.ctype]) \
                                 or pack.ctype in Data.unwrap_as_str:
 
@@ -175,8 +237,37 @@ class Connection:
                                 # check if msg needs confirm
                                 if Data.needs_confirm[Data.iscc[pack.ctype]]:
                                     th.start_new_thread(self._send_rec_confirmation, tuple([Packet.from_buffer(buf)]))
+
+                            if ((pack.ctype in Data.unwrap_as_obj) and len(proxy_payload) == Data.arg_len[pack.ctype]) \
+                                    or pack.ctype in Data.unwrap_as_str:
+
+                                self.data.rec_log.append(pack)
+                                # check if msg needs confirm
+                                if Data.needs_confirm[Data.iscc[pack.ctype]]:
+                                    th.start_new_thread(self._send_rec_confirmation, tuple([Packet.from_buffer(buf)]))
+                                    
                         buf = b''
+                        """
+
+                        # check if the packet is OK
+                        if buf[:40] == pack.get_hash():
+
+                            print("all good: {}\n{}\n{}\n".format(pack.ctype, pack.bytes[:40], pack.get_hash()))
+                            self.data.rec_log.append(pack)
+
+                            # check if msg needs confirm
+                            if Data.needs_confirm[Data.iscc[pack.ctype]]:
+                                th.start_new_thread(self._send_rec_confirmation, tuple([pack]))
+
+                        else:
+                            print("Packet is trash!")
+                            print(pack.to_string())
+                            print(buf[:40], "\n")
+
+                        buf = b''
+
                     time.sleep(0.005)
+
                 else:
                     # just return, that should kill the thread too
                     return
@@ -311,8 +402,9 @@ class Connection:
         while not confirmation_received:
             time.sleep(3)
             try:
+                counter += 1
                 if self.role == "Server":
-                    print("\t" * 30 + "... for the", counter, ". time:")
+                    print("\t" * 30 + "... for the", counter-1, ". time:")
                     print("\t" * 30 + "Sending:\n\n{}".format(packet.to_string(n=30)))
                 self.target_socket.send(packet.bytes)
                 counter += 1
@@ -321,8 +413,9 @@ class Connection:
                 traceback.print_exc()
                 print("Exception in NewNetwork in line 297!")
                 print("Resending message failed! Error: {}".format(e))
+
             if counter >= 5:
-                print("Jz geb ich's auf ...")
+                print("Jz geb ich's auf, resending von {} abgebrochen...".format(packet.ctype))
                 return
 
     @staticmethod
