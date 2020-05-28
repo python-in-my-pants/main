@@ -220,7 +220,7 @@ class Connection:
         self.target_socket.close()
         del self
 
-    def receive_bytes(self, size=4096):
+    def receive_bytes_old(self, size=4096):
         # first 5 bytes of the msg are control bytes defined in Data.py
         try:
             buf = b''
@@ -277,6 +277,51 @@ class Connection:
                         if pack is not None:
 
                             #print("all good: {}\n{}\n{}\n".format(pack.ctype, pack.bytes[:40], pack.get_hash()))
+                            self.data.rec_log.append(pack)
+
+                            if self.role == "Client":
+                                print(pack.to_string(), "\n")
+
+                            # check if msg needs confirm
+                            if Data.needs_confirm[Data.iscc[pack.ctype]]:
+                                th.start_new_thread(self._send_rec_confirmation, tuple([pack]))
+
+                        buf = b''
+
+                    time.sleep(0.005)
+
+                else:
+                    # just return, that should kill the thread too
+                    return
+
+        except Exception as e:
+            print("")
+            traceback.print_exc()
+            print("Exception in NewNetwork in line 169!")
+            print("Receiving bytes by the {} failed with exception:\n{} ... but I'm fine".format(self.role, e))
+
+    def receive_bytes(self, size=4096):
+        # first 5 bytes of the msg are control bytes defined in Data.py
+        try:
+            buf = b''
+            while True:
+                if self.connection_alive:
+
+                    last_rec = self.target_socket.recv(size)
+
+                    buf += last_rec
+
+                    # something is in the buffer (already received) and the next rec is empty -> msg ended
+                    if (buf and not last_rec) or buf[-5:] == Data.scc["message end"]:
+
+                        print("+++ Message {} with len {} ended bc of {}".
+                              format(buf[40:45], len(buf), "empty" if not last_rec else "XXXXX"))
+
+                        pack = Packet.from_buffer(buf)
+
+                        # check if the packet is OK
+                        if pack is not None:
+
                             self.data.rec_log.append(pack)
 
                             if self.role == "Client":
