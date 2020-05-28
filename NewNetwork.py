@@ -236,6 +236,7 @@ class Connection:
 
                     # check if its the last piece of the message
                     if len(last_rec) < size or last_rec[-5:] == Data.scc["message end"]:
+
                         '''
                         It is the last piece of the message if:
                         3 cases:
@@ -244,6 +245,8 @@ class Connection:
                         - ends not in xxxxx and len < size   ... xxxxx got cut apart, this is the second part of it
                         '''
                         pack = Packet.from_buffer(buf)
+                        print("Message {} with len {} ended bc of {}".
+                              format(pack.ctype, str(len(pack.bytes)), "len" if len(last_rec) < size else "XXXXX"))
                         """
                         if pack.ctype in Data.iscc:
 
