@@ -44,7 +44,7 @@ class ConnectionData:
 
 class Packet:
 
-    def __init__(self, ctype, payload, timestamp=None):
+    def __init__(self, ctype, payload, timestamp=None, byte_hash=None):
         self.ctype = ctype
         self._payload = payload
         self.timestamp = 1500000000000
@@ -58,17 +58,38 @@ class Packet:
             self.timestamp = ("0"*(timestamp_padding-len(t)) + t).encode("UTF-8")  # zero padding to 30 symbols
 
         self.bytes = self.ctype + self.timestamp + self._payload + Data.scc["message end"]
+
         self.bytes_hash = hashlib.sha1(self.bytes).hexdigest().encode("UTF-8")  # this is a string a byte array
+
+        if byte_hash and byte_hash != self.bytes_hash:
+            # packet is trash ALARM
+            print("Packet is trash!")
+            print(self.to_string())
+            print("Given checksum: ", byte_hash)
+            print("Calculated one: ", self.bytes_hash, "\n")
+            raise Exception
+
         self.bytes = self.bytes_hash + self.bytes
         self.confirmed = False
 
     def get_hash(self):
+        return self.bytes_hash
+
+    def get_hash_old(self):
         return hashlib.sha1(self.bytes[40:]).hexdigest().encode("UTF-8")
 
     @classmethod
     def from_buffer(cls, buffer):
         """Construct a packet from a byte array"""
-        return cls(buffer[40:45], buffer[75:-5], timestamp=buffer[45:75])
+
+        # was return cls(buffer[40:45], buffer[75:-5], timestamp=buffer[45:75], byte_hash=buffer[0:40])
+
+        try:
+            tmp = cls(buffer[40:45], buffer[75:-5], timestamp=buffer[45:75], byte_hash=buffer[0:40])
+            return tmp
+        except Exception as e:
+            print("Error creating packet!", e)
+            return None
 
     def get_payload(self):  # TODO look after data types of confirm message!!!
         """returns unwrapped payload, object or string or byte array if no unwrapping type was defined in Data.py"""
@@ -250,19 +271,17 @@ class Connection:
                         """
 
                         # check if the packet is OK
-                        if buf[:40] == pack.get_hash():
+                        if pack is not None:
 
-                            print("all good: {}\n{}\n{}\n".format(pack.ctype, pack.bytes[:40], pack.get_hash()))
+                            #print("all good: {}\n{}\n{}\n".format(pack.ctype, pack.bytes[:40], pack.get_hash()))
                             self.data.rec_log.append(pack)
+
+                            if self.role == "Client":
+                                print(pack.to_string(), "\n")
 
                             # check if msg needs confirm
                             if Data.needs_confirm[Data.iscc[pack.ctype]]:
                                 th.start_new_thread(self._send_rec_confirmation, tuple([pack]))
-
-                        else:
-                            print("Packet is trash!")
-                            print(pack.to_string())
-                            print(buf[:40], "\n")
 
                         buf = b''
 
@@ -358,7 +377,7 @@ class Connection:
 
         packet = Packet(ctype, Connection.prep(msg))
         # TODO debug only
-        print(packet.to_string(), "\n")
+        print(packet.to_string(n=30), "\n")
 
         confirmation_received = False
         msg_hash = packet.bytes_hash
@@ -379,7 +398,7 @@ class Connection:
                         confirmation_received = True
                         self.data.confirmation_search_index += i + 1
                         return
-                # check for confirm every 3 seconds
+                # check for confirm
                 time.sleep(0.5)
 
         try:
