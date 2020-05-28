@@ -70,8 +70,9 @@ class Packet:
             print(self.to_string())
             print("\tGiven checksum: ", byte_hash)
             print("\tCalculated one: ", self.bytes_hash, "\n")
+            print(self.get_payload())
             while True:
-                pass
+                time.sleep(10)
             raise Exception
 
     def get_hash(self):
