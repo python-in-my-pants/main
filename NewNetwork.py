@@ -244,9 +244,9 @@ class Connection:
                         - ends     in xxxxx and len = size   ... size and last frame size match
                         - ends not in xxxxx and len < size   ... xxxxx got cut apart, this is the second part of it
                         '''
+                        print("+++ Message {} with len {} ended bc of {}".
+                              format(buf[40:45], len(buf), "len" if len(last_rec) < size else "XXXXX"))
                         pack = Packet.from_buffer(buf)
-                        print("Message {} with len {} ended bc of {}".
-                              format(pack.ctype, str(len(pack.bytes)), "len" if len(last_rec) < size else "XXXXX"))
                         """
                         if pack.ctype in Data.iscc:
 
