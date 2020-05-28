@@ -2088,7 +2088,6 @@ class InGame:
 
                 slot = self.selected_own_char.get_active_slot()
 
-                # TODO
                 # attack routine
                 current_pos = pg.mouse.get_pos()
                 if current_pos[1] >= 400:
@@ -2677,7 +2676,9 @@ class InGame:
 
         if self.overlay and self.overlay_btn:
             self.overlay.newblit = False
+
             if self.dmg_done_timer < time.time() and self.dmg_done_ is not None:
+                print("UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU w UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU")
                 self.overlay = None
                 self.overlay_btn = None
                 self.dmg_done_ = None
@@ -2697,11 +2698,9 @@ class InGame:
                         self.overlay.update_info("You already shot!")
                     else:
                         self.overlay.update_info(self.selected_own_char.get_chance(self.overlay.boi_to_attack,
-                                                                                           self.overlay.part_to_attack))
+                                                                                   self.overlay.part_to_attack))
                 self.screen.blit(self.overlay.surf, dest=self.overlay.pos)
                 self.screen.blit(self.overlay.info_tafel, dest=self.overlay.info_pos)
-
-
 
         #####
         # left

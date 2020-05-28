@@ -78,7 +78,7 @@ class Packet:
     def get_hash(self):
         return self.bytes_hash
 
-    def get_hash_old(self):
+    def calc_hash(self):
         return hashlib.sha1(self.bytes[40:]).hexdigest().encode("UTF-8")
 
     @classmethod
@@ -224,15 +224,13 @@ class Connection:
         self.target_socket.close()
         del self
 
-    def receive_bytes_old(self, size=4096):
+    def receive_bytes_old(self, size=4096):  # old version
         # first 5 bytes of the msg are control bytes defined in Data.py
         try:
             buf = b''
             while True:
                 if self.connection_alive:
 
-                    # print(self.role, "is receiving bytes ...")
-                    # print("buffer input size:", len(buf))
                     last_rec = self.target_socket.recv(size)
 
                     # always glue together
@@ -241,46 +239,12 @@ class Connection:
                     # check if its the last piece of the message
                     if len(last_rec) < size or last_rec[-5:] == Data.scc["message end"]:
 
-                        '''
-                        It is the last piece of the message if:
-                        3 cases:
-                        - ends     in xxxxx and len < size   ... if len < then it's always the last msg
-                        - ends     in xxxxx and len = size   ... size and last frame size match
-                        - ends not in xxxxx and len < size   ... xxxxx got cut apart, this is the second part of it
-                        '''
                         print("+++ Message {} with len {} ended bc of {}".
                               format(buf[40:45], len(buf), "len" if len(last_rec) < size else "XXXXX"))
                         pack = Packet.from_buffer(buf)
-                        """
-                        if pack.ctype in Data.iscc:
 
-                            # check if payload could be valid
-                            proxy_payload = pack.get_payload()
-
-                            
-                            if ((pack.ctype in Data.unwrap_as_obj) and len(proxy_payload) == Data.arg_len[pack.ctype]) \
-                                or pack.ctype in Data.unwrap_as_str:
-
-                                self.data.rec_log.append(pack)
-                                # check if msg needs confirm
-                                if Data.needs_confirm[Data.iscc[pack.ctype]]:
-                                    th.start_new_thread(self._send_rec_confirmation, tuple([Packet.from_buffer(buf)]))
-
-                            if ((pack.ctype in Data.unwrap_as_obj) and len(proxy_payload) == Data.arg_len[pack.ctype]) \
-                                    or pack.ctype in Data.unwrap_as_str:
-
-                                self.data.rec_log.append(pack)
-                                # check if msg needs confirm
-                                if Data.needs_confirm[Data.iscc[pack.ctype]]:
-                                    th.start_new_thread(self._send_rec_confirmation, tuple([Packet.from_buffer(buf)]))
-                                    
-                        buf = b''
-                        """
-
-                        # check if the packet is OK
                         if pack is not None:
 
-                            #print("all good: {}\n{}\n{}\n".format(pack.ctype, pack.bytes[:40], pack.get_hash()))
                             self.data.rec_log.append(pack)
 
                             if self.role == "Client":
@@ -289,54 +253,110 @@ class Connection:
                             # check if msg needs confirm
                             if Data.needs_confirm[Data.iscc[pack.ctype]]:
                                 th.start_new_thread(self._send_rec_confirmation, tuple([pack]))
-
+                                
                         buf = b''
 
                     time.sleep(0.005)
-
                 else:
                     # just return, that should kill the thread too
                     return
-
         except Exception as e:
             print("")
             traceback.print_exc()
             print("Exception in NewNetwork in line 169!")
             print("Receiving bytes by the {} failed with exception:\n{} ... but I'm fine".format(self.role, e))
 
+    @staticmethod
+    def contains_end_code(buf):
+
+        counter = 0
+        for b in range(len(buf[75:]) - 4):
+            if buf[75+b:80+b] == Data.scc["message end"]:
+                counter += 1
+
+        return counter
+
+    def handle_received_pack(self, pack):
+
+        # check if the packet is OK
+        if pack is not None:
+
+            self.data.rec_log.append(pack)
+
+            if self.role == "Client":
+                print(pack.to_string(), "\n")
+
+            # check if msg needs confirm
+            if Data.needs_confirm[Data.iscc[pack.ctype]]:
+                th.start_new_thread(self._send_rec_confirmation, tuple([pack]))
+
+        else:
+            return False
+
+    def get_packets_from_buffer(self, buf, ret_list=[]):
+        """
+        returns list with packets and scrap bytes surrounding them in the order from buf
+        """
+
+        try:
+
+            ret_list = ret_list[:]
+
+            if len(buf) < 80:
+                if buf != b'':
+                    return [*ret_list, buf]
+                else:
+                    return ret_list
+
+            # now check if there is another packet or even more than 1 in the payload of the first
+            for b in range(len(buf[75:])-4):  # mind that the payload pos is used here
+                if buf[75+b:75+b+5] == Data.scc["message end"]:  # end of first msg here
+                    p = Packet.from_buffer(buf[:75+b+5])
+                    # add it to return list if valid
+                    if p:
+                        ret_list.append(p)
+                    else:  # else append scrap
+                        print(buf[:75+b+5])
+                        ret_list.append(buf[:75+b+5])
+                    return self.get_packets_from_buffer(buf[75+b+5:], ret_list)
+
+            return [buf]
+        except Exception as e:
+            print(e)
+            traceback.print_exc()
+            return []
+
     def receive_bytes(self, size=4096):
-        # first 5 bytes of the msg are control bytes defined in Data.py
         try:
             buf = b''
             while True:
                 if self.connection_alive:
 
                     last_rec = self.target_socket.recv(size)
-
                     buf += last_rec
 
                     # something is in the buffer (already received) and the next rec is empty -> msg ended
-                    if (buf and not last_rec) or buf[-5:] == Data.scc["message end"]:
+                    if (buf and not last_rec) or Connection.contains_end_code(buf):
 
                         print("+++ Message {} with len {} ended bc of {}".
-                              format(buf[40:45], len(buf), "empty" if not last_rec else
-                                                           ("XXXXX" if buf[-5:]==Data.scc["message end"] else "???")))
+                              format(buf[40:45], len(buf),
+                                     "empty" if not last_rec else "XXXXX"))
 
-                        pack = Packet.from_buffer(buf)
+                        print("How many XXXXX:", Connection.contains_end_code(buf))
 
-                        # check if the packet is OK
-                        if pack is not None:
+                        # put in above methods here and delete other stuff
+                        packs = self.get_packets_from_buffer(buf)
+                        print(packs)
 
-                            self.data.rec_log.append(pack)
+                        head = None
+                        for p in packs:
+                            if p:  # pack is valid
+                                self.handle_received_pack(p)
+                            else:
+                                if p == packs[-1]:  # it's the last part of the buf, might be beginning of next pack
+                                    head = p
 
-                            if self.role == "Client":
-                                print(pack.to_string(), "\n")
-
-                            # check if msg needs confirm
-                            if Data.needs_confirm[Data.iscc[pack.ctype]]:
-                                th.start_new_thread(self._send_rec_confirmation, tuple([pack]))
-
-                        buf = b''
+                        buf = b'' if not head else head
 
                     time.sleep(0.005)
 
@@ -412,7 +432,7 @@ class Connection:
                 else:
                     p = Packet(ctype, Connection.prep(msg))
 
-                if self.role == "Server":
+                if self.role == "Server" or True:
                     print(("\t" * 30 + "Sending:\t" + str(self.ident) + "\n{}\n").format(p.to_string(n=30)))
                 self.target_socket.send(p.bytes)
 
@@ -456,7 +476,7 @@ class Connection:
 
         try:
             # just print if you are server
-            if self.role == "Server":
+            if self.role == "Server" or True:
                 print("\t" * 30 + "Sending:\t" + str(self.ident) + "\n{}\n".format(packet.to_string(n=30)))
 
             self.target_socket.send(packet.bytes)
@@ -475,7 +495,7 @@ class Connection:
             time.sleep(3)
             try:
                 counter += 1
-                if self.role == "Server":
+                if self.role == "Server" or True:
                     print("\t" * 30 + "... for the", counter-1, ". time:")
                     print("\t" * 30 + "Sending:" + str(self.ident) + "\n{}\n".format(packet.to_string(n=30)))
                 self.target_socket.send(packet.bytes)
