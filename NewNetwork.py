@@ -65,8 +65,8 @@ class Packet:
             # packet is trash ALARM
             print("Packet is trash!")
             print(self.to_string())
-            print("Given checksum: ", byte_hash)
-            print("Calculated one: ", self.bytes_hash, "\n")
+            print("\tGiven checksum: ", byte_hash)
+            print("\tCalculated one: ", self.bytes_hash, "\n")
             raise Exception
 
         self.bytes = self.bytes_hash + self.bytes
@@ -315,7 +315,8 @@ class Connection:
                     if (buf and not last_rec) or buf[-5:] == Data.scc["message end"]:
 
                         print("+++ Message {} with len {} ended bc of {}".
-                              format(buf[40:45], len(buf), "empty" if not last_rec else "XXXXX"))
+                              format(buf[40:45], len(buf), "empty" if not last_rec else
+                                                           ("XXXXX" if buf[-5:]==Data.scc["message end"] else "???")))
 
                         pack = Packet.from_buffer(buf)
 
