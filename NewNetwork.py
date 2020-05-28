@@ -118,7 +118,7 @@ class Packet:
                 "\t" * n + "Timestamp:\t{}\n" +
                 "\t" * n + "Payload:\t{} ... {}\n" +
                 "\t" * n + "Hash:\t\t{}").\
-            format(self.ctype, str(len(self.bytes)), self.timestamp, self.bytes[:20], self._payload[-20:],
+            format(self.ctype, str(len(self.bytes)), self.timestamp, self._payload[:20], self.bytes[-20:],
                    self.bytes_hash)
 
 
