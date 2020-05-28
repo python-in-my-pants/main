@@ -393,7 +393,7 @@ class Connection:
                 for i, con_msg in enumerate(self.data.rec_log[self.data.confirmation_search_index:]):
                     # if our hash was confirmed by the receiver
                     if con_msg.ctype == Data.scc["confirm"] and con_msg._payload == msg_hash:
-                        if self.role == "server":
+                        if self.role == "Server":
                             print("->"*10, packet.ctype, "message with timestamp", packet.timestamp, "was confirmed!")
                         confirmation_received = True
                         self.data.confirmation_search_index += i + 1
@@ -404,7 +404,7 @@ class Connection:
         try:
             # just print if you are server
             if self.role == "Server":
-                print("\t" * 30 + "Sending:\n{}\n".format(packet.to_string(n=30)))
+                print("\t" * 30 + "Sending:\t" + str(self.ident) + "\n{}\n".format(packet.to_string(n=30)))
 
             self.target_socket.send(packet.bytes)
         except Exception as e:
@@ -424,7 +424,7 @@ class Connection:
                 counter += 1
                 if self.role == "Server":
                     print("\t" * 30 + "... for the", counter-1, ". time:")
-                    print("\t" * 30 + "Sending:\n\n{}".format(packet.to_string(n=30)))
+                    print("\t" * 30 + "Sending:" + str(self.ident) + "\n{}\n".format(packet.to_string(n=30)))
                 self.target_socket.send(packet.bytes)
                 counter += 1
             except Exception as e:
