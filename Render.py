@@ -2088,7 +2088,6 @@ class InGame:
 
                 slot = self.selected_own_char.get_active_slot()
 
-                # TODO
                 # attack routine
                 current_pos = pg.mouse.get_pos()
                 if current_pos[1] >= 400:
@@ -2199,6 +2198,7 @@ class InGame:
 
             # TODO either just blit or insert animated shit here however the fuck that may be done
             self.screen.blit(self.win_banner, blit_centered_pos(self.screen, self.win_banner))
+            time.sleep(5)
 
             # this exits out of the screen
             self.new_window_target = MainWindow
@@ -2271,13 +2271,14 @@ class InGame:
             # declare win
             self.own_turn = Turn()
             self.own_turn.win = True
-            print("Telling the opp I win")
+            print("Telling the opp I lose")
 
             # send the turn out
             start_new_thread(self.client.send_turn, (self.own_turn, int(round(time.time() * 1000))))
 
             # prepare showing loss to player or TODO some fancy animated version (aka video)
             self.screen.blit(self.lose_banner, blit_centered_pos(self.screen, self.lose_banner))
+            time.sleep(5)
 
             # exit out
             self.new_window_target = MainWindow
@@ -2675,7 +2676,9 @@ class InGame:
 
         if self.overlay and self.overlay_btn:
             self.overlay.newblit = False
+
             if self.dmg_done_timer < time.time() and self.dmg_done_ is not None:
+                print("UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU w UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU")
                 self.overlay = None
                 self.overlay_btn = None
                 self.dmg_done_ = None
@@ -2695,11 +2698,9 @@ class InGame:
                         self.overlay.update_info("You already shot!")
                     else:
                         self.overlay.update_info(self.selected_own_char.get_chance(self.overlay.boi_to_attack,
-                                                                                           self.overlay.part_to_attack))
+                                                                                   self.overlay.part_to_attack))
                 self.screen.blit(self.overlay.surf, dest=self.overlay.pos)
                 self.screen.blit(self.overlay.info_tafel, dest=self.overlay.info_pos)
-
-
 
         #####
         # left
