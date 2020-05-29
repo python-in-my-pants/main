@@ -393,7 +393,7 @@ class Connection:
                 for i, con_msg in enumerate(self.data.rec_log[self.data.confirmation_search_index:]):
                     # if our hash was confirmed by the receiver
                     if con_msg.ctype == Data.scc["confirm"] and con_msg._payload == msg_hash:
-                        if self.role == "server":
+                        if self.role == "Server":
                             print("->"*10, packet.ctype, "message with timestamp", packet.timestamp, "was confirmed!")
                         confirmation_received = True
                         self.data.confirmation_search_index += i + 1

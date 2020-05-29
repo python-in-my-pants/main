@@ -144,12 +144,12 @@ class Helm(Gear):
 		self.reduction = reduction
 		if self.my_id == 0:
 			self.durability = 50
-			self.reduction = 0.3
+			self.reduction = 0.7
 			self.cost = 3
 			self.weight = 1
 		if self.my_id == 1:
 			self.durability = 75
-			self.reduction = 0.4
+			self.reduction = 0.6
 			self.cost = 6
 			self.weight = 1.5
 		if self.my_id == 2:

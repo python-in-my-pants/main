@@ -2172,7 +2172,7 @@ class InGame:
         target_index = self.game_map.get_char_index(self.overlay.boi_to_attack)
 
         if not self.v_mat[(shooter_index, target_index)][1]:
-            return "Cannot see character" #"Bro he ain't sein shit"
+            return "Cannot see character" #"Bro he ain't seein shit"
 
         # TODO draw dotted line to signal shooting
 

@@ -292,13 +292,13 @@ class Character(GameObject):
             if rpg_bool:
                 if numpy.random.randint(0, 101) <= chance:
                     dude.get_damaged(dmg, partind, rpg_bool)
+                    dmg_done = 600
                     dmg_done_list = [dmg, dmg, dmg, dmg, dmg, dmg]
             else:
                 for s in range(spt):
                     if numpy.random.randint(0, 101) <= chance:
-                        dude.get_damaged(dmg, partind, rpg_bool)
-                        dmg_done += dmg
-                        dmg_done_list[partind] = dmg_done
+                        dmg_done += dude.get_damaged(dmg, partind, rpg_bool)
+                dmg_done_list[partind] = dmg_done
             return dmg_done, dmg_done_list
 
     def get_chance(self, dude, partind):
@@ -420,25 +420,61 @@ class Character(GameObject):
             self.health[i] -= dmg[i]
 
     def get_damaged(self, dmg, partind, rpg_bool):
+        dmg_done = 0
+        got_helmet = 0
+        got_armor = 0
         if rpg_bool:
             for i in range(6):
+                dmg_done += 100
                 self.health[i] -= 100
         else:
-            if partind == 3:
-                if self.gear and self.gear[0].durability > 0:
-                    dmg *= self.gear[0].reduction
-                    self.health[3] -= dmg
-                    self.gear[0].durability -= 0
-                    if self.gear[0].durability <= 0:
-                        self.gear[0].durability = 0
+            for g in self.gear:
+                if isinstance(g, Helm):
+                    got_helmet = g
+                if isinstance(g, Armor):
+                    got_armor = g
+            if partind == 0:
+                if got_helmet:
+                    if got_helmet.durability > 0:
+                        dmg_done = dmg * got_helmet.reduction
+                        dmg_done = int(dmg_done)
+                        self.health[0] -= dmg_done
+                        got_helmet.durability -= (dmg - dmg_done)
+                        if got_helmet.durability <= 0:
+                            got_helmet.durability = 0
+                            self.gear.remove(got_helmet)
+                    else:
+                        dmg_done = dmg
+                        self.health[0] -= dmg_done
                 else:
-                    self.health[3] -= dmg
-            elif self.health[partind] > 0:
-                self.health[partind] -= dmg
-            if self.is_dead():
-                self.dead()
-            self.hitprint(dmg, partind)
+                    dmg_done = dmg
+                    self.health[0] -= dmg_done
+
+            if partind == 3:
+                if got_armor:
+                    if got_armor.durability > 0:
+                        dmg_done = dmg * got_armor.reduction
+                        dmg_done = int(dmg_done)
+                        self.health[3] -= dmg_done
+                        got_armor.durability -= (dmg - dmg_done)
+                        if got_armor.durability <= 0:
+                            got_armor.durability = 0
+                            self.gear.remove(got_armor)
+                    else:
+                        dmg_done = dmg
+                        self.health[3] -= dmg_done
+                else:
+                    dmg_done = dmg
+                    self.health[3] -= dmg_done
+
+            if partind != 0 and partind != 3:
+                dmg_done = dmg
+                self.health[partind] -= dmg_done
+            self.hitprint(dmg_done, partind)
             self.statchange()
+        if self.is_dead():
+            self.dead()
+        return dmg_done
 
     def status_timer(self):
         if self.burn_t > 0:
