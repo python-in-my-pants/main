@@ -2198,6 +2198,7 @@ class InGame:
 
             # TODO either just blit or insert animated shit here however the fuck that may be done
             self.screen.blit(self.win_banner, blit_centered_pos(self.screen, self.win_banner))
+            pg.display.flip()
             time.sleep(5)
 
             # this exits out of the screen
@@ -2278,6 +2279,7 @@ class InGame:
 
             # prepare showing loss to player or TODO some fancy animated version (aka video)
             self.screen.blit(self.lose_banner, blit_centered_pos(self.screen, self.lose_banner))
+            pg.display.flip()
             time.sleep(5)
 
             # exit out

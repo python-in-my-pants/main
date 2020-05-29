@@ -1,3 +1,11 @@
+sichtbarkeit nach jedem move updaten
+nur sichtbarkeitslinien bis zu letztem sichtbaren punkt
+mehrmals ready drücken ist schlecht
+moven nach dem schießen oder einfach nur moven crasht mit infinite
+heilen löst greed message aus und die meds verschwinden nicht
+overlay ist manchmal leer (nach kill?)
+tode sind nicht synchron
+
 1 - !!!!!!!!!!!disclaimer!!!!!!!!!!!!!
 
 1 - https://stackoverflow.com/questions/3344115/how-to-obfuscate-python-code-effectively
