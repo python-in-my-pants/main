@@ -2128,10 +2128,10 @@ class InGame:
 
         def func_2():
 
-            for i, item in enumerate(self.selected_char.items):
+            for i, item in enumerate(self.selected_own_char.items):  # was selected char but should not have been?
                 if item.idi == _id:
 
-                    if self.selected_own_char and self.is_it_my_turn: # and self.selected_char.team != self.own_team
+                    if self.selected_own_char and self.is_it_my_turn:  # and self.selected_char.team != self.own_team
 
                         # no need to change active slot here if all items only need 1 turn for usage,
                         # DON'T TAKE THIS COMMENT OUT
@@ -2144,6 +2144,9 @@ class InGame:
 
                             self.selected_own_char.use_item(i)
                             # TODO use up item here, aka remove it from char.items
+                            if self.selected_own_char.items[i].depletes:
+                                del self.selected_own_char.items[i]
+
                             self.moved_chars[self.selected_own_char.idi] = True
                             self.shot_chars[self.selected_own_char.idi] = True
 
@@ -2159,11 +2162,19 @@ class InGame:
 
     def shoot(self, where):
 
-        if not self.selected_own_char or\
-                (not self.is_it_my_turn) or \
-                (self.selected_own_char_overlay.idi in self.shot_chars) or \
-                (self.selected_own_char.is_dead()) or \
-                (not self.selected_own_char.can_shoot()):
+        if not self.is_it_my_turn:
+            return "It's not your turn!"
+
+        if not self.selected_own_char:
+            return "No char selected"
+
+        if self.selected_own_char.is_dead():
+            return "Your character is dead!"
+
+        if not self.selected_own_char.can_shoot():
+            return "Character cannot shoot"
+
+        if self.selected_own_char_overlay.idi in self.shot_chars:
             return "You already shot"
 
         # check if shooter can see target
@@ -2171,7 +2182,7 @@ class InGame:
         target_index = self.game_map.get_char_index(self.overlay.boi_to_attack)
 
         if not self.v_mat[(shooter_index, target_index)][1]:
-            return "Cannot see character" #"Bro he ain't sein shit"
+            return "Cannot see character"
 
         # TODO draw dotted line to signal shooting
 
@@ -2480,6 +2491,7 @@ class InGame:
                     # unselect char after movement
                     self.r_fields = []
                     self.selected_own_char = None
+                    self.v_mat = self.game_map.get_vmat()
 
             # you have already moved this char
             elif self.is_it_my_turn and self.selected_own_char and \

@@ -1,8 +1,9 @@
-sichtbarkeit nach jedem move updaten
-nur sichtbarkeitslinien bis zu letztem sichtbaren punkt
-mehrmals ready drücken ist schlecht
+    sichtbarkeit nach jedem move updaten
+    nur sichtbarkeitslinien bis zu letztem sichtbaren punkt (schwierig, content tier 2)
+mehrmals ready drücken ist schlecht - 2. ready muss alles löschen, was das erste gesetzt hat
+neues game geht nicht weil alte daten noch im server -> endgame message muss alles im server zu dem game löschen
+
 moven nach dem schießen oder einfach nur moven crasht mit infinite
-heilen löst greed message aus und die meds verschwinden nicht
 overlay ist manchmal leer (nach kill?)
 tode sind nicht synchron
 
@@ -10,66 +11,58 @@ tode sind nicht synchron
 
 1 - https://stackoverflow.com/questions/3344115/how-to-obfuscate-python-code-effectively
 
-1 - deactivate buttons while waiting for opp turn
+1 - (PERFORMANCE) deactivate buttons while waiting for opp turn
 
-1 - upper char buttons only select first char of team always
+1 - (BUG) upper char buttons only select first char of team always
 
-1 - 0. char kann sich iwann nicht mehr bewegen
+1 - (BUG) char kann sich iwann nicht mehr bewegen
 
-1 - blit dead chars differently
+    1 - (BUG) heilen löst greed message aus und die meds verschwinden nicht
 
-1 - make items usable (heal etc)
+1 - (VISUAL) mark spawn areas on minimap in char select and ingame
 
-1 - mark spawn areas on minimap in char select and ingame
-
-1 - balance speed
+1 - (CONTENT) balance speed; adjust map 343 (speed)
 
 (1 - man kann noch durch büsche kucken)
 
-1 - finish item and weapon card artworks
+1 - (VISUAL) finish item and weapon card artworks
 
-1 - change font
+1 - (vISUAL) change font
 
-1 - eye candy canvas for ingame screen, 1 single pic with alpha as background???
-
-1 - fucking fix accuracy OwO
+1 - (CONTENT) fucking fix accuracy OwO
 
 -----------------------------------------------------------------
 
-2 - add sick loading screens with 99% loading bars that never actually fill, like in connection setup when opp is joining
+2 - (CONTENT) amphetamine as heal item, which you can use to shoot even if you have no arm hp left or move even if you got no leg
+    hp left but damages your torso hp over time (like bleed) damage
 
-2 - click sound for buttons
+2 - (VISUAL) eye candy canvas for ingame screen, 1 single pic with alpha as background???
 
-2 - outline selected char in team selection (red canvas)
+2 - (VISUAL) add sick loading screens with 99% loading bars that never actually fill, like in connection setup when opp is joining
 
-2 - server keeps old map if one client crashes/exits during connection setup
+2 - (VISUAL) outline selected char in team selection (red canvas)
 
-2 - doublebuf, hwsurface in set_mode for better performance
+2 - (BUG) server keeps old map if one client crashes/exits during connection setup
 
-2 - make turn turn dependent on max chars that are actually in one of the teams
+2 - (PERFORMANCE) doublebuf, hwsurface in set_mode for better performance
 
-2 - calc bleed damage every turn
+2 - (PERFORMANCE) make turn time dependent on max chars that are actually in one of the teams
 
-2 - add custom fields to enter map size and lobby name
+2 - (CONTENT) calc bleed damage every turn
 
-2 - adjust default item & weapon in ingame init
+2 - (CONTENT) add custom fields to enter map size and lobby name
 
-2 - server: unhashable type: connection (wenn 1 client crasht) -> bist du noch da? msg
+2 - (BUG) server: unhashable type: connection (wenn 1 client crasht) -> bist du noch da? msg
 
-2 - differenziere bei inventory buttons zwischen own char (kann switchen mit buttons) und gegner (der kann das nicht lol)
+(2 - differenziere bei inventory buttons zwischen own char (kann switchen mit buttons) und gegner (der kann das nicht lol))
 
-2 - inventory does not blit correctly after having selected an opponent char (prolly just go for sel_own_char, sel_opp_char)
+2 - (BUG) inventory does not blit correctly after having selected an opponent char
+    (prolly just go for sel_own_char, sel_opp_char)
 
-2 - adjust map 343 (speed)
-
-2 - integrate occupied-by-opp-fields into r_fields but dont move to them, just to adjacent field OR
+2 - (CONTENT) integrate occupied-by-opp-fields into r_fields but dont move to them, just to adjacent field OR
     move until you can see them and let user decide again what he wants to do
 
-2 - attack overlay does not shift yet (when zoomed)
-
-2 - draw red dotted line from prev pos to new pos which
-                #  1) stays until end of own turn
-                #  2) gets sent to opponent
+2 - (VISUAL) attack overlay does not shift yet (when zoomed)
 
 todo reset 684
 
@@ -79,41 +72,35 @@ clear all TODO
 
 --------------------------------------------------------------------------
 
-3 - add stylish background music in ingame screen and everywhere, prolly control this from main
-        https://www.youtube.com/watch?v=Lp6XlsBm_Lw
-        https://www.youtube.com/watch?v=RQqt7I3f4wU
+3 - (CONTENT) usage system for items, set remaining uses to 0 when depleted and weight to 0
 
-3 - zoom + verschieben + zoom skippt
-
-3 - update hp bars ONLY after new turn (should be done? -> test)
-
-3 - build complex houses
+3 - (CONTENT) build complex houses
     generate random graph, nodes are rooms, edges are doors, 1 outdoor node connected to min 1 random node
     put in rooms peu a peu in an intermediate surface
 
-3 - use Bebauungsplan for setting objects on map
+3 - (CONTENT) use Bebauungsplan for setting objects on map
 
-3 - make selected char look at mouse
+3 - (CONTENT) make selected char look at mouse
 
-3 - blit only parts that may have changed in main screen (right & left ui are likely to not change most of the frames)
+3 - (PERFORMANCE) blit only parts that may have changed in main screen (right & left ui are likely to not change most of the frames)
 
-3 - use buffers for blitting in main screen? (flags
+3 - (PERFORMANCE) use buffers for blitting in main screen? (flags
 
-3 - Add animated start screen
+3 - (CONTENT) Add animated start screen
     https://stackoverflow.com/questions/21356439/how-to-load-and-play-a-video-in-pygame
 
-3 - join ausgrauen wenn gehostet wird
+3 - (PERFORMANCE) join ausgrauen wenn gehostet wird
 
-3 - cancel join automatisch wenn kein game zum joinen ausgewählt war
+3 - (PERFORMANCE) cancel join automatisch wenn kein game zum joinen ausgewählt war
 
-3 - (directional) velocity that influences how far you can run in this turn
+3 - (CONTENT) (directional) velocity that influences how far you can run in this turn
 
-3 - house interior
+3 - (CONTENT) interior
 
-3 - find better solution for unique ids than randint
+3 - (PERFORMANCE) find better solution for unique ids than randint
 
-3 - for everything related to blitting on the map: just blit it on self.game_map.surface and resize afterwards
+3 - (PERFORMANCE) for everything related to blitting on the map: just blit it on self.game_map.surface and resize afterwards
 
-3 - directional looking (shooting/visibility)
+3 - (CONTENT) directional looking (shooting/visibility)
 
-3 - time delay between sending turns over (old turns get spammed out and spam the network, preventing this should help)
+3 - (PERFORMANCE) time delay between sending turns over (old turns get spammed out and spam the network, preventing this should help)
