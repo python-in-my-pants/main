@@ -2128,7 +2128,7 @@ class InGame:
 
         def func_2():
 
-            for i, item in enumerate(self.selected_own_char.items):  # was selected char but should not have been?
+            for i, item in enumerate(self.selected_char.items):  # was selected char but should not have been?
                 if item.idi == _id:
 
                     if self.selected_own_char and self.is_it_my_turn:  # and self.selected_char.team != self.own_team

@@ -339,12 +339,17 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
                     """for key in colliding_objs:
                         print("colliding_objs[{}]: {}".format(str(key), [str(x) for x in colliding_objs[key]]))"""
 
+                    ravine = False
+
                     for key in colliding_objs:
                         for atom in colliding_objs[key]:
                             if atom.opaque:
                                 return [0, 0]  # cannot see, cannot shoot
+                            if atom.ravine:
+                                ravine = True
 
-                    return [1, 0]  # can see, cannot shoot
+                    if not ravine:
+                        return [1, 0]  # can see, cannot shoot
 
         return [1, 1]  # can see & shoot
 
