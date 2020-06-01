@@ -16,6 +16,7 @@ class Item:
 		self.weight = weight
 		self.stop_bleed = stop_bleed
 		self.hp_regen = hp_regen
+		self.depletes = True
 
 	def use(self, char, bodypart):  # abstract method
 		pass
