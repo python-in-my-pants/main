@@ -741,10 +741,11 @@ class Spawnarea(GameObject):
     def create_spawn(map_size, team, position):
         # Create left upper corner spawnareal
         if position == "L":
-            area = Spawnarea(name="Spawnareal "+str(team), obj_type="default", pos=[0, 0])
+            area = Spawnarea(name="Spawnareal "+str(team), obj_type="default", pos=[0, 0], materials_=["area" + str(team)])
         if position == "R":
             area = Spawnarea(name="Spawnareal "+str(team), obj_type="default", pos=[map_size[0]-Spawnarea.seitenlaenge,
-                                                                                    map_size[1]-Spawnarea.seitenlaenge])
+                                                                                    map_size[1]-Spawnarea.seitenlaenge]
+                             , materials_=["area" + str(team)])
         return area
 
     def get_drawable(self):  # STATUS: tested

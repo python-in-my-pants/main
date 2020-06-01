@@ -350,7 +350,7 @@ class Connection:
 
                         head = None
                         for p in packs:
-                            if p:  # pack is valid
+                            if isinstance(p, Packet):  # pack is valid
                                 self.handle_received_pack(p)
                             else:
                                 if p == packs[-1]:  # it's the last part of the buf, might be beginning of next pack

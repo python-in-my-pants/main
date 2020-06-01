@@ -53,7 +53,10 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
                              pg.transform.scale(pg.image.load(bush_texture), texture_size),
                              None,
                              pg.transform.scale(pg.image.load(boulder_texture), texture_size),
-                             pg.transform.scale(pg.image.load(ruin_floor_texture), texture_size)]
+                             pg.transform.scale(pg.image.load(ruin_floor_texture), texture_size),
+                             None,
+                             pg.transform.scale(pg.image.load(area_1), texture_size),
+                             pg.transform.scale(pg.image.load(area_2), texture_size)]
 
     def add_object(self, game_object, border_size=0, recursion_depth=0):  # STATUS: partially working, border
         # stuff not yet, crashes when too deep recursion occurs
@@ -746,7 +749,7 @@ class MapBuilder:
         tree_limit = int((fields_x*fields_y) / 150)
         puddel_limit = int((fields_x*fields_y / 150))
 
-        if True:
+        if False:
             house_limit = ruins_limit = bush_limit = boulder_limit = tree_limit = puddel_limit = 0
 
         def add_obj(obj_class, obj_limit):

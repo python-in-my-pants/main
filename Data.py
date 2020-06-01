@@ -31,10 +31,10 @@ def points_to_spend_per_team(x, y):
 #serverIP = "88.130.48.88"
 
 
-serverIP = "78.47.178.105"
+#serverIP = "78.47.178.105"
 
 
-#serverIP = "localhost"
+serverIP = "localhost"
 
 
 #serverIP = "25.68.211.167"
@@ -70,6 +70,8 @@ material_codes = {
     "boulder": 7,
     "ruined_wood": 8,
     "puddel": 9,
+    "area1": 10,
+    "area2": 11,
     "default": -1
 }
 # </editor-fold>
@@ -217,6 +219,8 @@ flooring_texture = "assets/textures/mats/Flooring.png"
 bush_texture = "assets/textures/mats/bush.png"
 boulder_texture = "assets/textures/mats/boulder.png"
 ruin_floor_texture = "assets/textures/mats/Ruin_floor.png"
+area_1 = "assets/textures/mats/area1.png"
+area_2 = "assets/textures/mats/area2.png"
 
 overlay_base = "assets/textures/overlay/dude.png"
 head = "assets/textures/overlay/dude_kopf.png"
