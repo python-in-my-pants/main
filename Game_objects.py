@@ -117,13 +117,14 @@ class GameObject:
 
 class CollAtom(pygame.sprite.Sprite):  # this is basically a sprite but it's better because it does more OwO
 
-    def __init__(self, pos, w=1, h=1, height=1, name="collAtom", opaque=True):
+    def __init__(self, pos, w=1, h=1, height=1, name="collAtom", opaque=True, ravine=False):
         """"
         pos: gives the position in pixel coordinates like in pixs from GameObject [x,y]
           w: width of the collAtom, usually 1, not intended to be changed
           h: height of the collAtom, usually 1, not intended to be changed
         height: theoretical height of the object in game, used for evaluating visibility
                 possible values are: 1 (default), 0.5 (for walls with windows etc.) and so on
+        ravine: can see & shoot but not move there
         """
         super().__init__()  # pygame.sprite.Sprite
         self.pos = pos
@@ -327,7 +328,7 @@ class Puddle(GameObject):
             point[1] += self.pos[1]
 
     def confirm(self):
-        self.collider = pygame.sprite.Group(*[CollAtom(p, opaque=False) for p in self.pixs])
+        self.collider = pygame.sprite.Group(*[CollAtom(p, opaque=False, ravine=True) for p in self.pixs])
 
     def get_drawable(self):
         return self.pixs

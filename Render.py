@@ -2128,7 +2128,7 @@ class InGame:
 
         def func_2():
 
-            for i, item in enumerate(self.selected_own_char.items):  # was selected char but should not have been?
+            for i, item in enumerate(self.selected_char.items):  # was selected char but should not have been?
                 if item.idi == _id:
 
                     if self.selected_own_char and self.is_it_my_turn:  # and self.selected_char.team != self.own_team
@@ -2149,6 +2149,7 @@ class InGame:
 
                             self.moved_chars[self.selected_own_char.idi] = True
                             self.shot_chars[self.selected_own_char.idi] = True
+                            self.r_fields = []
 
                     self.item_stat_card = self.detail_item[item.my_id]
                     return
@@ -2454,7 +2455,8 @@ class InGame:
         if self.move_char:  # you have to move the char now
 
             self.move_char = False
-            if self.is_it_my_turn and self.selected_own_char and (self.selected_own_char.idi not in self.moved_chars):
+            if self.is_it_my_turn and self.selected_own_char and \
+                    (self.selected_own_char.idi not in self.moved_chars):
 
                 # move to clicked field if it is reachable
                 rel_mouse_pos = [self.mouse_pos[0] - self.char_detail_back.get_width(),

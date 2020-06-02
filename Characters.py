@@ -26,7 +26,7 @@ class Character(GameObject):
                  carry=0,
                  class_id=0,
 
-                 health=[100, 100, 100, 100, 100, 100],
+                 health=[35, 100, 100, 100, 100, 100],
                  gear=[],
                  items=[],
                  weapons=[],
@@ -41,11 +41,13 @@ class Character(GameObject):
                  burn=False,
                  poison=False,
                  blind=False,
+                 doped=False,
 
                  burn_t=0,
                  poison_t=0,
                  blind_t=0,
-                 bleed_t=[0, 0, 0, 0, 0, 0]
+                 bleed_t=[0, 0, 0, 0, 0, 0],
+                 doped_t=0
                  ):
         super().__init__(name=name, obj_type=object_type, pos=pos, materials=["player"])
         self.name = name
@@ -67,18 +69,31 @@ class Character(GameObject):
         self.height = height
         self.pos = pos[:]
 
+        # --------------------
+
         self.bleed = bleed[:]
         self.bleed_t = bleed_t[:]
+
         self.burn = burn
         self.burn_t = burn_t
+
         self.poison = poison
         self.poison_t = poison_t
+
         self.blind = blind
         self.blind_t = blind_t
+
+        self.doped = doped
+        self.doped_t = doped_t
+
+        # -------------------------
 
         self.items = items[:]
         self.gear = gear[:]
         self.weapons = weapons[:]
+
+        # -------------------------
+
         self.active_slot = None
         self.orientation = orientation
 
@@ -101,70 +116,8 @@ class Character(GameObject):
         self.weight = class_stats[self.class_id][4]
         self.cost = class_stats[self.class_id][5]
 
-    def weight_calculator(self):
-        return self.strength * 11
-
-    def is_dead(self):  # returns if dead
-        return self.health[0] <= 0 or self.health[3] <= 0
-
-    def can_shoot(self):
-        return self.health[1] > 0 or self.health[2] > 0
-
-    def get_pos(self, i):
-        return self.pos[i]
-
-    def get_drawable(self):
-        return self.pixs
-
-    def move(self, dest):
-        # just assume dest is legit
-        self.pos = dest
-        self.confirm()
-
     def confirm(self):
         self.collider = pg.sprite.Group(CollAtom(self.pos))
-
-    def get_inner_shoulders(self):  # TODO: approximate sin/cos using Kleinwinkel approximation to optimize runtime
-
-        if self.orientation == 0:
-            return [[self.pos[0]+0.15, self.pos[1]+0.5], [self.pos[0]+0.85, self.pos[1]+0.5]]
-
-        #  shoulder positions
-        return [[-0.35 * math.cos(360-self.orientation), -0.35 * math.sin(360-self.orientation)],
-                [0.35 * math.cos(360-self.orientation), 0.35 * math.sin(360-self.orientation)]]
-
-    def get_drawable_surf(self):
-        character_surf = pg.Surface((200, 200))
-        character_surf.fill((0, 0, 0))
-
-        # left arm
-        pg.draw.circle(character_surf, mat_colour[self.team],
-                       [int(character_surf.get_width() * 0.15), int(character_surf.get_height() * 0.5)],
-                       int(character_surf.get_width() * 0.15), 0)
-
-        # right arm
-        pg.draw.circle(character_surf, mat_colour[self.team],
-                       [int(character_surf.get_width() * 0.85), int(character_surf.get_height() * 0.5)],
-                       int(character_surf.get_width() * 0.15), 0)
-
-        # torso
-        pg.draw.rect(character_surf, mat_colour[self.team],
-                     (int(character_surf.get_width() * 0.15),
-                      int(character_surf.get_height() * 0.35),
-                      int(character_surf.get_width() * 0.75),
-                      int(character_surf.get_width() * 0.3)))
-
-        # head
-        pg.draw.circle(character_surf, mat_colour[self.team],
-                       [int(character_surf.get_width() * 0.5), int(character_surf.get_height() * 0.5)],
-                        int(character_surf.get_width() * 0.25), 0)
-
-        if self.is_selected:
-            pg.draw.circle(character_surf, (255, 0, 0), [100, 100], 105, 5)
-
-        character_surf.set_colorkey((0, 0, 0))
-
-        return character_surf
 
     def add_elem(self, material, elem_pixs):  # adds new element to pixs and adjusts mat_ind and materials
 
@@ -173,30 +126,50 @@ class Character(GameObject):
         for elem_pix in elem_pixs:
             self.pixs.append(elem_pix)
 
+    # --- get status ---
+
+    def get_carryable_weight(self):
+        return self.strength * 11
+
+    def get_pos(self, i):
+        return self.pos[i]
+
+    def get_drawable(self):
+        return self.pixs
+
+    def is_dead(self):  # returns if dead
+        return self.health[0] <= 0 or self.health[3] <= 0
+
+    def can_shoot(self):
+        return self.health[1] > 0 or self.health[2] > 0 or self.doped
+
+    def can_move(self):
+        return self.health[4] > 0 or self.health[4] > 0 or self.doped
+
+    # --- movements ---
+
+    def move(self, dest):
+        # just assume dest is legit
+        if self.can_move():
+            self.pos = dest
+            self.confirm()
+
+    def stand_up(self):
+        self.height = 1
+
+    def crouch(self):
+        self.height = 0.5
+
+    def lay_down(self):
+        self.height = 0.3
+
+    # --- item and weapon handling ---
+
     if Debug:
         def dead(self):
             print(self.name + " you are dead!\n Kopf: " + str(self.health[0]) + "\n Linker Arm: " + str(self.health[1]) +
                 "\n Rechter Arm: " + str(self.health[2]) + "\n Torso: " + str(self.health[3]) + "\n Linkes Bein: "
                 + str(self.health[4]) + "\n Rechtes Bein: " + str(self.health[5]))
-
-    def statchange(self):
-        #ändert stats(attribute) des characters
-        if self.health[1] <= 0 and self.health[2] <= 0:
-            self.strength = 0
-            self.dexterity = 0
-        elif self.health[1] <= 0 or self.health[2] <= 0 and not(self.health[1] <= 0 and self.health[2]):
-            self.strength -= self.strength * 0.5
-            self.dexterity -= self.dexterity * 0.5
-
-        if self.health[4] <= 0 and self.health[5] <= 0 and ((self.health[1] <= 0 or self.health[2] <= 0)
-                                                              and not(self.health[1] <= 0 and self.health[2] <= 0)):
-            self.speed = 0.15
-        elif self.health[4] <= 0 and self.health[5] <= 0 and (self.health[1] <= 0 and self.health[2] <= 0):
-            self.speed = 0.1
-        elif self.health[4] <= 0 and self.health[5] <= 0:
-            self.speed = 0.25
-        elif self.health[4] <= 0 or self.health[5] <= 0 and not (self.health[4] <= 0 and self.health[5] <= 0):
-            self.speed = 0.5
 
     if Debug:
         def statusprint(self, statind):
@@ -256,6 +229,10 @@ class Character(GameObject):
         else:
             print("You can't exchange any weapons!")
 
+    def use_item(self, itemind, partind=-1):
+
+        self.items[itemind].use(self, partind)
+
     def change_active_slot(self, t, index):
         # args = [type, index]
 
@@ -278,6 +255,8 @@ class Character(GameObject):
                 self.active_slot = self.items[0]
                 return self.active_slot
             return None
+
+    # --- shooting ---
 
     def range(self, dude):
         return abs(numpy.sqrt(((self.pos[0]-dude.pos[0])**2)+((self.pos[1]-dude.pos[1])**2)))
@@ -375,6 +354,7 @@ class Character(GameObject):
             return self.active_slot.dmg
 
     def calc_p_range(self, c_range):
+
         if isinstance(self.active_slot, Pistole):
             if c_range > 20:
                 return c_range-20
@@ -415,14 +395,41 @@ class Character(GameObject):
             else:
                 return 0
 
+    # --- special stats &  hp modifications ---
+
+    def statchange(self):
+
+        # --- speed
+
+        self.speed *= (self.health[4] + self.health[5]) / 200
+
+        # only torso and head left
+        if self.health[4] <= 0 and self.health[5] <= 0 and self.health[1] <= 0 and self.health[2] <= 0:
+            self.speed = 0
+
+        # --- strength and dexterity
+
+        # no arms no cookies
+        if self.health[1] <= 0 and self.health[2] <= 0:
+            self.strength = 0
+            self.dexterity = 0
+
+        # only 1 arm left
+        else:
+            if self.health[1] <= 0 or self.health[2] <= 0:
+                self.strength *= 0.5
+                self.dexterity *= 0.2
+
     def apply_damage(self, dmg):
         for i in range(6):
             self.health[i] -= dmg[i]
 
     def get_damaged(self, dmg, partind, rpg_bool):
+
         dmg_done = 0
         got_helmet = 0
         got_armor = 0
+
         if rpg_bool:
             for i in range(6):
                 dmg_done += 100
@@ -476,25 +483,24 @@ class Character(GameObject):
             self.dead()
         return dmg_done
 
-    def bleed_timer(self):
-        if self.bleed_t[0] > 1 or self.bleed_t[1] > 1 or self.bleed_t[2] > 1 or self.bleed_t[3] > 1 \
-                or self.bleed_t[4] > 1 or self.bleed_t[5] > 1:
-            for x in self.bleed_t:
-                if self.bleed_t[x] > 0:
-                    self.bleed_t[x] -= 1
+    def regenerate_hp(self, amount, partind):
+        self.health[partind] *= amount
+        if self.health[partind] > 100:
+            self.health[partind] = 100
 
-    def apply_bleed_dmg(self):
+    def timer_tick(self):
+        if self.burn_t > 0:
+            self.burn_t -= 1
+
+        if self.poison_t > 0:
+            self.poison_t -= 1
+
+        if self.blind_t > 0:
+            self.blind_t -= 1
+
         for x in self.bleed_t:
-            if self.bleed[x]:
-                self.health[x] -= 5
-
-    def get_bleed(self, partind):
-        if not self.bleed[partind]:
-            self.bleed[partind] = True
-            self.statusprint(2)
-
-    def stop_bleeding(self, partind):  # stops bleeding of body part with this index
-        self.bleed[partind] = False
+            if self.bleed_t[x] > 0:
+                self.bleed_t[x] -= 1
 
     def get_burn(self):
         self.burn = True
@@ -511,25 +517,13 @@ class Character(GameObject):
         self.blind_t = 10
         self.statusprint(3)
 
-    def stand(self):
-        self.height = 1
+    def get_bleed(self, partind):
+        if not self.bleed[partind]:
+            self.bleed[partind] = True
+            self.statusprint(2)
 
-    def crouch(self):
-        self.height = 0.5
-
-    def lay_down(self):
-        self.height = 0.3
-
-    def use_item(self, itemind, partind=-1):
-
-        self.items[itemind].use(self, partind)
-
-    def regenerate_hp(self, amount, partind):
-        self.health[partind] *= amount
-        if self.health[partind] > 100:
-            self.health[partind] = 100
-
-
+    def stop_bleeding(self, partind):  # stops bleeding of body part with this index
+        self.bleed[partind] = False
 
 
 def create_character(_id, team):  # team holds only name/number of team

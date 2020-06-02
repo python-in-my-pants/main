@@ -1,4 +1,4 @@
-    sichtbarkeit nach jedem move updaten
+
     nur sichtbarkeitslinien bis zu letztem sichtbaren punkt (schwierig, content tier 2)
 mehrmals ready drücken ist schlecht - 2. ready muss alles löschen, was das erste gesetzt hat
 neues game geht nicht weil alte daten noch im server -> endgame message muss alles im server zu dem game löschen
