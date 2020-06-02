@@ -28,6 +28,8 @@
 
 1 - (BUG) tode sind nicht synchron
 
+1 - (CONTENT) büsche op af???
+
 -----------------------------------------------------------------
 
 2 - (BUG) mehrmals ready drücken ist schlecht - 2. ready muss alles löschen, was das erste gesetzt hat
