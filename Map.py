@@ -354,10 +354,15 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
         return [1, 1]  # can see & shoot
 
     @staticmethod
-    def speed_conversion(speed):  # returns max_dist and mov_range
+    def speed_conversion(speed):
+        """
+        :param speed: character speed
+        :return: returns max_dist (euclidean)
+                     and mov_range (manhattan)
+        """
 
         # this is set up so that we use euclidean metric
-        return (speed * speed_multiplier) ** 2, \
+        return int(speed * speed_multiplier + 0.5) ** 2, \
                int(speed * speed_multiplier * 1.5 + 0.5)
 
     def get_reachable_fields(self, char):
@@ -754,7 +759,7 @@ class MapBuilder:
         tree_limit = int((fields_x*fields_y) / 150)
         puddel_limit = int((fields_x*fields_y / 150))
 
-        if False:
+        if True:
             house_limit = ruins_limit = bush_limit = boulder_limit = tree_limit = puddel_limit = 0
 
         def add_obj(obj_class, obj_limit):

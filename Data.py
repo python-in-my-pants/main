@@ -16,7 +16,7 @@ font = "comicsansms"
 master_volume = 0.0
 char_cap_divisor = 500
 points_per_field = 0.245
-speed_multiplier = 0.2
+speed_multiplier = 0.1
 def_elem_size = 50
 
 
@@ -31,10 +31,10 @@ def points_to_spend_per_team(x, y):
 #serverIP = "88.130.48.88"ö
 
 
-serverIP = "78.47.178.105"
+#serverIP = "78.47.178.105"
 
 
-#serverIP = "localhost"
+serverIP = "localhost"
 
 
 #serverIP = "25.68.211.167"
