@@ -1,27 +1,14 @@
-
-    nur sichtbarkeitslinien bis zu letztem sichtbaren punkt (schwierig, content tier 2)
-mehrmals ready drücken ist schlecht - 2. ready muss alles löschen, was das erste gesetzt hat
-neues game geht nicht weil alte daten noch im server -> endgame message muss alles im server zu dem game löschen
-
-moven nach dem schießen oder einfach nur moven crasht mit infinite
-overlay ist manchmal leer (nach kill?)
-tode sind nicht synchron
-
 1 - !!!!!!!!!!!disclaimer!!!!!!!!!!!!!
 
 1 - https://stackoverflow.com/questions/3344115/how-to-obfuscate-python-code-effectively
 
+1 - (CONTENT) visual feedback fürs schießen
+
 1 - (PERFORMANCE) deactivate buttons while waiting for opp turn
 
-1 - (BUG) upper char buttons only select first char of team always
-
-1 - (BUG) char kann sich iwann nicht mehr bewegen
+1 - (BUG) char kann sich iwann nicht mehr bewegen?
 
     1 - (BUG) heilen löst greed message aus und die meds verschwinden nicht
-
-1 - (VISUAL) mark spawn areas on minimap in char select and ingame
-
-1 - (CONTENT) balance speed; adjust map 343 (speed)
 
 (1 - man kann noch durch büsche kucken)
 
@@ -31,9 +18,21 @@ tode sind nicht synchron
 
 1 - (CONTENT) fucking fix accuracy OwO
 
-1 - on first click into overlay pls
+1 - (PERFORMANCE) overlay does not open on first click on opponent char sometimes
+
+1 - (BUG) hosted game isn't shown when hosting a game after finishing a game
+
+1 - (BUG) moven nach dem schießen oder einfach nur moven crasht mit infinite
+
+1 - (BUG) overlay ist manchmal leer (nach kill?)
+
+1 - (BUG) tode sind nicht synchron
 
 -----------------------------------------------------------------
+
+2 - (BUG) mehrmals ready drücken ist schlecht - 2. ready muss alles löschen, was das erste gesetzt hat
+
+2 - (CONTENT) nur sichtbarkeitslinien bis zu letztem sichtbaren punkt
 
 2 - (CONTENT) amphetamine as heal item, which you can use to shoot even if you have no arm hp left or move even if you got no leg
     hp left but damages your torso hp over time (like bleed) damage
@@ -43,8 +42,6 @@ tode sind nicht synchron
 2 - (VISUAL) add sick loading screens with 99% loading bars that never actually fill, like in connection setup when opp is joining
 
 2 - (VISUAL) outline selected char in team selection (red canvas)
-
-2 - (BUG) server keeps old map if one client crashes/exits during connection setup
 
 2 - (PERFORMANCE) doublebuf, hwsurface in set_mode for better performance
 

@@ -338,15 +338,15 @@ class Connection:
                     # something is in the buffer (already received) and the next rec is empty -> msg ended
                     if (buf and not last_rec) or Connection.contains_end_code(buf):
 
-                        print("+++ Message {} with len {} ended bc of {}".
+                        """print("+++ Message {} with len {} ended bc of {}".
                               format(buf[40:45], len(buf),
                                      "empty" if not last_rec else "XXXXX"))
 
-                        print("How many XXXXX:", Connection.contains_end_code(buf))
+                        print("How many XXXXX:", Connection.contains_end_code(buf))"""
 
                         # put in above methods here and delete other stuff
                         packs = self.get_packets_from_buffer(buf)
-                        print(packs)
+                        #print(packs)
 
                         head = None
                         for p in packs:

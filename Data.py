@@ -162,7 +162,8 @@ unwrap_as_str = [scc["control"],
                  scc["in game stat"],
                  scc["cancel hosting"],
                  scc["Join"],
-                 scc["get turn"]]
+                 scc["get turn"],
+                 scc["end game"]]
 # </editor-fold>
 
 ##############

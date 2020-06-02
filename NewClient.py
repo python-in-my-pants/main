@@ -35,11 +35,8 @@ class NetworkClient(metaclass=Singleton):
             self.send_q = queue.Queue()
             th.start_new_thread(self.empty_send_q, ())
             self.last_opp_turn_time = -1
-            self.live_data = {"hosting_list":   {},
-                              "map":            None,
-                              "in_game":        False,
-                              "game_begin":     None,
-                              "last_opp_turn":  (None, -1)}
+            self.live_data = None
+            self.set_live_data()
 
         except Exception as e:
             print("")
@@ -47,6 +44,14 @@ class NetworkClient(metaclass=Singleton):
             print("Exception in NewClient in line 44!")
             print("\nClient failed to connect to server with exception:\n\n\t{}".format(e).upper())
             sys.exit()
+
+    def set_live_data(self):
+
+        self.live_data = {"hosting_list":   {},
+                          "map":            None,
+                          "in_game":        False,
+                          "game_begin":     None,
+                          "last_opp_turn":  (None, -1)}
 
     def kill_connection(self):
         # (this is so that all pending sends go through) it seems we can just skip this???
@@ -79,6 +84,10 @@ class NetworkClient(metaclass=Singleton):
 
     def send_turn(self, turn, timestamp):
         self.send_q.put((Data.scc["Turn"], (turn, timestamp)))  # current_milli_time()
+
+    def send_endgame(self):
+        self.send_q.put((Data.scc["end game"], ""))
+        self.set_live_data()
 
     def send_control(self, msg):
         self.send_q.put((Data.scc["control"], msg))
@@ -133,8 +142,8 @@ class NetworkClient(metaclass=Singleton):
                 return self.live_data["game_begin"]
         return self.live_data["game_begin"]
 
-    def get_turn_from_server(self):  # TODO make "no" version
-        self.send_q.put((Data.scc["get turn"], ""))
+    def get_turn_from_server(self, bolle=True):  # does not make sense
+        self.send_q.put((Data.scc["get turn"], str(bolle)))
 
     # get turn
     def get_turn(self):  # returns either old turn or new turn

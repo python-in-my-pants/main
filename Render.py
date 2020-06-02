@@ -1917,22 +1917,22 @@ class InGame:
         # <editor-fold desc="button functions">
         # button functions
 
-        def sel_own_char_binder(name, _id):
+        def sel_own_char_binder(name, _char):
 
             def other_func():
 
-                if char == self.selected_own_char:  # unselect if he was selected
+                if _char == self.selected_own_char:  # unselect if he was selected
                     self.selected_own_char = None
                     self.selected_char = None
                     self.r_fields = []
                     return
 
-                if char.is_dead():
+                if _char.is_dead():
                     self.r_fields = []
                     return
 
-                self.selected_own_char = char
-                self.selected_own_char_overlay = char
+                self.selected_own_char = _char
+                self.selected_own_char_overlay = _char
                 self.selected_char = self.selected_own_char
 
                 self.active_slot = self.selected_own_char.get_active_slot()
@@ -2017,7 +2017,7 @@ class InGame:
                          img_uri=(Data.cc_smol_prefix + str(self.own_team.characters[i].class_id) + ".png"),
                          text="", name="char btn " + str(self.own_team.characters[i].class_id),
                          action=sel_own_char_binder("char_btn_" + str(self.own_team.characters[i].idi),
-                                                    self.own_team.characters[i].idi))
+                                                    self.own_team.characters[i]))
 
             self.own_team_stat_buttons.append(btn)
 
@@ -2143,7 +2143,9 @@ class InGame:
                                 self.selected_own_char.idi not in self.shot_chars:
 
                             self.selected_own_char.use_item(i)
-                            # TODO use up item here, aka remove it from char.items
+
+                            # TODO build action for turn here
+
                             if self.selected_own_char.items[i].depletes:
                                 del self.selected_own_char.items[i]
 
@@ -2205,13 +2207,12 @@ class InGame:
 
         if opp_turn.win:
             # opp says you win! :)
-            print("opp says you win! UwU")
-            pass  # insert some fancy "You win! UwU here, prolly with sum fluffy cat gurl and cute anime sounds
 
             # TODO either just blit or insert animated shit here however the fuck that may be done
             self.screen.blit(self.win_banner, blit_centered_pos(self.screen, self.win_banner))
             pg.display.flip()
             time.sleep(5)
+            self.client.send_endgame()
 
             # this exits out of the screen
             self.new_window_target = MainWindow
@@ -2281,17 +2282,18 @@ class InGame:
 
         # check if game is over
         if self.own_team.all_dead():
+
             # declare win
             self.own_turn = Turn()
             self.own_turn.win = True
-            print("Telling the opp I lose")
 
             # send the turn out
             start_new_thread(self.client.send_turn, (self.own_turn, int(round(time.time() * 1000))))
 
-            # prepare showing loss to player or TODO some fancy animated version (aka video)
+            # prepare showing loss to player or TODO some fancy animated version
             self.screen.blit(self.lose_banner, blit_centered_pos(self.screen, self.lose_banner))
             pg.display.flip()
+            self.client.send_endgame()
             time.sleep(5)
 
             # exit out
@@ -2796,6 +2798,7 @@ class InGame:
 
     def event_handling(self):
 
+        team_stat_button_focused = False
         for event in pg.event.get():
 
             if event.type == pg.QUIT:
@@ -2815,6 +2818,7 @@ class InGame:
                 if event.button == 1:
                     for button in self.own_team_stat_buttons:
                         if button.is_focused(p):
+                            team_stat_button_focused = True
                             button.action()
 
                 if event.button == 3:  # right button release
@@ -2861,7 +2865,7 @@ class InGame:
                         self.done_btn.action()
 
                     # own char is selected and might want to move
-                    if self.r_fields and self.selected_own_char:
+                    if self.r_fields and self.selected_own_char and not team_stat_button_focused:
                         self.move_char = True
 
                     # if map surface is focused
