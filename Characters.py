@@ -476,21 +476,25 @@ class Character(GameObject):
             self.dead()
         return dmg_done
 
-    def status_timer(self):
-        if self.burn_t > 0:
-            self.burn_t -= 1
-
-        if self.poison_t > 0:
-            self.poison_t -= 1
-
-        if self.blind_t > 0:
-            self.blind_t -= 1
-
+    def bleed_timer(self):
         if self.bleed_t[0] > 1 or self.bleed_t[1] > 1 or self.bleed_t[2] > 1 or self.bleed_t[3] > 1 \
                 or self.bleed_t[4] > 1 or self.bleed_t[5] > 1:
             for x in self.bleed_t:
                 if self.bleed_t[x] > 0:
                     self.bleed_t[x] -= 1
+
+    def apply_bleed_dmg(self):
+        for x in self.bleed_t:
+            if self.bleed[x]:
+                self.health[x] -= 5
+
+    def get_bleed(self, partind):
+        if not self.bleed[partind]:
+            self.bleed[partind] = True
+            self.statusprint(2)
+
+    def stop_bleeding(self, partind):  # stops bleeding of body part with this index
+        self.bleed[partind] = False
 
     def get_burn(self):
         self.burn = True
@@ -506,11 +510,6 @@ class Character(GameObject):
         self.blind = True
         self.blind_t = 10
         self.statusprint(3)
-
-    def get_bleed(self, partind):
-        if not self.bleed[partind]:
-            self.bleed[partind] = True
-            self.statusprint(2)
 
     def stand(self):
         self.height = 1
@@ -530,8 +529,7 @@ class Character(GameObject):
         if self.health[partind] > 100:
             self.health[partind] = 100
 
-    def stop_bleeding(self, partind):  # stops bleeding of body part with this index
-        self.bleed[partind] = False
+
 
 
 def create_character(_id, team):  # team holds only name/number of team
