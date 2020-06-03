@@ -87,6 +87,17 @@ character_classes = {
     6: "Commander"       # higher stats than normal but more expensive
 }
 
+weapon_stats = {
+    #  [name, cost, weight, acc, dmg, mag, spt]
+    0: ["Pistole", 1, 0.7, 2.5, 18, 10, 3],
+    1: ["MP", 2, 1.9, 2, 17, 20, 6],
+    2: ["Sturmgewehr", 3, 4, 2.7, 22, 30, 5],
+    3: ["Shotgun", 3, 3, 2, 40, 2, 2],
+    4: ["MG", 3, 10.5, 1.5, 20, 100, 10],
+    5: ["Sniper", 4, 6, 3.5, 90, 7, 1],
+    6: ["RL", 5, 8, 1.7, 100, 1, 1]
+}
+
 class_stats = {
     #   [stamina, speed, dexterity, strength, weight, cost]
     0: [50, 40, 35, 35, 70, 14],

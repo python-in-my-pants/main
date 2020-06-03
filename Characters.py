@@ -38,14 +38,8 @@ class Character(GameObject):
                  height=1,
 
                  bleed=[False, False, False, False, False, False],
-                 burn=False,
-                 poison=False,
-                 blind=False,
                  doped=False,
 
-                 burn_t=0,
-                 poison_t=0,
-                 blind_t=0,
                  bleed_t=[0, 0, 0, 0, 0, 0],
                  doped_t=0
                  ):
@@ -73,15 +67,6 @@ class Character(GameObject):
 
         self.bleed = bleed[:]
         self.bleed_t = bleed_t[:]
-
-        self.burn = burn
-        self.burn_t = burn_t
-
-        self.poison = poison
-        self.poison_t = poison_t
-
-        self.blind = blind
-        self.blind_t = blind_t
 
         self.doped = doped
         self.doped_t = doped_t
@@ -423,6 +408,8 @@ class Character(GameObject):
     def apply_damage(self, dmg):
         for i in range(6):
             self.health[i] -= dmg[i]
+            if dmg[i] > 0:
+                self.start_bleeding(i)
 
     def get_damaged(self, dmg, partind, rpg_bool):
 
@@ -479,6 +466,7 @@ class Character(GameObject):
                 self.health[partind] -= dmg_done
             self.hitprint(dmg_done, partind)
             self.statchange()
+        self.start_bleeding(partind)
         if self.is_dead():
             self.dead()
         return dmg_done
@@ -488,42 +476,27 @@ class Character(GameObject):
         if self.health[partind] > 100:
             self.health[partind] = 100
 
-    def timer_tick(self):
-        if self.burn_t > 0:
-            self.burn_t -= 1
+    def bleed_timer(self):
+            for x in range(6):
+                if self.bleed[x]:
+                    if self.bleed_t[x] > 0:
+                        self.apply_bleed_dmg(x)
+                        self.bleed_t[x] -= 1
+                    else:
+                        self.bleed[x] = False
 
-        if self.poison_t > 0:
-            self.poison_t -= 1
+    def apply_bleed_dmg(self, partind):
+        self.health[partind] -= 5
 
-        if self.blind_t > 0:
-            self.blind_t -= 1
-
-        for x in self.bleed_t:
-            if self.bleed_t[x] > 0:
-                self.bleed_t[x] -= 1
-
-    def get_burn(self):
-        self.burn = True
-        self.burn_t = 10
-        self.statusprint(0)
-
-    def get_poison(self):
-        self.poison = True
-        self.poison_t = 10
-        self.statusprint(1)
-
-    def get_blind(self):
-        self.blind = True
-        self.blind_t = 10
-        self.statusprint(3)
-
-    def get_bleed(self, partind):
+    def start_bleeding(self, partind):
         if not self.bleed[partind]:
             self.bleed[partind] = True
+            self.bleed_t[partind] = 1000
             self.statusprint(2)
 
     def stop_bleeding(self, partind):  # stops bleeding of body part with this index
         self.bleed[partind] = False
+        self.bleed_t[partind] = 0
 
 
 def create_character(_id, team):  # team holds only name/number of team

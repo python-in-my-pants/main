@@ -34,7 +34,7 @@ class Weapon:
 
 # <editor-fold desc="weapon classes">
 class Pistole(Weapon):
-    def __init__(self, class_id=0, name="Pistol", cost=1, weight=0.7, acc=2.5, dmg=18, mag=10, spt=3):
+    def __init__(self, class_id=0, name="Pistole", cost=1, weight=0.7, acc=2.5, dmg=18, mag=10, spt=3):
         super().__init__(class_id, name, cost, weight, acc, dmg, mag, spt)
 
 

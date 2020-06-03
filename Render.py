@@ -2218,7 +2218,7 @@ class InGame:
             return
 
         # prepare surface
-        pg.transform.scale(self.emptiness_of_darkness_of_doom, self.game_map.window.get_size())
+        self.opp_turn_surf = pg.transform.scale(self.emptiness_of_darkness_of_doom, self.game_map.window.get_size())
 
         opp_char_list = list(filter((lambda a: a.team != self.own_team),
                                     [self.game_map.objects[x] for x in self.game_map.characters]))
@@ -2265,7 +2265,7 @@ class InGame:
                 if action.dmg2b:
                     my_char.apply_damage(action.dmg2b)
                     # blit lines indicating movement and shots
-                    self.draw_line_map_coords(self.opp_turn_surf, my_char.pos, opp_char.pos, (139, 0, 0))
+                    self.draw_line_(self.opp_turn_surf, my_char.pos, opp_char.pos, (255, 0, 0))
 
             for i in range(self.hp_bars.__len__()):
                 for j in range(6):
@@ -2899,7 +2899,7 @@ class InGame:
                     self.zoomed = True
 
     # <editor-fold desc="Helper">
-    def draw_line_map_coords(self, surf, start, end, color):  # draws line from start to end on game_map.window
+    def draw_line_pix_coords(self, surf, start, end, color):  # draws line from start to end on game_map.window
         start_point = start
         end_point = end
 
@@ -2920,7 +2920,15 @@ class InGame:
 
         return surf
 
-    def draw_line_pix_coords(self, surf, start, end, color):
+    def draw_line_(self, surf, start, end, color):
+        start_point = self._map_to_pix_coord_def_size(start)
+        end_point = self._map_to_pix_coord_def_size(end)
+
+        pg.draw.aaline(surf, color, start_point, end_point)
+
+        return surf
+
+    def draw_line_map_coords(self, surf, start, end, color, num_of_parts=8):
         start_point = self._map_to_pix_coord(start)
         end_point = self._map_to_pix_coord(end)
 
@@ -2930,7 +2938,6 @@ class InGame:
         line_points = [start_point]
         end_min_start = [end_point[i] - start_point[i] for i in range(start_point.__len__())]
 
-        num_of_parts = 8
         for i in range(1, num_of_parts):
             offset = [int((i / num_of_parts) * x) for x in end_min_start]
             line_points.append([start_point[i] + offset[i] for i in range(len(start_point))])
@@ -2941,7 +2948,8 @@ class InGame:
 
         return surf
 
-    def _draw_dotted_line(self, surf, pl, color=(255, 0, 0)):
+    @staticmethod
+    def _draw_dotted_line(surf, pl, color=(255, 0, 0)):
         """
         :param surf: surf to draw on
         :param pl: point list for the line
@@ -2965,6 +2973,11 @@ class InGame:
                [self.current_element_size * pos[0] + self.dest[0] +
                 self.char_detail_back.get_width(),
                 self.current_element_size * pos[1] + self.dest[1]]
+
+    @staticmethod
+    def _map_to_pix_coord_def_size(pos):
+        return [def_elem_size * pos[0] + 25,
+                def_elem_size * pos[1] + 25]
     # </editor-fold>
 
     def harakiri(self):
