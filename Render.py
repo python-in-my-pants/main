@@ -1079,7 +1079,7 @@ class CharacterSelection:  # commit comment
             def butn_fkt():
 
                 if not self.ready:
-                    weap = make_weapon_by_id(card_num)  # TODO: add function call to get instance of corresponding class
+                    weap = Weapon.make_weapon_by_id(card_num)  # TODO: add function call to get instance of corresponding class
                     if self.spent_points + weap.cost <= self.points_to_spend and self.selectedChar and \
                             len(self.selectedChar.weapons) < 3:
                         self.selectedChar.weapons.append(weap)
@@ -1917,22 +1917,22 @@ class InGame:
         # <editor-fold desc="button functions">
         # button functions
 
-        def sel_own_char_binder(name, _id):
+        def sel_own_char_binder(name, _char):
 
             def other_func():
 
-                if char == self.selected_own_char:  # unselect if he was selected
+                if _char == self.selected_own_char:  # unselect if he was selected
                     self.selected_own_char = None
                     self.selected_char = None
                     self.r_fields = []
                     return
 
-                if char.is_dead():
+                if _char.is_dead():
                     self.r_fields = []
                     return
 
-                self.selected_own_char = char
-                self.selected_own_char_overlay = char
+                self.selected_own_char = _char
+                self.selected_own_char_overlay = _char
                 self.selected_char = self.selected_own_char
 
                 self.active_slot = self.selected_own_char.get_active_slot()
@@ -2017,7 +2017,7 @@ class InGame:
                          img_uri=(Data.cc_smol_prefix + str(self.own_team.characters[i].class_id) + ".png"),
                          text="", name="char btn " + str(self.own_team.characters[i].class_id),
                          action=sel_own_char_binder("char_btn_" + str(self.own_team.characters[i].idi),
-                                                    self.own_team.characters[i].idi))
+                                                    self.own_team.characters[i]))
 
             self.own_team_stat_buttons.append(btn)
 
@@ -2082,7 +2082,8 @@ class InGame:
 
                 # highlight reachable fields by blitting green transparent stuff over them
                 # returns list of tuples
-                self.r_fields = self.game_map.get_reachable_fields(self.selected_own_char)
+                if not (self.selected_own_char.idi in self.moved_chars and self.selected_own_char.idi in self.shot_chars):
+                    self.r_fields = self.game_map.get_reachable_fields(self.selected_own_char)
 
             elif char.team != self.own_team.team_num and self.selected_own_char:  # opp. char
 
@@ -2115,44 +2116,71 @@ class InGame:
 
         def func_1():
 
-            for i, weapon in enumerate(self.selected_char.weapons):
+            for i, weapon in enumerate(self.selected_char.weapons):  # was selected char
                 if weapon.class_idi == _id:
 
                     # if you click on the inventory, have an own char selected and not also an enemy char selected
-                    if self.selected_own_char and self.selected_char.team != self.own_team and self.is_it_my_turn:
+                    if self.selected_own_char and self.is_it_my_turn:  #self.selected_char.team != self.own_team
+
                         self.selected_own_char.change_active_slot("Weapon", i)
                         self.active_slot = self.selected_own_char.get_active_slot()
 
                     self.item_stat_card = self.detail_weapon[weapon.class_id]
                     return
 
-        def func_2():
+        def func_2(mouse_button):
 
-            for i, item in enumerate(self.selected_char.items):  # was selected char but should not have been?
-                if item.idi == _id:
+            if mouse_button == 1:  # left click selects item
 
-                    if self.selected_own_char and self.is_it_my_turn:  # and self.selected_char.team != self.own_team
+                for i, item in enumerate(self.selected_own_char.items):  # was selected char
+                    if item.idi == _id:
 
-                        # no need to change active slot here if all items only need 1 turn for usage,
-                        # DON'T TAKE THIS COMMENT OUT
-                        #   self.selected_own_char.change_active_slot("Item", i)
-                        #   self.active_slot = self.selected_own_char.get_active_slot()
+                        self.selected_own_char.change_active_slot("Item", i)
+                        self.active_slot = self.selected_own_char.get_active_slot()
+                        self.item_stat_card = self.detail_item[item.my_id]
 
-                        # you can only use bandage if you did not move and did not shoot
-                        if self.selected_own_char.idi not in self.moved_chars and \
-                                self.selected_own_char.idi not in self.shot_chars:
+                        return
 
-                            self.selected_own_char.use_item(i)
-                            # TODO use up item here, aka remove it from char.items
-                            if self.selected_own_char.items[i].depletes:
-                                del self.selected_own_char.items[i]
+            if mouse_button == 3:  # right click uses item
+                for i, item in enumerate(self.selected_own_char.items):  # was selected char
 
-                            self.moved_chars[self.selected_own_char.idi] = True
-                            self.shot_chars[self.selected_own_char.idi] = True
-                            self.r_fields = []
+                    if item.idi == _id:
 
-                    self.item_stat_card = self.detail_item[item.my_id]
-                    return
+                        if self.selected_own_char and self.is_it_my_turn:
+
+                            # no need to change active slot here if all items only need 1 turn for usage,
+                            # DON'T TAKE THIS COMMENT OUT
+                            #   self.selected_own_char.change_active_slot("Item", i)
+                            #   self.active_slot = self.selected_own_char.get_active_slot()
+
+                            # you can only use items if you did not move and did not shoot
+                            if self.selected_own_char.idi not in self.moved_chars and \
+                                    self.selected_own_char.idi not in self.shot_chars:
+
+                                prev_hp = self.selected_own_char.health[:]
+                                self.selected_own_char.use_item(i)
+
+                                print("You healed yourself from {} to {}".format(prev_hp, self.selected_own_char.health))
+
+                                for k in range(self.hp_bars.__len__()):
+                                    for j in range(6):
+                                        self.hp_bars[k][j].update(self.own_team.characters[k].health[j])
+
+                                action = Action(player_a=self.selected_own_char,
+                                                dmg2a=[prev_hp[i] - self.selected_own_char.health[i] for i in range(6)],
+                                                used_item_index=i)
+                                self.own_turn.add_action(action)
+
+                                if self.selected_own_char.items[i].depletes:
+                                    del self.selected_own_char.items[i]
+
+                                self.moved_chars[self.selected_own_char.idi] = True
+                                self.shot_chars[self.selected_own_char.idi] = True
+                                self.selected_own_char = None
+                                self.selected_char = None
+                                self.r_fields = []
+
+                        return
 
         if item_type == "weapon":
             func_1.__name__ = name
@@ -2167,7 +2195,7 @@ class InGame:
             return "It's not your turn!"
 
         if not self.selected_own_char:
-            return "No char selected"
+            return "No character selected"
 
         if self.selected_own_char.is_dead():
             return "Your character is dead!"
@@ -2176,7 +2204,7 @@ class InGame:
             return "Character cannot shoot"
 
         if self.selected_own_char_overlay.idi in self.shot_chars:
-            return "You already shot"
+            return "You cannot shoot anymore"
 
         # check if shooter can see target
         shooter_index = self.game_map.get_char_index(self.selected_own_char)
@@ -2185,33 +2213,44 @@ class InGame:
         if not self.v_mat[(shooter_index, target_index)][1]:
             return "Cannot see character"
 
-        # TODO draw dotted line to signal shooting
-
         dmg, dmg_done = self.selected_own_char.shoot(self.overlay.boi_to_attack, where)
 
-        self.shot_chars[self.selected_own_char.idi] = (self.selected_own_char, self.overlay.boi_to_attack)
+        self.shot_chars[self.selected_own_char.idi] = True #(self.selected_own_char, self.overlay.boi_to_attack)
 
-        action = Action(self.selected_own_char, self.overlay.boi_to_attack,
-                        dmg2b=dmg_done)
-
-        self.own_turn.add_action(action)
+        self.own_turn.add_action(Action(self.selected_own_char, self.overlay.boi_to_attack, dmg2b=dmg_done))
 
         # unselect char after shooting
-        print(self.shot_chars)
+        # TODO maybe put back in
+        if self.selected_own_char.idi in self.moved_chars:
+
+            self.selected_own_char = None
+            self.selected_char = None
+            self.r_fields = []
 
         return dmg
 
     def apply_opp_turn(self, opp_turn):  # applies changes from opp turn to own game state
 
+        """
+        only apply results of changes, not changes (or actions such as use item) themselves except for move
+
+        :param opp_turn:
+        :return:
+        """
+
+        for c in self.own_team.characters:
+            print("{} velocity: {}".format(c.name, c.velocity))
+
+        # TODO deplete items and adjust their state
+
         if opp_turn.win:
             # opp says you win! :)
-            print("opp says you win! UwU")
-            pass  # insert some fancy "You win! UwU here, prolly with sum fluffy cat gurl and cute anime sounds
 
             # TODO either just blit or insert animated shit here however the fuck that may be done
             self.screen.blit(self.win_banner, blit_centered_pos(self.screen, self.win_banner))
             pg.display.flip()
             time.sleep(5)
+            self.client.send_endgame()
 
             # this exits out of the screen
             self.new_window_target = MainWindow
@@ -2225,12 +2264,17 @@ class InGame:
 
         for action in opp_turn.actions:
 
-            # opp_char = action.player_a  # TODO if we do this, do we even need to move???
-
             opp_char = None
             for c in opp_char_list:
                 if c.rand_id == action.player_a.rand_id:
                     opp_char = c
+
+            # copy stats
+            opp_char.clone_from_other(action.player_a)
+
+            # this has to stand before moving as moving will change potentially false velocities to the right value
+            if action.velocityraptor is not None:  # should only be not none if char did not move
+                opp_char.velocity = action.velocityraptor
 
             if action.path:
 
@@ -2242,7 +2286,7 @@ class InGame:
                 # index in game objects
                 opp_char_index = self.game_map.get_char_index(opp_char)
 
-                if opp_char_index in visible_char_indices:
+                if opp_char_index in visible_char_indices:  # draw movement path
 
                     pg.draw.aalines(self.opp_turn_surf, (0, 230, 230), False,
                                     [[x[0]*Data.def_elem_size + (Data.def_elem_size//2),
@@ -2255,59 +2299,73 @@ class InGame:
 
             if action.player_b:  # there is a second player involved
 
-                #my_char = action.player_b
-
                 my_char = None
                 for c in self.own_team.characters:
                     if c.rand_id == action.player_b.rand_id:
                         my_char = c
 
                 if action.dmg2b:
-                    my_char.apply_damage(action.dmg2b)
+                    my_char.apply_hp_change(action.dmg2b)
                     # blit lines indicating movement and shots
                     self.draw_line_(self.opp_turn_surf, my_char.pos, opp_char.pos, (255, 0, 0))
+
+            if action.dmg2a:
+                # he healed himself
+                opp_char.apply_hp_change(action.dmg2a)
+
+            # deplete used item
+            if action.used_item_index is not None and opp_char.items[action.used_item_index].depletes:
+                del opp_char.items[action.used_item_index]
 
             for i in range(self.hp_bars.__len__()):
                 for j in range(6):
                     self.hp_bars[i][j].update(self.own_team.characters[i].health[j])
 
-            # TODO implement other action stuff
-
         # TODO make animated version :-)
 
-        # before you're done, check if the sent team from opp is the same as your current representation of the opp team
-        # if that's not the case, set your repres equal to his, which should ideally not be needed
-        ...
-
-        # check if game is over
+        # --- check if game is over ---
         if self.own_team.all_dead():
+
             # declare win
             self.own_turn = Turn()
             self.own_turn.win = True
-            print("Telling the opp I lose")
 
             # send the turn out
             start_new_thread(self.client.send_turn, (self.own_turn, int(round(time.time() * 1000))))
 
-            # prepare showing loss to player or TODO some fancy animated version (aka video)
+            # prepare showing loss to player or TODO some fancy animated version
             self.screen.blit(self.lose_banner, blit_centered_pos(self.screen, self.lose_banner))
             pg.display.flip()
+            self.client.send_endgame()
             time.sleep(5)
 
             # exit out
             self.new_window_target = MainWindow
             return
 
+        # --- call tick function for every char from own team ---
+        # this is executed if it's your turn AGAIN, not when your turn begins
+        for c in self.own_team.characters:
+            c.timer_tick()
+
+            # decay velocity for all characters that did not move this turn
+            if c.idi not in self.moved_chars:
+                c.decay_velocity()
+                self.own_turn.add_action(Action(c, velocityraptor=c.velocity))
+
+            # TODO put in sth to make use of stamina stat of character, sth related to strength, velocity & mass carried
+
         # now set v_mat bc positions are set and we only need this once per turn
         self.v_mat = self.game_map.get_vmat()
 
-        # reset stuff
+        # --- reset stuff ---
         self.opp_turn_applying = False
         self.is_it_my_turn = True
 
         for own_char in self.own_team.characters:
             own_char.moved = False
             own_char.shot = False
+
         self.moved_chars = dict()
         self.shot_chars = dict()
         self.own_turn = Turn()
@@ -2334,11 +2392,7 @@ class InGame:
 
             end_point = [self.current_element_size * self.selected_own_char.pos[0] + self.dest[0] +
                          self.char_detail_back.get_width(),
-                         self.current_element_size * self.selected_own_char.pos[1] + self.dest[1]] \
-                if self.zoom_factor <= 1 else \
-                [self.current_element_size * self.selected_own_char.pos[0] + self.dest[0] +
-                 self.char_detail_back.get_width(),
-                 self.current_element_size * self.selected_own_char.pos[1] + self.dest[1]]
+                         self.current_element_size * self.selected_own_char.pos[1] + self.dest[1]]
 
             # adjust to middle of field instead of upper left
             end_point = [int(ep + (self.current_element_size / 2)) for ep in end_point]
@@ -2350,6 +2404,7 @@ class InGame:
             for i in range(1, num_of_parts):
                 offset = [int((i / num_of_parts) * x) for x in end_min_start]
                 line_points.append([start_point[i] + offset[i] for i in range(len(start_point))])
+
         else:
             line_points = []
         # </editor-fold>der
@@ -2490,9 +2545,14 @@ class InGame:
                     # build an action for turn
                     self.own_turn.add_action(Action(self.selected_own_char, path=path))
 
-                    # unselect char after movement
                     self.r_fields = []
-                    self.selected_own_char = None
+
+                    if self.selected_own_char.idi in self.shot_chars:
+
+                        # unselect char after movement if he cannot shoot anymore
+                        self.selected_own_char = None
+                        self.selected_char = None
+
                     self.v_mat = self.game_map.get_vmat()
 
             # you have already moved this char
@@ -2502,6 +2562,8 @@ class InGame:
                 self.r_fields = []
                 if self.selected_own_char.idi in self.shot_chars:
                     self.selected_own_char = None
+                    # TODO maybe take out
+                    self.selected_char = None
 
                 # tODO just for troll, remove later ... but notify user what's up
                 print("Greed is a sin against God,\n "
@@ -2521,12 +2583,20 @@ class InGame:
         # <editor-fold desc="left side">
         # ----- left -----
 
-        if self.selected_char:
+        """if self.selected_char:
             self.char_stat_card = self.detail_char[self.selected_char.class_id]
+        
 
         self.char_detail_back.blit(fit_surf(back=self.char_detail_back, surf=self.detail_back_metall), dest=[0, 0])
         self.char_detail_back.blit(self.char_stat_card, dest=blit_centered_pos(self.char_detail_back,
-                                                                               self.char_stat_card))
+                                                                               self.char_stat_card))"""
+
+        self.char_detail_back.blit(fit_surf(back=self.char_detail_back, surf=self.detail_back_metall), dest=[0, 0])
+
+        if self.selected_char:
+            self.char_stat_card = self.detail_char[self.selected_char.class_id]
+            self.char_detail_back.blit(self.char_stat_card, dest=blit_centered_pos(self.char_detail_back,
+                                                                                   self.char_stat_card))
 
         r_metal = pg.image.load(Data.rusty_metal)
         self.inventory_gear_weapons_surf.blit(stretch_surf(self.inventory_gear_weapons_surf, r_metal), dest=(0, 0))
@@ -2635,10 +2705,6 @@ class InGame:
 
         # </editor-fold>
 
-        """for i in range(self.hp_bars.__len__()):
-            for j in range(6):
-                self.hp_bars[i][j].update(self.own_team.characters[i].health[j])"""
-
         # <editor-fold desc="blend out team stats">
         # blend out team stats if mouse is not up
         mouse_up = self.mouse_pos[1] < self.own_team_stats.get_height() - 15
@@ -2685,6 +2751,7 @@ class InGame:
         # mid
 
         self.screen.blit(self.map_surface, dest=[self.char_detail_back.get_width(), 0])
+
         #   own char is selected       map surface is focused
         if self.selected_own_char and self.map_surface.get_rect().collidepoint(
                 self.mouse_pos[0] - self.char_detail_back.get_width(), self.mouse_pos[1]):
@@ -2694,7 +2761,6 @@ class InGame:
             self.overlay.newblit = False
 
             if self.dmg_done_timer < time.time() and self.dmg_done_ is not None:
-                print("UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU w UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU")
                 self.overlay = None
                 self.overlay_btn = None
                 self.dmg_done_ = None
@@ -2768,6 +2834,14 @@ class InGame:
 
         elif self.is_it_my_turn:
 
+            if self.selected_char:
+                print("    Selected char pos: {} and velocity {}\n".
+                      format(self.selected_char.pos, self.selected_char.velocity))
+
+            if self.selected_own_char:
+                print("Selected own char pos: {} and velocity {}\n".
+                      format(self.selected_own_char.pos, self.selected_own_char.velocity))
+
             self.main_blit()
 
         else:  # opps turn
@@ -2796,6 +2870,7 @@ class InGame:
 
     def event_handling(self):
 
+        team_stat_button_focused = False
         for event in pg.event.get():
 
             if event.type == pg.QUIT:
@@ -2812,11 +2887,6 @@ class InGame:
                 p = list(pg.mouse.get_pos())
                 self.mouse_pos = p
 
-                if event.button == 1:
-                    for button in self.own_team_stat_buttons:
-                        if button.is_focused(p):
-                            button.action()
-
                 if event.button == 3:  # right button release
                     if self.zoom_factor >= 1:
                         self.shifting = False
@@ -2830,20 +2900,22 @@ class InGame:
                 if event.button == 1:  # on left click
 
                     if self.overlay and self.overlay_btn:
+
                         for btn in self.overlay_btn:
-                            if btn.is_focused([self.mouse_pos[0] - self.char_detail_back.get_width(),
-                                               self.mouse_pos[1]]):
-                                if self.selected_own_char:
-                                    self.dmg_done_ = self.shoot(int(btn.name))
-                                    self.dmg_done_timer = time.time() + 3
-                                    self.selected_own_char = None
-                                    self.r_fields = []
+
+                            # overlay button is clicked, we want to attack
+                            if btn.is_focused([self.mouse_pos[0]-self.char_detail_back.get_width(), self.mouse_pos[1]])\
+                                    and self.selected_own_char:
+
+                                self.dmg_done_ = self.shoot(int(btn.name))
+                                self.dmg_done_timer = time.time() + 3
 
                     if self.overlay:
                         if not (self.overlay.pos[0] + 100 >= p[0] >= self.overlay.pos[0]) or\
                            not (self.overlay.pos[1] + 200 >= p[1] >= self.overlay.pos[1]):
+
                             self.overlay = None
-                            self.selected_own_char = None
+                            #self.selected_own_char = None TODO maybe put back in
 
                     for button in self.gear_buttons:
                         if button.is_focused(p):
@@ -2851,17 +2923,23 @@ class InGame:
 
                     for button in self.weapon_buttons:
                         if button.is_focused(p):
-                            button.action()
+                            button.action(1)
 
                     for button in self.item_buttons:
                         if button.is_focused(p):
-                            button.action()
+                            button.action(1)
 
                     if self.done_btn.is_focused(p):
                         self.done_btn.action()
 
+                    if event.button == 1:
+                        for button in self.own_team_stat_buttons:
+                            if button.is_focused(p):
+                                team_stat_button_focused = True
+                                button.action()
+
                     # own char is selected and might want to move
-                    if self.r_fields and self.selected_own_char:
+                    if self.r_fields and self.selected_own_char and not team_stat_button_focused:
                         self.move_char = True
 
                     # if map surface is focused
@@ -2878,6 +2956,18 @@ class InGame:
                     if self.zoom_factor >= 1:
                         self.shift_start = p
                         self.shifting = True
+
+                    for button in self.gear_buttons:
+                        if button.is_focused(p):
+                            button.action()
+
+                    for button in self.weapon_buttons:
+                        if button.is_focused(p):
+                            button.action(3)
+
+                    for button in self.item_buttons:
+                        if button.is_focused(p):
+                            button.action(3)
 
                 if event.button == 4:  # scroll up
 

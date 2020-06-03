@@ -123,57 +123,6 @@ class Packet:
                    self.bytes_hash)
 
 
-class Packet_old:
-
-    def __init__(self, ctype, payload, timestamp=None):
-        self.ctype = ctype
-        self._payload = payload
-        self.timestamp = 1500000000000
-        timestamp_padding = 30
-        if timestamp:
-            if isinstance(timestamp, bytes) and len(timestamp) == timestamp_padding:
-                self.timestamp = timestamp
-        else:
-            t = str(current_milli_time())
-            self.timestamp = ("0"*(timestamp_padding-len(t)) + t).encode("UTF-8")  # zero padding to 30 symbols
-        # TODO maybe "get_bytes()" to remove redundancy?
-        self.bytes = self.ctype + self.timestamp + self._payload + Data.scc["message end"]
-        self.bytes_hash = hashlib.sha1(self.bytes).hexdigest().encode("UTF-8")  # this is a string a byte array
-        self.confirmed = False
-
-    @classmethod
-    def from_buffer(cls, buffer):
-        """Construct a packet from a byte array"""
-        return cls(buffer[0:5], buffer[35:-5], timestamp=buffer[5:35])
-
-    def get_payload(self):  # TODO look after data types of confirm message!!!
-        """returns unwrapped payload, object or string or byte array if no unwrapping type was defined in Data.py"""
-        try:
-            if self.ctype in Data.unwrap_as_str:
-                return self._payload.decode("UTF-8")
-            if self.ctype in Data.unwrap_as_obj:
-                return pickle.loads(self._payload)
-            else:
-                print("Warning! Unwrapping type for", self.ctype.decode("UTF-8"), "is not defined!")
-                return self._payload
-        except Exception as e:
-            print("")
-            traceback.print_exc()
-            print("Exception in NewNetwork in line 76!")
-            print("Error in get_payload while getting payload of {}-type packet!".format(self.ctype))
-            print(e)
-            print(self.to_string())
-            return self._payload
-
-    def to_string(self, n=0):
-        return ("\t" * n + "Ctype:\t\t{}\n" +
-                "\t" * n + "Length:\t\t{}\n" +
-                "\t"*n + "Timestamp:\t{}\n" +
-                "\t"*n + "Payload:\t{}...\n" +
-                "\t"*n + "Hash:\t\t{}").\
-            format(self.ctype, str(len(self.bytes)), self.timestamp, self._payload[-40:], self.bytes_hash)
-
-
 class Connection:
 
     # TODO: add security by replacing sha1 with HMAC
@@ -239,8 +188,8 @@ class Connection:
                     # check if its the last piece of the message
                     if len(last_rec) < size or last_rec[-5:] == Data.scc["message end"]:
 
-                        print("+++ Message {} with len {} ended bc of {}".
-                              format(buf[40:45], len(buf), "len" if len(last_rec) < size else "XXXXX"))
+                        """print("+++ Message {} with len {} ended bc of {}".
+                              format(buf[40:45], len(buf), "len" if len(last_rec) < size else "XXXXX"))"""
                         pack = Packet.from_buffer(buf)
 
                         if pack is not None:
@@ -283,8 +232,8 @@ class Connection:
 
             self.data.rec_log.append(pack)
 
-            if self.role == "Client":
-                print(pack.to_string(), "\n")
+            """if self.role == "Client":
+                print(pack.to_string(), "\n")"""
 
             # check if msg needs confirm
             if Data.needs_confirm[Data.iscc[pack.ctype]]:
@@ -338,15 +287,15 @@ class Connection:
                     # something is in the buffer (already received) and the next rec is empty -> msg ended
                     if (buf and not last_rec) or Connection.contains_end_code(buf):
 
-                        print("+++ Message {} with len {} ended bc of {}".
+                        """print("+++ Message {} with len {} ended bc of {}".
                               format(buf[40:45], len(buf),
                                      "empty" if not last_rec else "XXXXX"))
 
-                        print("How many XXXXX:", Connection.contains_end_code(buf))
+                        print("How many XXXXX:", Connection.contains_end_code(buf))"""
 
                         # put in above methods here and delete other stuff
                         packs = self.get_packets_from_buffer(buf)
-                        print(packs)
+                        #print(packs)
 
                         head = None
                         for p in packs:
@@ -432,7 +381,7 @@ class Connection:
                 else:
                     p = Packet(ctype, Connection.prep(msg))
 
-                if self.role == "Server" or True:
+                if self.role == "Server":# or True:
                     print(("\t" * 30 + "Sending:\t" + str(self.ident) + "\n{}\n").format(p.to_string(n=30)))
                 self.target_socket.send(p.bytes)
 
@@ -450,7 +399,8 @@ class Connection:
 
         packet = Packet(ctype, Connection.prep(msg))
         # TODO debug only
-        print(packet.to_string(n=30), "\n")
+        if self.role == "Server":
+            print(packet.to_string(n=30), "\n")
 
         confirmation_received = False
         msg_hash = packet.bytes_hash
@@ -476,7 +426,7 @@ class Connection:
 
         try:
             # just print if you are server
-            if self.role == "Server" or True:
+            if self.role == "Server":# or True:
                 print("\t" * 30 + "Sending:\t" + str(self.ident) + "\n{}\n".format(packet.to_string(n=30)))
 
             self.target_socket.send(packet.bytes)
@@ -495,7 +445,7 @@ class Connection:
             time.sleep(3)
             try:
                 counter += 1
-                if self.role == "Server" or True:
+                if self.role == "Server":# or True:
                     print("\t" * 30 + "... for the", counter-1, ". time:")
                     print("\t" * 30 + "Sending:" + str(self.ident) + "\n{}\n".format(packet.to_string(n=30)))
                 self.target_socket.send(packet.bytes)

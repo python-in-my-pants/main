@@ -1,5 +1,6 @@
 import random
 import functools
+from Data import *
 
 '''
 TODO Add weight to item classes
@@ -12,6 +13,7 @@ class Item:
 		self.my_id = my_id  # class id
 		self.name = name
 		self.idi = "i" + str(id(self))  # unique id
+		self.rand_id = random.randint(0, 1000000000)
 		self.cost = cost
 		self.weight = weight
 		self.stop_bleed = stop_bleed
@@ -28,9 +30,9 @@ class Bandage(Item):
 	heals selected body part and stops bleeding
 	"""
 
-	def __init__(self, my_id=0, name="Bandage", cost=1, value=1.2, weight=0.5):
+	def __init__(self, my_id=0, name="Bandage", cost=1, heal_multiplier=1.2, weight=0.5):
 		super().__init__(my_id, name, cost, weight, stop_bleed=True, hp_regen=True)
-		self.heal_multiplier = value
+		self.heal_multiplier = heal_multiplier
 
 	def use(self, char, bodypart=-1):
 
@@ -41,7 +43,13 @@ class Bandage(Item):
 		# select part automatically if none was given
 		if bodypart == -1:
 			if self.hp_regen:
-				char.health.index(functools.reduce(lambda a, b: a if 0 < a < b else b, char.health))
+				# bodypart = char.health.index(functools.reduce(lambda a, b: a if 0 < a < b else b, char.health))
+				bodypart = 0
+				low_h = 1
+				for index, h in enumerate(char.health):
+					if h / default_hp[index] < low_h:
+						bodypart = index
+						low_h = h / default_hp[index]
 			else:
 				if self.stop_bleed:
 					bodypart = next(ind for ind, val in enumerate(char.bleed) if val)
@@ -54,22 +62,30 @@ class Bandage(Item):
 
 class Medkit(Item):
 
-	def __init__(self, my_id=1, name="Medkit", cost=2, value=1.5, weight=1):
+	def __init__(self, my_id=1, name="Medkit", cost=2, heal_multiplier=1.5, weight=1):
 		super().__init__(my_id, name, cost, weight, stop_bleed=True, hp_regen=True)
-		self.heal_multiplier = value
+		self.heal_multiplier = heal_multiplier
 
 	def use(self, char, bodypart=-1):
 
 		# select part automatically if none was given
 		if bodypart == -1:
 			if self.hp_regen:
-				char.health.index(functools.reduce(lambda a, b: a if 0 < a < b else b, char.health))
+				# TODO rework, heals head above max
+				# bodypart = char.health.index(functools.reduce(lambda a, b: a if 0 < a < b else b, char.health))
+				bodypart = 0
+				low_h = 1
+				for index, h in enumerate(char.health):
+					if h/default_hp[index] < low_h:
+						bodypart = index
+						low_h = h/default_hp[index]
 			else:
 				if self.stop_bleed:
 					bodypart = next(ind for ind, val in enumerate(char.bleed) if val)
 				else:
 					bodypart = 3  # use on torso
 
+		print("regenerating {} times hp to bodypart {}".format(self.heal_multiplier, bodypart))
 		char.regenerate_hp(self.heal_multiplier, bodypart)
 		char.stop_bleeding(bodypart)
 
@@ -78,9 +94,9 @@ class Pills(Item):
 	"""
 	heals whole body hp by 20% but not dead parts
 	"""
-	def __init__(self, my_id=2, name="Pills", cost=2, value=1.2, weight=0.1):
+	def __init__(self, my_id=2, name="Pills", cost=2, heal_multiplier=1.2, weight=0.1):
 		super().__init__(my_id, name, cost, weight, hp_regen=True)
-		self.heal_multiplier = value
+		self.heal_multiplier = heal_multiplier
 
 	def use(self, char, bodypart=-1):
 
@@ -89,7 +105,7 @@ class Pills(Item):
 				char.regenerate_hp(self.heal_multiplier, i)
 
 
-class Accudope(Item):
+"""class Accudope(Item):
 	# TODO Add bool for the dopes if they are active
 	def __init__(self, my_id=3, name="Accuracy-Dope", cost=3, modifier=1.25, timer=5, weight=0.1):
 		super().__init__(my_id, name, cost, weight)
@@ -115,7 +131,7 @@ class Defdope(Item):
 	# TODO Change get_damage function to implement defdope
 	def __init__(self, my_id=6, name="Defence-Dope", cost=3, timer=5, weight=0.1):
 		super().__init__(my_id, name, cost, weight)
-		self.timer = timer
+		self.timer = timer"""
 # </editor-fold>
 
 
@@ -123,10 +139,10 @@ def make_item_by_id(my_id):
 	if my_id == 0: return Bandage()
 	if my_id == 1: return Medkit()
 	if my_id == 2: return Pills()
-	if my_id == 3: return Accudope()
+	"""if my_id == 3: return Accudope()
 	if my_id == 4: return Stredope()
 	if my_id == 5: return Speeddope()
-	if my_id == 6: return Defdope()
+	if my_id == 6: return Defdope()"""
 
 
 class Gear:
@@ -135,6 +151,7 @@ class Gear:
 		self.idi = id(self)  # unique id
 		self.cost = cost
 		self.weight = weight
+		self.rand_id = random.randint(0, 1000000000)
 
 
 # <editor-fold desc="Gear">

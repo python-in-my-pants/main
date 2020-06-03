@@ -14,15 +14,19 @@ class Game:  # for actual games
     def __init__(self, host, guest):
         self.host = host
         self.guest = guest
+
         self.last_host_turn = None
         self.last_host_turn_time = 0
+
         self.last_guest_turn = None
         self.last_guest_turn_time = 0
-        self.over = False
+
         self.host_ready = False
         self.guest_ready = False
+
         self.host_team = None
         self.guest_team = None
+
         self.game_map = None
 
 
@@ -157,9 +161,16 @@ class Server:
     # handle join
     def _hjoin(self, con, msg):
         # TODO multiple join attempts result in error as player is already in a game then and the hosted game is not
+
         # in the hosting list anymore
         game_to_join_name = msg  # Connection.bytes_to_string(msg)
         try:
+
+            # cannot join game hosted by same connection (ip & port)
+            if self.hosting_list[game_to_join_name].hosting_player == con.ident or \
+                    game_to_join_name not in self.hosting_list:
+                return
+
             # remove host from hosting list (2 player scenario)
             match_data = copy.deepcopy(self.hosting_list[game_to_join_name])
             self.hosting_list.pop(game_to_join_name)
@@ -259,7 +270,10 @@ class Server:
 
     def _hgturn(self, con, msg):  # sends back turn
         try:
-            game = self.game_players[con.ident]
+            if con.ident in self.game_players:
+                game = self.game_players[con.ident]
+            else:
+                return
         except KeyError:
             print("")
             traceback.print_exc()
@@ -278,8 +292,17 @@ class Server:
 
     # handle game end
     def _hendg(self, con, msg):
-        print("Error! Not implemented yet!")
-        ...  # TODO
+
+        for g in self.games:
+
+            if g.host == con.ident or g.guest == con.ident:
+                self.games.remove(g)
+
+                if g.host in self.game_players:
+                    del self.game_players[g.host]
+
+                if g.guest in self.game_players:
+                    del self.game_players[g.guest]
 
     # misc
     def _hundef(self, con, msg):
@@ -399,7 +422,9 @@ def main_routine():
                         for elem in con.get_rec_log_fast(5):
                             print("\n", elem.to_string())
                         print()
-                        print("+++++++++++++++++++++++", server.hosting_list.keys(), "\n")
+                        print("Hosting list +++++++++++++++++++++++", list(server.hosting_list.keys()))
+                        print("Game players +++++++++++++++++++++++", list(server.game_players.keys()))
+                        print("Games        +++++++++++++++++++++++", server.games, "\n")
 
                         ctype, msg = con.get_last_control_type_and_msg()
                         server.q.put([server.ctype_dict[ctype], con, msg])
