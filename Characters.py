@@ -492,7 +492,7 @@ class Character(GameObject):
                         if self.health[0] < 0:
                             self.health[0] = 0
 
-                        self.bleed[0] = True
+                        self.start_bleeding(partind)
 
                         # reduce durability by prevented damage
                         helmet.durability -= (dmg - dmg_done)
@@ -504,7 +504,7 @@ class Character(GameObject):
                     self.health[0] -= dmg_done
                     if self.health[0] < 0:
                         self.health[0] = 0
-                    self.bleed[0] = True
+                    self.start_bleeding(partind)
 
             elif partind == 3:
                 if armor:
@@ -515,7 +515,7 @@ class Character(GameObject):
                         if self.health[3] < 0:
                             self.health[3] = 0
 
-                        self.bleed[3] = True
+                        self.start_bleeding(partind)
 
                         # reduce durability by prevented damage
                         armor.durability -= (dmg - dmg_done)
@@ -529,7 +529,7 @@ class Character(GameObject):
                     if self.health[3] < 0:
                         self.health[3] = 0
 
-                    self.bleed[3] = True
+                    self.start_bleeding(partind)
 
             else:  # not head and not torso
 
@@ -570,11 +570,6 @@ class Character(GameObject):
 
     def decay_velocity(self):  # must only be called if char did not move in this turn
         self.velocity *= velocity_decay_factor
-
-    def get_bleed(self, partind):
-        self.bleed[partind] = True
-        if Debug:
-            self.statusprint(2)
 
     def apply_bleed_dmg(self, partind):
         self.health[partind] -= 5
