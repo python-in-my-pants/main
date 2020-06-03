@@ -398,6 +398,8 @@ class Character(GameObject):
 
     def calc_p_range(self, c_range):
 
+        print("active slot name: ", self.active_slot.name)
+
         if self.active_slot.name == "Pistole":
             if c_range > 20:
                 return c_range-20
@@ -503,6 +505,8 @@ class Character(GameObject):
                         if self.health[0] < 0:
                             self.health[0] = 0
 
+                        self.bleed[0] = True
+
                         # reduce durability by prevented damage
                         helmet.durability -= (dmg - dmg_done)
                         if helmet.durability <= 0:
@@ -513,6 +517,7 @@ class Character(GameObject):
                     self.health[0] -= dmg_done
                     if self.health[0] < 0:
                         self.health[0] = 0
+                    self.bleed[0] = True
 
             elif partind == 3:
                 if armor:
@@ -522,6 +527,8 @@ class Character(GameObject):
                         self.health[3] -= dmg_done
                         if self.health[3] < 0:
                             self.health[3] = 0
+
+                        self.bleed[3] = True
 
                         # reduce durability by prevented damage
                         armor.durability -= (dmg - dmg_done)
@@ -535,12 +542,16 @@ class Character(GameObject):
                     if self.health[3] < 0:
                         self.health[3] = 0
 
+                    self.bleed[3] = True
+
             else:  # not head and not torso
 
                 dmg_done = dmg
                 self.health[partind] -= dmg_done
                 if self.health[partind] < 0:
                     self.health[partind] = 0
+
+                self.bleed[partind] = True
 
             if Debug:
                 self.hitprint(dmg_done, partind)
@@ -555,8 +566,9 @@ class Character(GameObject):
     def regenerate_hp(self, amount, partind):
 
         self.health[partind] *= amount
-        if self.health[partind] > 100:
-            self.health[partind] = 100
+
+        if self.health[partind] > default_hp[partind]:
+            self.health[partind] = default_hp[partind]
 
         self.adjust_stats()
 

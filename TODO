@@ -2,17 +2,11 @@
 
 1 - https://stackoverflow.com/questions/3344115/how-to-obfuscate-python-code-effectively
 
-1 - (CONTENT) visual feedback fürs schießen
+    1 - (CONTENT) visual feedback fürs schießen
 
-1 - (CONTENT) velocity system
-
-1 - (PERFORMANCE) deactivate buttons while waiting for opp turn
+    1 - (CONTENT) velocity system
 
 1 - (BUG) char kann sich iwann nicht mehr bewegen?
-
-    1 - (BUG) heilen löst greed message aus und die meds verschwinden nicht
-
-(1 - man kann noch durch büsche kucken)
 
 1 - (VISUAL) finish item and weapon card artworks
 
@@ -22,17 +16,21 @@
 
 1 - (PERFORMANCE) overlay does not open on first click on opponent char sometimes
 
-1 - (BUG) hosted game isn't shown when hosting a game after finishing a game
-
 1 - (BUG) moven nach dem schießen oder einfach nur moven crasht mit infinite
 
 1 - (BUG) overlay ist manchmal leer (nach kill?)
 
 1 - (BUG) tode sind nicht synchron
 
+(1 - man kann noch durch büsche kucken)
+
 1 - (CONTENT) büsche op af???
 
 -----------------------------------------------------------------
+
+2 - (PERFORMANCE) deactivate buttons while waiting for opp turn
+
+2 - (BUG) hosted game isn't shown when hosting a game after finishing a game
 
 2 - (VISUAL) blit little white cross with red outline above upper right of opp char that has healed in apply turn
 

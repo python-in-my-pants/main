@@ -39,7 +39,8 @@ class Action:
                  pos_a_dmg2b_index=None,
                  pos_a_dmg2a_index=None,
 
-                 velocityraptor=None):
+                 velocityraptor=None,
+                 used_item_index=None):
 
         # tells how player A has moved and how much damage he inflicted to player b and himself in that time
 
@@ -57,3 +58,5 @@ class Action:
         self.pos_a_dmg2a = pos_a_dmg2a_index  # holds index of pos of player a when he healed or damaged himself
 
         self.velocityraptor = velocityraptor
+
+        self.used_item_index = used_item_index
