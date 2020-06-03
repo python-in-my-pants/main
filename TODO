@@ -4,6 +4,8 @@
 
 1 - (CONTENT) visual feedback fürs schießen
 
+1 - (CONTENT) velocity system
+
 1 - (PERFORMANCE) deactivate buttons while waiting for opp turn
 
 1 - (BUG) char kann sich iwann nicht mehr bewegen?
@@ -31,6 +33,8 @@
 1 - (CONTENT) büsche op af???
 
 -----------------------------------------------------------------
+
+2 - (VISUAL) blit little white cross with red outline above upper right of opp char that has healed in apply turn
 
 2 - (BUG) mehrmals ready drücken ist schlecht - 2. ready muss alles löschen, was das erste gesetzt hat
 

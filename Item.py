@@ -12,6 +12,7 @@ class Item:
 		self.my_id = my_id  # class id
 		self.name = name
 		self.idi = "i" + str(id(self))  # unique id
+		self.rand_id = random.randint(0, 1000000000)
 		self.cost = cost
 		self.weight = weight
 		self.stop_bleed = stop_bleed
@@ -135,6 +136,7 @@ class Gear:
 		self.idi = id(self)  # unique id
 		self.cost = cost
 		self.weight = weight
+		self.rand_id = random.randint(0, 1000000000)
 
 
 # <editor-fold desc="Gear">
