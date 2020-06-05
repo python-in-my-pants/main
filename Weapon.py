@@ -3,14 +3,8 @@ import numpy as np
 
 
 class Weapon:
-    # name = "default"    #Name
-    # class_idi = 0             #class_id
-    # weight = 0          #Gewicht
-    # damage = 0          #Schaden der Waffe
-    # mag = 0             #Magazin der Waffe
-    # spt = 0             #Schuss per Tick
 
-    def __init__(self, class_id=0, name="default", cost=0, weight=0, mag=0, spt=0, bar_len=0, pv=0, pw=0):
+    def __init__(self, class_id=0, name="Weapon", cost=0, weight=0, mag=0, spt=0, bar_len=0, pv=0, pw=0):
         """
 
         :param class_id: holds kind of weapon e.g. pistol, sniper, etc.
@@ -31,9 +25,9 @@ class Weapon:
         # base values
         self.weight = weight
         self.spt = spt
-        self.barrel_len = 0         # in cm
-        self.projectile_w = 0       #
-        self.projectile_v = 0
+        self.barrel_len = bar_len         # in cm
+        self.projectile_w = pv       #
+        self.projectile_v = pw
 
         # calculated
 
@@ -43,7 +37,7 @@ class Weapon:
 
         self.acc = (self.barrel_len_conversion(self.barrel_len)/5.1) * inverse_recoil_influence
         self._dmg = self.projectile_w * self.projectile_v
-        self.ran = self.projectile_v * (self.projectile_w/k6) * self.barrel_len_conversion(self.barrel_len)
+        self.ran = self.projectile_w * (self.projectile_v/k6) * self.barrel_len_conversion(self.barrel_len)
 
         # unused
         self.mag = mag
@@ -59,7 +53,7 @@ class Weapon:
         :return: influence of barrel len, 0 to 1 where 1 equals 1m barrel len
         """
 
-        return (k4 * np.log((k3 * x + k4)/k4))
+        return k4 * np.log((k3 * x + k4)/k4)
 
     def get_dmg(self, dist):
 

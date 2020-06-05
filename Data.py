@@ -29,16 +29,10 @@ def points_to_spend_per_team(x, y):
     return int(x * y * points_per_field * 0.5)
 
 
-#serverIP = "88.130.48.88"ö
-
-
-#serverIP = "78.47.178.105"
+# serverIP = "78.47.178.105"
 
 
 serverIP = "localhost"
-
-
-#serverIP = "25.68.211.167"
 
 
 # <editor-fold desc="material">
@@ -104,24 +98,24 @@ character_classes = {
 
 
 class_stats = {
-    #   [stamina, speed, dexterity, strength, weight, cost]
-    0: [50, 40, 35, 35, 70, 14],
-    1: [55, 70, 45, 35, 80, 21],
-    2: [40, 30, 50, 80, 100, 33],
-    3: [70, 50, 35, 50, 60, 28],
-    4: [70, 40, 70, 35, 75, 39],
-    5: [70, 50, 35, 50, 75, 25]
+    #  [stamina, speed, dexterity, strength, weight, cost]
+    0: [50,         40,        35,       35,     70,   14],
+    1: [55,         70,        45,       35,     80,   21],
+    2: [40,         30,        50,       80,    100,   33],
+    3: [70,         50,        35,       50,     60,   28],
+    4: [70,         40,        70,       35,     75,   39],
+    5: [70,         50,        35,       50,     75,   25]
 }
 
 weapon_stats = {
-    #  [name,      cost, weight, acc, dmg, mag, spt, range]
-    0: ["Pistole",     1,  0.7, 2.5,  18,  10,  3,  20],
-    1: ["MP",          2,  1.9,   2,  17,  20,  6,  50],
-    2: ["Sturmgewehr", 3,    4, 2.7,  22,  30,  5,  15],
-    3: ["Shotgun",     3,    3,   2,  40,   2,  2,  10],
-    4: ["MG",          3, 10.5, 1.5,  20, 100, 10,  40],
-    5: ["Sniper",      4,    6, 3.5,  90,   7,  1, 100],
-    6: ["RPG",          5,    8, 1.7, 100,  1,  1,  20]
+    #   name      cost   weight    mag    spt  bar_len      pv      pw
+    0: ["Pistol",    1,       1,    10,     3,      11,     300,    21],
+    1: ["MP",        2,     2.6,    30,    23,      20,     500,    22],
+    2: ["AR",        3,     3.5,    30,    21,      45,    1200,    11],
+    3: ["Shotgun",   3,     2.8,     2,     2,      71,     415,    24],
+    4: ["MG",        3,     6.4,   100,    25,      55,    1200,    11],
+    5: ["Sniper",    4,     8.2,     1,     1,      69,     915,    50],
+    6: ["RPG",       5,     6.7,     1,     1,     100,     285,  1800]
 }
 
 # </editor-fold>

@@ -342,7 +342,7 @@ class Character(GameObject):
         def sign(_x):
             return numpy.sign(_x)
 
-        range_factor = -(tanh((x / (ran * k1) - (0.1 * ran * k1) - (1 / k1) - (k10*base_chances[partind])))) / 2 + 0.5
+        range_factor = -(tanh((x / (ran * k1)) - (0.1 * ran * k1) - (1 / k1) + (k10/base_chances[partind]))) / 2 + 0.5
         bar_len_factor = self.active_slot.barrel_len_conversion(blen) / 5.1
         recoil_factor = 1 / ((1 - ((-tanh(recoil / k5) - k9 * strength) / 2 + 0.5)) * recoil + 1)
         own_speed_factor = sign(v1) * ((l1 + l2) / (leg_hp_sum * ((v1 / k2) + 1))) + 1 - sign(v1)
