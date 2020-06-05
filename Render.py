@@ -2834,13 +2834,13 @@ class InGame:
 
         elif self.is_it_my_turn:
 
-            if self.selected_char:
+            """if self.selected_char:
                 print("    Selected char pos: {} and velocity {}\n".
                       format(self.selected_char.pos, self.selected_char.velocity))
 
             if self.selected_own_char:
                 print("Selected own char pos: {} and velocity {}\n".
-                      format(self.selected_own_char.pos, self.selected_own_char.velocity))
+                      format(self.selected_own_char.pos, self.selected_own_char.velocity))"""
 
             self.main_blit()
 

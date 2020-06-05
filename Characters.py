@@ -285,6 +285,9 @@ class Character(GameObject):
         if True:
 
             chance, dmg, spt, rpg_bool = self.get_chance(dude, partind)
+
+            print("Hitchance is ", chance, " and dmg is ", dmg)
+
             dmg_done = 0
             dmg_done_list = [0 for _ in range(6)]
 
