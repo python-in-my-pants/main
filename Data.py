@@ -83,7 +83,7 @@ k3 = 200            # influences barrel len effect
 k4 = 3.4            # a
 k5 = 17.9           # impact of recoil
 k6 = 1200           # max muzzle velocity
-k9 = 0.08           # strength influence
+k9 = 0.189          # strength influence
 k10 = 0.95          # body part influence (target)
 k11 = 8.4           # dmg multiplier for base dmg
 
@@ -109,14 +109,14 @@ class_stats = {
 }
 
 weapon_stats = {
-    #   name         cost   weight    mag    spt  bar_len      pv     pw
-    0: ["Pistol",      1,       1,    10,     3,     0.11,     300,    21],
-    1: ["MP",          2,     2.6,    30,    23,     0.20,     500,    22],
-    2: ["Sturmgewehr", 3,     3.5,    30,    21,     0.45,    1200,    11],
-    3: ["Shotgun",     3,     2.8,     2,     2,     0.71,     415,    24],
-    4: ["MG",          3,     6.4,   100,    25,     0.55,    1200,    11],
-    5: ["Sniper",      4,     8.2,     1,     1,     0.69,     915,    50],
-    6: ["RL",          5,     6.7,     1,     1,     0.100,     285,  1800]
+    #   name         cost   weight    mag    spt   bar_len      pv     pw
+    0: ["Pistol",      1,       1,    10,     3,      0.11,     300,    21],
+    1: ["MP",          2,     2.6,    30,    23,      0.20,     500,    22],
+    2: ["Sturmgewehr", 3,     3.5,    30,    21,      0.45,    1200,    11],
+    3: ["Shotgun",     3,     2.8,     2,     2,      0.71,     415,    24],
+    4: ["MG",          3,     6.4,   100,    25,      0.55,    1200,    11],
+    5: ["Sniper",      4,     8.2,     1,     1,      0.69,     915,    50],
+    6: ["RL",          5,     6.7,     1,     1,         1,     285,  1800]
 }
 
 # </editor-fold>

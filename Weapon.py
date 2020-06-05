@@ -31,7 +31,7 @@ class Weapon:
 
         # calculated
 
-        self.recoil = (self.spt * self.projectile_w * self.projectile_v) / (self.weight * k6)
+        self.recoil = (self.spt * self.projectile_v * self.projectile_w) / (self.weight * k6)
         str_infl_on_recoil = (-np.tanh(self.recoil / k5) - k9 * 100)/2 + 0.5                     # 100 because max strength, but could be any constant I think
         inverse_recoil_influence = 1/((1-str_infl_on_recoil) * self.recoil + 1)
 
@@ -53,7 +53,7 @@ class Weapon:
         :return: influence of barrel len, 0 to 1 where 1 equals 1m barrel len
         """
 
-        return k4 * np.log10((k3 * x + k4)/k4)
+        return k4 * np.log10(((k3 * x) + k4)/k4)
 
     def get_dmg(self, dist):
 
