@@ -112,7 +112,7 @@ class Character(GameObject):
             for gs in self.gear:
                 # it's the same class of helmet or same class of armor
                 if g.my_id == gs.my_id and \
-                    (isinstance(g, Helm) and isinstance(gs, Helm)) or \
+                        (isinstance(g, Helm) and isinstance(gs, Helm)) or \
                         (isinstance(g, Armor) and isinstance(gs, Armor)):
                     gs.durability = g.durability
 
@@ -182,7 +182,8 @@ class Character(GameObject):
 
     if Debug:
         def dead(self):
-            print(self.name + " you are dead!\n Kopf: " + str(self.health[0]) + "\n Linker Arm: " + str(self.health[1]) +
+            print(
+                self.name + " you are dead!\n Kopf: " + str(self.health[0]) + "\n Linker Arm: " + str(self.health[1]) +
                 "\n Rechter Arm: " + str(self.health[2]) + "\n Torso: " + str(self.health[3]) + "\n Linkes Bein: "
                 + str(self.health[4]) + "\n Rechtes Bein: " + str(self.health[5]))
 
@@ -274,7 +275,7 @@ class Character(GameObject):
     # --- shooting ---
 
     def dist_to_other_char(self, dude):
-        return abs(numpy.sqrt(((self.pos[0]-dude.pos[0])**2)+((self.pos[1]-dude.pos[1])**2)))
+        return abs(numpy.sqrt(((self.pos[0] - dude.pos[0]) ** 2) + ((self.pos[1] - dude.pos[1]) ** 2)))
 
     def dist_to_other_pos(self, pos):
         return abs(numpy.sqrt(((self.pos[0] - pos[0]) ** 2) + ((self.pos[1] - pos[1]) ** 2)))
@@ -300,6 +301,58 @@ class Character(GameObject):
                 dmg_done_list[partind] = dmg_done
 
             return dmg_done, dmg_done_list
+
+    def get_chance_new(self, opp, partind):
+
+        if opp.is_dead():
+            return "Opponent is already dead"
+
+        if not isinstance(self.active_slot, Weapon):
+            return "You don't hold a weapon!"
+
+        if not self.can_shoot():
+            return "Your arms are too damaged to shoot!"
+
+        # TODO add:
+        #  strength
+        #  recoil
+        #  base chance
+
+        dex = self.dexterity  # this contains arm hp already
+        x = self.dist_to_other_char(opp)
+        l1, l2 = (self.health[4], self.health[5])
+        leg_hp_sum = default_hp[4] + default_hp[5]
+        v1 = self.velocity
+        strength = self.strength
+
+        v2 = opp.velocity
+
+        spt = self.active_slot.spt
+        pv = self.active_slot.projectile_v
+        pw = self.active_slot.projectile_w
+        blen = self.active_slot.barrel_len
+
+        recoil = self.active_slot.recoil
+        ran = self.active_slot.ran
+        dmg = self.active_slot.get_dmg(x)
+
+        def tanh(_x):
+            return numpy.tanh(_x)
+
+        def sign(_x):
+            return numpy.sign(_x)
+
+        range_factor = -(tanh((x / (ran * k1) - (0.1 * ran * k1) - (1 / k1) - (k10*base_chances[partind])))) / 2 + 0.5
+        bar_len_factor = self.active_slot.barrel_len_conversion(blen) / 5.1
+        recoil_factor = 1 / ((1 - ((-tanh(recoil / k5) - k9 * strength) / 2 + 0.5)) * recoil + 1)
+        own_speed_factor = sign(v1) * ((l1 + l2) / (leg_hp_sum * ((v1 / k2) + 1))) + 1 - sign(v1)
+        opp_speed_factor = 1 / ((v2 / k2) + 1)
+        dex_factor = dex / 100
+
+        return range_factor * bar_len_factor * recoil_factor * own_speed_factor * opp_speed_factor * dex_factor, \
+            dmg, \
+            spt, \
+            self.active_slot.name == "RPG"
 
     def get_chance(self, dude, partind):
 
@@ -350,32 +403,32 @@ class Character(GameObject):
     def calc_dmg(self, c_range):
         if self.active_slot.name == "Pistole":
             if c_range >= 20:
-                return self.active_slot.dmg - int((0.2*(c_range-20))+0.5)
+                return self.active_slot.dmg - int((0.2 * (c_range - 20)) + 0.5)
             else:
                 return self.active_slot.dmg
         if self.active_slot.name == "Pistole":
             if c_range >= 15:
-                return self.active_slot.dmg - int((0.3*(c_range-15))+0.5)
+                return self.active_slot.dmg - int((0.3 * (c_range - 15)) + 0.5)
             else:
                 return self.active_slot.dmg
         if self.active_slot.name == "Sturmgewehr":
             if c_range >= 50:
-                return self.active_slot.dmg - int((0.2*(c_range-50))+0.5)
+                return self.active_slot.dmg - int((0.2 * (c_range - 50)) + 0.5)
             else:
                 return self.active_slot.dmg
         if self.active_slot.name == "Shotgun":
             if c_range >= 10:
-                return self.active_slot.dmg - int((1*(c_range-10))+0.5)
+                return self.active_slot.dmg - int((1 * (c_range - 10)) + 0.5)
             else:
                 return self.active_slot.dmg
         if self.active_slot.name == "Maschinengewehr":
             if c_range >= 40:
-                return self.active_slot.dmg - int((0.3*(c_range-40))+0.5)
+                return self.active_slot.dmg - int((0.3 * (c_range - 40)) + 0.5)
             else:
                 return self.active_slot.dmg
         if self.active_slot.name == "Sniper":
             if c_range >= 100:
-                return self.active_slot.dmg - int((0.2*(c_range-10))+0.5)
+                return self.active_slot.dmg - int((0.2 * (c_range - 10)) + 0.5)
             else:
                 return self.active_slot.dmg
         if self.active_slot.name == "Raketenwerfer":
@@ -387,36 +440,36 @@ class Character(GameObject):
 
         if self.active_slot.name == "Pistole":
             if c_range > 20:
-                return c_range-20
+                return c_range - 20
             else:
                 return 0
         if self.active_slot.name == "Pistole":
             if c_range > 15:
-                return c_range-15
+                return c_range - 15
             else:
                 return 0
         if self.active_slot.name == "Sturmgewehr":
             if c_range > 50:
-                return c_range-50
+                return c_range - 50
             else:
                 return 0
         if self.active_slot.name == "Shotgun":
             if c_range > 10:
-                return c_range-10
+                return c_range - 10
             else:
                 return 0
         if self.active_slot.name == "Maschinengewehr":
             if c_range < 2:
                 return 10
             if c_range > 40:
-                return c_range-40
+                return c_range - 40
             else:
                 return 0
         if self.active_slot.name == "Sniper":
             if c_range < 5:
-                return c_range*10
+                return c_range * 10
             if c_range > 100:
-                return c_range-100
+                return c_range - 100
             else:
                 return 0
         if self.active_slot.name == "Raketenwerfer":
@@ -570,6 +623,8 @@ class Character(GameObject):
 
     def decay_velocity(self):  # must only be called if char did not move in this turn
         self.velocity *= velocity_decay_factor
+
+    # --- bleed stuff ---
 
     def apply_bleed_dmg(self, partind):
         self.health[partind] -= 5
