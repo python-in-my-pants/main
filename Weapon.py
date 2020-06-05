@@ -17,7 +17,7 @@ class Weapon:
         :param spt: shots per turn aka fire rate
         """
         self.class_id = class_id  # class id
-        self.name = name
+        self.name = weapon_stats[class_id][0]
         self.class_idi = "w" + str(id(self))  # unique id
 
         self.cost = cost
@@ -60,3 +60,18 @@ class Weapon:
         dmg_mult = (-np.tanh((dist / (self.ran * k1)) - 0.1 * self.ran * k1 - (1/k1)) / 2) + 0.5  # was - k1 at end of tanh
 
         return self._dmg * dmg_mult
+
+    def __str__(self):
+
+        return "{}:\n\t" \
+               "\t  Weight:\t{}\n" \
+               "\t     Spt:\t{}\n" \
+               "\t Bar len:\t{}\n" \
+               "\t      pv:\t{}\n" \
+               "\t      pw:\t{}\n" \
+               "\t     acc:\t{}\n" \
+               "\tbase dmg:\t{}\n" \
+               "\t  recoil:\t{}\n" \
+               "\t   range:\t{}\n".format(self.name,
+                                          self.weight, self.spt, self.barrel_len, self.projectile_v, self.projectile_w,
+                                          self.acc, self._dmg, self.recoil, self.ran)

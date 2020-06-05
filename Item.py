@@ -147,7 +147,7 @@ def make_item_by_id(my_id):
 
 class Gear:
 	def __init__(self, my_id=0, cost=1, weight=0):
-		self.my_id = my_id  # class id
+		self.my_id = my_id  # class id and tier id
 		self.idi = id(self)  # unique id
 		self.cost = cost
 		self.weight = weight
@@ -160,6 +160,7 @@ class Helm(Gear):
 		super().__init__(my_id, cost, weight)
 		self.durability = durability
 		self.reduction = reduction
+
 		if self.my_id == 0:
 			self.durability = 50
 			self.reduction = 0.7

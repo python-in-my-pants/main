@@ -121,7 +121,30 @@ class Character(GameObject):
         self.active_slot = char.active_slot
         self.orientation = char.orientation
 
+    def __str__(self):
+
+        helm_tier = armor_tier = -1
+        if self.gear:
+            for g in self.gear:
+                if isinstance(g, Helm):
+                    helm_tier = g.my_id
+                if isinstance(g, Armor):
+                    armor_tier = g.my_id
+
+        weapon = weapon_stats[self.weapons[0].class_id][0] if self.weapons else -1
+
+        return "{}:\n\t" \
+               "\t  Dexterity:\t{}" \
+               "\t  Strength:\t{}" \
+               "\t     Speed:\t{}" \
+               "\t Helm tier:\t{}" \
+               "\tArmor tier:\t{}" \
+               "        HP:\t{}" \
+               "\t    Weapon:\t{}".format(character_classes[self.class_id], self.dexterity, self.strength, self.speed,
+                                          helm_tier, armor_tier, self.health, weapon)
+
     def class_selector(self):
+
         self.stamina = class_stats[self.class_id][0]
         self.speed = class_stats[self.class_id][1]
         self.dexterity = class_stats[self.class_id][2]
@@ -648,14 +671,17 @@ def create_character(_id, team):  # team holds only name/number of team
     return boi
 
 
-def create_test_character(_id, team, wepon, g_id, poss, vel):
+# -----------------------------------------------------------
+
+
+"""def create_test_character(_id, team, wepon, g_id, poss, vel):
     g = []
     for x in range(g_id.__len__()):
         g.append(make_gear_by_id(g_id[x]))
     boid = Character(class_id=_id, team=team, weapons=[wepon], gear=[g], pos=poss)
     boid.velocity = vel
     boid.change_active_slot("Weapon", 0)
-    return boi
+    return boid
 
 
 if True:
@@ -678,5 +704,4 @@ if True:
           "Hitchance: " + str(chance) + "\n",
           "Damage: " + str(dmg) + "\n",
           "Schussanzahl: " + str(spt) + "\n",
-          "RPG-Bool: " + rpg)
-
+          "RPG-Bool: " + rpg)"""
