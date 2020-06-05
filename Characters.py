@@ -653,6 +653,7 @@ def create_test_character(_id, team, wepon, g_id, poss, vel):
     for x in range(g_id.__len__()):
         g.append(make_gear_by_id(g_id[x]))
     boid = Character(class_id=_id, team=team, weapons=[wepon], gear=[g], pos=poss)
+    boi.class_selector
     boid.velocity = vel
     boid.change_active_slot("Weapon", 0)
     return boi
