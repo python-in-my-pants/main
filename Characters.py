@@ -282,7 +282,8 @@ class Character(GameObject):
 
     def shoot(self, dude, partind):
 
-        if self.shooting_possible(dude):
+        shooting_pos = self.shooting_possible(dude)
+        if shooting_pos:
 
             chance, dmg, spt, rpg_bool = self.get_chance(dude, partind)
             dmg_done = 0
@@ -300,6 +301,8 @@ class Character(GameObject):
                 dmg_done_list[partind] = dmg_done
 
             return dmg_done, dmg_done_list
+        else:
+            return shooting_pos
 
     def shooting_possible(self, opp):
 
@@ -311,6 +314,8 @@ class Character(GameObject):
 
         if not self.can_shoot():
             return "Your arms are too damaged to shoot!"
+
+        return False
 
     def get_chance(self, opp, partind):
 
