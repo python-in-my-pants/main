@@ -29,10 +29,10 @@ def points_to_spend_per_team(x, y):
     return int(x * y * points_per_field * 0.5)
 
 
-# serverIP = "78.47.178.105"
+serverIP = "78.47.178.105"
 
 
-serverIP = "localhost"
+#serverIP = "localhost"
 
 
 # <editor-fold desc="material">
