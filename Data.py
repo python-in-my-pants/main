@@ -12,7 +12,7 @@ else:
     true_res = [1920, 1080]  # just set the res manually for linux, maybe adjust later?
 
 
-font = "comicsansms"
+font = "arial"
 master_volume = 0.0
 char_cap_divisor = 500
 points_per_field = 0.245
