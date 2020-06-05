@@ -99,4 +99,4 @@ def test_case(body_part=body,
     
 """
 
-test_case(class_id=medic, weapon_id=snipe, p=True)
+test_case(class_id=sniper, weapon_id=mg, p=True)
