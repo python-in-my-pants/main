@@ -4,7 +4,6 @@ import math
 import numpy
 from Item import *
 from Weapon import *
-import Weapon
 from Game_objects import GameObject, CollAtom
 from Data import *
 import pygame as pg
@@ -351,7 +350,7 @@ class Character(GameObject):
         opp_speed_factor = 1 / ((v2 / k2) + 1)
         dex_factor = dex / 100
 
-        return range_factor * bar_len_factor * recoil_factor * own_speed_factor * opp_speed_factor * dex_factor, \
+        return 100 * range_factor * bar_len_factor * recoil_factor * own_speed_factor * opp_speed_factor * dex_factor, \
             dmg, \
             spt, \
             self.active_slot.name == "RPG"
@@ -649,18 +648,35 @@ def create_character(_id, team):  # team holds only name/number of team
     return boi
 
 
-def create_test_character(_id, team, w_id, g_id, pos, vel):
+def create_test_character(_id, team, wepon, g_id, poss, vel):
     g = []
-    for x in range(g_id):
+    for x in range(g_id.__len__()):
         g.append(make_gear_by_id(g_id[x]))
-    boi = Character(class_id=_id, team=team, weapons=[Weapon.make_weapon_by_id(w_id)], gear=[g], pos=pos)
-    boi.velocity = vel
-    boi.change_active_slot("Weapon", 0)
+    boid = Character(class_id=_id, team=team, weapons=[wepon], gear=[g], pos=poss)
+    boid.velocity = vel
+    boid.change_active_slot("Weapon", 0)
     return boi
 
 
 if True:
-    boi = create_test_character(2, 0, 4, [1, 4], [0, 0], 0)
-    dummy = create_test_character()
-    boi.get_chance(dummy, 3)
+    troop_class = 0
+    w_id = 0
+    weapon = Weapon(w_id, *weapon_stats[w_id])
+    pos = [30, 0]
+    velocity = 0
+    part_to_hit = 3
+
+    boi = create_test_character(troop_class, 0, weapon, [1, 4], pos, velocity)
+    dummy = create_test_character(0, 1, 3, [1, 4], [30, 0], 0)
+
+    chance, dmg, spt, rpg = boi.get_chance(dummy, part_to_hit)
+
+    print("Class: " + character_classes[troop_class] + "\n",
+          "Waffe: " + weapon.name + "\n",
+          "Entfernung: " + str(pos[0]) + "\n",
+          "Velocity: " + str(velocity) + "\n",
+          "Hitchance: " + str(chance) + "\n",
+          "Damage: " + str(dmg) + "\n",
+          "Schussanzahl: " + str(spt) + "\n",
+          "RPG-Bool: " + rpg)
 
