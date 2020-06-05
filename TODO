@@ -2,12 +2,6 @@
 
 1 - https://stackoverflow.com/questions/3344115/how-to-obfuscate-python-code-effectively
 
-    1 - (CONTENT) visual feedback fürs schießen
-
-    1 - (CONTENT) velocity system
-
-1 - (BUG) char kann sich iwann nicht mehr bewegen?
-
 1 - (VISUAL) finish item and weapon card artworks
 
 1 - (vISUAL) change font
@@ -16,15 +10,23 @@
 
 1 - (PERFORMANCE) overlay does not open on first click on opponent char sometimes
 
-1 - (BUG) moven nach dem schießen oder einfach nur moven crasht mit infinite
+1 - (BUG) moven nach dem schießen oder einfach nur moven crasht mit infinite?
 
 1 - (BUG) overlay ist manchmal leer (nach kill?)
 
-1 - (BUG) tode sind nicht synchron
+1 - (BUG) tode sind nicht synchron?
 
 (1 - man kann noch durch büsche kucken)
 
 1 - (CONTENT) büsche op af???
+
+1 - (CONTENT) make stamina usefull somehow
+
+IDEAS:
+
+more mass = more hp?
+area damage for rpg
+bloom?
 
 -----------------------------------------------------------------
 

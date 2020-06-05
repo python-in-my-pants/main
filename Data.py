@@ -78,6 +78,20 @@ material_codes = {
 # </editor-fold>
 
 # <editor-fold desc="characters">
+
+default_hp = [35, 100, 100, 100, 100, 100]
+base_chances = [.25, .40, .40, 1, .50, .50]
+
+# shooting constants
+k1 = 0.42           # controls dmg falloff behind effective range, lower = steeper falloff
+k2 = 2              # controls influence of speed; the higher the value, the lower the influence
+k3 = 100            # influences barrel len effect
+k4 = 3.4            # a
+k5 = 17.9           # impact of recoil
+k6 = 1200           # max muzzle velocity
+k9 = 0.08           # strength influence
+k10 = 0.95          # body part influence (target)
+
 character_classes = {
     0: "Pawn",           # basic stats
     1: "Light",    # fast and nimble
@@ -88,16 +102,6 @@ character_classes = {
     6: "Commander"       # higher stats than normal but more expensive
 }
 
-weapon_stats = {
-    #  [name, cost, weight, acc, dmg, mag, spt]
-    0: ["Pistole", 1, 0.7, 2.5, 18, 10, 3],
-    1: ["MP", 2, 1.9, 2, 17, 20, 6],
-    2: ["Sturmgewehr", 3, 4, 2.7, 22, 30, 5],
-    3: ["Shotgun", 3, 3, 2, 40, 2, 2],
-    4: ["MG", 3, 10.5, 1.5, 20, 100, 10],
-    5: ["Sniper", 4, 6, 3.5, 90, 7, 1],
-    6: ["RL", 5, 8, 1.7, 100, 1, 1]
-}
 
 class_stats = {
     #   [stamina, speed, dexterity, strength, weight, cost]
@@ -110,17 +114,15 @@ class_stats = {
 }
 
 weapon_stats = {
-    #  [name, cost, weight, acc, dmg, mag, spt]
-    0: ["Pistole", 1, 0.7, 2.5, 18, 10, 3],
-    1: ["MP", 2, 1.9, 2, 17, 20, 6],
-    2: ["Sturmgewehr", 3, 4, 2.7, 22, 30, 5],
-    3: ["Shotgun", 3, 3, 2, 40, 2, 2],
-    4: ["MG", 3, 10.5, 1.5, 20, 100, 10],
-    5: ["Sniper", 4, 6, 3.5, 90, 7, 1],
-    6: ["RL", 5, 8, 1.7, 100, 1, 1]
+    #  [name,      cost, weight, acc, dmg, mag, spt, range]
+    0: ["Pistole",     1,  0.7, 2.5,  18,  10,  3,  20],
+    1: ["MP",          2,  1.9,   2,  17,  20,  6,  50],
+    2: ["Sturmgewehr", 3,    4, 2.7,  22,  30,  5,  15],
+    3: ["Shotgun",     3,    3,   2,  40,   2,  2,  10],
+    4: ["MG",          3, 10.5, 1.5,  20, 100, 10,  40],
+    5: ["Sniper",      4,    6, 3.5,  90,   7,  1, 100],
+    6: ["RPG",          5,    8, 1.7, 100,  1,  1,  20]
 }
-
-default_hp = [35, 100, 100, 100, 100, 100]
 
 # </editor-fold>
 

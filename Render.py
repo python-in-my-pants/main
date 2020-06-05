@@ -1996,10 +1996,10 @@ class InGame:
             bars = []
 
             for j in range(6):
-                hp_bar = HPBar(dim=[self.btn_w, int(0.1 * self.btn_h)],
+                hp_bar = HPBar(dim=[self.btn_w if j>0 else (self.btn_w*default_hp[0])//100, int(0.1 * self.btn_h)],
                                pos=[pos_w, int(pos_h + j * 0.108 * self.btn_h)],  # TODO maybe better number?
                                curr=self.own_team.characters[i].health[j],
-                               end=100)
+                               end=default_hp[j])
                 bars.append(hp_bar)
 
             self.hp_bars.append(bars)
@@ -2241,8 +2241,6 @@ class InGame:
         for c in self.own_team.characters:
             print("{} velocity: {}".format(c.name, c.velocity))
 
-        # TODO deplete items and adjust their state
-
         if opp_turn.win:
             # opp says you win! :)
 
@@ -2387,7 +2385,8 @@ class InGame:
 
         # <editor-fold desc="build dotted line">
         # build dotted line positions
-        if self.selected_own_char:
+        if self.selected_own_char and not \
+                (self.selected_own_char.idi in self.shot_chars and self.selected_own_char.idi in self.moved_chars):
             start_point = self.mouse_pos
 
             end_point = [self.current_element_size * self.selected_own_char.pos[0] + self.dest[0] +
@@ -2718,7 +2717,6 @@ class InGame:
                 for b in bar:
                     self.own_team_stats.blit(b.surf, b.pos)
         else:
-            pass
             for b in self.own_team_stat_buttons:
                 b.deactivate()
 
