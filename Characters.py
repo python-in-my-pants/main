@@ -4,6 +4,7 @@ import math
 import numpy
 from Item import *
 from Weapon import *
+import Weapon
 from Game_objects import GameObject, CollAtom
 from Data import *
 import pygame as pg
@@ -529,6 +530,8 @@ class Character(GameObject):
             for i in range(6):
                 dmg_done += 100
                 self.health[i] -= default_hp[i]
+            if Debug:
+                self.hitprint(dmg_done, partind)
 
         else:
             for g in self.gear:
@@ -598,7 +601,6 @@ class Character(GameObject):
                 self.hitprint(dmg_done, partind)
 
             self.adjust_stats()
-
         if self.is_dead():
             self.dead()
 
@@ -645,3 +647,20 @@ def create_character(_id, team):  # team holds only name/number of team
     boi = Character(class_id=_id, team=team)
     boi.class_selector()
     return boi
+
+
+def create_test_character(_id, team, w_id, g_id, pos, vel):
+    g = []
+    for x in range(g_id):
+        g.append(make_gear_by_id(g_id[x]))
+    boi = Character(class_id=_id, team=team, weapons=[Weapon.make_weapon_by_id(w_id)], gear=[g], pos=pos)
+    boi.velocity = vel
+    boi.change_active_slot("Weapon", 0)
+    return boi
+
+
+if True:
+    boi = create_test_character(2, 0, 4, [1, 4], [0, 0], 0)
+    dummy = create_test_character()
+    boi.get_chance(dummy, 3)
+
