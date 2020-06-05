@@ -282,8 +282,7 @@ class Character(GameObject):
 
     def shoot(self, dude, partind):
 
-        # Basechance * (0.3 * Dex) - Range + Recoil control
-        if isinstance(self.get_chance(dude, partind), tuple):
+        if self.shooting_possible(dude):
 
             chance, dmg, spt, rpg_bool = self.get_chance(dude, partind)
             dmg_done = 0
@@ -302,7 +301,7 @@ class Character(GameObject):
 
             return dmg_done, dmg_done_list
 
-    def get_chance_new(self, opp, partind):
+    def shooting_possible(self, opp):
 
         if opp.is_dead():
             return "Opponent is already dead"
@@ -313,10 +312,7 @@ class Character(GameObject):
         if not self.can_shoot():
             return "Your arms are too damaged to shoot!"
 
-        # TODO add:
-        #  strength
-        #  recoil
-        #  base chance
+    def get_chance(self, opp, partind):
 
         dex = self.dexterity  # this contains arm hp already
         x = self.dist_to_other_char(opp)
@@ -354,7 +350,7 @@ class Character(GameObject):
             spt, \
             self.active_slot.name == "RPG"
 
-    def get_chance(self, dude, partind):
+    """def get_chance(self, dude, partind):
 
         if not dude.is_dead():
 
@@ -476,7 +472,7 @@ class Character(GameObject):
             if c_range > 20:
                 return c_range - 20
             else:
-                return 0
+                return 0"""
 
     # --- special stats &  hp modifications ---
 
