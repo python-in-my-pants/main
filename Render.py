@@ -22,7 +22,6 @@ debug = False
 class MainWindow:
 
     def __init__(self):  # creates main window with contents -> "mainscreen"
-        print(pg.font.get_fonts())
         size = Data.true_res
         # print("MainWindow thinks the size is: " + str(size))
 
