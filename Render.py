@@ -2212,9 +2212,12 @@ class InGame:
         if not self.v_mat[(shooter_index, target_index)][1]:
             return "Cannot see character"
 
+        if self.selected_own_char.shooting_impossible(self.overlay.boi_to_attack):
+            return self.selected_own_char.shooting_impossible(self.overlay.boi_to_attack)
+
         dmg, dmg_done = self.selected_own_char.shoot(self.overlay.boi_to_attack, where)
 
-        self.shot_chars[self.selected_own_char.idi] = True #(self.selected_own_char, self.overlay.boi_to_attack)
+        self.shot_chars[self.selected_own_char.idi] = True  # (self.selected_own_char, self.overlay.boi_to_attack)
 
         self.own_turn.add_action(Action(self.selected_own_char, self.overlay.boi_to_attack, dmg2b=dmg_done))
 
@@ -2831,13 +2834,13 @@ class InGame:
 
         elif self.is_it_my_turn:
 
-            if self.selected_char:
+            """if self.selected_char:
                 print("    Selected char pos: {} and velocity {}\n".
                       format(self.selected_char.pos, self.selected_char.velocity))
 
             if self.selected_own_char:
                 print("Selected own char pos: {} and velocity {}\n".
-                      format(self.selected_own_char.pos, self.selected_own_char.velocity))
+                      format(self.selected_own_char.pos, self.selected_own_char.velocity))"""
 
             self.main_blit()
 

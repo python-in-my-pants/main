@@ -282,10 +282,12 @@ class Character(GameObject):
 
     def shoot(self, dude, partind):
 
-        shooting_pos = self.shooting_possible(dude)
-        if shooting_pos:
+        if True:
 
             chance, dmg, spt, rpg_bool = self.get_chance(dude, partind)
+
+            print("Hitchance is ", chance, " and dmg is ", dmg)
+
             dmg_done = 0
             dmg_done_list = [0 for _ in range(6)]
 
@@ -301,10 +303,8 @@ class Character(GameObject):
                 dmg_done_list[partind] = dmg_done
 
             return dmg_done, dmg_done_list
-        else:
-            return shooting_pos
 
-    def shooting_possible(self, opp):
+    def shooting_impossible(self, opp):
 
         if opp.is_dead():
             return "Opponent is already dead"

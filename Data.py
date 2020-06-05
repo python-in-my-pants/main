@@ -78,13 +78,14 @@ base_chances = [.25, .40, .40, 1, .50, .50]
 
 # shooting constants
 k1 = 0.42           # controls dmg falloff behind effective range, lower = steeper falloff
-k2 = 2              # controls influence of speed; the higher the value, the lower the influence
-k3 = 100            # influences barrel len effect
+k2 = 5.58           # controls influence of speed; the higher the value, the lower the influence
+k3 = 200            # influences barrel len effect
 k4 = 3.4            # a
 k5 = 17.9           # impact of recoil
 k6 = 1200           # max muzzle velocity
 k9 = 0.08           # strength influence
 k10 = 0.95          # body part influence (target)
+k11 = 8.4           # dmg multiplier for base dmg
 
 character_classes = {
     0: "Pawn",           # basic stats

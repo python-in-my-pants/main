@@ -36,7 +36,7 @@ class Weapon:
         inverse_recoil_influence = 1/((1-str_infl_on_recoil) * self.recoil + 1)
 
         self.acc = (self.barrel_len_conversion(self.barrel_len)/5.1) * inverse_recoil_influence
-        self._dmg = self.projectile_w * self.projectile_v
+        self._dmg = self.projectile_w * (self.projectile_v/k6) * k11
         self.ran = self.projectile_w * (self.projectile_v/k6) * self.barrel_len_conversion(self.barrel_len)
 
         # unused
