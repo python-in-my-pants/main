@@ -74,8 +74,9 @@ def test_case(body_part=body,
         print("\n{}"
               "\n\n --- attacked ---\n\n{}"
               "\n\n --- with a chance of ---\n\n[Chance:   {},\n    Dmg:   {}]"
-              "\n\n --- at a distance of ---\n\n{}"
-              "\n\n --- and did {} damage\n".format(char1, char2, chance[0], chance[1], d, dmg))
+              "\n\n --- with weapon ---\n\n{}"
+              "\n --- at a distance of ---\n\n{}"
+              "\n\n --- and did {} damage\n".format(char1, char2, chance[0], chance[1], char1.active_slot, d, dmg))
 
     return chance, dmg
 
@@ -100,4 +101,4 @@ def test_case(body_part=body,
     
 """
 
-test_case(class_id=sniper, weapon_id=snipe, d=50, p=True)
+test_case(class_id=heavy, weapon_id=mg, d=30, p=True)

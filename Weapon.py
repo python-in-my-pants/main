@@ -63,7 +63,7 @@ class Weapon:
 
     def __str__(self):
 
-        return "{}:\n\t" \
+        return "{}:\n" \
                "\t  Weight:\t{}\n" \
                "\t     Spt:\t{}\n" \
                "\t Bar len:\t{}\n" \
@@ -74,4 +74,4 @@ class Weapon:
                "\t  recoil:\t{}\n" \
                "\t   range:\t{}\n".format(self.name,
                                           self.weight, self.spt, self.barrel_len, self.projectile_v, self.projectile_w,
-                                          self.acc, self._dmg, self.recoil, self.ran)
+                                          self.acc*1000, self._dmg, self.recoil, self.ran)
