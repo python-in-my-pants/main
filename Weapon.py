@@ -43,7 +43,7 @@ class Weapon:
 
         self.acc = (self.barrel_len_conversion(self.barrel_len)/5.1) * inverse_recoil_influence
         self._dmg = self.projectile_w * self.projectile_v
-        self.ran = self.projectile_v * (self.projectile_w/k6) * self.barrel_len_conversion(self.barrel_len)
+        self.ran = self.projectile_w * (self.projectile_v/k6) * self.barrel_len_conversion(self.barrel_len)
 
         # unused
         self.mag = mag
