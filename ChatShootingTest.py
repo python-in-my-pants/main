@@ -24,7 +24,7 @@ snipe = 5
 rpg = 6
 
 
-def build_char(team=0, helm_tier=3, west_tier=1, weapon_id=0, leg_hp=200, arm_hp=200, class_id=0, v1=0, dist=10):
+def build_char(team=0, helm_tier=3, weapon_id=0, leg_hp=200, arm_hp=200, class_id=0, v1=0, dist=10):
     char = Character(team=team,
                      class_id=class_id,
                      health=[default_hp[0],
@@ -36,7 +36,7 @@ def build_char(team=0, helm_tier=3, west_tier=1, weapon_id=0, leg_hp=200, arm_hp
                      dexterity=class_stats[class_id][2],
                      strength=class_stats[class_id][3],
                      weapons=[Weapon.make_weapon_by_id(weapon_id)],
-                     gear=[make_gear_by_id(helm_tier), make_gear_by_id(west_tier + 3)])
+                     gear=[make_gear_by_id(helm_tier-1), make_gear_by_id(3)])
     char.velocity = v1
     char.active_slot = char.weapons[0]
     char.pos = [0, 0 if team == 0 else dist]
@@ -55,8 +55,9 @@ def test_case(body_part=body,
               d=10,
 
               helm_tier=3,
-              west_tier=1,
-              v2=0, weapon_id=0,
+              west_tier=3,
+              v2=0,
+              weapon_id=0,
 
               leg_hp=200,
               arm_hp=200,
@@ -65,7 +66,7 @@ def test_case(body_part=body,
 
               p=False):
     char1 = build_char(weapon_id=weapon_id, leg_hp=leg_hp, arm_hp=arm_hp, class_id=class_id, v1=v1)
-    char2 = build_char(team=1, helm_tier=helm_tier, west_tier=west_tier, v1=v2, dist=d)
+    char2 = build_char(team=1, helm_tier=helm_tier, v1=v2, dist=d)
 
     chance, dmg = shooting_test(char1, char2, body_part)
 
@@ -99,4 +100,4 @@ def test_case(body_part=body,
     
 """
 
-test_case(class_id=medic, weapon_id=snipe, p=True)
+test_case(class_id=sniper, weapon_id=snipe, d=50, p=True)

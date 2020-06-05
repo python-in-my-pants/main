@@ -53,7 +53,7 @@ class Weapon:
         :return: influence of barrel len, 0 to 1 where 1 equals 1m barrel len
         """
 
-        return k4 * np.log((k3 * x + k4)/k4)
+        return k4 * np.log10(((k3 * x) + k4)/k4)
 
     def get_dmg(self, dist):
 
