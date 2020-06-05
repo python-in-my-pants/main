@@ -2212,9 +2212,12 @@ class InGame:
         if not self.v_mat[(shooter_index, target_index)][1]:
             return "Cannot see character"
 
+        if self.selected_own_char.shooting_impossible(self.overlay.boi_to_attack):
+            return self.selected_own_char.shooting_impossible(self.overlay.boi_to_attack)
+
         dmg, dmg_done = self.selected_own_char.shoot(self.overlay.boi_to_attack, where)
 
-        self.shot_chars[self.selected_own_char.idi] = True #(self.selected_own_char, self.overlay.boi_to_attack)
+        self.shot_chars[self.selected_own_char.idi] = True  # (self.selected_own_char, self.overlay.boi_to_attack)
 
         self.own_turn.add_action(Action(self.selected_own_char, self.overlay.boi_to_attack, dmg2b=dmg_done))
 

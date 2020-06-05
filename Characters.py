@@ -282,8 +282,7 @@ class Character(GameObject):
 
     def shoot(self, dude, partind):
 
-        shooting_pos = self.shooting_possible(dude)
-        if shooting_pos:
+        if True:
 
             chance, dmg, spt, rpg_bool = self.get_chance(dude, partind)
             dmg_done = 0
@@ -301,10 +300,8 @@ class Character(GameObject):
                 dmg_done_list[partind] = dmg_done
 
             return dmg_done, dmg_done_list
-        else:
-            return shooting_pos
 
-    def shooting_possible(self, opp):
+    def shooting_impossible(self, opp):
 
         if opp.is_dead():
             return "Opponent is already dead"
@@ -350,7 +347,7 @@ class Character(GameObject):
         opp_speed_factor = 1 / ((v2 / k2) + 1)
         dex_factor = dex / 100
 
-        return range_factor * bar_len_factor * recoil_factor * own_speed_factor * opp_speed_factor * dex_factor, \
+        return 100 * range_factor * bar_len_factor * recoil_factor * own_speed_factor * opp_speed_factor * dex_factor, \
             dmg, \
             spt, \
             self.active_slot.name == "RPG"
