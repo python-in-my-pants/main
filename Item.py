@@ -1,3 +1,24 @@
+"""
+########################################################################################################################
+#                                                                                                                      #
+#                                       WICHTIG! RECHTLICHER HINWEIS                                                   #
+#                                                                                                                      #
+#   Autoren: Daniel Kretschmer, Christian Loose                                                                        #
+#                                                                                                                      #
+# Die durch die hier aufgeführten Autoren erstellten Inhalte und Werke unterliegen dem deutschen Urheberrecht.         #
+# Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes  #
+# bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.                                         #
+#                                                                                                                      #
+# Die Autoren räumen Dritten ausdrücklich kein Verwertungsrecht an der hier beschriebenen Software oder einer          #
+# Kopie/Abwandlung dieser ein.                                                                                         #
+#                                                                                                                      #
+# Insbesondere untersagt ist das Entfernen und/oder Verändern dieses Hinweises.                                        #
+#                                                                                                                      #
+# Bei Zuwiderhandlung behalten die Autoren sich ausdrücklich die Einleitung rechtlicher Schritte vor.                  #
+#                                                                                                                      #
+########################################################################################################################
+"""
+
 import random
 import functools
 from Data import *
@@ -147,7 +168,7 @@ def make_item_by_id(my_id):
 
 class Gear:
 	def __init__(self, my_id=0, cost=1, weight=0):
-		self.my_id = my_id  # class id
+		self.my_id = my_id  # class id and tier id
 		self.idi = id(self)  # unique id
 		self.cost = cost
 		self.weight = weight
@@ -160,6 +181,7 @@ class Helm(Gear):
 		super().__init__(my_id, cost, weight)
 		self.durability = durability
 		self.reduction = reduction
+
 		if self.my_id == 0:
 			self.durability = 50
 			self.reduction = 0.7

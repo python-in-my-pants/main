@@ -1,3 +1,24 @@
+"""
+########################################################################################################################
+#                                                                                                                      #
+#                                       WICHTIG! RECHTLICHER HINWEIS                                                   #
+#                                                                                                                      #
+#   Autoren: Daniel Kretschmer, Christian Loose                                                                        #
+#                                                                                                                      #
+# Die durch die hier aufgeführten Autoren erstellten Inhalte und Werke unterliegen dem deutschen Urheberrecht.         #
+# Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes  #
+# bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.                                         #
+#                                                                                                                      #
+# Die Autoren räumen Dritten ausdrücklich kein Verwertungsrecht an der hier beschriebenen Software oder einer          #
+# Kopie/Abwandlung dieser ein.                                                                                         #
+#                                                                                                                      #
+# Insbesondere untersagt ist das Entfernen und/oder Verändern dieses Hinweises.                                        #
+#                                                                                                                      #
+# Bei Zuwiderhandlung behalten die Autoren sich ausdrücklich die Einleitung rechtlicher Schritte vor.                  #
+#                                                                                                                      #
+########################################################################################################################
+"""
+
 # encoding: UTF-8
 
 import math
@@ -121,7 +142,30 @@ class Character(GameObject):
         self.active_slot = char.active_slot
         self.orientation = char.orientation
 
+    def __str__(self):
+
+        helm_tier = armor_tier = -1
+        if self.gear:
+            for g in self.gear:
+                if isinstance(g, Helm):
+                    helm_tier = g.my_id+1
+                if isinstance(g, Armor):
+                    armor_tier = g.my_id-2
+
+        weapon = weapon_stats[self.weapons[0].class_id][0] if self.weapons else -1
+
+        return "{}:\n\t" \
+               "\t  Dexterity:\t{}" \
+               "\t  Strength:\t{}" \
+               "\t     Speed:\t{}" \
+               "\t Helm tier:\t{}" \
+               "\tArmor tier:\t{}" \
+               "        HP:\t\t{}" \
+               "\t    Weapon:\t{}".format(character_classes[self.class_id], self.dexterity, self.strength, self.speed,
+                                          helm_tier, armor_tier, self.health, weapon)
+
     def class_selector(self):
+
         self.stamina = class_stats[self.class_id][0]
         self.speed = class_stats[self.class_id][1]
         self.dexterity = class_stats[self.class_id][2]
@@ -344,8 +388,8 @@ class Character(GameObject):
             return numpy.sign(_x)
 
         range_factor = -(tanh((x / (ran * k1)) - (0.1 * ran * k1) - (1 / k1) + (k10 / base_chances[partind]))) / 2 + 0.5
-        bar_len_factor = self.active_slot.barrel_len_conversion(blen) / 5.1
-        recoil_factor = 1 / ((1 - ((-tanh(recoil / k5) - k9 * strength) / 2 + 0.5)) * recoil + 1)
+        bar_len_factor = self.active_slot.barrel_len_conversion(blen) / 6.05
+        recoil_factor = 1 / ((1 - ((-tanh((recoil / k5) - k9 * strength)) / 2 + 0.5)) * recoil + 1)
         own_speed_factor = sign(v1) * ((l1 + l2) / (leg_hp_sum * ((v1 / k2) + 1))) + 1 - sign(v1)
         opp_speed_factor = 1 / ((v2 / k2) + 1)
         dex_factor = dex / 100
@@ -646,38 +690,3 @@ def create_character(_id, team):  # team holds only name/number of team
     boi = Character(class_id=_id, team=team)
     boi.class_selector()
     return boi
-
-
-def create_test_character(_id, team, wepon, g_id, poss, vel):
-    g = []
-    for x in range(g_id.__len__()):
-        g.append(make_gear_by_id(g_id[x]))
-    boid = Character(class_id=_id, team=team, weapons=[wepon], gear=[g], pos=poss)
-    boi.class_selector
-    boid.velocity = vel
-    boid.change_active_slot("Weapon", 0)
-    return boi
-
-
-if True:
-    troop_class = 0
-    w_id = 0
-    weapon = Weapon(w_id, *weapon_stats[w_id])
-    pos = [30, 0]
-    velocity = 0
-    part_to_hit = 3
-
-    boi = create_test_character(troop_class, 0, weapon, [1, 4], pos, velocity)
-    dummy = create_test_character(0, 1, 3, [1, 4], [30, 0], 0)
-
-    chance, dmg, spt, rpg = boi.get_chance(dummy, part_to_hit)
-
-    print("Class: " + character_classes[troop_class] + "\n",
-          "Waffe: " + weapon.name + "\n",
-          "Entfernung: " + str(pos[0]) + "\n",
-          "Velocity: " + str(velocity) + "\n",
-          "Hitchance: " + str(chance) + "\n",
-          "Damage: " + str(dmg) + "\n",
-          "Schussanzahl: " + str(spt) + "\n",
-          "RPG-Bool: " + rpg)
-

@@ -1,7 +1,23 @@
-import Characters
-import Weapon
-import numpy as np
-
+"""
+########################################################################################################################
+#                                                                                                                      #
+#                                       WICHTIG! RECHTLICHER HINWEIS                                                   #
+#                                                                                                                      #
+#   Autoren: Daniel Kretschmer                                                                                         #
+#                                                                                                                      #
+# Die durch die hier aufgeführten Autoren erstellten Inhalte und Werke unterliegen dem deutschen Urheberrecht.         #
+# Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes  #
+# bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.                                         #
+#                                                                                                                      #
+# Die Autoren räumen Dritten ausdrücklich kein Verwertungsrecht an der hier beschriebenen Software oder einer          #
+# Kopie/Abwandlung dieser ein.                                                                                         #
+#                                                                                                                      #
+# Insbesondere untersagt ist das Entfernen und/oder Verändern dieses Hinweises.                                        #
+#                                                                                                                      #
+# Bei Zuwiderhandlung behalten die Autoren sich ausdrücklich die Einleitung rechtlicher Schritte vor.                  #
+#                                                                                                                      #
+########################################################################################################################
+"""
 
 class Team:
 

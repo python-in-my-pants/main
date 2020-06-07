@@ -1,7 +1,26 @@
+"""
+########################################################################################################################
+#                                                                                                                      #
+#                                       WICHTIG! RECHTLICHER HINWEIS                                                   #
+#                                                                                                                      #
+#   Autoren: Daniel Kretschmer                                                                                         #
+#                                                                                                                      #
+# Die durch die hier aufgeführten Autoren erstellten Inhalte und Werke unterliegen dem deutschen Urheberrecht.         #
+# Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes  #
+# bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.                                         #
+#                                                                                                                      #
+# Die Autoren räumen Dritten ausdrücklich kein Verwertungsrecht an der hier beschriebenen Software oder einer          #
+# Kopie/Abwandlung dieser ein.                                                                                         #
+#                                                                                                                      #
+# Insbesondere untersagt ist das Entfernen und/oder Verändern dieses Hinweises.                                        #
+#                                                                                                                      #
+# Bei Zuwiderhandlung behalten die Autoren sich ausdrücklich die Einleitung rechtlicher Schritte vor.                  #
+#                                                                                                                      #
+########################################################################################################################
+"""
+
 import ctypes
-import hashlib
 import sys
-# TODO
 import time
 
 if sys.platform == "win32":
@@ -83,9 +102,9 @@ k3 = 200            # influences barrel len effect
 k4 = 3.4            # a
 k5 = 17.9           # impact of recoil
 k6 = 1200           # max muzzle velocity
-k9 = 0.08           # strength influence
+k9 = 0.189          # strength influence
 k10 = 0.95          # body part influence (target)
-k11 = 8.4           # dmg multiplier for base dmg
+k11 = 2.1           # dmg multiplier for base dmg
 
 character_classes = {
     0: "Pawn",           # basic stats
@@ -96,7 +115,6 @@ character_classes = {
     5: "Spezi",  # idk
     6: "Commander"       # higher stats than normal but more expensive
 }
-
 
 class_stats = {
     #  [stamina, speed, dexterity, strength, weight, cost]
@@ -109,14 +127,14 @@ class_stats = {
 }
 
 weapon_stats = {
-    #   name         cost   weight    mag    spt  bar_len      pv     pw
-    0: ["Pistol",      1,       1,    10,     3,      11,     300,    21],
-    1: ["MP",          2,     2.6,    30,    23,      20,     500,    22],
-    2: ["Sturmgewehr", 3,     3.5,    30,    21,      45,    1200,    11],
-    3: ["Shotgun",     3,     2.8,     2,     2,      71,     415,    24],
-    4: ["MG",          3,     6.4,   100,    25,      55,    1200,    11],
-    5: ["Sniper",      4,     8.2,     1,     1,      69,     915,    50],
-    6: ["RL",          5,     6.7,     1,     1,     100,     285,  1800]
+    #   name         cost   weight    mag    spt   bar_len      pv     pw
+    0: ["Pistol",      1,       1,    10,     3,      0.11,     300,    16],  # war 20
+    1: ["MP",          2,     2.6,    30,    23,      0.20,     500,     7],  # war
+    2: ["Sturmgewehr", 3,     3.5,    30,    21,      0.45,    1200,     4],
+    3: ["Shotgun",     3,     2.8,     2,     2,      0.71,     415,    24],
+    4: ["MG",          3,     6.4,   100,    25,      0.55,    1200,     4],
+    5: ["Sniper",      4,     8.2,     1,     1,      0.69,     915,    50],
+    6: ["RL",          5,     6.7,     1,     1,         1,     285,  1800]
 }
 
 # </editor-fold>
@@ -200,7 +218,7 @@ unwrap_as_str = [scc["control"],
 #   images
 main_background = "assets/textures/background_art/main_background_02.png"
 connection_setup_background = "assets/textures/background_art/notmikan02.jpg"
-empty_af = "assets/empty_as_fuck.png"
+empty_af = "assets/empty_af.png"
 
 #   buttons
 blue_btn_menu = "assets/textures/buttons/blue_button_menu.jpg"

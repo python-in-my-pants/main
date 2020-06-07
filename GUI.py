@@ -1,3 +1,24 @@
+"""
+########################################################################################################################
+#                                                                                                                      #
+#                                       WICHTIG! RECHTLICHER HINWEIS                                                   #
+#                                                                                                                      #
+#   Autoren: Daniel Kretschmer, Christian Loose                                                                        #
+#                                                                                                                      #
+# Die durch die hier aufgeführten Autoren erstellten Inhalte und Werke unterliegen dem deutschen Urheberrecht.         #
+# Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes  #
+# bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.                                         #
+#                                                                                                                      #
+# Die Autoren räumen Dritten ausdrücklich kein Verwertungsrecht an der hier beschriebenen Software oder einer          #
+# Kopie/Abwandlung dieser ein.                                                                                         #
+#                                                                                                                      #
+# Insbesondere untersagt ist das Entfernen und/oder Verändern dieses Hinweises.                                        #
+#                                                                                                                      #
+# Bei Zuwiderhandlung behalten die Autoren sich ausdrücklich die Einleitung rechtlicher Schritte vor.                  #
+#                                                                                                                      #
+########################################################################################################################
+"""
+
 import pygame as pg
 import Data
 import time
@@ -164,9 +185,13 @@ class HPBar:
 
     id_counter = 0
 
-    def __init__(self, dim, pos=[0, 0], curr=100, end=100, color=(0, 255, 0), name="HPBar"):
+    def __init__(self, dim, pos=[0, 0], curr=100, end=100, color=(0, 255, 0), name="HPBar", vertical=False):
 
-        self.dim = dim[:]
+        self.vertical = vertical
+        if not self.vertical:
+            self.dim = dim[:]
+        else:
+            self.dim = [dim[1], dim[0]]
         self.pos = pos[:]
         self.name = name
 
@@ -178,7 +203,6 @@ class HPBar:
         self.color = color
 
         self.surf = pg.Surface(dim)
-        #self.surf.convert_alpha(self.surf)
         self.surf.fill((12, 12, 12))
         self.surf.set_colorkey((12, 12, 12))
 
