@@ -685,6 +685,12 @@ class Character(GameObject):
         self.bleed[partind] = False
         self.bleed_t[partind] = 0
 
+    def get_bleed(self):
+        for i in range(6):
+            if self.bleed[i]:
+                return True
+        return False
+
 
 def create_character(_id, team):  # team holds only name/number of team
     boi = Character(class_id=_id, team=team)

@@ -137,6 +137,14 @@ weapon_stats = {
     6: ["RL",          5,     6.7,     1,     1,         1,     285,  1800]
 }
 
+gear_durability = {
+    0: 50,
+    1: 75,
+    2: 100,
+    3: 100
+}
+
+
 # </editor-fold>
 
 # <editor-fold desc="network">
@@ -219,6 +227,7 @@ unwrap_as_str = [scc["control"],
 main_background = "assets/textures/background_art/main_background_02.png"
 connection_setup_background = "assets/textures/background_art/notmikan02.jpg"
 empty_af = "assets/empty_af.png"
+bleed_drop = "assets/bleed_art.png"
 
 #   buttons
 blue_btn_menu = "assets/textures/buttons/blue_button_menu.jpg"

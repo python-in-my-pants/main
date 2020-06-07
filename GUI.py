@@ -202,11 +202,11 @@ class HPBar:
         self.end = end
         self.color = color
 
-        self.surf = pg.Surface(dim)
+        self.surf = pg.Surface(self.dim)
         self.surf.fill((12, 12, 12))
         self.surf.set_colorkey((12, 12, 12))
 
-        self.bar_surf = pg.Surface([int(dim[0]*curr / end), dim[1]])
+        self.bar_surf = pg.Surface([int(self.dim[0]*curr / end), self.dim[1]])
         self.bar_surf.fill(color)
 
         self.surf.blit(self.bar_surf, [0, 0])
@@ -217,7 +217,10 @@ class HPBar:
         else:
             self.curr = 0
         if not int(self.dim[0]*self.curr / self.end) < 0:
-            self.bar_surf = pg.Surface([int(self.dim[0]*self.curr / self.end), self.dim[1]])
+            if self.vertical:
+                self.bar_surf = pg.Surface([self.dim[0], int(self.dim[1] * self.curr / self.end)])
+            else:
+                self.bar_surf = pg.Surface([int(self.dim[0] * self.curr / self.end), self.dim[1]])
 
             x = 100*self.curr/self.end
 

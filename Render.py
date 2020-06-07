@@ -1882,6 +1882,8 @@ class InGame:
         # self.item_detail_back.fill((255, 0, 0))
         # tODO start empty
         self.item_stat_card = self.detail_item[0]  # just start with this pic bc first team char may not have an item
+        self.item_stat_card_type = None
+        self.gear_bar = None
         # </editor-fold>
 
         # <editor-fold desc="mid">
@@ -2142,6 +2144,7 @@ class InGame:
                         self.active_slot = self.selected_own_char.get_active_slot()
 
                     self.item_stat_card = self.detail_weapon[weapon.class_id]
+                    self.item_stat_card_type = "Weapon"
                     return
 
         def func_2(mouse_button):
@@ -2154,6 +2157,7 @@ class InGame:
                         self.selected_own_char.change_active_slot("Item", i)
                         self.active_slot = self.selected_own_char.get_active_slot()
                         self.item_stat_card = self.detail_item[item.my_id]
+                        self.item_stat_card_type = "Item"
 
                         return
 
@@ -2471,9 +2475,18 @@ class InGame:
                     pos_w = (i + 1) * self.inventory_gap_size + i * self.btn_w
                     pos_h = self.inventory_gap_size
 
-                    def f(_i):  # just chance image, dont change held item
+                    def f(_i):  # just change image, dont change held item
                         def inner_func():
-                            self.item_stat_card = self.detail_gear[self.selected_char.gear[_i].my_id]
+                            if self.selected_own_char:
+                                self.item_stat_card = self.detail_gear[self.selected_char.gear[_i].my_id]
+                                self.item_stat_card_type = "Gear"
+                                self.selected_own_char.gear[_i].durability = 50
+                                self.gear_bar = HPBar(dim=[self.item_detail_back.get_height(),
+                                                           self.item_detail_back.get_width()/15],
+                                                      curr=self.selected_own_char.gear[_i].durability,
+                                                      end=gear_durability[self.selected_own_char.gear[_i].my_id],
+                                                      vertical=True)
+                                self.gear_bar.update(self.selected_own_char.gear[_i].durability)
 
                         return inner_func
 
@@ -2615,6 +2628,12 @@ class InGame:
             self.char_stat_card = self.detail_char[self.selected_char.class_id]
             self.char_detail_back.blit(self.char_stat_card, dest=blit_centered_pos(self.char_detail_back,
                                                                                    self.char_stat_card))
+            if self.selected_char.get_bleed():
+                self.char_detail_back.blit(pg.transform.scale(pg.image.load(bleed_drop),
+                                                              (int(self.char_detail_back.get_width() / 6),
+                                                               int(self.char_detail_back.get_height() / 4))),
+                                           dest=[int(self.char_detail_back.get_width() -
+                                                 self.char_detail_back.get_width()/6), 0])
 
         r_metal = pg.image.load(Data.rusty_metal)
         self.inventory_gear_weapons_surf.blit(stretch_surf(self.inventory_gear_weapons_surf, r_metal), dest=(0, 0))
@@ -2639,6 +2658,9 @@ class InGame:
         self.item_detail_back.blit(fit_surf(back=self.item_detail_back, surf=self.detail_back_metall), dest=[0, 0])
         self.item_detail_back.blit(self.item_stat_card, dest=blit_centered_pos(self.item_detail_back,
                                                                                self.item_stat_card))
+        if self.item_stat_card_type == "Gear" and self.gear_bar:
+            self.item_detail_back.blit(pg.transform.rotate(self.gear_bar.surf, 180), dest=(0, 0))
+
         # </editor-fold>
 
         # <editor-fold desc="Mid">
