@@ -3,14 +3,20 @@
 #                                                                                                                      #
 #                                       WICHTIG! RECHTLICHER HINWEIS                                                   #
 #                                                                                                                      #
+# Stand: 07.06.2020                                                                                                    #
+#                                                                                                                      #
 #   Autoren: Daniel Kretschmer, Christian Loose                                                                        #
 #                                                                                                                      #
 # Die durch die hier aufgeführten Autoren erstellten Inhalte und Werke unterliegen dem deutschen Urheberrecht.         #
 # Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes  #
-# bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.                                         #
+# bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers und des Projektleiters,                  #
+# Daniel Kretschmer.                                                                                                   #
 #                                                                                                                      #
 # Die Autoren räumen Dritten ausdrücklich kein Verwertungsrecht an der hier beschriebenen Software oder einer          #
 # Kopie/Abwandlung dieser ein.                                                                                         #
+#                                                                                                                      #
+# Jegliche kommerzielle Nutzung des Programmcodes oder des zugrunde liegenden geistigen Eigentums oder von Teilen      #
+# oder veränderten Verionen dessen ist strengstens untersagt.                                                          #
 #                                                                                                                      #
 # Insbesondere untersagt ist das Entfernen und/oder Verändern dieses Hinweises.                                        #
 #                                                                                                                      #
