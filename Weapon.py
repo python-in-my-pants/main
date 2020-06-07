@@ -45,8 +45,8 @@ class Weapon:
         self.weight = weight
         self.spt = spt
         self.barrel_len = bar_len         # in cm
-        self.projectile_w = pv       #
-        self.projectile_v = pw
+        self.projectile_w = pw       #
+        self.projectile_v = pv
 
         # calculated
 
@@ -54,7 +54,7 @@ class Weapon:
         str_infl_on_recoil = (-np.tanh(self.recoil / k5) - k9 * 100)/2 + 0.5                     # 100 because max strength, but could be any constant I think
         inverse_recoil_influence = 1/((1-str_infl_on_recoil) * self.recoil + 1)
 
-        self.acc = (self.barrel_len_conversion(self.barrel_len)/5.1) * inverse_recoil_influence
+        self.acc = (self.barrel_len_conversion(self.barrel_len)/6.05) * inverse_recoil_influence
         self._dmg = self.projectile_w * (self.projectile_v/k6) * k11
         # self._dmg = ((self.projectile_w/2) * self.projectile_v**2)/20
         self.ran = self.projectile_w * (self.projectile_v/k6) * self.barrel_len_conversion(self.barrel_len)

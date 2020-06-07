@@ -218,7 +218,7 @@ unwrap_as_str = [scc["control"],
 #   images
 main_background = "assets/textures/background_art/main_background_02.png"
 connection_setup_background = "assets/textures/background_art/notmikan02.jpg"
-empty_af = "assets/empty_as_fuck.png"
+empty_af = "assets/empty_af.png"
 
 #   buttons
 blue_btn_menu = "assets/textures/buttons/blue_button_menu.jpg"

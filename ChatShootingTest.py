@@ -119,7 +119,6 @@ def test_case(body_part=body,
     4: ["MG",          3,     6.4,   100,    25,      55,    1200,    11],
     5: ["Sniper",      4,     8.2,     1,     1,      69,     915,    50],
     6: ["RL",          5,     6.7,     1,     1,     100,     285,  1800]
-    
 """
 
 test_case(class_id=heavy, weapon_id=mg, d=30, p=True)
