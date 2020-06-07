@@ -25,7 +25,7 @@ import numpy as np
 
 class Weapon:
 
-    def __init__(self, class_id=0, cost=0, weight=0, mag=0, spt=0, bar_len=0, pv=0, pw=0):
+    def __init__(self, class_id=0, name="Weapon", cost=0, weight=0, mag=0, spt=0, bar_len=0, pv=0, pw=0):
         """
 
         :param class_id: holds kind of weapon e.g. pistol, sniper, etc.
@@ -36,7 +36,7 @@ class Weapon:
         """
 
         self.class_id = class_id  # class id
-        self.name = weapon_stats[class_id][0]
+        self.name = name
         self.class_idi = "w" + str(id(self))  # unique id
 
         self.cost = cost
