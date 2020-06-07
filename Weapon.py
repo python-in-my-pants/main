@@ -1,21 +1,40 @@
+"""
+########################################################################################################################
+#                                                                                                                      #
+#                                       WICHTIG! RECHTLICHER HINWEIS                                                   #
+#                                                                                                                      #
+#   Autoren: Daniel Kretschmer, Christian Loose                                                                        #
+#                                                                                                                      #
+# Die durch die hier aufgeführten Autoren erstellten Inhalte und Werke unterliegen dem deutschen Urheberrecht.         #
+# Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes  #
+# bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.                                         #
+#                                                                                                                      #
+# Die Autoren räumen Dritten ausdrücklich kein Verwertungsrecht an der hier beschriebenen Software oder einer          #
+# Kopie/Abwandlung dieser ein.                                                                                         #
+#                                                                                                                      #
+# Insbesondere untersagt ist das Entfernen und/oder Verändern dieses Hinweises.                                        #
+#                                                                                                                      #
+# Bei Zuwiderhandlung behalten die Autoren sich ausdrücklich die Einleitung rechtlicher Schritte vor.                  #
+#                                                                                                                      #
+########################################################################################################################
+"""
+
 from Data import *
 import numpy as np
 
 
 class Weapon:
 
-    def __init__(self, class_id=0, name="Weapon", cost=0, weight=0, mag=0, spt=0, bar_len=0, pv=0, pw=0):
+    def __init__(self, class_id=0, cost=0, weight=0, mag=0, spt=0, bar_len=0, pv=0, pw=0):
         """
 
         :param class_id: holds kind of weapon e.g. pistol, sniper, etc.
-        :param name: .
         :param cost: buying cost
         :param weight: .
-        :param acc: projectile spread
-        :param dmg: damage to body parts without armor
         :param mag: magazine size
         :param spt: shots per turn aka fire rate
         """
+
         self.class_id = class_id  # class id
         self.name = weapon_stats[class_id][0]
         self.class_idi = "w" + str(id(self))  # unique id
@@ -37,6 +56,7 @@ class Weapon:
 
         self.acc = (self.barrel_len_conversion(self.barrel_len)/5.1) * inverse_recoil_influence
         self._dmg = self.projectile_w * (self.projectile_v/k6) * k11
+        # self._dmg = ((self.projectile_w/2) * self.projectile_v**2)/20
         self.ran = self.projectile_w * (self.projectile_v/k6) * self.barrel_len_conversion(self.barrel_len)
 
         # unused
