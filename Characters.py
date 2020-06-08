@@ -30,7 +30,7 @@ from Data import *
 import pygame as pg
 import functools
 
-Debug = True
+Debug = False
 
 
 # ToDo active weapon / item
@@ -388,7 +388,7 @@ class Character(GameObject):
             return numpy.sign(_x)
 
         range_factor = -(tanh((x / (ran * k1)) - (0.1 * ran * k1) - (1 / k1) + (k10 / base_chances[partind]))) / 2 + 0.5
-        bar_len_factor = self.active_slot.barrel_len_conversion(blen) / 5.1
+        bar_len_factor = self.active_slot.barrel_len_conversion(blen) / 6.05
         recoil_factor = 1 / ((1 - ((-tanh((recoil / k5) - k9 * strength)) / 2 + 0.5)) * recoil + 1)
         own_speed_factor = sign(v1) * ((l1 + l2) / (leg_hp_sum * ((v1 / k2) + 1))) + 1 - sign(v1)
         opp_speed_factor = 1 / ((v2 / k2) + 1)
@@ -644,8 +644,10 @@ class Character(GameObject):
                 self.hitprint(dmg_done, partind)
 
             self.adjust_stats()
+
         if self.is_dead():
-            self.dead()
+            if Debug:
+                self.dead()
 
         return dmg_done
 
@@ -679,7 +681,8 @@ class Character(GameObject):
         if not self.bleed[partind]:
             self.bleed[partind] = True
             self.bleed_t[partind] = 1000
-            self.statusprint(2)
+            if Debug:
+                self.statusprint(2)
 
     def stop_bleeding(self, partind):  # stops bleeding of body part with this index
         self.bleed[partind] = False

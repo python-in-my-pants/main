@@ -51,18 +51,19 @@ class Weapon:
         self.weight = weight
         self.spt = spt
         self.barrel_len = bar_len         # in cm
-        self.projectile_w = pv       #
-        self.projectile_v = pw
+        self.projectile_w = pw       #
+        self.projectile_v = pv
 
         # calculated
 
-        self.recoil = (self.spt * self.projectile_v * self.projectile_w) / (self.weight * k6)
-        str_infl_on_recoil = (-np.tanh(self.recoil / k5) - k9 * 100)/2 + 0.5                     # 100 because max strength, but could be any constant I think
-        inverse_recoil_influence = 1/((1-str_infl_on_recoil) * self.recoil + 1)
+        muzzle_energy = ((self.projectile_w/1000)**2 * self.projectile_v**2) / (2*self.weight)
+        self.dmg = ((self.projectile_w/1000)/2)*(self.projectile_v**2)/40
+        self.recoil = muzzle_energy * self.spt
 
-        self.acc = (self.barrel_len_conversion(self.barrel_len)/5.1) * inverse_recoil_influence
+        # make this bar len factor * recoil factor with 100 strength
+        self.acc = 1-(self.barrel_len_conversion(self.barrel_len)/5.55)
+
         self._dmg = self.projectile_w * (self.projectile_v/k6) * k11
-        # self._dmg = ((self.projectile_w/2) * self.projectile_v**2)/20
         self.ran = self.projectile_w * (self.projectile_v/k6) * self.barrel_len_conversion(self.barrel_len)
 
         # unused
@@ -81,7 +82,7 @@ class Weapon:
 
         return k4 * np.log10(((k3 * x) + k4)/k4)
 
-    def get_dmg(self, dist):
+    def get_dmg_old(self, dist):
 
         dmg_mult = (-np.tanh((dist / (self.ran * k1)) - 0.1 * self.ran * k1 - (1/k1)) / 2) + 0.5  # was - k1 at end of tanh
 
@@ -100,4 +101,4 @@ class Weapon:
                "\t  recoil:\t{}\n" \
                "\t   range:\t{}\n".format(self.name,
                                           self.weight, self.spt, self.barrel_len, self.projectile_v, self.projectile_w,
-                                          self.acc*1000, self._dmg, self.recoil, self.ran)
+                                          self.acc*100, self.dmg, self.recoil, self.ran)
