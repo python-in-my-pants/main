@@ -2798,12 +2798,11 @@ class InGame:
 
         if self.overlay and self.overlay_btn:
             self.overlay.newblit = False
-
             if self.dmg_done_timer < time.time() and self.dmg_done_ is not None:
                 self.overlay = None
                 self.overlay_btn = None
                 self.dmg_done_ = None
-            else:
+            if self.dmg_done_ is not None:
                 self.overlay.update_info(self.dmg_done_)
 
             if self.overlay and self.overlay_btn:
@@ -2815,9 +2814,9 @@ class InGame:
                     if not self.overlay.newblit:
                         self.overlay.surf = self.overlay.type["6"]
                 if self.selected_own_char:
-                    if self.selected_own_char.idi in self.shot_chars:
+                    if self.selected_own_char.idi in self.shot_chars and self.dmg_done_timer < time.time():
                         self.overlay.update_info("You already shot!")
-                    else:
+                    if self.dmg_done_ is None:
                         self.overlay.update_info(self.selected_own_char.get_chance(self.overlay.boi_to_attack,
                                                                                    self.overlay.part_to_attack))
                 self.screen.blit(self.overlay.surf, dest=self.overlay.pos)
@@ -2946,7 +2945,7 @@ class InGame:
                             if btn.is_focused([self.mouse_pos[0]-self.char_detail_back.get_width(), self.mouse_pos[1]])\
                                     and self.selected_own_char:
 
-                                self.dmg_done_ = self.shoot(int(btn.name))
+                                self.dmg_done_ = int(self.shoot(int(btn.name)))
                                 self.dmg_done_timer = time.time() + 3
 
                     if self.overlay:

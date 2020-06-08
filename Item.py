@@ -207,8 +207,8 @@ class Armor(Gear):
 		if self.my_id == 3:
 			self.name = "Armor Lvl 1"
 			self.durability = 100
-			self.reduction = 0.8
-			self.cost = 3
+			self.reduction = 0.3
+			self.cost = 4
 			self.weight = 5
 		if self.my_id == 4:
 			self.name = "Armor Lvl 2"
