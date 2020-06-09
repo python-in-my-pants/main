@@ -279,13 +279,16 @@ class Overlay:
         if isinstance(info, int):
             self.timer = time.time() + 2
             self.info_tafel = pg.transform.scale(pg.image.load(Data.deco_banner), (150, 150))
-            self.info_tafel.blit(self.myfont.render("Damage done: " + str(info), False, (255, 255, 255)), (18, 65))
+            if info == 0:
+                self.info_tafel.blit(self.myfont.render("     You missed!", False, (255, 255, 255)), (18, 65))
+            else:
+                self.info_tafel.blit(self.myfont.render("Damage done: " + str(info), False, (255, 255, 255)), (18, 65))
 
         if self.timer <= time.time():
             if isinstance(info, tuple) and len(info) == 4:
 
                 self.info_tafel = pg.transform.scale(pg.image.load(Data.deco_banner), (150, 150))
-                self.info_tafel.blit(self.myfont.render(("Hitchance: " + str(info[0]) + " %"),
+                self.info_tafel.blit(self.myfont.render(("Hitchance:   " + str(int(info[0])) + " %"),
                                      False, (255, 255, 255)), (22, 40))
                 if info[3]:
                     self.info_tafel.blit(self.myfont.render(("Damage:     " + str(info[1]*6)),

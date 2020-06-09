@@ -723,7 +723,7 @@ class CharacterSelection:  # commit comment
         self.cc_num = 6  # number of character cards
         self.gc_num = 4
         self.wc_num = 7
-        self.ic_num = 4
+        self.ic_num = 3
         self.timer_list = TTimer(3)  # too expensive, already ready, point limit reached
         self.font_surf = None
 
@@ -2136,7 +2136,7 @@ class InGame:
 
     def inventory_function_binder(self, name, _id, item_type):
 
-        def func_1():
+        def func_1(dings):
 
             for i, weapon in enumerate(self.selected_char.weapons):  # was selected char
                 if weapon.class_idi == _id:
@@ -2488,12 +2488,12 @@ class InGame:
                             if self.selected_own_char:
                                 self.item_stat_card = self.detail_gear[self.selected_char.gear[_i].my_id]
                                 self.item_stat_card_type = "Gear"
-                                self.selected_own_char.gear[_i].durability = 50
                                 self.gear_bar = HPBar(dim=[self.item_detail_back.get_height(),
                                                            self.item_detail_back.get_width()/15],
                                                       curr=self.selected_own_char.gear[_i].durability,
                                                       end=gear_durability[self.selected_own_char.gear[_i].my_id],
                                                       vertical=True)
+                                print(self.selected_own_char.gear[_i].durability)
                                 self.gear_bar.update(self.selected_own_char.gear[_i].durability)
 
                         return inner_func
