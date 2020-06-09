@@ -133,8 +133,10 @@ class ConnectionSetup:
 
         self.game_map_string = None
 
-        self.main_background_img = pg.image.load(Data.connection_setup_background).convert_alpha()
-        self.main_background_img = fit_surf(pg.Surface(true_res), self.main_background_img)
+        self.main_background_img = pg.transform.scale(pg.image.load(Data.connection_setup_background).convert_alpha(),
+                                                      true_res)
+
+        # self.main_background_img = fit_surf(pg.Surface(true_res), self.main_background_img)
 
         # create window
         self.screen = pg.display.set_mode(true_res)  # , pg.RESIZABLE | pg.FULLSCREEN)  # TODO put back in
@@ -2340,6 +2342,10 @@ class InGame:
             if action.used_item_index is not None and opp_char.items[action.used_item_index].depletes:
                 del opp_char.items[action.used_item_index]
 
+            for i in self.game_map.characters:
+                if self.game_map.objects[i].get_bleed():
+                    self.game_map.objects[i].timer_tick()
+
             for i in range(self.hp_bars.__len__()):
                 for j in range(6):
                     self.hp_bars[i][j].update(self.own_team.characters[i].health[j])
@@ -2631,11 +2637,40 @@ class InGame:
             self.char_detail_back.blit(self.char_stat_card, dest=blit_centered_pos(self.char_detail_back,
                                                                                    self.char_stat_card))
             if self.selected_char.get_bleed():
-                self.char_detail_back.blit(pg.transform.scale(pg.image.load(bleed_drop),
-                                                              (int(self.char_detail_back.get_width() / 6),
-                                                               int(self.char_detail_back.get_height() / 4))),
-                                           dest=[int(self.char_detail_back.get_width() -
-                                                 self.char_detail_back.get_width()/6), 0])
+                bleed_drop_surf = pg.transform.scale(pg.image.load(bleed_drop),
+                                                     (int(self.char_detail_back.get_width() / 6),
+                                                      int(self.char_detail_back.get_height() / 4)))
+                self.char_detail_back.blit(bleed_drop_surf, dest=[int(self.char_detail_back.get_width() -
+                                                                      self.char_detail_back.get_width()/6), 0])
+
+            dex_hand_surf = pg.transform.scale(pg.transform.rotate(pg.image.load(dex_hand), 45),
+                                               (int(self.char_detail_back.get_width() / 6),
+                                                int(self.char_detail_back.get_height() / 6)))
+            self.char_detail_back.blit(dex_hand_surf, dest=[int(self.char_detail_back.get_width() -
+                                                                self.char_detail_back.get_width()/6),
+                                                            int(self.char_detail_back.get_height()/4.5)])
+
+            dex_text_surf = self.timer.myfont_2.render(str(self.selected_char.dexterity), False, (0, 0, 0))
+            self.char_detail_back.blit(dex_text_surf, dest=[int(self.char_detail_back.get_width() -
+                                                                self.char_detail_back.get_width()/6),
+                                                            int(self.char_detail_back.get_height() / 4 +
+                                                            dex_hand_surf.get_height())])
+
+            str_weight_surf = pg.transform.scale(pg.image.load(str_weight), (int(self.char_detail_back.get_width()/6),
+                                                                             int(self.char_detail_back.get_height()/6)))
+            self.char_detail_back.blit(str_weight_surf, dest=[int(self.char_detail_back.get_width() -
+                                                                  self.char_detail_back.get_width()/6),
+                                                              int(self.char_detail_back.get_height() / 4 +
+                                                              dex_hand_surf.get_height()*1.25 +
+                                                                  dex_text_surf.get_height())])
+
+            str_text_durf = self.timer.myfont_2.render(str(self.selected_char.strength), False, (0, 0, 0))
+            self.char_detail_back.blit(str_text_durf, dest=[int(self.char_detail_back.get_width() -
+                                                                self.char_detail_back.get_width()/6),
+                                                            int(self.char_detail_back.get_height() / 4 +
+                                                                dex_hand_surf.get_height()*1.25 +
+                                                                dex_text_surf.get_height() +
+                                                                str_weight_surf.get_height())])
 
         r_metal = pg.image.load(Data.rusty_metal)
         self.inventory_gear_weapons_surf.blit(stretch_surf(self.inventory_gear_weapons_surf, r_metal), dest=(0, 0))
@@ -2845,9 +2880,9 @@ class InGame:
         else:
             self.screen.blit(self.timer.myfont_2.render("Opponent's Turn", False, (0, 130, 0)),
                              dest=[self.char_detail_back.get_width() + self.map_surface.get_width() +
-                                   self.timer.surf.get_width()//2, (self.player_banners.get_height() -
-                                                                    (self.timer.surf.get_height()) +
-                                                                    self.timer.surf.get_height()/8)])
+                                   self.timer.surf.get_width()//10, (self.player_banners.get_height() -
+                                                                     (self.timer.surf.get_height()) +
+                                                                     self.timer.surf.get_height()/2)])
 
         self.screen.blit(self.minimap_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
                                                   self.player_banners.get_height()])

@@ -225,11 +225,14 @@ unwrap_as_str = [scc["control"],
 
 #   images
 main_background = "assets/textures/background_art/main_background_02.png"
-connection_setup_background = "assets/textures/background_art/notmikan02.jpg"
-empty_af = "assets/empty_af.png"
-bleed_drop = "assets/bleed_art.png"
+connection_setup_background = "assets/textures/background_art/main_background_01.jpg"
+empty_af = "assets/textures/background_images/empty_af.png"
 host_banner = "assets/textures/background_images/host_banner.png"
 client_banner = "assets/textures/background_images/client_banner.png"
+bleed_drop = "assets/textures/icons/bleed_art.png"
+dex_hand = "assets/textures/icons/dex_hand.png"
+str_weight = "assets/textures/icons/str_weight.png"
+
 
 #   buttons
 blue_btn_menu = "assets/textures/buttons/blue_button_menu.jpg"
