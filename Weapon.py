@@ -59,12 +59,12 @@ class Weapon:
         muzzle_energy = ((self.projectile_w/1000)**2 * self.projectile_v**2) / (2*self.weight)
         self.dmg = ((self.projectile_w/1000)/2)*(self.projectile_v**2)/40
         self.recoil = muzzle_energy * self.spt
-
-        # make this bar len factor * recoil factor with 100 strength
-        self.acc = 1-(self.barrel_len_conversion(self.barrel_len)/5.55)
         recoil_f = (2 * max(np.sign(spt-1)/2, 0)) * (6.9/((-0.008 * 100 + 1) * self.recoil)) + 1 - \
                    (2 * max(np.sign(spt-1)/2, 0))
-        self.ran = self.projectile_w * (self.projectile_v/k6) * self.barrel_len_conversion(self.barrel_len)
+        bar_len_factor = -(np.tanh(4 * (1 - (3.4 * np.log10( (200 * self.barrel_len + 3.4)/3.4))/5.55) - 2.4)/2)+0.5
+        self.acc = recoil_f * bar_len_factor
+
+        #self.ran = self.projectile_w * (self.projectile_v/k6) * self.barrel_len_conversion(self.barrel_len)
 
         # unused
         self.mag = mag
@@ -97,8 +97,7 @@ class Weapon:
                "\t      pv:\t{}\n" \
                "\t      pw:\t{}\n" \
                "\t     acc:\t{}\n" \
-               "\tbase dmg:\t{}\n" \
-               "\t  recoil:\t{}\n" \
-               "\t   range:\t{}\n".format(self.name,
+               "\t     dmg:\t{}\n" \
+               "\t  recoil:\t{}\n".format(self.name,
                                           self.weight, self.spt, self.barrel_len, self.projectile_v, self.projectile_w,
-                                          self.acc*100, self.dmg, self.recoil, self.ran)
+                                          self.acc, self.dmg, self.recoil)
