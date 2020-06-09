@@ -175,9 +175,16 @@ class Character(GameObject):
     def class_selector(self):
 
         self.stamina = class_stats[self.class_id][0]
+
+        self.speed = class_stats[self.class_id][1]
         self.base_speed = class_stats[self.class_id][1]
+
+        self.dexterity = class_stats[self.class_id][2]
         self.base_dexterity = class_stats[self.class_id][2]
+
+        self.strength = class_stats[self.class_id][3]
         self.base_strength = class_stats[self.class_id][3]
+
         self.weight = class_stats[self.class_id][4]
         self.cost = class_stats[self.class_id][5]
 
