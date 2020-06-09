@@ -57,7 +57,7 @@ class Weapon:
         # calculated
 
         muzzle_energy = ((self.projectile_w/1000)**2 * self.projectile_v**2) / (2*self.weight)
-        self.dmg = ((self.projectile_w/1000)/2)*(self.projectile_v**2)/40
+        self.dmg = ((((self.projectile_w/1000)/2)*(self.projectile_v**2)/40) + 0.5)
         self.recoil = muzzle_energy * self.spt
         recoil_f = (2 * max(np.sign(spt-1)/2, 0)) * (6.9/((-0.008 * 100 + 1) * self.recoil)) + 1 - \
                    (2 * max(np.sign(spt-1)/2, 0))
@@ -95,7 +95,7 @@ class Weapon:
                "\t     Spt:\t{}\n" \
                "\t Bar len:\t{}\n" \
                "\t      pv:\t{}\n" \
-               "\t      pw:\t{}\n" \
+               "\t      pw:\t{}\n\n" \
                "\t     acc:\t{}\n" \
                "\t     dmg:\t{}\n" \
                "\t  recoil:\t{}\n".format(self.name,
