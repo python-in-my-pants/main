@@ -721,7 +721,7 @@ class CharacterSelection:  # commit comment
         self.cc_num = 6  # number of character cards
         self.gc_num = 4
         self.wc_num = 7
-        self.ic_num = 7
+        self.ic_num = 4
         self.timer_list = TTimer(3)  # too expensive, already ready, point limit reached
         self.font_surf = None
 
@@ -1134,6 +1134,7 @@ class CharacterSelection:  # commit comment
             def butn_fkt():
 
                 if not self.ready:
+                    print(card_num)
                     item = make_item_by_id(card_num)  # TODO: add function call to get instance of corresponding class
                     if self.spent_points + item.cost <= self.points_to_spend and self.selectedChar and \
                             len(self.selectedChar.items) < 5:
@@ -1917,10 +1918,11 @@ class InGame:
         # <editor-fold desc="right">
         # -------------- right ----------------------------------
 
-        # TODO design banner
-        self.player_banners = pg.Surface([int(7 * w / 32), int(7 * h / 18)])
-        # tODO design stats
-        self.match_stats = pg.Surface([self.player_banners.get_width(), int(self.player_banners.get_height() * 0.2)])
+        # self.player_banners = pg.Surface([int(7 * w / 32), int(7 * h / 18)])
+        if self.own_team.team_num == 0:
+            self.player_banners = pg.transform.scale(pg.image.load(host_banner), [int(7 * w / 32), int(7 * h / 18)])
+        else:
+            self.player_banners = pg.transform.scale(pg.image.load(client_banner), [int(7 * w / 32), int(7 * h / 18)])
 
         # TODO set content of minimap by blitting scaled map to it
         self.minimap_surf = pg.Surface([int(7 * w / 32), int(7 * h / 18)])
@@ -1929,7 +1931,7 @@ class InGame:
         # </editor-fold>
 
         # -------------------------------------------------------------------------------------------------------------
-        #  BUTTONS
+        # BUTTONS
         # -------------------------------------------------------------------------------------------------------------
 
         # <editor-fold desc="button functions">
@@ -2771,8 +2773,6 @@ class InGame:
         # <editor-fold desc="right side">
         # ----- right -----
 
-        self.player_banners.blit(self.match_stats, dest=[0, int(0.8 * self.player_banners.get_height())])
-
         self.minimap_surf.blit(fit_surf(back=self.minimap_surf, surf=self.map_content), dest=[0, 0])
 
         if not self.is_it_my_turn:
@@ -2836,22 +2836,18 @@ class InGame:
         self.screen.blit(self.player_banners,
                          dest=[self.char_detail_back.get_width() + self.map_surface.get_width(), 0])
 
-        if self.own_team.team_num == 0:
-            self.screen.blit(self.timer.myfont.render("Host", False, (250, 0, 0)),
-                             [self.char_detail_back.get_width() + self.map_surface.get_width(), 0])
-        else:
-            self.screen.blit(self.timer.myfont.render("Client", False, (250, 0, 0)),
-                             [self.char_detail_back.get_width() + self.map_surface.get_width(), 0])
-
-        # todo replace this with button
-        self.screen.blit(self.timer.myfont.render(str(self.is_it_my_turn), False, (250, 0, 0)),
-                         [self.char_detail_back.get_width() + self.map_surface.get_width(), 100])
-
         if self.timer.amount >= 0 and self.is_it_my_turn:
             self.timer.update()
             self.screen.blit(self.timer.surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width() +
                                                     (self.player_banners.get_width() - self.timer.surf.get_width())//2,
-                                                    (self.player_banners.get_height() - self.timer.surf.get_height())])
+                                                    (self.player_banners.get_height() -
+                                                     (self.timer.surf.get_height()) + self.timer.surf.get_height()/8)])
+        else:
+            self.screen.blit(self.timer.myfont_2.render("Opponent's Turn", False, (0, 130, 0)),
+                             dest=[self.char_detail_back.get_width() + self.map_surface.get_width() +
+                                   self.timer.surf.get_width()//2, (self.player_banners.get_height() -
+                                                                    (self.timer.surf.get_height()) +
+                                                                    self.timer.surf.get_height()/8)])
 
         self.screen.blit(self.minimap_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
                                                   self.player_banners.get_height()])

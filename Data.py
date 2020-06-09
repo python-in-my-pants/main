@@ -228,6 +228,8 @@ main_background = "assets/textures/background_art/main_background_02.png"
 connection_setup_background = "assets/textures/background_art/notmikan02.jpg"
 empty_af = "assets/empty_af.png"
 bleed_drop = "assets/bleed_art.png"
+host_banner = "assets/textures/background_images/host_banner.png"
+client_banner = "assets/textures/background_images/client_banner.png"
 
 #   buttons
 blue_btn_menu = "assets/textures/buttons/blue_button_menu.jpg"

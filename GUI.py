@@ -243,7 +243,7 @@ class Overlay:
         self.newblit = False
 
         self.info_pos = self.pos[0]-25, self.pos[1] + 200
-        self.myfont = pg.font.SysFont('Comic Sans MS', 15)
+        self.myfont = pg.font.SysFont(Data.font, 15)
         self.info_tafel = pg.transform.scale(pg.image.load(Data.deco_banner), (150, 150))
         self.timer = 0
 
@@ -303,15 +303,16 @@ class Overlay:
 
 class VisualTimer:
 
-    def __init__(self, amount=0, pos=(0, 0), size=75, action=(lambda: None)):
+    def __init__(self, amount=0, pos=(0, 0), size=60, action=(lambda: None)):
         self.amount = amount
         self.pos = pos
         self.size = size
         self.action = action
         self.action_done = False
 
-        self.myfont = pg.font.SysFont('Comic Sans MS', size)
-        self.surf = self.myfont.render("00:00", False, (250, 0, 0))
+        self.myfont = pg.font.SysFont(Data.font, size)
+        self.myfont_2 = pg.font.SysFont(Data.font, 35)
+        self.surf = self.myfont.render("00:00", False, (0, 130, 0))
         self.pre = 0
 
     def update(self):
@@ -337,7 +338,7 @@ class VisualTimer:
             else:
                 sekunden_str = str(sekunden)
 
-            self.surf = self.myfont.render((minuten_str + ":" + sekunden_str), False, (255, 255, 255))
+            self.surf = self.myfont.render((minuten_str + ":" + sekunden_str), False, (0, 130, 0))
             self.pre = int(time.time()) + 1
 
     def start_timer(self, zeit):

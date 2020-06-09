@@ -126,14 +126,14 @@ class Pills(Item):
 				char.regenerate_hp(self.heal_multiplier, i)
 
 
-"""class Accudope(Item):
+class Morphine(Item):
 	# TODO Add bool for the dopes if they are active
 	def __init__(self, my_id=3, name="Accuracy-Dope", cost=3, modifier=1.25, timer=5, weight=0.1):
 		super().__init__(my_id, name, cost, weight)
 		self.modifier = modifier
 		self.timer = timer
 
-
+"""
 class Stredope(Item):
 	def __init__(self, my_id=4, name="Strength-Dope", cost=3, modifier=1.25, timer=5, weight=0.1):
 		super().__init__(my_id, name,  cost, weight)
@@ -160,7 +160,8 @@ def make_item_by_id(my_id):
 	if my_id == 0: return Bandage()
 	if my_id == 1: return Medkit()
 	if my_id == 2: return Pills()
-	"""if my_id == 3: return Accudope()
+	if my_id == 3: return Morphine()
+	"""
 	if my_id == 4: return Stredope()
 	if my_id == 5: return Speeddope()
 	if my_id == 6: return Defdope()"""
