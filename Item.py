@@ -182,20 +182,22 @@ class Helm(Gear):
 		super().__init__(my_id, cost, weight)
 		self.durability = durability
 		self.reduction = reduction
-
 		if self.my_id == 0:
-			self.durability = 50
-			self.reduction = 0.7
+			self.name = "Helm lvl 1"
+			self.durability = 75
+			self.reduction = 0.4
 			self.cost = 3
 			self.weight = 1
 		if self.my_id == 1:
-			self.durability = 75
-			self.reduction = 0.6
+			self.name = "Helm lvl 2"
+			self.durability = 125
+			self.reduction = 0.3
 			self.cost = 6
 			self.weight = 1.5
 		if self.my_id == 2:
-			self.durability = 100
-			self.reduction = 0.5
+			self.name = "Helm lvl 3"
+			self.durability = 175
+			self.reduction = 0.15
 			self.cost = 10
 			self.weight = 2
 
@@ -206,21 +208,9 @@ class Armor(Gear):
 		self.durability = durability
 		self.reduction = reduction
 		if self.my_id == 3:
-			self.name = "Armor Lvl 1"
-			self.durability = 100
-			self.reduction = 0.3
-			self.cost = 4
-			self.weight = 5
-		if self.my_id == 4:
-			self.name = "Armor Lvl 2"
-			self.durability = 125
-			self.reduction = 0.75
-			self.cost = 6
-			self.weight = 10
-		if self.my_id == 5:
-			self.name = "Armor Lvl 3"
-			self.durability = 150
-			self.reduction = 0.7
+			self.name = "Armor"
+			self.durability = 500
+			self.reduction = 0.15
 			self.cost = 10
 			self.weight = 15
 # </editor-fold>
