@@ -2098,6 +2098,8 @@ class InGame:
                 self.selected_own_char_overlay = char
                 self.selected_char = self.selected_own_char
 
+                print(self.selected_own_char)
+
                 self.active_slot = self.selected_own_char.get_active_slot()
                 """self.selected_item = slot if (slot and isinstance(slot, Item)) else None
                 self.selected_weapon = slot if (slot and isinstance(slot, Weapon)) else None"""

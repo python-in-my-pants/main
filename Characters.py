@@ -75,11 +75,19 @@ class Character(GameObject):
         self.rand_id = random.randint(0, 1000000000)
 
         self.health = health[:]
+
+        self.base_dexterity = dexterity
         self.dexterity = dexterity
+
+        self.base_strength = strength
         self.strength = strength
+
         self.weight = 0
         self.stamina = stamina
+
+        self.base_speed = speed
         self.speed = speed
+
         self.height = height
         self.pos = pos[:]
 
@@ -167,9 +175,16 @@ class Character(GameObject):
     def class_selector(self):
 
         self.stamina = class_stats[self.class_id][0]
+
         self.speed = class_stats[self.class_id][1]
+        self.base_speed = class_stats[self.class_id][1]
+
         self.dexterity = class_stats[self.class_id][2]
+        self.base_dexterity = class_stats[self.class_id][2]
+
         self.strength = class_stats[self.class_id][3]
+        self.base_strength = class_stats[self.class_id][3]
+
         self.weight = class_stats[self.class_id][4]
         self.cost = class_stats[self.class_id][5]
 
@@ -330,7 +345,7 @@ class Character(GameObject):
 
             chance, dmg, spt, rpg_bool = self.get_chance(dude, partind)
 
-            print("Hitchance is ", chance, " and dmg is ", dmg)
+            #print("Hitchance is ", chance, " and dmg is ", dmg)
 
             dmg_done = 0
             dmg_done_list = [0 for _ in range(6)]
@@ -392,8 +407,8 @@ class Character(GameObject):
         f_oppspeed = 1 / ((v2 / k2) + 1)
         f_recoil = c * (6.9/((-0.008*strength+1)*recoil)) + 1 - c
 
-        print("f_dex:\t\t\t{}\nf_barlen:\t\t{}\nf_ownspeed:\t\t{}\nf_oppspeed:\t\t{}\nf_recoil:\t\t{}\n".
-              format(f_dex, f_barlen, f_ownspeed, f_oppspeed, f_recoil))
+        #print("f_dex:\t\t\t{}\nf_barlen:\t\t{}\nf_ownspeed:\t\t{}\nf_oppspeed:\t\t{}\nf_recoil:\t\t{}\n".
+        #      format(f_dex, f_barlen, f_ownspeed, f_oppspeed, f_recoil))
 
         """range_factor = -(tanh((x / (ran * k1)) - (0.1 * ran * k1) - (1 / k1) + (k10 / base_chances[partind]))) / 2 + 0.5
         bar_len_factor = self.active_slot.barrel_len_conversion(blen) / 6.05
@@ -537,7 +552,7 @@ class Character(GameObject):
 
         # --- speed
 
-        self.speed *= (self.health[4] + self.health[5]) / 200
+        self.speed = self.base_speed * ((self.health[4] + self.health[5]) / (default_hp[4]+default_hp[5]))
 
         # only torso and head left
         if self.health[4] <= 0 and self.health[5] <= 0 and self.health[1] <= 0 and self.health[2] <= 0:
@@ -553,8 +568,8 @@ class Character(GameObject):
         # only 1 arm left
         else:
             if self.health[1] <= 0 or self.health[2] <= 0:
-                self.strength *= 0.5
-                self.dexterity *= 0.2
+                self.strength = self.base_strength * 0.5
+                self.dexterity = self.base_dexterity * 0.2
 
     def apply_hp_change(self, dmg):  # also negative damage aka heal
 
