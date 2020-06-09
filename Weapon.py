@@ -62,8 +62,8 @@ class Weapon:
 
         # make this bar len factor * recoil factor with 100 strength
         self.acc = 1-(self.barrel_len_conversion(self.barrel_len)/5.55)
-
-        self._dmg = self.projectile_w * (self.projectile_v/k6) * k11
+        recoil_f = (2 * max(np.sign(spt-1)/2, 0)) * (6.9/((-0.008 * 100 + 1) * self.recoil)) + 1 - \
+                   (2 * max(np.sign(spt-1)/2, 0))
         self.ran = self.projectile_w * (self.projectile_v/k6) * self.barrel_len_conversion(self.barrel_len)
 
         # unused
