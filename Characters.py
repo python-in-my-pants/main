@@ -402,7 +402,7 @@ class Character(GameObject):
         opp_speed_factor = 1 / ((v2 / k2) + 1)
         dex_factor = dex / 100"""
 
-        return 100 * f_dex * f_barlen * f_ownspeed * f_oppspeed * f_recoil, \
+        return 100 * f_dex * f_barlen * f_ownspeed * f_oppspeed * f_recoil * base_chances[partind], \
             dmg, \
             spt, \
             self.active_slot.name == "RPG"
