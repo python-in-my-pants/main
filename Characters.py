@@ -30,7 +30,7 @@ from Data import *
 import pygame as pg
 import functools
 
-Debug = True
+Debug = False
 
 
 # ToDo active weapon / item
@@ -644,8 +644,10 @@ class Character(GameObject):
                 self.hitprint(dmg_done, partind)
 
             self.adjust_stats()
+
         if self.is_dead():
-            self.dead()
+            if Debug:
+                self.dead()
 
         return dmg_done
 
@@ -679,7 +681,8 @@ class Character(GameObject):
         if not self.bleed[partind]:
             self.bleed[partind] = True
             self.bleed_t[partind] = 1000
-            self.statusprint(2)
+            if Debug:
+                self.statusprint(2)
 
     def stop_bleeding(self, partind):  # stops bleeding of body part with this index
         self.bleed[partind] = False
