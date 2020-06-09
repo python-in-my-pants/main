@@ -386,10 +386,10 @@ class Character(GameObject):
 
         c = 2*max(sign(spt-1)/2, 0)
 
-        f_dex = -(tanh( (x-dex-(0.01*(dex-55)**2 + 14.75))/31.8584) / 2) + 0.5
-        f_barlen = -(tanh( 4 * (1- (3.4 *np.log10( (200 * blen + 3.4)/3.4 ))/5.55 ) -2.4 )/2)+0.5
+        f_dex = -(tanh((x-dex-(0.01*(dex-55)**2 + 14.75))/31.8584) / 2) + 0.5
+        f_barlen = -(tanh(4 * (1 - (3.4 * np.log10( (200 * blen + 3.4)/3.4))/5.55) - 2.4)/2)+0.5
         f_ownspeed = sign(v1) * ((l1 + l2) / (leg_hp_sum * ((v1 / k2) + 1))) + 1 - sign(v1)
-        f_oppspeed =  1 / ((v2 / k2) + 1)
+        f_oppspeed = 1 / ((v2 / k2) + 1)
         f_recoil = c * (6.9/((-0.008*strength+1)*recoil)) + 1 - c
 
         print("f_dex:\t\t\t{}\nf_barlen:\t\t{}\nf_ownspeed:\t\t{}\nf_oppspeed:\t\t{}\nf_recoil:\t\t{}\n".

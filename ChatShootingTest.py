@@ -156,5 +156,5 @@ def print_weapon_recoil_stats():
         print("-----------------------------------------------------------------------------------------")
 
 
-#test_case(class_id=heavy, weapon_id=mg, d=30, p=True)
+# test_case(class_id=heavy, weapon_id=mg, d=30, p=True)
 print_weapon_recoil_stats()
