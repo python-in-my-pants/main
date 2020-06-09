@@ -30,6 +30,9 @@ area damage for rpg
 bloom?
 loot dead chars: if own sel char and click on dead char (opp/own) and click on inventory and this slot in own sel char
     is not full: add item/gear/weapon to own inventory
+make weapon weight influence hipfire acc while moving your char
+blood trail left behind when bleeding
+smarter solution for body part probabilities
 
 -----------------------------------------------------------------
 

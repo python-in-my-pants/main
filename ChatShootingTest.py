@@ -21,6 +21,7 @@
 
 from Characters import *
 from Item import *
+import numpy as np
 
 head = 0
 arm = 1
@@ -121,4 +122,39 @@ def test_case(body_part=body,
     6: ["RL",          5,     6.7,     1,     1,     100,     285,  1800]
 """
 
-test_case(class_id=heavy, weapon_id=mg, d=30, p=True)
+
+def print_weapon_recoil_stats():
+
+    for w in range(6):
+        pw = weapon_stats[w][-1]
+        pv = weapon_stats[w][-2]
+        m = weapon_stats[w][2]
+        spt = weapon_stats[w][4]
+
+        recoil_energy_per_shot = ((pw/1000)**2 * pv**2)/(2*m)
+        recoil_energy_per_turn = recoil_energy_per_shot * spt
+        weapon = Weapon.make_weapon_by_id(class_id=w)
+        dmg_per_turn = weapon.dmg * weapon.spt * weapon.acc
+
+        strength = 100
+
+        def sign(x):
+
+            if x < 0:
+                return -1
+            if x == 0:
+                return 0
+            if x > 0:
+                return 1
+
+        f_recoil = (2 * max(sign(spt-1)/2, 0)) * (6.9/((-0.008 * strength + 1) * recoil_energy_per_turn)) + 1 - (2 * max(sign(spt-1)/2, 0))
+
+        print(weapon)
+        print("---dmg per turn------------->  ", dmg_per_turn)
+        print("---resulting cost----------->  ", dmg_per_turn//40)
+        print("Recoil of {:12}: \t{:>}\t\t\t\t{:>}".format(weapon_stats[w][0], recoil_energy_per_turn, f_recoil))
+        print("-----------------------------------------------------------------------------------------")
+
+
+# test_case(class_id=heavy, weapon_id=mg, d=30, p=True)
+print_weapon_recoil_stats()

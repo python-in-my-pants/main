@@ -30,7 +30,7 @@ from Data import *
 import pygame as pg
 import functools
 
-Debug = True
+Debug = False
 
 
 # ToDo active weapon / item
@@ -373,13 +373,10 @@ class Character(GameObject):
         v2 = opp.velocity
 
         spt = self.active_slot.spt
-        pv = self.active_slot.projectile_v
-        pw = self.active_slot.projectile_w
         blen = self.active_slot.barrel_len
 
         recoil = self.active_slot.recoil
-        ran = self.active_slot.ran
-        dmg = self.active_slot.get_dmg(x)
+        dmg = self.active_slot.dmg
 
         def tanh(_x):
             return numpy.tanh(_x)
@@ -387,14 +384,25 @@ class Character(GameObject):
         def sign(_x):
             return numpy.sign(_x)
 
-        range_factor = -(tanh((x / (ran * k1)) - (0.1 * ran * k1) - (1 / k1) + (k10 / base_chances[partind]))) / 2 + 0.5
+        c = 2*max(sign(spt-1)/2, 0)
+
+        f_dex = -(tanh((x-dex-(0.01*(dex-55)**2 + 14.75))/31.8584) / 2) + 0.5
+        f_barlen = -(tanh(4 * (1 - (3.4 * np.log10( (200 * blen + 3.4)/3.4))/5.55) - 2.4)/2)+0.5
+        f_ownspeed = sign(v1) * ((l1 + l2) / (leg_hp_sum * ((v1 / k2) + 1))) + 1 - sign(v1)
+        f_oppspeed = 1 / ((v2 / k2) + 1)
+        f_recoil = c * (6.9/((-0.008*strength+1)*recoil)) + 1 - c
+
+        print("f_dex:\t\t\t{}\nf_barlen:\t\t{}\nf_ownspeed:\t\t{}\nf_oppspeed:\t\t{}\nf_recoil:\t\t{}\n".
+              format(f_dex, f_barlen, f_ownspeed, f_oppspeed, f_recoil))
+
+        """range_factor = -(tanh((x / (ran * k1)) - (0.1 * ran * k1) - (1 / k1) + (k10 / base_chances[partind]))) / 2 + 0.5
         bar_len_factor = self.active_slot.barrel_len_conversion(blen) / 6.05
         recoil_factor = 1 / ((1 - ((-tanh((recoil / k5) - k9 * strength)) / 2 + 0.5)) * recoil + 1)
         own_speed_factor = sign(v1) * ((l1 + l2) / (leg_hp_sum * ((v1 / k2) + 1))) + 1 - sign(v1)
         opp_speed_factor = 1 / ((v2 / k2) + 1)
-        dex_factor = dex / 100
+        dex_factor = dex / 100"""
 
-        return 100 * range_factor * bar_len_factor * recoil_factor * own_speed_factor * opp_speed_factor * dex_factor, \
+        return 100 * f_dex * f_barlen * f_ownspeed * f_oppspeed * f_recoil * base_chances[partind], \
             dmg, \
             spt, \
             self.active_slot.name == "RPG"
@@ -644,8 +652,10 @@ class Character(GameObject):
                 self.hitprint(dmg_done, partind)
 
             self.adjust_stats()
+
         if self.is_dead():
-            self.dead()
+            if Debug:
+                self.dead()
 
         return dmg_done
 
@@ -679,7 +689,8 @@ class Character(GameObject):
         if not self.bleed[partind]:
             self.bleed[partind] = True
             self.bleed_t[partind] = 1000
-            self.statusprint(2)
+            if Debug:
+                self.statusprint(2)
 
     def stop_bleeding(self, partind):  # stops bleeding of body part with this index
         self.bleed[partind] = False
