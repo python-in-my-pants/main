@@ -48,10 +48,10 @@ def points_to_spend_per_team(x, y):
     return int(x * y * points_per_field * 0.5)
 
 
-serverIP = "78.47.178.105"
+# serverIP = "78.47.178.105"
 
 
-#serverIP = "localhost"
+serverIP = "localhost"
 
 
 # <editor-fold desc="material">
@@ -131,10 +131,10 @@ weapon_stats = {
     0: ["Pistol",      1,       1,    10,     3,      0.11,     300,    16],  # war 20
     1: ["MP",          2,     2.6,    30,    23,      0.20,     500,     7],  # war
     2: ["Sturmgewehr", 3,     3.5,    30,    21,      0.45,    1200,     4],
-    3: ["Shotgun",     3,     2.8,     2,     2,      0.71,     415,    24],
+    3: ["Shotgun",     3,     2.8,     2,     2,      0.20,     415,    24],
     4: ["MG",          3,     6.4,   100,    25,      0.55,    1200,     4],
     5: ["Sniper",      4,     8.2,     1,     1,      0.69,     915,    25],
-    6: ["RL",          5,     6.7,     1,     1,       0.1,     285,  1800]
+    6: ["RL",          5,     6.7,     1,     1,      0.10,     285,  1800]
 }
 
 gear_durability = {

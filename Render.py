@@ -2279,15 +2279,12 @@ class InGame:
         :return:
         """
 
-        for c in self.own_team.characters:
-            print("{} velocity: {}".format(c.name, c.velocity))
-
         if opp_turn.win:
             # opp says you win! :)
 
             self.screen.blit(self.win_banner, blit_centered_pos(self.screen, self.win_banner))
             pg.display.flip()
-            time.sleep(5)
+            time.sleep(8)
             self.client.send_endgame()
 
             # this exits out of the screen
@@ -2369,7 +2366,6 @@ class InGame:
             # declare win
             self.own_turn = Turn()
             self.own_turn.win = True  # send opp that he wins
-
             # send the turn out
             start_new_thread(self.client.send_turn, (self.own_turn, int(round(time.time() * 1000))))
 
@@ -2377,8 +2373,8 @@ class InGame:
             self.main_blit()
             self.screen.blit(self.lose_banner, blit_centered_pos(self.screen, self.lose_banner))
             pg.display.flip()
+            time.sleep(8)
             self.client.send_endgame()
-            time.sleep(5)
 
             # exit out
             self.new_window_target = MainWindow
@@ -2393,8 +2389,6 @@ class InGame:
             if c.idi not in self.moved_chars:
                 c.decay_velocity()
                 self.own_turn.add_action(Action(c, velocityraptor=c.velocity))
-
-            # TODO put in sth to make use of stamina stat of character, sth related to strength, velocity & mass carried
 
         # now set v_mat bc positions are set and we only need this once per turn
         self.v_mat = self.game_map.get_vmat()
@@ -2912,19 +2906,12 @@ class InGame:
 
         if self.opp_turn_applying:
             self.apply_opp_turn(self.opps_turn)
+
             if self.own_turn.win or self.opps_turn.win:
                 print("sum11")
                 return
 
         elif self.is_it_my_turn:
-
-            """if self.selected_char:
-                print("    Selected char pos: {} and velocity {}\n".
-                      format(self.selected_char.pos, self.selected_char.velocity))
-
-            if self.selected_own_char:
-                print("Selected own char pos: {} and velocity {}\n".
-                      format(self.selected_own_char.pos, self.selected_own_char.velocity))"""
 
             self.main_blit()
 
@@ -3203,25 +3190,12 @@ def fit_surf(back=None, surf=None, x_back=0, y_back=0, size=None):  # scales sec
 
         return pg.transform.smoothscale(surf, target_size)
 
-        """if background.get_height() <= background.get_width():
-            # wider than high, so height is smallest
-            target_size = [surface.get_width(),
-                           int((surface.get_width() * background.get_height()) / background.get_width())]
-        else:
-            # higher than wide
-            target_size = [int((surface.get_height() * background.get_width()) / background.get_height()),
-                           surface.get_height()]
-
-        return pg.transform.smoothscale(surf, target_size)"""
-
     # case 2: back is smaller than surf
     elif background.get_height() <= surface.get_height() and background.get_width() <= surface.get_width():
         if background.get_height() <= background.get_width():
             # wider than high, so height is smallest
             target_size = [int((background.get_height() * surface.get_width()) / surface.get_height()),
                            background.get_height()]
-            """target_size = [background.get_width(),
-                           int((background.get_width() * surface.get_height()) / surface.get_width())]"""
         else:
             # higher than wide
             target_size = [int((background.get_height() * surface.get_width()) / surface.get_height()),
