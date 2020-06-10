@@ -402,7 +402,7 @@ class Connection:
                 else:
                     p = Packet(ctype, Connection.prep(msg))
 
-                if self.role == "Server" or True:
+                if self.role == "Server":# or True:
                     print(("\t" * 30 + "Sending:\t" + str(self.ident) + "\n{}\n").format(p.to_string(n=30)))
                 self.target_socket.send(p.bytes)
 
@@ -420,7 +420,7 @@ class Connection:
 
         packet = Packet(ctype, Connection.prep(msg))
         # TODO debug only
-        if self.role == "Server" or True:
+        if self.role == "Server":# or True:
             print(packet.to_string(n=30), "\n")
 
         confirmation_received = False
