@@ -1136,7 +1136,6 @@ class CharacterSelection:  # commit comment
             def butn_fkt():
 
                 if not self.ready:
-                    print(card_num)
                     item = make_item_by_id(card_num)  # TODO: add function call to get instance of corresponding class
                     if self.spent_points + item.cost <= self.points_to_spend and self.selectedChar and \
                             len(self.selectedChar.items) < 5:
@@ -2495,7 +2494,6 @@ class InGame:
                                                       curr=self.selected_own_char.gear[_i].durability,
                                                       end=gear_durability[self.selected_own_char.gear[_i].my_id],
                                                       vertical=True)
-                                print(self.selected_own_char.gear[_i].durability)
                                 self.gear_bar.update(self.selected_own_char.gear[_i].durability)
 
                         return inner_func
@@ -2650,26 +2648,26 @@ class InGame:
                                                 int(self.char_detail_back.get_height() / 6)))
             self.char_detail_back.blit(dex_hand_surf, dest=[int(self.char_detail_back.get_width() -
                                                                 self.char_detail_back.get_width()/6),
-                                                            int(self.char_detail_back.get_height()/4.5)])
+                                                            int(self.char_detail_back.get_height()/3)])
 
             dex_text_surf = self.timer.myfont_2.render(str(self.selected_char.dexterity), False, (0, 0, 0))
             self.char_detail_back.blit(dex_text_surf, dest=[int(self.char_detail_back.get_width() -
-                                                                self.char_detail_back.get_width()/6),
-                                                            int(self.char_detail_back.get_height() / 4 +
+                                                                self.char_detail_back.get_width()/6.8),
+                                                            int(self.char_detail_back.get_height() / 3 +
                                                             dex_hand_surf.get_height())])
 
             str_weight_surf = pg.transform.scale(pg.image.load(str_weight), (int(self.char_detail_back.get_width()/6),
                                                                              int(self.char_detail_back.get_height()/6)))
             self.char_detail_back.blit(str_weight_surf, dest=[int(self.char_detail_back.get_width() -
                                                                   self.char_detail_back.get_width()/6),
-                                                              int(self.char_detail_back.get_height() / 4 +
+                                                              int(self.char_detail_back.get_height() / 3 +
                                                               dex_hand_surf.get_height()*1.25 +
                                                                   dex_text_surf.get_height())])
 
             str_text_durf = self.timer.myfont_2.render(str(self.selected_char.strength), False, (0, 0, 0))
             self.char_detail_back.blit(str_text_durf, dest=[int(self.char_detail_back.get_width() -
-                                                                self.char_detail_back.get_width()/6),
-                                                            int(self.char_detail_back.get_height() / 4 +
+                                                                self.char_detail_back.get_width()/6.8),
+                                                            int(self.char_detail_back.get_height() / 3 +
                                                                 dex_hand_surf.get_height()*1.25 +
                                                                 dex_text_surf.get_height() +
                                                                 str_weight_surf.get_height())])

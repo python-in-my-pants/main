@@ -143,6 +143,7 @@ class Character(GameObject):
                 if g.my_id == gs.my_id and \
                         (isinstance(g, Helm) and isinstance(gs, Helm)) or \
                         (isinstance(g, Armor) and isinstance(gs, Armor)):
+                    print("Own Gear: "+str(gs.durability), "Network Gear: "+str(g.durability))
                     gs.durability = g.durability
 
         # -------------------------
