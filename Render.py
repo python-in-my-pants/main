@@ -2098,8 +2098,6 @@ class InGame:
                 self.selected_own_char_overlay = char
                 self.selected_char = self.selected_own_char
 
-                print(self.selected_own_char)
-
                 self.active_slot = self.selected_own_char.get_active_slot()
                 """self.selected_item = slot if (slot and isinstance(slot, Item)) else None
                 self.selected_weapon = slot if (slot and isinstance(slot, Weapon)) else None"""
@@ -2133,12 +2131,14 @@ class InGame:
                 # just select him as selected char
                 self.selected_char = char
 
+            print(self.selected_char)
+
         func.__name__ = name
         return func
 
     def inventory_function_binder(self, name, _id, item_type):
 
-        def func_1(dings):
+        def func_1(mouse_button):
 
             for i, weapon in enumerate(self.selected_char.weapons):  # was selected char
                 if weapon.class_idi == _id:
@@ -2157,17 +2157,26 @@ class InGame:
 
             if mouse_button == 1:  # left click selects item
 
-                for i, item in enumerate(self.selected_own_char.items):  # was selected char
+                if not self.selected_char:
+                    return
+
+                for i, item in enumerate(self.selected_char.items):  # was selected char
                     if item.idi == _id:
 
-                        self.selected_own_char.change_active_slot("Item", i)
-                        self.active_slot = self.selected_own_char.get_active_slot()
+                        if self.selected_own_char is self.selected_char:
+                            self.selected_own_char.change_active_slot("Item", i)
+                            self.active_slot = self.selected_own_char.get_active_slot()
+
                         self.item_stat_card = self.detail_item[item.my_id]
                         self.item_stat_card_type = "Item"
 
                         return
 
             if mouse_button == 3:  # right click uses item
+
+                if not self.selected_own_char:
+                    return
+
                 for i, item in enumerate(self.selected_own_char.items):  # was selected char
 
                     if item.idi == _id:
@@ -2352,8 +2361,6 @@ class InGame:
                 for j in range(6):
                     self.hp_bars[i][j].update(self.own_team.characters[i].health[j])
 
-        # TODO make animated version :-)
-
         # --- check if game is over ---
         if self.own_team.all_dead():
 
@@ -2487,7 +2494,8 @@ class InGame:
 
                     def f(_i):  # just change image, dont change held item
                         def inner_func():
-                            if self.selected_own_char:
+
+                            if self.selected_char:
                                 self.item_stat_card = self.detail_gear[self.selected_char.gear[_i].my_id]
                                 self.item_stat_card_type = "Gear"
                                 self.gear_bar = HPBar(dim=[self.item_detail_back.get_height(),
@@ -2495,8 +2503,9 @@ class InGame:
                                                       curr=self.selected_own_char.gear[_i].durability,
                                                       end=gear_durability[self.selected_own_char.gear[_i].my_id],
                                                       vertical=True)
-                                print(self.selected_own_char.gear[_i].durability)
-                                self.gear_bar.update(self.selected_own_char.gear[_i].durability)
+
+                                print(self.selected_char.gear[_i].durability)
+                                self.gear_bar.update(self.selected_char.gear[_i].durability)
 
                         return inner_func
 

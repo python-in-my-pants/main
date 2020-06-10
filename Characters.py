@@ -144,6 +144,7 @@ class Character(GameObject):
                         (isinstance(g, Helm) and isinstance(gs, Helm)) or \
                         (isinstance(g, Armor) and isinstance(gs, Armor)):
                     gs.durability = g.durability
+                    print("Cloned gear successfully!")
 
         # -------------------------
 
