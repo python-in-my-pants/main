@@ -493,7 +493,7 @@ class Character(GameObject):
 
                         self.health[0] -= dmg_done
                         if self.health[0] < 0:
-                            self.health[0] = 0
+                            self.health[0] = 0 #.
 
                         self.start_bleeding(partind)
 
