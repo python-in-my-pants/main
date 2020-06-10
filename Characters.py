@@ -380,6 +380,10 @@ class Character(GameObject):
 
     def get_chance(self, opp, partind):
 
+        shoot_imp = self.shooting_impossible(opp)
+        if shoot_imp:
+            return shoot_imp
+
         dex = self.dexterity  # this contains arm hp already
         x = self.dist_to_other_char(opp)
         l1, l2 = (self.health[4], self.health[5])

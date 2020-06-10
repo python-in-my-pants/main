@@ -2237,7 +2237,7 @@ class InGame:
         if not self.selected_own_char.can_shoot():
             return "Character cannot shoot"
 
-        shoot_impossible = self.selected_own_char.shooting_impossible()
+        shoot_impossible = self.selected_own_char.shooting_impossible(self.overlay.boi_to_attack)
         if shoot_impossible:
             return shoot_impossible
 
@@ -2285,7 +2285,6 @@ class InGame:
         if opp_turn.win:
             # opp says you win! :)
 
-            # TODO either just blit or insert animated shit here however the fuck that may be done
             self.screen.blit(self.win_banner, blit_centered_pos(self.screen, self.win_banner))
             pg.display.flip()
             time.sleep(5)
@@ -2364,17 +2363,18 @@ class InGame:
                 for j in range(6):
                     self.hp_bars[i][j].update(self.own_team.characters[i].health[j])
 
-        # --- check if game is over ---
+        # --- check if you win ---
         if self.own_team.all_dead():
 
             # declare win
             self.own_turn = Turn()
-            self.own_turn.win = True
+            self.own_turn.win = True  # send opp that he wins
 
             # send the turn out
             start_new_thread(self.client.send_turn, (self.own_turn, int(round(time.time() * 1000))))
 
-            # prepare showing loss to player or TODO some fancy animated version
+            # prepare showing loss to player
+            self.main_blit()
             self.screen.blit(self.lose_banner, blit_centered_pos(self.screen, self.lose_banner))
             pg.display.flip()
             self.client.send_endgame()
@@ -2865,6 +2865,7 @@ class InGame:
                 if self.selected_own_char:
                     if self.selected_own_char.idi in self.shot_chars and self.dmg_done_timer < time.time():
                         self.overlay.update_info("You already shot!")
+
                     if self.dmg_done_ is None:
                         self.overlay.update_info(self.selected_own_char.get_chance(self.overlay.boi_to_attack,
                                                                                    self.overlay.part_to_attack))
