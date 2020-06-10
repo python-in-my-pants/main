@@ -671,7 +671,8 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
             for other_char_index in self.characters:
                 if v_dict[(own_char_index, other_char_index)][0] == 1\
                         and not own_chars.__contains__(other_char_index) \
-                        and not visible_chars.__contains__(other_char_index):
+                        and not visible_chars.__contains__(other_char_index)\
+                        and not self.objects[own_char_index].is_dead():
                     visible_chars.append(other_char_index)
 
         for c in own_chars:
