@@ -72,7 +72,7 @@ class MainWindow:
 
         btn = Button([int(0.2 * size[0]), int(0.069 * size[1])], pos=[size[0] / 2 - int(0.2 * size[0]) / 2,
                                                                       size[1] / 2 - int(0.069 * size[1]) / 2 + 200],
-                     img_uri=Data.blue_btn_menu, text="Play", name="Button 1", action=button_fkt)
+                     img_uri=rusty_metal, text="Play", name="Button 1", action=button_fkt)
 
         # render Button to screen
         self.screen.blit(btn.surf, btn.pos)
@@ -1189,7 +1189,7 @@ class CharacterSelection:  # commit comment
             pos=[int(self.minimap_surf.get_size()[0] * 0.05), int(self.minimap_surf.get_size()[1] * 0.8)],
             real_pos=[int(self.minimap_surf.get_size()[0] * 0.05) +
                       self.troop_overview.get_size()[0],
-                      int(self.minimap_surf.get_size()[1] * 0.8)], img_uri=Data.blue_btn_menu,
+                      int(self.minimap_surf.get_size()[1] * 0.8)], img_uri=rusty_metal,
             text=get_text(), action=ready_up)
 
         # rest has to be handled in update
@@ -2066,7 +2066,7 @@ class InGame:
                                          self.map_surface.get_width(),
                                          self.player_banners.get_height() +
                                          self.minimap_surf.get_height()],
-                               img_uri=Data.blue_btn_menu,
+                               img_uri=rusty_metal,
                                name="Done", action=done_button_action)
         # </editor-fold>
 
