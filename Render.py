@@ -43,7 +43,7 @@ class MainWindow:
         # print("MainWindow thinks the size is: " + str(size))
 
         self.new_window_target = None
-        self.screen = pg.display.set_mode(true_res, pg.RESIZABLE | pg.FULLSCREEN) # TODO put back in
+        self.screen = pg.display.set_mode(true_res, pg.FULLSCREEN | pg.DOUBLEBUF | pg.HWSURFACE) # TODO put back in
 
         main_background_img = pg.image.load(Data.main_background)
 
@@ -63,10 +63,6 @@ class MainWindow:
         self.buttons = []
 
         def button_fkt():
-            # pg.mixer.music.load("assets/ass.mp3")  # TODO replace with omae wa mou and play on window open in loop
-            # pg.mixer.music.play(0)
-            # time.sleep(2.5)
-
             # go to different window and kill this one
             self.new_window_target = ConnectionSetup
 
@@ -241,7 +237,6 @@ class ConnectionSetup:
                                      text="No games hosted", name="ip_to_join_btn", action=self.ip_field_fkt)
 
         self.buttons.append(self.ip_to_join_btn)
-        # this is here for a reason, just don't know which that is
         self.buttons.append(self.desired_board_size_button)
 
         self.join_cancel_btn = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
@@ -265,7 +260,7 @@ class ConnectionSetup:
         # Asking for tha hosting list all 3 seconds assuming 60 FPS
 
         # this number has to be big enough to receive the list meanwhile
-        if self.get_hosting_list_counter >= 42:  # no pun intended number has a calculation behind it
+        if self.get_hosting_list_counter >= 42:  # Number has a calculation behind it
 
             new_list = self.client.get_hosting_list()
 
@@ -574,7 +569,6 @@ class ConnectionSetup:
             self.change_btn_text(self.host_stat_btn, "Generating map...")
 
             # generate Map for the game
-            # TODO generate map png and attach it to map for better rendering performance
             self.game_map_string = Map.MapBuilder().build_map(self.field_size)
             self.map_points = Data.points_to_spend_per_team(self.game_map_string.size_x, self.game_map_string.size_y)
 
@@ -589,7 +583,6 @@ class ConnectionSetup:
             self.change_btn_text(self.host_stat_btn, "Waiting for opp..")
 
             # while you are not in a game yet (aka nobody has joined your hosted game)
-            # while True:  # TODO change back ... wtf of this is changed back, cancel doesn't work anymore
             while not self.client.get_in_game_stat():
                 # kill the thread if outer conditions changed
                 if self.host_thread == 0:
@@ -613,7 +606,7 @@ class ConnectionSetup:
         if self.host_thread:
             self.host_thread = 0
             self.client.cancel_hosting()
-            self.change_btn_text(self.host_stat_btn, "Cancelled, fucker!")
+            self.change_btn_text(self.host_stat_btn, "Cancelled!")
 
     def back_fkt(self):
         self.size_focus = False
@@ -703,9 +696,9 @@ class CharacterSelection:  # commit comment
         self.client = client
         self.new_window_target = None
         self.spent_points = 0
-        self.screen = pg.display.set_mode(true_res, pg.RESIZABLE | pg.FULLSCREEN) # TODO put back in
+        self.screen = pg.display.set_mode(true_res, pg.RESIZABLE | pg.FULLSCREEN)
         self.team_numberr = team_numberr
-        self.ownTeam = Team(team_number=team_numberr)  # ToDo Network Team?
+        self.ownTeam = Team(team_number=team_numberr)
         self.ready_thread = 0
         self.selectedChar = None
         self.weapons = []
@@ -734,9 +727,7 @@ class CharacterSelection:  # commit comment
         self.invisible = -10000
         # </editor-fold>
 
-        # -------------------------------------------------------------------------------------------------------------
-        # I'm gonna do what's called a pro gamer move: load assets in init!
-        # -------------------------------------------------------------------------------------------------------------
+        # Loading assets in init!
 
         # <editor-fold desc="Just pro">
         self.cc_small_images = []
@@ -763,9 +754,7 @@ class CharacterSelection:  # commit comment
 
         # </editor-fold>
 
-        # -------------------------------------------------------------------------------------------------------------
         # set up surfaces for screen
-        # -------------------------------------------------------------------------------------------------------------
 
         #############
         # left side #
@@ -799,7 +788,6 @@ class CharacterSelection:  # commit comment
         self.card_h = int(self.card_w * 1.457)
         self.gap_size = int(self.troop_overview.get_width() / (self.line_len * 9 + 1))
 
-        # sneaky asset loading here bc now we know everything
         rusty_metal_img = pg.transform.smoothscale(
             pg.image.load(Data.rusty_metal),
             [int(self.troop_overview.get_width() * 0.9), int(self.card_h / 2)]
@@ -854,17 +842,10 @@ class CharacterSelection:  # commit comment
         self.selected_units_back = pg.Surface([int(0.3 * size[0]), int((size[1] - self.minimap_surf.get_height()) / 2)])
         if debug:
             self.selected_units_back.fill((255, 0, 0))
-        '''
-        # NEWWW
-        sel_uni_back_back_img = pg.transform.smoothscale(pg.image.load("assets/metall.png").convert_alpha(),
-                                                         self.selected_units_back.get_size())
-        self.selected_units_back.blit(sel_uni_back_back_img, [0, 0])
-        '''
 
         self.selected_units_box = pg.Surface(
             [self.selected_units_back.get_width() - 10, self.selected_units_back.get_height() - 10])
 
-        # NEWWW
         sel_uni_box_back_img = pg.transform.smoothscale(pg.image.load(Data.metal_btn).convert_alpha(),
                                                         self.selected_units_box.get_size())
         self.selected_units_box.blit(sel_uni_box_back_img, [0, 0])
@@ -879,7 +860,6 @@ class CharacterSelection:  # commit comment
         self.selected_weapons_box = pg.Surface([self.selected_weapons_back.get_width() - 10,
                                                 self.selected_weapons_back.get_height() - 10])
 
-        # NEWWW
         sel_weap_box_back_img = pg.transform.smoothscale(pg.image.load(Data.metal_btn).convert_alpha(),
                                                          self.selected_weapons_box.get_size())
         self.selected_weapons_box.blit(sel_weap_box_back_img, [0, 0])
@@ -999,8 +979,7 @@ class CharacterSelection:  # commit comment
         # character cards big
         # #############################################################################################################
 
-        # <editor-fold desc="Peaky Binders and their buttons">
-        # for push-
+        # <editor-fold desc="Binders and their buttons">
         def character_function_binder(name, card_num):
 
             def butn_fkt():
@@ -1013,7 +992,6 @@ class CharacterSelection:  # commit comment
                         self.spent_points += char.cost
                         self.selectedChar = char
                     else:
-                        # TODO: take out
                         print("Too expensive, cannot buy")
                         self.timer_list.set_timer(0, 2.1)
                 else:
@@ -1073,12 +1051,9 @@ class CharacterSelection:  # commit comment
             h_pos = 2 * self.gap_size + int(i / self.line_len) * self.card_h + (
                     int(i / self.line_len) - 1) * self.gap_size
 
-            card_btn = Button(dim=[self.card_w, self.card_h], pos=[w_pos, h_pos], real_pos=[w_pos,
-                                                                                            h_pos +
-                                                                                            self.rem_points_back.get_height() +
-                                                                                            self.character_back.get_height() +
-                                                                                            self.gear_banner.dim[1],
-                                                                                            self.scroll_offset],
+            card_btn = Button(dim=[self.card_w, self.card_h], pos=[w_pos, h_pos],
+                              real_pos=[w_pos, h_pos + self.rem_points_back.get_height() +
+                                        self.character_back.get_height() + self.gear_banner.dim[1], self.scroll_offset],
                               img_uri=(Data.gc_big_prefix + str(i) + ".png"), use_dim=True, text="",
                               action=gear_function_binder("gc_btn_function_" + str(i), i))
 
@@ -1090,13 +1065,12 @@ class CharacterSelection:  # commit comment
             def butn_fkt():
 
                 if not self.ready:
-                    weap = Weapon.make_weapon_by_id(card_num)  # TODO: add function call to get instance of corresponding class
+                    weap = Weapon.make_weapon_by_id(card_num)
                     if self.spent_points + weap.cost <= self.points_to_spend and self.selectedChar and \
                             len(self.selectedChar.weapons) < 3:
                         self.selectedChar.weapons.append(weap)
                         self.spent_points += weap.cost
                     else:
-                        # TODO: take out
                         print("cannot buy")
                         self.timer_list.set_timer(0, 2.1)
                 else:
@@ -1111,13 +1085,10 @@ class CharacterSelection:  # commit comment
             h_pos = 2 * self.gap_size + int(i / self.line_len) * self.card_h + (
                     int(i / self.line_len) - 1) * self.gap_size
 
-            card_btn = Button(dim=[self.card_w, self.card_h], pos=[w_pos, h_pos], real_pos=[w_pos,
-                                                                                            h_pos +
-                                                                                            self.rem_points_back.get_height() +
-                                                                                            self.character_back.get_height() +
-                                                                                            self.gear_back.get_height() +
-                                                                                            self.weapon_banner.dim[1] +
-                                                                                            self.scroll_offset],
+            card_btn = Button(dim=[self.card_w, self.card_h], pos=[w_pos, h_pos],
+                              real_pos=[w_pos, h_pos + self.rem_points_back.get_height() +
+                                        self.character_back.get_height() + self.gear_back.get_height() +
+                                        self.weapon_banner.dim[1] + self.scroll_offset],
                               img_uri=(Data.wc_big_prefix + str(i) + ".png"), use_dim=True, text="",
                               action=weapon_function_binder("wc_btn_function_" + str(i), i))
 
@@ -1129,13 +1100,12 @@ class CharacterSelection:  # commit comment
             def butn_fkt():
 
                 if not self.ready:
-                    item = make_item_by_id(card_num)  # TODO: add function call to get instance of corresponding class
+                    item = make_item_by_id(card_num)
                     if self.spent_points + item.cost <= self.points_to_spend and self.selectedChar and \
                             len(self.selectedChar.items) < 5:
                         self.selectedChar.items.append(item)
                         self.spent_points += item.cost
                     else:
-                        # TODO: take out
                         print("Too expensive, cannot buy")
                         self.timer_list.set_timer(0, 2.1)
                 else:
@@ -1151,14 +1121,10 @@ class CharacterSelection:  # commit comment
             h_pos = 2 * self.gap_size + int(i / self.line_len) * self.card_h + (
                     int(i / self.line_len) - 1) * self.gap_size
 
-            card_btn = Button(dim=[self.card_w, self.card_h], pos=[w_pos, h_pos], real_pos=[w_pos,
-                                                                                            h_pos +
-                                                                                            self.rem_points_back.get_height() +
-                                                                                            self.character_back.get_height() +
-                                                                                            self.gear_back.get_height() +
-                                                                                            self.weapon_back.get_height() +
-                                                                                            self.item_banner.dim[1] +
-                                                                                            self.scroll_offset],
+            card_btn = Button(dim=[self.card_w, self.card_h], pos=[w_pos, h_pos],
+                              real_pos=[w_pos, h_pos + self.rem_points_back.get_height() +
+                                        self.character_back.get_height() + self.gear_back.get_height() +
+                                        self.weapon_back.get_height() + self.item_banner.dim[1] + self.scroll_offset],
                               img_uri=(Data.ic_big_prefix + str(i) + ".png"), use_dim=True, text="",
                               action=item_function_binder("ic_btn_function_" + str(i), i))
 
@@ -1278,8 +1244,6 @@ class CharacterSelection:  # commit comment
             for btn in self.banners:
                 btn.set_offsets(y_offset=self.scroll_offset)
             self.scroll = False
-
-        # hide'n'seek
 
         if self.char_banner_clicked:
 
@@ -1435,7 +1399,7 @@ class CharacterSelection:  # commit comment
                 cat = "gear"
 
             if self.gear.__len__() <= i < self.weapons.__len__() + self.gear.__len__():
-                my_id = self.weapons[i - self.gear.__len__()].class_id  # TODO list index out of range???
+                my_id = self.weapons[i - self.gear.__len__()].class_id
                 img_source = self.wc_small_images[my_id]
                 cat = "weapon"
 
@@ -1444,14 +1408,13 @@ class CharacterSelection:  # commit comment
                 img_source = self.ic_small_images[my_id]
                 cat = "item"
 
-            btn = Button(dim=[gear_w_small_card, gear_h_small_card], pos=[pos_w, pos_h], real_pos=
-            [pos_w +
-             self.troop_overview.get_width() +
-             int((self.selected_weapons_back.get_width() - self.selected_weapons_box.get_width()) / 2),
-             pos_h +
-             self.minimap_surf.get_height() +
-             self.selected_units_back.get_height() +
-             int((self.selected_weapons_back.get_height() - self.selected_weapons_box.get_height()) / 2)],
+            btn = Button(dim=[gear_w_small_card, gear_h_small_card], pos=[pos_w, pos_h],
+                         real_pos=[pos_w + self.troop_overview.get_width() +
+                                   int((self.selected_weapons_back.get_width() -
+                                        self.selected_weapons_box.get_width()) / 2),
+                                   pos_h + self.minimap_surf.get_height() + self.selected_units_back.get_height() +
+                                   int((self.selected_weapons_back.get_height() -
+                                        self.selected_weapons_box.get_height()) / 2)],
                          text="", img_source=img_source, use_dim=True,
                          action=self.ic_function_binder("ic_small_btn_func" + str(i), _category=cat, _id=my_id))
 
@@ -1523,14 +1486,14 @@ class CharacterSelection:  # commit comment
 
             text = "Error"
             if self.timer_list.timers[0]:
-                text = "Punktelimit erreicht! (That will never fit, senpai >///<)"
+                text = "Punktelimit erreicht!"
             if self.timer_list.timers[1]:
                 text = "Du bist schon bereit! Klicke \"Unready\" um deine Armee zu ändern"
 
             font_size = int(0.025 * true_res[0])
-            font = pg.font.SysFont("comicsansms", font_size)
+            font_s = pg.font.SysFont(font, font_size)
 
-            self.font_surf = font.render(text, True, (255, 0, 0))
+            self.font_surf = font_s.render(text, True, (255, 0, 0))
             self.screen.blit(self.font_surf, blit_centered_pos(back=self.screen, surf=self.font_surf))
 
         #########
@@ -1551,10 +1514,7 @@ class CharacterSelection:  # commit comment
         self.player_overview.blit(self.minimap_surf, dest=[0, 0])
 
         # selected units
-        # if not self.team_char_btns:  # was sel item btns
 
-        # self.selected_units_box.fill((0, 0, 0))
-        # NEWWW
         sel_uni_box_back_img = pg.transform.smoothscale(pg.image.load(Data.metal_btn).convert_alpha(),
                                                         self.selected_units_box.get_size())
         self.selected_units_box.blit(sel_uni_box_back_img, [0, 0])
@@ -1572,9 +1532,6 @@ class CharacterSelection:  # commit comment
 
         # selected weapons
 
-        # self.selected_weapons_box.fill((0, 0, 0))
-
-        # NEWWW
         sel_weap_box_back_img = pg.transform.smoothscale(pg.image.load(Data.metal_btn).convert_alpha(),
                                                          self.selected_weapons_box.get_size())
         self.selected_weapons_box.blit(sel_weap_box_back_img, [0, 0])
@@ -1807,7 +1764,7 @@ class InGame:
         self.small_gear = []
         for i in range(self.gc_num):
             img = fit_surf(surf=pg.image.load(Data.gc_big_prefix + str(i) + ".png"), size=self.detail_size)
-            #img = pg.transform.smoothscale(pg.image.load(Data.gc_detail_prefix + str(i) + ".png").convert_alpha(), self.detail_size)
+            # img = pg.transform.smoothscale(pg.image.load(Data.gc_detail_prefix + str(i) + ".png").convert_alpha(), self.detail_size)
             self.detail_gear.append(img)
             img = pg.transform.smoothscale(pg.image.load(Data.gc_smol_prefix + str(i) + ".png").convert_alpha(),
                                            self.small_size)
@@ -1817,7 +1774,7 @@ class InGame:
         self.small_weapon = []
         for i in range(self.wc_num):
             img = fit_surf(surf=pg.image.load(Data.wc_big_prefix + str(i) + ".png"), size=self.detail_size)
-            #img = pg.transform.smoothscale(pg.image.load(Data.wc_detail_prefix + str(i) + ".png").convert_alpha(),self.detail_size)
+            # img = pg.transform.smoothscale(pg.image.load(Data.wc_detail_prefix + str(i) + ".png").convert_alpha(),self.detail_size)
             self.detail_weapon.append(img)
             img = pg.transform.smoothscale(pg.image.load(Data.wc_smol_prefix + str(i) + ".png").convert_alpha(),
                                            self.small_size)
@@ -1827,7 +1784,7 @@ class InGame:
         self.small_item = []
         for i in range(self.ic_num):
             img = fit_surf(surf=pg.image.load(Data.ic_big_prefix + str(i) + ".png"), size=self.detail_size)
-            #img = pg.transform.smoothscale(pg.image.load(Data.ic_detail_prefix + str(i) + ".png").convert_alpha(), self.detail_size)
+            # img = pg.transform.smoothscale(pg.image.load(Data.ic_detail_prefix + str(i) + ".png").convert_alpha(), self.detail_size)
             self.detail_item.append(img)
             img = pg.transform.smoothscale(pg.image.load(Data.ic_smol_prefix + str(i) + ".png").convert_alpha(),
                                            self.small_size)
@@ -1841,7 +1798,7 @@ class InGame:
 
         self.detail_back_metall = pg.image.load(Data.metal_btn).convert_alpha()
 
-        self.win_banner = pg.image.load(Data.win_banner_text).convert_alpha()  # add super win banner here
+        self.win_banner = pg.image.load(Data.win_banner_text).convert_alpha()
         self.lose_banner = pg.image.load(Data.lose_banner_text).convert_alpha()
 
         # </editor-fold>
@@ -1873,8 +1830,7 @@ class InGame:
         # <editor-fold desc="mid">
         # -------------- mid ----------------------------------
 
-        own_team_height = 2 * int((1 / 32) * 7 * w / 32) + \
-                          int((self.own_team.characters.__len__() / 10) + 1) * \
+        own_team_height = 2 * int((1 / 32) * 7 * w / 32) + int((self.own_team.characters.__len__() / 10) + 1) * \
                           ((int((1 / 32) * 7 * w / 32) +  # number of lines * gap size
                             int(1.6 * (5 / 32) * 7 * w / 32)))  # button + hp bar
 
@@ -2271,6 +2227,8 @@ class InGame:
 
         opp_char_list = list(filter((lambda a: a.team != self.own_team),
                                     [self.game_map.objects[x] for x in self.game_map.characters]))
+        own_char_list = list(filter((lambda a: a.team == self.own_team),
+                                    [self.game_map.objects[x] for x in self.game_map.characters]))
 
         for action in opp_turn.actions:
 
@@ -2318,6 +2276,9 @@ class InGame:
                     my_char.apply_hp_change(action.dmg2b)
                     # blit lines indicating movement and shots
                     self.draw_line_(self.opp_turn_surf, my_char.pos, opp_char.pos, (255, 0, 0))
+
+                # copy stats
+                my_char.clone_from_other(action.player_b)
 
             if action.dmg2a:
                 # he healed himself
@@ -2420,7 +2381,7 @@ class InGame:
             line_points = []
         # </editor-fold>der
 
-        # clear list :)
+        # clear list
         self.char_map_buttons = []
         self.gear_buttons = self.item_buttons = self.weapon_buttons = []
 
@@ -2579,12 +2540,6 @@ class InGame:
                     self.selected_own_char = None
                     self.selected_char = None
 
-                """
-                print("Greed is a sin against God,\n "
-                      "just as all mortal sins,\n "
-                      "in as much as man condemns things\n "
-                      "eternal for the sake of temporal things.")"""
-
             elif not self.is_it_my_turn and self.selected_own_char:
 
                 self.r_fields = []
@@ -2623,10 +2578,10 @@ class InGame:
                                                             int(self.char_detail_back.get_height() / 3 +
                                                             dex_hand_surf.get_height())])
 
-            str_weight_surf = pg.transform.scale(pg.image.load(str_weight), (int(self.char_detail_back.get_width()/6),
-                                                                             int(self.char_detail_back.get_height()/6)))
+            str_weight_surf = pg.transform.scale(pg.image.load(str_weight), (int(self.char_detail_back.get_width()/8),
+                                                                             int(self.char_detail_back.get_height()/8)))
             self.char_detail_back.blit(str_weight_surf, dest=[int(self.char_detail_back.get_width() -
-                                                                  self.char_detail_back.get_width()/6),
+                                                                  self.char_detail_back.get_width()/7),
                                                               int(self.char_detail_back.get_height() / 3 +
                                                               dex_hand_surf.get_height()*1.25 +
                                                                   dex_text_surf.get_height())])
