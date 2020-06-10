@@ -2237,6 +2237,10 @@ class InGame:
         if not self.selected_own_char.can_shoot():
             return "Character cannot shoot"
 
+        shoot_impossible = self.selected_own_char.shooting_impossible()
+        if shoot_impossible:
+            return shoot_impossible
+
         if self.selected_own_char_overlay.idi in self.shot_chars:
             return "You cannot shoot anymore"
 
