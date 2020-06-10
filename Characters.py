@@ -145,6 +145,7 @@ class Character(GameObject):
                         (isinstance(g, Armor) and isinstance(gs, Armor)):
                     print("Own Gear: "+str(gs.durability), "Network Gear: "+str(g.durability))
                     gs.durability = g.durability
+                    print("Cloned gear successfully!")
 
         # -------------------------
 
