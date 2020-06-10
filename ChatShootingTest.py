@@ -154,6 +154,7 @@ def print_weapon_recoil_stats():
         f_recoil = (2 * max(sign(spt-1)/2, 0)) * (6.9/((-0.008 * strength + 1) * recoil_energy_per_turn)) + 1 - (2 * max(sign(spt-1)/2, 0))
 
         print(weapon)
+        print("in Pixel: "+str(weapon.dmg/400))
         print("---dmg per turn------------->  ", dmg_per_turn)
         print("---resulting cost----------->  ", dmg_per_turn//40)
         print("Recoil of {:12}: \t{:>}\t\t\t\t{:>}".format(weapon_stats[w][0], recoil_energy_per_turn, f_recoil))
