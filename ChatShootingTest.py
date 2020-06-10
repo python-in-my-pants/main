@@ -67,10 +67,12 @@ def build_char(team=0, helm_tier=3, weapon_id=0, leg_hp=200, arm_hp=200, class_i
 
 
 def shooting_test(chara, charb, part):
-    _, dmg_done = chara.shoot(charb, part)
     chance = chara.get_chance(charb, part)
+    chara.shoot(charb, part)
 
-    return chance, dmg_done
+    print("Chance:", chance)
+
+    return chance
 
 
 def test_case(body_part=body,
@@ -92,17 +94,17 @@ def test_case(body_part=body,
 
     if p:
         print("\n{}"
-              "\n\n --- attacked ---\n\n{}"
+              "\n\n --- attacks ---\n\n{}"
               "\n\n --- with weapon ---\n\n{}"
               "\n --- at a distance of ---\n\n{}".format(char1, char2, char1.active_slot, d))
 
-    chance, dmg = shooting_test(char1, char2, body_part)
+    chance = shooting_test(char1, char2, body_part)
 
     if p:
         print("\n --- with a chance of ---\n\n[Chance:   {},\n    Dmg:   {}]"
               "\n\n --- and did ---\n\n{}".format(chance[0], chance[1], char2))
 
-    return chance, dmg
+    return chance
 
 
 """
@@ -127,7 +129,7 @@ def test_case(body_part=body,
 
 def print_weapon_recoil_stats():
 
-    for w in range(6):
+    for w in range(7):
         pw = weapon_stats[w][-1]
         pv = weapon_stats[w][-2]
         m = weapon_stats[w][2]
@@ -158,5 +160,5 @@ def print_weapon_recoil_stats():
         print("-----------------------------------------------------------------------------------------")
 
 
-#test_case(class_id=heavy, weapon_id=rpg, d=44, p=True, body_part=body)
+#test_case(class_id=heavy, weapon_id=rpg, d=5, p=True, body_part=body)
 print_weapon_recoil_stats()
