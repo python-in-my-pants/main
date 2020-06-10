@@ -128,8 +128,8 @@ class ConnectionSetup:
         self.get_hosting_list_counter = 0
         self.game_to_join = None
 
-        # self.ip_field_text = ...  # TODO change; this will be a button in a list of games to join marking the game as the game to join
-        self.desi_board_text = "35"  # TODO change; here you should also enter the game name -> GameName, size, e.g. Dungeon, 50
+        # self.ip_field_text = ...  # TODO this will be a button in a list of games to join marking the game as the game to join
+        self.desi_board_text = "Enter board size"  # was 35
 
         self.game_map_string = None
 
@@ -142,7 +142,8 @@ class ConnectionSetup:
         self.screen = pg.display.set_mode(true_res, pg.RESIZABLE | pg.FULLSCREEN)  # TODO put back in
         self.screen.blit(self.main_background_img, blit_centered_pos(self.screen, self.main_background_img))
         # TODO remove
-        self.c = CustomTimer()
+        """
+        self.c = CustomTimer()"""
 
         # set up GUI ---------------------------------------------------------------------------------------------------
 
@@ -171,7 +172,8 @@ class ConnectionSetup:
         self.desired_board_size_button = Button(dim=[int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
                                                 pos=[int(surfs_size[0] / 4),
                                                      int(surfs_size[1] * 0.7)],
-                                                color=(255, 255, 255), text="35", name="board_size_button",
+                                                color=(255, 255, 255), text=self.desi_board_text,
+                                                name="board_size_button",
                                                 action=self.desired_board_size_button_fkt)
 
         # append later to not mess up indices
@@ -187,7 +189,7 @@ class ConnectionSetup:
         self.host_stat_btn = Button([int(surfs_size[0] / 2), int(surfs_size[1] * 0.07)],
                                     pos=[int(surfs_size[0] / 4),
                                          int(surfs_size[1] * 0.43)],
-                                    color=(135, 206, 235), text="Host proposed <3",
+                                    color=(135, 206, 235), text="Not hosting",
                                     name="host_stat", action=(lambda: None))
 
         self.buttons.append(self.host_stat_btn)
@@ -284,12 +286,6 @@ class ConnectionSetup:
                     self.change_btn_text(self.ip_to_join_btn, "No games hosted")
 
                 self.content_changed = True
-
-            '''print("-"*30 + "\nRec log len:", self.client.connection.get_rec_log_len())
-            for elem in self.client.connection.get_rec_log_fast(5):
-                print("\n", elem.to_string())
-            print()'''
-
             self.get_hosting_list_counter = 0
         else:
             self.get_hosting_list_counter += 1
@@ -334,9 +330,6 @@ class ConnectionSetup:
 
             # handle events
             if event.type == pg.QUIT:
-                '''self.host_thread = 0
-                self.join_thread = 0
-                self.client.kill_connection()'''
                 pg.quit()
                 sys.exit()
 
@@ -1801,19 +1794,10 @@ class InGame:
         self.detail_char = []
         self.small_char = []
         for i in range(self.cc_num):
-            """img = pg.transform.smoothscale(pg.image.load(Data.cc_detail_prefix + str(i) + ".png").convert_alpha(),
-                                           self.detail_size)
-            self.detail_char.append(img)
-            img = pg.transform.smoothscale(pg.image.load(Data.cc_smol_prefix + str(i) + ".png").convert_alpha(),
-                                           self.small_size)
-            self.small_char.append(img)"""
 
             debug_img_size = pg.image.load(Data.cc_big_prefix + str(i) + ".png").get_size()
             img = fit_surf(surf=pg.image.load(Data.cc_big_prefix + str(i) + ".png"), size=self.detail_size)
             self.detail_char.append(img)
-
-            """img = fit_surf(surf=pg.image.load(Data.cc_big_prefix + str(i) + ".png"), size=self.small_size)
-            self.small_char.append(img)"""
 
             img = pg.transform.smoothscale(pg.image.load(Data.cc_smol_prefix + str(i) + ".png").convert_alpha(),
                                            self.small_size)
@@ -3117,6 +3101,7 @@ class InGame:
 
     def harakiri(self):
         del self
+
 
 # <editor-fold desc="Helper functions">
 
