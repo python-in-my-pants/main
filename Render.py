@@ -43,7 +43,7 @@ class MainWindow:
         # print("MainWindow thinks the size is: " + str(size))
 
         self.new_window_target = None
-        self.screen = pg.display.set_mode(true_res, pg.FULLSCREEN | pg.DOUBLEBUF | pg.HWSURFACE) # TODO put back in
+        self.screen = pg.display.set_mode(true_res)#, pg.FULLSCREEN | pg.DOUBLEBUF | pg.HWSURFACE) # TODO put back in
 
         main_background_img = pg.image.load(Data.main_background)
 
@@ -223,7 +223,7 @@ class ConnectionSetup:
                                     real_pos=[int((self.right_surf.get_width() - (surfs_size[0] / 2)) / 2) +
                                               self.left_surf.get_width(), int(surfs_size[1] * 0.43)],
                                     color=(135, 206, 235),
-                                    text="Join a game UwU", name="join_stat", action=(lambda: None))
+                                    text="Join a game", name="join_stat", action=(lambda: None))
 
         self.buttons.append(self.join_stat_btn)
 
