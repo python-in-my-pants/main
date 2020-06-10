@@ -43,7 +43,7 @@ class MainWindow:
         # print("MainWindow thinks the size is: " + str(size))
 
         self.new_window_target = None
-        self.screen = pg.display.set_mode(true_res)  # , pg.RESIZABLE | pg.FULLSCREEN)  # TODO put back in
+        self.screen = pg.display.set_mode(true_res, pg.RESIZABLE | pg.FULLSCREEN) # TODO put back in
 
         main_background_img = pg.image.load(Data.main_background)
 
@@ -139,7 +139,7 @@ class ConnectionSetup:
         # self.main_background_img = fit_surf(pg.Surface(true_res), self.main_background_img)
 
         # create window
-        self.screen = pg.display.set_mode(true_res)  # , pg.RESIZABLE | pg.FULLSCREEN)  # TODO put back in
+        self.screen = pg.display.set_mode(true_res, pg.RESIZABLE | pg.FULLSCREEN)  # TODO put back in
         self.screen.blit(self.main_background_img, blit_centered_pos(self.screen, self.main_background_img))
         # TODO remove
         self.c = CustomTimer()
@@ -710,7 +710,7 @@ class CharacterSelection:  # commit comment
         self.client = client
         self.new_window_target = None
         self.spent_points = 0
-        self.screen = pg.display.set_mode(true_res)  # , pg.RESIZABLE | pg.FULLSCREEN) # TODO put back in
+        self.screen = pg.display.set_mode(true_res, pg.RESIZABLE | pg.FULLSCREEN) # TODO put back in
         self.team_numberr = team_numberr
         self.ownTeam = Team(team_number=team_numberr)  # ToDo Network Team?
         self.ready_thread = 0
@@ -1711,7 +1711,7 @@ class InGame:
         self.cc_num = 6
         self.gc_num = 4
         self.wc_num = 7
-        self.ic_num = 7
+        self.ic_num = 3
 
         w = true_res[0]
         h = true_res[1]
@@ -1757,7 +1757,7 @@ class InGame:
         self.shift_start = [0, 0]
         self.con_shift_offset = [0, 0]  # constant offset from shifting the map
 
-        self.screen = pg.display.set_mode(true_res)  # , pg.RESIZABLE | pg.FULLSCREEN)
+        self.screen = pg.display.set_mode(true_res, pg.RESIZABLE | pg.FULLSCREEN)
         # </editor-fold>
 
         # <editor-fold desc="Place characters on map">
@@ -1822,8 +1822,8 @@ class InGame:
         self.detail_gear = []
         self.small_gear = []
         for i in range(self.gc_num):
-            img = pg.transform.smoothscale(pg.image.load(Data.gc_detail_prefix + str(i) + ".png").convert_alpha(),
-                                           self.detail_size)
+            img = fit_surf(surf=pg.image.load(Data.gc_big_prefix + str(i) + ".png"), size=self.detail_size)
+            #img = pg.transform.smoothscale(pg.image.load(Data.gc_detail_prefix + str(i) + ".png").convert_alpha(), self.detail_size)
             self.detail_gear.append(img)
             img = pg.transform.smoothscale(pg.image.load(Data.gc_smol_prefix + str(i) + ".png").convert_alpha(),
                                            self.small_size)
@@ -1832,8 +1832,8 @@ class InGame:
         self.detail_weapon = []
         self.small_weapon = []
         for i in range(self.wc_num):
-            img = pg.transform.smoothscale(pg.image.load(Data.wc_detail_prefix + str(i) + ".png").convert_alpha(),
-                                           self.detail_size)
+            img = fit_surf(surf=pg.image.load(Data.wc_big_prefix + str(i) + ".png"), size=self.detail_size)
+            #img = pg.transform.smoothscale(pg.image.load(Data.wc_detail_prefix + str(i) + ".png").convert_alpha(),self.detail_size)
             self.detail_weapon.append(img)
             img = pg.transform.smoothscale(pg.image.load(Data.wc_smol_prefix + str(i) + ".png").convert_alpha(),
                                            self.small_size)
@@ -1842,8 +1842,8 @@ class InGame:
         self.detail_item = []
         self.small_item = []
         for i in range(self.ic_num):
-            img = pg.transform.smoothscale(pg.image.load(Data.ic_detail_prefix + str(i) + ".png").convert_alpha(),
-                                           self.detail_size)
+            img = fit_surf(surf=pg.image.load(Data.ic_big_prefix + str(i) + ".png"), size=self.detail_size)
+            #img = pg.transform.smoothscale(pg.image.load(Data.ic_detail_prefix + str(i) + ".png").convert_alpha(), self.detail_size)
             self.detail_item.append(img)
             img = pg.transform.smoothscale(pg.image.load(Data.ic_smol_prefix + str(i) + ".png").convert_alpha(),
                                            self.small_size)
@@ -2621,10 +2621,10 @@ class InGame:
                                                                                    self.char_stat_card))
             if self.selected_char.get_bleed():
                 bleed_drop_surf = pg.transform.scale(pg.image.load(bleed_drop),
-                                                     (int(self.char_detail_back.get_width() / 6),
-                                                      int(self.char_detail_back.get_height() / 4)))
+                                                     (int(self.char_detail_back.get_width() / 8),
+                                                      int(self.char_detail_back.get_height() / 6)))
                 self.char_detail_back.blit(bleed_drop_surf, dest=[int(self.char_detail_back.get_width() -
-                                                                      self.char_detail_back.get_width()/6), 0])
+                                                                      self.char_detail_back.get_width()/7), 0])
 
             dex_hand_surf = pg.transform.scale(pg.transform.rotate(pg.image.load(dex_hand), 45),
                                                (int(self.char_detail_back.get_width() / 6),
@@ -2862,11 +2862,11 @@ class InGame:
                                                     (self.player_banners.get_height() -
                                                      (self.timer.surf.get_height()) + self.timer.surf.get_height()/8)])
         else:
-            self.screen.blit(self.timer.myfont_2.render("Opponent's Turn", False, (0, 130, 0)),
-                             dest=[self.char_detail_back.get_width() + self.map_surface.get_width() +
-                                   self.timer.surf.get_width()//10, (self.player_banners.get_height() -
-                                                                     (self.timer.surf.get_height()) +
-                                                                     self.timer.surf.get_height()/2)])
+            op_turn_surf = self.timer.myfont_2.render("Opponents Turn", False, (0, 130, 0))
+            self.screen.blit(op_turn_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width() +
+                                                 (self.player_banners.get_width() - op_turn_surf.get_width())//2,
+                                                 (self.player_banners.get_height() - (self.timer.surf.get_height()) +
+                                                  self.timer.surf.get_height()/8)])
 
         self.screen.blit(self.minimap_surf, dest=[self.char_detail_back.get_width() + self.map_surface.get_width(),
                                                   self.player_banners.get_height()])
@@ -3192,7 +3192,7 @@ def fit_surf(back=None, surf=None, x_back=0, y_back=0, size=None):  # scales sec
         return pg.transform.smoothscale(surf, target_size)
 
     else:
-        print("you missed an edge case boi")
+        print("Edge Case Missed")
 
 
 def blit_centered_pos(back, surf):

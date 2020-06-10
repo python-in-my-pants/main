@@ -26,7 +26,7 @@ import time
 if sys.platform == "win32":
     true_res = (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
     # TODO put out, just for debugging
-    true_res = [1280, 720]
+    #true_res = [1280, 720]
 else:
     true_res = [1920, 1080]  # just set the res manually for linux, maybe adjust later?
 
@@ -48,10 +48,10 @@ def points_to_spend_per_team(x, y):
     return int(x * y * points_per_field * 0.5)
 
 
-serverIP = "78.47.178.105"
+# serverIP = "78.47.178.105"
 
 
-# serverIP = "localhost"
+serverIP = "localhost"
 
 
 # <editor-fold desc="material">
@@ -112,7 +112,7 @@ character_classes = {
     2: "Heavy",          # slow and strong, heavily armed
     3: "Medic",          # fast and lightly armed
     4: "Sniper",         # high acc
-    5: "Spezi",          # idk
+    5: "Spezi",          # average fighter
     6: "Commander"       # higher stats than normal but more expensive
 }
 

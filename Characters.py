@@ -33,7 +33,6 @@ import functools
 Debug = False
 
 
-# ToDo active weapon / item
 class Character(GameObject):
 
     def __init__(self,
@@ -143,7 +142,6 @@ class Character(GameObject):
                 if g.my_id == gs.my_id and \
                         (isinstance(g, Helm) and isinstance(gs, Helm)) or \
                         (isinstance(g, Armor) and isinstance(gs, Armor)):
-                    print("Own Gear: "+str(gs.durability), "Network Gear: "+str(g.durability))
                     gs.durability = g.durability
                     print("Cloned gear successfully!")
 
@@ -211,7 +209,7 @@ class Character(GameObject):
     def get_drawable(self):
         return self.pixs
 
-    def is_dead(self):  # returns if dead
+    def is_dead(self):  # returns if char is dead
         return self.health[0] <= 0 or self.health[3] <= 0
 
     def can_shoot(self):
@@ -428,130 +426,6 @@ class Character(GameObject):
             spt, \
             self.active_slot.name == "RPG"
 
-    """def get_chance(self, dude, partind):
-
-        if not dude.is_dead():
-
-            if self.health[1] <= 0 and self.health[2] <= 0:
-                return "Du hast keine Arme mehr!"
-
-            if not isinstance(self.active_slot, Weapon):
-                return "Rüste eine Waffe aus!"
-
-            chance_mod = [15, 10, 10, 2, 7, 7]
-
-            c_range = self.dist_to_other_char(dude)
-            dmg = self.calc_dmg(c_range)
-            p_range = self.calc_p_range(c_range)
-            spt = self.active_slot.spt
-            rpg_bool = False
-
-            if self.active_slot.name in ("Maschinenpistole", "Sturmgewehr", "Maschinengewehr"):
-                recoil_acc = self.calc_recoil_acc()
-                chance = int(self.active_slot.acc * (0.3 * self.dexterity) - p_range + recoil_acc - self.dist_moved)
-
-            elif self.active_slot.name == "Raketenwerfer":
-                chance = int(self.active_slot.acc * (0.3 * self.dexterity) - p_range - self.dist_moved)
-                rpg_bool = True
-
-            else:
-                chance = int(self.active_slot.acc * (0.3 * self.dexterity) - p_range - self.dist_moved)
-
-            if chance > 0:
-                chance -= chance_mod[partind]
-            if chance <= 0:
-                chance = 1
-
-            return chance, dmg, spt, rpg_bool
-        else:
-            return "Das Ziel ist tot!"
-
-    def calc_recoil_acc(self):
-        if self.active_slot.name == "Maschinenpistole":
-            return int(self.strength / 5)
-        if self.active_slot.name == "Sturmgewehr":
-            return int(self.strength / 10)
-        if self.active_slot.name == "Maschinengewehr":
-            return int(self.strength / 4)
-
-    def calc_dmg(self, c_range):
-        if self.active_slot.name == "Pistole":
-            if c_range >= 20:
-                return self.active_slot.dmg - int((0.2 * (c_range - 20)) + 0.5)
-            else:
-                return self.active_slot.dmg
-        if self.active_slot.name == "Pistole":
-            if c_range >= 15:
-                return self.active_slot.dmg - int((0.3 * (c_range - 15)) + 0.5)
-            else:
-                return self.active_slot.dmg
-        if self.active_slot.name == "Sturmgewehr":
-            if c_range >= 50:
-                return self.active_slot.dmg - int((0.2 * (c_range - 50)) + 0.5)
-            else:
-                return self.active_slot.dmg
-        if self.active_slot.name == "Shotgun":
-            if c_range >= 10:
-                return self.active_slot.dmg - int((1 * (c_range - 10)) + 0.5)
-            else:
-                return self.active_slot.dmg
-        if self.active_slot.name == "Maschinengewehr":
-            if c_range >= 40:
-                return self.active_slot.dmg - int((0.3 * (c_range - 40)) + 0.5)
-            else:
-                return self.active_slot.dmg
-        if self.active_slot.name == "Sniper":
-            if c_range >= 100:
-                return self.active_slot.dmg - int((0.2 * (c_range - 10)) + 0.5)
-            else:
-                return self.active_slot.dmg
-        if self.active_slot.name == "Raketenwerfer":
-            return self.active_slot.dmg
-
-    def calc_p_range(self, c_range):
-
-        print("active slot name: ", self.active_slot.name)
-
-        if self.active_slot.name == "Pistole":
-            if c_range > 20:
-                return c_range - 20
-            else:
-                return 0
-        if self.active_slot.name == "Pistole":
-            if c_range > 15:
-                return c_range - 15
-            else:
-                return 0
-        if self.active_slot.name == "Sturmgewehr":
-            if c_range > 50:
-                return c_range - 50
-            else:
-                return 0
-        if self.active_slot.name == "Shotgun":
-            if c_range > 10:
-                return c_range - 10
-            else:
-                return 0
-        if self.active_slot.name == "Maschinengewehr":
-            if c_range < 2:
-                return 10
-            if c_range > 40:
-                return c_range - 40
-            else:
-                return 0
-        if self.active_slot.name == "Sniper":
-            if c_range < 5:
-                return c_range * 10
-            if c_range > 100:
-                return c_range - 100
-            else:
-                return 0
-        if self.active_slot.name == "Raketenwerfer":
-            if c_range > 20:
-                return c_range - 20
-            else:
-                return 0"""
-
     # --- special stats &  hp modifications ---
 
     def adjust_stats(self):  # adjusts stats and depends from health
@@ -725,6 +599,6 @@ class Character(GameObject):
 
 
 def create_character(_id, team):  # team holds only name/number of team
-    boi = Character(class_id=_id, team=team)
-    boi.class_selector()
-    return boi
+    char = Character(class_id=_id, team=team)
+    char.class_selector()
+    return char
