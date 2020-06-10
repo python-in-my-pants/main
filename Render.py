@@ -2501,10 +2501,11 @@ class InGame:
                             if self.selected_char:
                                 self.item_stat_card = self.detail_gear[self.selected_char.gear[_i].my_id]
                                 self.item_stat_card_type = "Gear"
+
                                 self.gear_bar = HPBar(dim=[self.item_detail_back.get_height(),
                                                            self.item_detail_back.get_width()/15],
-                                                      curr=self.selected_own_char.gear[_i].durability,
-                                                      end=gear_durability[self.selected_own_char.gear[_i].my_id],
+                                                      curr=self.selected_char.gear[_i].durability,
+                                                      end=gear_durability[self.selected_char.gear[_i].my_id],
                                                       vertical=True)
 
                                 self.gear_bar.update(self.selected_char.gear[_i].durability)
