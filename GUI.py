@@ -314,7 +314,7 @@ class VisualTimer:
         self.action_done = False
 
         self.myfont = pg.font.SysFont(Data.font, size)
-        self.myfont_2 = pg.font.SysFont(Data.font, 35)
+        self.myfont_2 = pg.font.SysFont(Data.font, 50)
         self.myfont_3 = pg.font.SysFont(Data.font, 15)
         self.surf = self.myfont.render("00:00", False, (0, 130, 0))
         self.pre = 0

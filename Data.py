@@ -131,7 +131,7 @@ weapon_stats = {
     0: ["Pistol",       1,       1,    10,     3,      0.11,     300,    16],
     1: ["MP",           7,     2.6,    30,    23,      0.20,     500,     7],
     2: ["Sturmgewehr", 18,     3.5,    30,    21,      0.45,    1200,     4],
-    3: ["Shotgun",      2,     2.8,    40,    20,      0.71,     415,     8],
+    3: ["Shotgun",      7,     2.8,    40,    20,      0.71,     415,     8],
     4: ["MG",          34,     6.4,   100,    25,      0.55,    1200,     4],
     5: ["Sniper",       6,     8.2,     1,     1,      0.69,     915,    25],
     6: ["RL",          32,     6.7,     1,     1,      0.10,     285,  1800]
@@ -247,7 +247,7 @@ rusty_metal = "assets/textures/background_images/rusty_metal.jpg"
 lose_banner_text = "assets/textures/buttons/lose_banner_text.png"
 win_banner_text = "assets/textures/buttons/win_banner_text.png"
 
-#   cards
+# cards
 # <editor-fold desc="cards">
 cc_smol_prefix = "assets/textures/cards/cc/small/cc_"
 wc_smol_prefix = "assets/textures/cards/wc/small/wc_"

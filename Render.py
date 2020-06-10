@@ -1794,19 +1794,10 @@ class InGame:
         self.detail_char = []
         self.small_char = []
         for i in range(self.cc_num):
-            """img = pg.transform.smoothscale(pg.image.load(Data.cc_detail_prefix + str(i) + ".png").convert_alpha(),
-                                           self.detail_size)
-            self.detail_char.append(img)
-            img = pg.transform.smoothscale(pg.image.load(Data.cc_smol_prefix + str(i) + ".png").convert_alpha(),
-                                           self.small_size)
-            self.small_char.append(img)"""
 
             debug_img_size = pg.image.load(Data.cc_big_prefix + str(i) + ".png").get_size()
             img = fit_surf(surf=pg.image.load(Data.cc_big_prefix + str(i) + ".png"), size=self.detail_size)
             self.detail_char.append(img)
-
-            """img = fit_surf(surf=pg.image.load(Data.cc_big_prefix + str(i) + ".png"), size=self.small_size)
-            self.small_char.append(img)"""
 
             img = pg.transform.smoothscale(pg.image.load(Data.cc_smol_prefix + str(i) + ".png").convert_alpha(),
                                            self.small_size)
@@ -3110,6 +3101,7 @@ class InGame:
 
     def harakiri(self):
         del self
+
 
 # <editor-fold desc="Helper functions">
 
