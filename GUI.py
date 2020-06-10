@@ -291,10 +291,10 @@ class Overlay:
                 self.info_tafel.blit(self.myfont.render(("Hitchance:   " + str(int(info[0])) + " %"),
                                      False, (255, 255, 255)), (22, 40))
                 if info[3]:
-                    self.info_tafel.blit(self.myfont.render(("Damage:     " + str(info[1]*6)),
+                    self.info_tafel.blit(self.myfont.render(("Damage:     " + str(int(info[1]*6))),
                                          False, (255, 255, 255)), (22, 65))
                 else:
-                    self.info_tafel.blit(self.myfont.render(("Damage:     " + str(info[1])),
+                    self.info_tafel.blit(self.myfont.render(("Damage:     " + str(int(info[1]))),
                                          False, (255, 255, 255)), (22, 65))
                 self.info_tafel.blit(self.myfont.render(("Shots:         " + str(info[2])),
                                      False, (255, 255, 255)), (22, 90))
