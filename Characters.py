@@ -501,7 +501,7 @@ class Character(GameObject):
                         helmet.durability -= (dmg - dmg_done)
                         if helmet.durability <= 0:
                             helmet.durability = 0
-                            self.gear.remove(helmet)
+                            #self.gear.remove(helmet)
                 else:
                     dmg_done = dmg
                     self.health[0] -= dmg_done

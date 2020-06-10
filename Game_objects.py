@@ -155,9 +155,11 @@ class CollAtom(pygame.sprite.Sprite):  # this is basically a sprite but it's bet
         self.name = name
         self.opaque = opaque
         self.rect = pygame.Rect(self.pos, (w, h))
+        self.ravine = ravine
 
     def __str__(self):
         return "CollAtom: ({}, {}, Opaque: {})".format(self.name, self.pos, self.opaque)
+
 
 class LineOfSight(GameObject):
 
