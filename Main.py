@@ -48,7 +48,6 @@ clock = pg.time.Clock()
 
 active_window = None
 main_sound_chan = None
-
 main_window = MainWindow
 connection_setup = ConnectionSetup
 character_selection = CharacterSelection
