@@ -2281,13 +2281,13 @@ class InGame:
 
         for c in self.own_team.characters:
             print("{} velocity: {}".format(c.name, c.velocity))
-
+        print(opp_turn,opp_turn.win)
         if opp_turn.win:
             # opp says you win! :)
 
             self.screen.blit(self.win_banner, blit_centered_pos(self.screen, self.win_banner))
             pg.display.flip()
-            time.sleep(5)
+            time.sleep(10)
             self.client.send_endgame()
 
             # this exits out of the screen
@@ -2377,9 +2377,9 @@ class InGame:
             self.main_blit()
             self.screen.blit(self.lose_banner, blit_centered_pos(self.screen, self.lose_banner))
             pg.display.flip()
-            self.client.send_endgame()
-            time.sleep(5)
 
+            time.sleep(10)
+            self.client.send_endgame()
             # exit out
             self.new_window_target = MainWindow
             return
