@@ -690,10 +690,7 @@ class Map(GameObject):  # TODO maybe dont inherit from GObj
         self.window.blit(self.base_map, (0, 0))
 
         visible_chars = self.get_visible_chars_ind(team_num=team_num)
-        # pg.image.load("assets/Teams/Red_Team/"+character_classes[go.class_id]+"/Red_"+character_classes[go.class_id]+
-        #                          "_Pistol.png")
-        # pg.image.load("assets/Teams/Blue_Team/"+character_classes[go.class_id]+"/Blue_"+character_classes[go.class_id]+
-        #                          "_Pistol.png")
+
         for index, go in enumerate(self.objects):
             if go.render_type == "blit":  # character
                 if visible_chars.__contains__(index):
@@ -781,7 +778,7 @@ class MapBuilder:
         tree_limit = int((fields_x*fields_y) / 150)
         puddel_limit = int((fields_x*fields_y / 150))
 
-        if False:
+        if True:
             house_limit = ruins_limit = bush_limit = boulder_limit = tree_limit = puddel_limit = 0
 
         def add_obj(obj_class, obj_limit):

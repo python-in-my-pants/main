@@ -1911,6 +1911,8 @@ class InGame:
                 # send the turn out
                 self.is_it_my_turn = False
                 self.timer.stop_timer()
+                #self.selected_own_char = None
+                self.selected_char = None
                 self.client.send_turn(self.own_turn, int(round(time.time() * 1000)))
                 time.sleep(1)
                 return
@@ -2189,6 +2191,8 @@ class InGame:
 
         dmg, dmg_done = self.selected_own_char.shoot(self.overlay.boi_to_attack, where)
 
+
+
         self.shot_chars[self.selected_own_char.idi] = True  # (self.selected_own_char, self.overlay.boi_to_attack)
 
         self.own_turn.add_action(Action(self.selected_own_char, self.overlay.boi_to_attack, dmg2b=dmg_done))
@@ -2414,6 +2418,7 @@ class InGame:
         self.weapon_buttons = []
         self.item_buttons = []
 
+        print("selected char", self.selected_char)
         if self.selected_char:
 
             if self.selected_char.gear:  # character has gear
