@@ -133,26 +133,6 @@ class Morphine(Item):
 		self.modifier = modifier
 		self.timer = timer
 
-"""
-class Stredope(Item):
-	def __init__(self, my_id=4, name="Strength-Dope", cost=3, modifier=1.25, timer=5, weight=0.1):
-		super().__init__(my_id, name,  cost, weight)
-		self.modifier = modifier
-		self.timer = timer
-
-
-class Speeddope(Item):
-	def __init__(self, my_id=5, name="Speed-Dope", cost=3, modifier=1.5, timer=5, weight=0.1):
-		super().__init__(my_id, name, cost, weight)
-		self.modifier = modifier
-		self.timer = timer
-
-
-class Defdope(Item):
-	# TODO Change get_damage function to implement defdope
-	def __init__(self, my_id=6, name="Defence-Dope", cost=3, timer=5, weight=0.1):
-		super().__init__(my_id, name, cost, weight)
-		self.timer = timer"""
 # </editor-fold>
 
 
