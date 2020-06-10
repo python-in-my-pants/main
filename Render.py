@@ -1784,6 +1784,8 @@ class InGame:
         # holds selected char (maybe from opponent team)
         self.selected_char = self.selected_own_char
 
+        self.selected_own_char_overlay = None
+
         self.active_slot = None
 
         self.v_mat = self.game_map.get_vmat()
@@ -1855,9 +1857,8 @@ class InGame:
 
         self.detail_back_metall = pg.image.load(Data.metal_btn).convert_alpha()
 
-        # TODO
-        self.win_banner = pg.image.load(Data.win_banner_text).convert_alpha()  # add super fancy animated win banner here
-        self.lose_banner = pg.image.load(Data.lose_banner_text).convert_alpha()  # nya~~
+        self.win_banner = pg.image.load(Data.win_banner_text).convert_alpha()  # add super win banner here
+        self.lose_banner = pg.image.load(Data.lose_banner_text).convert_alpha()
 
         # </editor-fold>
 
@@ -1880,10 +1881,7 @@ class InGame:
         self.inventory_items_surf = pg.Surface([int(7 * w / 32), int(0.66 * 4 * h / 18)])  # 2 rows high
 
         self.item_detail_back = pg.Surface([int(7 * w / 32), int(7 * h / 18)])
-        # self.item_detail_back.fill((77, 98, 219))
-        # self.item_detail_back.fill((255, 0, 0))
-        # tODO start empty
-        self.item_stat_card = self.detail_item[0]  # just start with this pic bc first team char may not have an item
+        self.item_stat_card = pg.image.load(Data.empty_af).convert_alpha() # was self.detail_item[0]
         self.item_stat_card_type = None
         self.gear_bar = None
         # </editor-fold>
@@ -1898,7 +1896,6 @@ class InGame:
 
         self.map_surface = pg.Surface([int(9 * w / 16), h])
         self.game_map.selective_draw_map(team_num=self.own_team.team_num)
-        #self.map_content = fit_surf(surf=self.game_map.window, size=self.map_surface.get_size())
         self.map_content = fit_surf(surf=self.game_map.window, back=self.map_surface)
 
         self.emptiness_of_darkness_of_doom = pg.image.load(Data.empty_af).convert_alpha()
@@ -1925,7 +1922,6 @@ class InGame:
         else:
             self.player_banners = pg.transform.scale(pg.image.load(client_banner), [int(7 * w / 32), int(7 * h / 18)])
 
-        # TODO set content of minimap by blitting scaled map to it
         self.minimap_surf = pg.Surface([int(7 * w / 32), int(7 * h / 18)])
         self.done_btn_surf = pg.Surface([int(7 * w / 32), int(4 * h / 18)])
 
@@ -1957,8 +1953,6 @@ class InGame:
                 self.selected_char = self.selected_own_char
 
                 self.active_slot = self.selected_own_char.get_active_slot()
-                """self.selected_item = slot if (slot and isinstance(slot, Item)) else None
-                self.selected_weapon = slot if (slot and isinstance(slot, Weapon)) else None"""
 
                 # highlight reachable fields by blitting green transparent stuff over them
                 # returns list of tuples
@@ -1984,7 +1978,7 @@ class InGame:
         # </editor-fold>
 
         # <editor-fold desc="button inits">
-        self.gear_buttons = []  # TODO buttons
+        self.gear_buttons = []
         self.weapon_buttons = []
         self.item_buttons = []
 
@@ -2006,7 +2000,6 @@ class InGame:
         # <editor-fold desc="mid">
 
         # hp bars, blit to own team stats
-        # TODO update hp bars each tick
         for i in range(self.own_team.characters.__len__()):
 
             pos_w = self.btn_w + (i % 10) * (self.btn_w + self.inventory_gap_size)
@@ -2046,7 +2039,7 @@ class InGame:
         v_chars = self.game_map.get_visible_chars_ind(self.own_team.team_num)
         for index in v_chars:
             char = self.game_map.objects[index]
-            if not isinstance(char, Character):  # TODO this is a hotfix7
+            if not isinstance(char, Character):
                 print("Warning! InGame init: sth that is not a char is returned by get_visible_chars_ind!")
                 continue
             btn = Button(dim=[int(self.current_element_size), int(self.current_element_size)],
@@ -2058,7 +2051,7 @@ class InGame:
                              int((char.get_pos(0) * self.current_element_size) + self.char_detail_back.get_width()),
                              int((char.get_pos(1) * self.current_element_size))],
 
-                         # TODO img_uri="assets/char/" + str(char.unit_class) + ".png",
+                         # img_uri="assets/char/" + str(char.unit_class) + ".png",
                          img_source=self.map_char_imgs[char.class_id],
                          action=self.sel_char_binder("map_char_btn_" + str(char.idi), char))
 
@@ -2098,8 +2091,6 @@ class InGame:
                 self.selected_char = self.selected_own_char
 
                 self.active_slot = self.selected_own_char.get_active_slot()
-                """self.selected_item = slot if (slot and isinstance(slot, Item)) else None
-                self.selected_weapon = slot if (slot and isinstance(slot, Weapon)) else None"""
 
                 # highlight reachable fields by blitting green transparent stuff over them
                 # returns list of tuples
@@ -2143,7 +2134,7 @@ class InGame:
                 if weapon.class_idi == _id:
 
                     # if you click on the inventory, have an own char selected and not also an enemy char selected
-                    if self.selected_own_char and self.is_it_my_turn:  #self.selected_char.team != self.own_team
+                    if self.selected_own_char and self.is_it_my_turn:
 
                         self.selected_own_char.change_active_slot("Weapon", i)
                         self.active_slot = self.selected_own_char.get_active_slot()
@@ -2279,15 +2270,12 @@ class InGame:
         :return:
         """
 
-        for c in self.own_team.characters:
-            print("{} velocity: {}".format(c.name, c.velocity))
-        print(opp_turn,opp_turn.win)
         if opp_turn.win:
             # opp says you win! :)
 
             self.screen.blit(self.win_banner, blit_centered_pos(self.screen, self.win_banner))
             pg.display.flip()
-            time.sleep(10)
+            time.sleep(8)
             self.client.send_endgame()
 
             # this exits out of the screen
@@ -2369,7 +2357,6 @@ class InGame:
             # declare win
             self.own_turn = Turn()
             self.own_turn.win = True  # send opp that he wins
-
             # send the turn out
             start_new_thread(self.client.send_turn, (self.own_turn, int(round(time.time() * 1000))))
 
@@ -2377,9 +2364,9 @@ class InGame:
             self.main_blit()
             self.screen.blit(self.lose_banner, blit_centered_pos(self.screen, self.lose_banner))
             pg.display.flip()
-
-            time.sleep(10)
+            time.sleep(8)
             self.client.send_endgame()
+
             # exit out
             self.new_window_target = MainWindow
             return
@@ -2393,8 +2380,6 @@ class InGame:
             if c.idi not in self.moved_chars:
                 c.decay_velocity()
                 self.own_turn.add_action(Action(c, velocityraptor=c.velocity))
-
-            # TODO put in sth to make use of stamina stat of character, sth related to strength, velocity & mass carried
 
         # now set v_mat bc positions are set and we only need this once per turn
         self.v_mat = self.game_map.get_vmat()
@@ -2466,10 +2451,6 @@ class InGame:
         if self.zoomed:  # if zoom was made since last update, set values
             # was 7/32 * w instead of char detail back
             rel_mouse_pos = [self.mouse_pos[0] - self.char_detail_back.get_width(), self.mouse_pos[1]]
-
-            # todo maybe max?
-            """self.current_element_size = min((self.map_surface.get_width()  * self.zoom_factor) // self.game_map.size_x,
-                                            (self.map_surface.get_height() * self.zoom_factor) // self.game_map.size_y)"""
 
             self.current_element_size = self.zoom_factor * self.element_size
 
@@ -2578,9 +2559,6 @@ class InGame:
                 clicked_coords = [int(x) for x in percentual_mouse_pos_map_len]
 
                 if tuple(clicked_coords) in self.r_fields:
-                    # TODO draw red dotted line from prev pos to new pos which
-                    #  1) stays until end of own turn
-                    #  2) gets send to opponent
 
                     prev_pos = self.selected_own_char.pos
 
@@ -2615,14 +2593,13 @@ class InGame:
                 self.r_fields = []
                 if self.selected_own_char.idi in self.shot_chars:
                     self.selected_own_char = None
-                    # TODO maybe take out
                     self.selected_char = None
 
-                # tODO just for troll, remove later ... but notify user what's up
+                """
                 print("Greed is a sin against God,\n "
                       "just as all mortal sins,\n "
                       "in as much as man condemns things\n "
-                      "eternal for the sake of temporal things.")
+                      "eternal for the sake of temporal things.")"""
 
             elif not self.is_it_my_turn and self.selected_own_char:
 
@@ -2635,14 +2612,6 @@ class InGame:
 
         # <editor-fold desc="left side">
         # ----- left -----
-
-        """if self.selected_char:
-            self.char_stat_card = self.detail_char[self.selected_char.class_id]
-        
-
-        self.char_detail_back.blit(fit_surf(back=self.char_detail_back, surf=self.detail_back_metall), dest=[0, 0])
-        self.char_detail_back.blit(self.char_stat_card, dest=blit_centered_pos(self.char_detail_back,
-                                                                               self.char_stat_card))"""
 
         self.char_detail_back.blit(fit_surf(back=self.char_detail_back, surf=self.detail_back_metall), dest=[0, 0])
 
@@ -2812,7 +2781,7 @@ class InGame:
             for b in self.own_team_stat_buttons:
                 b.deactivate()
 
-        # TODO beware of 0.05 as constant
+        # beware of 0.05 as constant
         self.map_surface.blit(self.own_team_stats, dest=[int(0.05 * self.map_surface.get_width()), 0 if mouse_up else
                                                          -self.own_team_stats.get_height() + 15])
         # </editor-fold>
@@ -2912,19 +2881,11 @@ class InGame:
 
         if self.opp_turn_applying:
             self.apply_opp_turn(self.opps_turn)
+
             if self.own_turn.win or self.opps_turn.win:
-                print("sum11")
                 return
 
         elif self.is_it_my_turn:
-
-            """if self.selected_char:
-                print("    Selected char pos: {} and velocity {}\n".
-                      format(self.selected_char.pos, self.selected_char.velocity))
-
-            if self.selected_own_char:
-                print("Selected own char pos: {} and velocity {}\n".
-                      format(self.selected_own_char.pos, self.selected_own_char.velocity))"""
 
             self.main_blit()
 
@@ -3203,25 +3164,12 @@ def fit_surf(back=None, surf=None, x_back=0, y_back=0, size=None):  # scales sec
 
         return pg.transform.smoothscale(surf, target_size)
 
-        """if background.get_height() <= background.get_width():
-            # wider than high, so height is smallest
-            target_size = [surface.get_width(),
-                           int((surface.get_width() * background.get_height()) / background.get_width())]
-        else:
-            # higher than wide
-            target_size = [int((surface.get_height() * background.get_width()) / background.get_height()),
-                           surface.get_height()]
-
-        return pg.transform.smoothscale(surf, target_size)"""
-
     # case 2: back is smaller than surf
     elif background.get_height() <= surface.get_height() and background.get_width() <= surface.get_width():
         if background.get_height() <= background.get_width():
             # wider than high, so height is smallest
             target_size = [int((background.get_height() * surface.get_width()) / surface.get_height()),
                            background.get_height()]
-            """target_size = [background.get_width(),
-                           int((background.get_width() * surface.get_height()) / surface.get_width())]"""
         else:
             # higher than wide
             target_size = [int((background.get_height() * surface.get_width()) / surface.get_height()),

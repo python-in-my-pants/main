@@ -420,7 +420,7 @@ class Connection:
 
         packet = Packet(ctype, Connection.prep(msg))
         # TODO debug only
-        if self.role == "Server":
+        if self.role == "Server":# or True:
             print(packet.to_string(n=30), "\n")
 
         confirmation_received = False
