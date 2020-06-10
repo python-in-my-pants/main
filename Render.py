@@ -2237,7 +2237,7 @@ class InGame:
         if not self.selected_own_char.can_shoot():
             return "Character cannot shoot"
 
-        shoot_impossible = self.selected_own_char.shooting_impossible()
+        shoot_impossible = self.selected_own_char.shooting_impossible(self.overlay.boi_to_attack)
         if shoot_impossible:
             return shoot_impossible
 
@@ -2375,6 +2375,7 @@ class InGame:
             start_new_thread(self.client.send_turn, (self.own_turn, int(round(time.time() * 1000))))
 
             # prepare showing loss to player or TODO some fancy animated version
+            self.main_blit()
             self.screen.blit(self.lose_banner, blit_centered_pos(self.screen, self.lose_banner))
             pg.display.flip()
             self.client.send_endgame()
