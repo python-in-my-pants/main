@@ -2416,7 +2416,6 @@ class InGame:
         self.weapon_buttons = []
         self.item_buttons = []
 
-        print("selected char", self.selected_char)
         if self.selected_char:
 
             if self.selected_char.gear:  # character has gear

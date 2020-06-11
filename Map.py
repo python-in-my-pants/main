@@ -772,7 +772,7 @@ class MapBuilder:
         house_limit = int((fields_x*fields_y) / 300)
         ruins_limit = int((fields_x*fields_y) / 300)
 
-        nature_limit = 100
+        nature_limit = 70
 
         # nature
         bush_limit = int((fields_x*fields_y) / nature_limit)
