@@ -1911,8 +1911,6 @@ class InGame:
                 # send the turn out
                 self.is_it_my_turn = False
                 self.timer.stop_timer()
-                #self.selected_own_char = None
-                self.selected_char = None
                 self.client.send_turn(self.own_turn, int(round(time.time() * 1000)))
                 time.sleep(1)
                 return
