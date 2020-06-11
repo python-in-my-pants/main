@@ -280,6 +280,9 @@ class Bush(GameObject):
             point[0] += self.pos[0]
             point[1] += self.pos[1]
 
+    def confirm(self):
+        self.collider = pygame.sprite.Group(*[CollAtom(p, opaque=True, ravine=False) for p in self.pixs])
+
     def get_drawable(self):
         return self.pixs
 

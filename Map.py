@@ -772,13 +772,15 @@ class MapBuilder:
         house_limit = int((fields_x*fields_y) / 300)
         ruins_limit = int((fields_x*fields_y) / 300)
 
-        # nature
-        bush_limit = int((fields_x*fields_y) / 150)
-        boulder_limit = int((fields_x*fields_y) / 150)
-        tree_limit = int((fields_x*fields_y) / 150)
-        puddel_limit = int((fields_x*fields_y / 150))
+        nature_limit = 100
 
-        if True:
+        # nature
+        bush_limit = int((fields_x*fields_y) / nature_limit)
+        boulder_limit = int((fields_x*fields_y) / nature_limit)
+        tree_limit = int((fields_x*fields_y) / nature_limit)
+        puddel_limit = int((fields_x*fields_y / nature_limit))
+
+        if False:
             house_limit = ruins_limit = bush_limit = boulder_limit = tree_limit = puddel_limit = 0
 
         def add_obj(obj_class, obj_limit):
